@@ -1,3 +1,39 @@
+// Theme Toggle
+const themeToggle = document.getElementById('theme-toggle');
+const html = document.documentElement;
+
+// Check for saved theme preference or default to light mode
+const currentTheme = localStorage.getItem('theme') || 'light';
+html.setAttribute('data-theme', currentTheme);
+
+// Update button text and icon based on current theme
+function updateThemeButton(theme) {
+    const icon = themeToggle.querySelector('i');
+    const text = themeToggle.querySelector('span');
+    if (theme === 'dark') {
+        icon.className = 'fas fa-sun';
+        text.textContent = 'Light Mode';
+    } else {
+        icon.className = 'fas fa-moon';
+        text.textContent = 'Dark Mode';
+    }
+}
+
+// Initialize button state
+updateThemeButton(currentTheme);
+
+// Theme toggle event listener
+if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeButton(newTheme);
+    });
+}
+
 // Sidebar Toggle for Mobile
 const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
 const sidebar = document.querySelector('.sidebar');
