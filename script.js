@@ -127,105 +127,26 @@ if (contactForm) {
     });
 }
 
-// Add typing effect to hero subtitle (optional)
-const heroSubtitle = document.querySelector('.hero-subtitle');
-if (heroSubtitle) {
-    const text = heroSubtitle.textContent;
-    heroSubtitle.textContent = '';
-    heroSubtitle.style.borderRight = '2px solid white';
-    heroSubtitle.style.paddingRight = '5px';
+// Removed typing effect for cleaner professional look
 
-    let index = 0;
-    const typingSpeed = 100;
-
-    function typeWriter() {
-        if (index < text.length) {
-            heroSubtitle.textContent += text.charAt(index);
-            index++;
-            setTimeout(typeWriter, typingSpeed);
-        } else {
-            setTimeout(() => {
-                heroSubtitle.style.borderRight = 'none';
-            }, 500);
-        }
-    }
-
-    // Start typing effect after a short delay
-    setTimeout(typeWriter, 500);
-}
-
-// Smooth reveal for sections
+// Subtle fade-in for sections (minimal animation)
 const revealSections = document.querySelectorAll('section');
 const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
         }
     });
 }, {
-    threshold: 0.05
+    threshold: 0.1
 });
 
 revealSections.forEach(section => {
     if (!section.classList.contains('hero')) {
         section.style.opacity = '0';
-        section.style.transform = 'translateY(20px)';
-        section.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+        section.style.transition = 'opacity 0.4s ease-out';
         revealObserver.observe(section);
     }
 });
 
-// Add particle effect to hero section (optional - simple stars)
-function createStars() {
-    const hero = document.querySelector('.hero');
-    const starsContainer = document.createElement('div');
-    starsContainer.style.position = 'absolute';
-    starsContainer.style.top = '0';
-    starsContainer.style.left = '0';
-    starsContainer.style.width = '100%';
-    starsContainer.style.height = '100%';
-    starsContainer.style.overflow = 'hidden';
-    starsContainer.style.pointerEvents = 'none';
-
-    for (let i = 0; i < 50; i++) {
-        const star = document.createElement('div');
-        star.style.position = 'absolute';
-        star.style.width = '2px';
-        star.style.height = '2px';
-        star.style.backgroundColor = 'white';
-        star.style.borderRadius = '50%';
-        star.style.top = Math.random() * 100 + '%';
-        star.style.left = Math.random() * 100 + '%';
-        star.style.opacity = Math.random() * 0.7 + 0.3;
-        star.style.animation = `twinkle ${Math.random() * 3 + 2}s infinite`;
-        starsContainer.appendChild(star);
-    }
-
-    hero.insertBefore(starsContainer, hero.firstChild);
-}
-
-// Add twinkle animation
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes twinkle {
-        0%, 100% { opacity: 0.3; }
-        50% { opacity: 1; }
-    }
-`;
-document.head.appendChild(style);
-
-// Initialize stars
-createStars();
-
-// Parallax effect for hero section
-window.addEventListener('scroll', () => {
-    const scrolled = window.pageYOffset;
-    const heroContent = document.querySelector('.hero-content');
-    if (heroContent) {
-        heroContent.style.transform = `translateY(${scrolled * 0.5}px)`;
-        heroContent.style.opacity = 1 - scrolled / 500;
-    }
-});
-
-console.log('Portfolio website loaded successfully! 🚀');
+console.log('Portfolio website loaded successfully.');
