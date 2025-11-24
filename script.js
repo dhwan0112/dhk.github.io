@@ -8,6 +8,7 @@ html.setAttribute('data-theme', currentTheme);
 
 // Update button text and icon based on current theme
 function updateThemeButton(theme) {
+    if (!themeToggle) return;
     const icon = themeToggle.querySelector('i');
     const text = themeToggle.querySelector('span');
     if (theme === 'dark') {
@@ -19,11 +20,11 @@ function updateThemeButton(theme) {
     }
 }
 
-// Initialize button state
-updateThemeButton(currentTheme);
-
 // Theme toggle event listener
 if (themeToggle) {
+    // Initialize button state
+    updateThemeButton(currentTheme);
+
     themeToggle.addEventListener('click', () => {
         const currentTheme = html.getAttribute('data-theme');
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
