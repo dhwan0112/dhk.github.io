@@ -9,6 +9,11 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -28,7 +33,7 @@
                 <i class="fas fa-user"></i>
                 <span>About</span>
             </a>
-            <a href="#education" class="sidebar-link">
+            <a href="education.html" class="sidebar-link">
                 <i class="fas fa-graduation-cap"></i>
                 <span>Education</span>
             </a>
@@ -44,7 +49,7 @@
                 <i class="fas fa-book"></i>
                 <span>Lab Notes</span>
             </a>
-            <a href="#teaching" class="sidebar-link">
+            <a href="teaching.html" class="sidebar-link">
                 <i class="fas fa-chalkboard-teacher"></i>
                 <span>Teaching</span>
             </a>
@@ -58,6 +63,12 @@
             </a>
         </nav>
         <div class="sidebar-footer">
+            <div class="theme-toggle">
+                <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
             <div class="sidebar-social">
                 <a href="https://github.com/dhwan0112" target="_blank" aria-label="GitHub">
                     <i class="fab fa-github"></i>
@@ -107,16 +118,13 @@
     <section id="home" class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1 class="hero-title">Hello, I'm<br><span class="highlight">Donghwan KIM</span></h1>
+                <h1 class="hero-title"><span class="highlight">Donghwan KIM</span></h1>
                 <p class="hero-subtitle">Chemistry Student | Tutor</p>
                 <div class="hero-buttons">
                     <a href="#education" class="btn btn-primary">Education</a>
-                    <a href="#contact" class="btn btn-secondary">Contact Me</a>
+                    <a href="#contact" class="btn btn-secondary">Contact</a>
                 </div>
             </div>
-        </div>
-        <div class="scroll-down">
-            <a href="#about"><i class="fas fa-chevron-down"></i></a>
         </div>
     </section>
 
@@ -169,7 +177,7 @@
                     <div class="education-content">
                         <h3>National University of Singapore</h3>
                         <p class="education-degree">B.S. in Chemistry</p>
-                        <p class="education-date">2021 - Present</p>
+                        <p class="education-date">2022 - Present</p>
                         <p class="education-description">Currently pursuing undergraduate studies in Chemistry with focus on inorganic, physical, and computational chemistry.</p>
                     </div>
                 </div>
