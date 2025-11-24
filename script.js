@@ -120,7 +120,7 @@ if (contactForm) {
 
         // Here you would typically send the data to a server
         // For now, we'll just show an alert
-        alert(`메시지가 전송되었습니다!\n\n이름: ${name}\n이메일: ${email}\n메시지: ${message}`);
+        alert(`Message sent successfully!\n\nName: ${name}\nEmail: ${email}\nMessage: ${message}`);
 
         // Reset form
         contactForm.reset();
