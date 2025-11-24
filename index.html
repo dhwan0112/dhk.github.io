@@ -5,12 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Personal Portfolio Website">
     <title>Portfolio | Donghwan KIM</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Donghwan KIM</h2>
+            <p class="sidebar-subtitle">Chemistry Student</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#home" class="sidebar-link active">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="#about" class="sidebar-link">
+                <i class="fas fa-user"></i>
+                <span>About</span>
+            </a>
+            <a href="#education" class="sidebar-link">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Education</span>
+            </a>
+            <a href="research.html" class="sidebar-link">
+                <i class="fas fa-flask"></i>
+                <span>Research</span>
+            </a>
+            <a href="research-results.html" class="sidebar-link sidebar-sublink">
+                <i class="fas fa-chart-bar"></i>
+                <span>Results</span>
+            </a>
+            <a href="research-notes.html" class="sidebar-link sidebar-sublink">
+                <i class="fas fa-book"></i>
+                <span>Lab Notes</span>
+            </a>
+            <a href="#teaching" class="sidebar-link">
+                <i class="fas fa-chalkboard-teacher"></i>
+                <span>Teaching</span>
+            </a>
+            <a href="#skills" class="sidebar-link">
+                <i class="fas fa-lightbulb"></i>
+                <span>Skills</span>
+            </a>
+            <a href="#contact" class="sidebar-link">
+                <i class="fas fa-envelope"></i>
+                <span>Contact</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="sidebar-social">
+                <a href="https://github.com/dhwan0112" target="_blank" aria-label="GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="https://linkedin.com/in/dhwan0112" target="_blank" aria-label="LinkedIn">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="mailto:e1075536@u.nus.edu" aria-label="Email">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Main Content -->
+    <main class="main-content">
     <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" style="display: none;">
         <div class="container">
             <div class="nav-brand">
                 <a href="#home">Portfolio</a>
@@ -279,14 +351,11 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <div class="social-links">
-                <a href="https://github.com/dhwan0112" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="https://linkedin.com/in/dhwan0112" target="_blank"><i class="fab fa-linkedin"></i></a>
-                <a href="mailto:e1075536@u.nus.edu"><i class="fas fa-envelope"></i></a>
-            </div>
             <p>&copy; 2024 Donghwan KIM. All rights reserved.</p>
         </div>
     </footer>
+
+    </main>
 
     <script src="script.js"></script>
 </body>
