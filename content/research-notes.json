@@ -1,0 +1,29 @@
+{
+  "notes": [
+    {
+      "id": 1,
+      "title": "Example Experiment Title",
+      "date": "2024-01-15",
+      "category": "Synthesis",
+      "objective": "Brief description of the experiment's purpose or the research question being investigated.",
+      "procedure": [
+        "Step 1 of the experimental procedure",
+        "Step 2 of the experimental procedure",
+        "Step 3 of the experimental procedure"
+      ],
+      "observations": "Detailed observations made during the experiment. Include any unexpected results, color changes, or phenomena observed.",
+      "data": "Raw data, measurements, or preliminary analysis. Can include tables, calculations, or links to data files.",
+      "conclusions": "Preliminary interpretation of results and next steps.",
+      "attachments": [
+        {
+          "name": "image_001.jpg",
+          "type": "image"
+        },
+        {
+          "name": "data_table.xlsx",
+          "type": "file"
+        }
+      ]
+    }
+  ]
+}
