@@ -37,7 +37,7 @@ async function loadResearchResults() {
                     <div class="video-item">
                         <div class="video-wrapper">
                             ${item.videoUrl ?
-                                (item.videoType === 'youtube' || item.videoType === 'vimeo' ?
+                                (item.videoType === 'youtube' ?
                                     `<iframe src="${item.videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width: 100%; height: 100%;"></iframe>` :
                                     `<video controls style="width: 100%; height: 100%;">
                                         <source src="${item.videoUrl}" type="video/mp4">
