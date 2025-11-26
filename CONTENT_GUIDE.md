@@ -3,10 +3,54 @@
 이 문서는 웹사이트에 새로운 콘텐츠(이미지, 동영상, 연구 노트 등)를 쉽게 추가하는 방법을 설명합니다.
 
 ## 목차
-1. [연구 결과 추가하기](#연구-결과-추가하기)
-2. [연구 노트 추가하기](#연구-노트-추가하기)
-3. [동영상 추가하기](#동영상-추가하기)
-4. [이미지 업로드하기](#이미지-업로드하기)
+1. [실험 일지 템플릿 사용하기](#실험-일지-템플릿-사용하기)
+2. [연구 결과 추가하기](#연구-결과-추가하기)
+3. [연구 노트 추가하기](#연구-노트-추가하기)
+4. [동영상 추가하기](#동영상-추가하기)
+5. [이미지 업로드하기](#이미지-업로드하기)
+
+---
+
+## 실험 일지 템플릿 사용하기
+
+새로운 실험 일지를 작성할 때 템플릿을 사용하면 편리합니다.
+
+### 방법 1: Markdown 템플릿 사용 (상세 기록용)
+
+1. `templates/lab-note-template.md` 파일을 복사
+2. 파일명을 실험 이름으로 변경 (예: `2024-03-15-synthesis-experiment.md`)
+3. 템플릿의 각 섹션을 채움
+4. 완성된 내용을 `content/research-notes.json`에 JSON 형식으로 변환
+
+**템플릿 구조:**
+- 실험 정보 (제목, 날짜, 카테고리)
+- 실험 목적
+- 시약 및 재료
+- 실험 절차
+- 관찰 사항
+- 데이터 및 분석
+- 결과
+- 분석 데이터 (NMR, IR, UV-Vis 등)
+- 토의 및 결론
+- 참고문헌
+- 첨부 파일
+
+### 방법 2: JSON 템플릿 사용 (웹사이트 업로드용)
+
+1. `templates/lab-note-template.json` 파일 열기
+2. 예시를 참고하여 새 항목 작성
+3. `content/research-notes.json`에 추가
+
+**빠른 시작:**
+```bash
+# 1. 템플릿 복사
+cp templates/lab-note-template.md my-experiments/2024-03-15-experiment.md
+
+# 2. 편집
+nano my-experiments/2024-03-15-experiment.md
+
+# 3. 완성 후 JSON으로 변환하여 웹사이트에 업로드
+```
 
 ---
 
@@ -67,15 +111,6 @@
 2. URL 확인: `https://www.youtube.com/watch?v=dQw4w9WgXcQ`
 3. `v=` 뒤의 부분이 VIDEO_ID: `dQw4w9WgXcQ`
 4. embed URL 만들기: `https://www.youtube.com/embed/dQw4w9WgXcQ`
-
-### Vimeo 동영상
-
-```json
-{
-  "videoType": "vimeo",
-  "videoUrl": "https://player.vimeo.com/video/VIDEO_ID"
-}
-```
 
 ### 로컬 동영상 파일
 
