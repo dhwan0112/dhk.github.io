@@ -13,7 +13,6 @@ highlighter: rouge
 kramdown:
   input: GFM
   syntax_highlighter: rouge
-  math_engine: katex
   hard_wrap: false
 
 # Permalink settings
