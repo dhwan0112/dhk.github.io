@@ -1,0 +1,74 @@
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>Donghwan KIM</h2>
+        <p class="sidebar-subtitle">Chemistry Student</p>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="{{ '/' | relative_url }}#home" class="sidebar-link {% if page.url == '/' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="{{ '/' | relative_url }}#about" class="sidebar-link">
+            <i class="fas fa-user"></i>
+            <span>About</span>
+        </a>
+        <a href="{{ '/education' | relative_url }}" class="sidebar-link {% if page.url contains 'education' %}active{% endif %}">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Education</span>
+        </a>
+        <a href="{{ '/research' | relative_url }}" class="sidebar-link {% if page.url contains 'research' and page.url != '/research-results/' and page.url != '/research-notes/' %}active{% endif %}">
+            <i class="fas fa-flask"></i>
+            <span>Research</span>
+        </a>
+        <a href="{{ '/research-results' | relative_url }}" class="sidebar-link sidebar-sublink {% if page.url contains 'research-results' %}active{% endif %}">
+            <i class="fas fa-chart-bar"></i>
+            <span>Results</span>
+        </a>
+        <a href="{{ '/research-notes' | relative_url }}" class="sidebar-link sidebar-sublink {% if page.url contains 'research-notes' or page.layout == 'note' %}active{% endif %}">
+            <i class="fas fa-book"></i>
+            <span>Lab Notes</span>
+        </a>
+        <a href="{{ '/blog' | relative_url }}" class="sidebar-link sidebar-sublink {% if page.url contains 'blog' or page.layout == 'post' %}active{% endif %}">
+            <i class="fas fa-pen"></i>
+            <span>Blog</span>
+        </a>
+        <a href="{{ '/teaching' | relative_url }}" class="sidebar-link {% if page.url contains 'teaching' %}active{% endif %}">
+            <i class="fas fa-chalkboard-teacher"></i>
+            <span>Teaching</span>
+        </a>
+        <a href="{{ '/' | relative_url }}#skills" class="sidebar-link">
+            <i class="fas fa-lightbulb"></i>
+            <span>Skills</span>
+        </a>
+        <a href="{{ '/' | relative_url }}#contact" class="sidebar-link">
+            <i class="fas fa-envelope"></i>
+            <span>Contact</span>
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="theme-toggle">
+            <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle theme">
+                <i class="fas fa-moon"></i>
+                <span>Dark Mode</span>
+            </button>
+        </div>
+        <div class="sidebar-social">
+            <a href="https://github.com/dhwan0112" target="_blank" aria-label="GitHub">
+                <i class="fab fa-github"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/donghwan-kim-876b77207/" target="_blank" aria-label="LinkedIn">
+                <i class="fab fa-linkedin"></i>
+            </a>
+            <a href="mailto:e1075536@u.nus.edu" aria-label="Email">
+                <i class="fas fa-envelope"></i>
+            </a>
+        </div>
+    </div>
+</aside>
+
+<!-- Mobile Menu Toggle -->
+<button class="mobile-menu-toggle" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
