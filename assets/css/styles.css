@@ -1343,3 +1343,254 @@ section {
         font-size: 1.25rem;
     }
 }
+
+/* ========================================
+   Blog & Post Styles
+   ======================================== */
+
+/* Post Preview on Blog List */
+.posts-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.post-preview {
+    background-color: var(--bg-white);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: border-color 0.2s ease;
+}
+
+.post-preview:hover {
+    border-color: var(--primary-color);
+}
+
+.post-preview .post-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.post-preview .post-title a {
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.post-preview .post-title a:hover {
+    color: var(--primary-color);
+}
+
+.post-meta {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.post-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.post-excerpt p {
+    color: var(--text-light);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+}
+
+.read-more {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.read-more:hover {
+    color: var(--secondary-color);
+}
+
+.post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.no-posts {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 3rem;
+}
+
+/* Blog Post Content */
+.blog-post .post-content {
+    padding: 3rem 0;
+}
+
+.blog-post .content-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.blog-post .content-wrapper h2 {
+    font-size: 1.75rem;
+    color: var(--text-dark);
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.blog-post .content-wrapper h3 {
+    font-size: 1.4rem;
+    color: var(--text-dark);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.blog-post .content-wrapper p {
+    color: var(--text-light);
+    line-height: 1.8;
+    margin-bottom: 1.25rem;
+}
+
+.blog-post .content-wrapper ul,
+.blog-post .content-wrapper ol {
+    color: var(--text-light);
+    line-height: 1.8;
+    margin-bottom: 1.25rem;
+    padding-left: 1.5rem;
+}
+
+.blog-post .content-wrapper li {
+    margin-bottom: 0.5rem;
+}
+
+.blog-post .content-wrapper a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.blog-post .content-wrapper a:hover {
+    text-decoration: underline;
+}
+
+.blog-post .content-wrapper blockquote {
+    border-left: 4px solid var(--primary-color);
+    padding-left: 1.5rem;
+    margin: 1.5rem 0;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.blog-post .content-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+}
+
+.blog-post .content-wrapper th,
+.blog-post .content-wrapper td {
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    text-align: left;
+}
+
+.blog-post .content-wrapper th {
+    background-color: var(--bg-light);
+    font-weight: 600;
+}
+
+.blog-post .content-wrapper img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin: 1.5rem 0;
+}
+
+/* Code Blocks */
+.blog-post .content-wrapper pre {
+    background-color: #2d2d2d;
+    border-radius: 6px;
+    padding: 1.25rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+}
+
+.blog-post .content-wrapper code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+}
+
+.blog-post .content-wrapper p code,
+.blog-post .content-wrapper li code {
+    background-color: var(--bg-light);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--primary-color);
+}
+
+/* KaTeX Math Styling */
+.katex-display {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* Post Navigation */
+.post-navigation {
+    padding: 2rem 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.nav-links {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.nav-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.2s ease;
+}
+
+.nav-links a:hover {
+    color: var(--secondary-color);
+}
+
+/* Note Entry Link Styling */
+.note-entry .note-title a {
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.note-entry .note-title a:hover {
+    color: var(--primary-color);
+}
+
+/* Blog List Section */
+.blog-list {
+    background-color: var(--bg-light);
+    padding: 3rem 0;
+}
+
+/* Research Notes List with links */
+.notes-container .note-entry {
+    cursor: default;
+}
+
+.notes-container .note-header {
+    background-color: var(--bg-light);
+}

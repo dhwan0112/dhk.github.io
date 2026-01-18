@@ -1,0 +1,46 @@
+---
+layout: default
+---
+
+<article class="note-entry">
+    <section class="research-header">
+        <div class="container">
+            <h1 class="page-title">{{ page.title }}</h1>
+            <div class="note-meta">
+                <span class="note-date"><i class="far fa-calendar"></i> {{ page.date | date: "%Y-%m-%d" }}</span>
+                {% if page.category %}
+                <span class="note-category"><i class="fas fa-tag"></i> {{ page.category }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <section class="lab-notes">
+        <div class="container">
+            <div class="note-content">
+                {{ content }}
+
+                {% if page.attachments %}
+                <div class="note-attachments">
+                    <h4>Attachments:</h4>
+                    <div class="attachment-list">
+                        {% for att in page.attachments %}
+                        <span class="attachment-item">
+                            <i class="fas fa-file-{{ att.type }}"></i> {{ att.name }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <section class="post-navigation">
+        <div class="container">
+            <a href="{{ '/research-notes' | relative_url }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Lab Notes
+            </a>
+        </div>
+    </section>
+</article>

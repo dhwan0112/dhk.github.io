@@ -1,0 +1,31 @@
+images:
+  - id: 1
+    title: "Example Result Title"
+    description: "Brief description of your experimental result, data visualization, or molecular structure."
+    date: "2024-01-15"
+    imageUrl: "assets/images/results/example.jpg"
+    category: "Spectroscopy"
+
+videos:
+  - id: 1
+    title: "Example Video Title"
+    description: "Description of your experimental video or demonstration."
+    date: "2024-01-20"
+    videoType: "youtube"
+    videoUrl: "https://www.youtube.com/embed/VIDEO_ID"
+    category: "Synthesis"
+  - id: 2
+    title: "Local Video Example"
+    description: "Video file stored locally or linked directly."
+    date: "2024-01-25"
+    videoType: "file"
+    videoUrl: "assets/videos/example.mp4"
+    category: "Analysis"
+
+visualizations:
+  - id: 1
+    title: "Data Visualization Title"
+    description: "Description of your data analysis or visualization."
+    date: "2024-02-01"
+    imageUrl: "assets/images/viz/example.png"
+    category: "Data Analysis"
