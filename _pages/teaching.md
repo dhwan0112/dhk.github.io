@@ -49,12 +49,29 @@ permalink: /teaching/
                     </div>
                 </div>
                 <div class="project-content">
-                    <h3>Mathematics & Biology</h3>
-                    <p>Tutoring in calculus, algebra, statistics, and AP Biology. Covering both general curriculum and advanced placement levels, emphasizing analytical thinking and systematic approaches.</p>
+                    <h3>Mathematics</h3>
+                    <p>Tutoring in calculus, algebra, and statistics. Covering both general curriculum and advanced placement levels, emphasizing analytical thinking and systematic problem-solving approaches.</p>
                     <div class="project-tags">
-                        <span class="tag">Mathematics</span>
-                        <span class="tag">AP Biology</span>
-                        <span class="tag">Multiple Levels</span>
+                        <span class="tag">AP Level</span>
+                        <span class="tag">Calculus</span>
+                        <span class="tag">Statistics</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="project-image">
+                    <div class="placeholder-image">
+                        <i class="fas fa-dna"></i>
+                    </div>
+                </div>
+                <div class="project-content">
+                    <h3>AP Biology</h3>
+                    <p>Teaching cellular biology, genetics, evolution, and ecology. Helping students understand complex biological systems and prepare for AP Biology exams with effective study strategies.</p>
+                    <div class="project-tags">
+                        <span class="tag">AP Level</span>
+                        <span class="tag">Biology</span>
+                        <span class="tag">Exam Prep</span>
                     </div>
                 </div>
             </div>
