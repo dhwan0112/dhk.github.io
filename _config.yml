@@ -1,0 +1,63 @@
+# Site settings
+title: Donghwan KIM
+description: Chemistry Student | Tutor
+author: Donghwan KIM
+email: e1075536@u.nus.edu
+url: "https://dhwan0112.github.io"
+baseurl: ""
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  math_engine: katex
+  hard_wrap: false
+
+# Permalink settings
+permalink: /blog/:year/:month/:day/:title/
+
+# Collections
+collections:
+  notes:
+    output: true
+    permalink: /notes/:path/
+  pages:
+    output: true
+    permalink: /:path/
+
+# Default front matter
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+  - scope:
+      path: ""
+      type: "notes"
+    values:
+      layout: "note"
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "page"
+
+# Exclude files
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - README.md
+  - CONTENT_GUIDE.md
+  - templates/
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
