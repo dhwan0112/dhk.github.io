@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>진동수 계산 · ORCA 사용자 가이드</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">ORCA</div>
+    <div class="brand-subtitle">사용자 가이드 · v6.0</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="keywords.html"><span class="nav-num">03</span>키워드 모음</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">자주 쓰는 계산</div>
+      <ul class="nav-list">
+        <li><a href="single-point.html"><span class="nav-num">04</span>단일점 에너지</a></li>
+        <li><a href="geometry-optimization.html"><span class="nav-num">05</span>구조 최적화</a></li>
+        <li><a href="frequencies.html"><span class="nav-num">06</span>진동수 계산</a></li>
+        <li><a href="transition-states.html"><span class="nav-num">07</span>전이 상태 · NEB</a></li>
+        <li><a href="excited-states.html"><span class="nav-num">08</span>들뜬 상태 · TD-DFT</a></li>
+        <li><a href="solvation.html"><span class="nav-num">09</span>용매 효과</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">방법론 선택</div>
+      <ul class="nav-list">
+        <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">실전 운영</div>
+      <ul class="nav-list">
+        <li><a href="tips.html"><span class="nav-num">13</span>팁 · 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 06 · 자주 쓰는 계산</div>
+        <h1 class="page-title">진동수 · 열화학</h1>
+        <p class="page-lede">최적화한 구조가 정말 최소인지 검증하고, 깁스 자유에너지까지 한 번에 얻는 작업.</p>
+      </header>
+
+      <article class="content">
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <ul>
+            <li><a href="#why">왜 진동수를 계산하는가</a></li>
+            <li><a href="#basic">기본 사용법 — AnFreq vs NumFreq</a></li>
+            <li><a href="#combined">최적화와 동시에</a></li>
+            <li><a href="#interpret">출력 해석</a></li>
+            <li><a href="#imaginary">허수 진동수 처리</a></li>
+            <li><a href="#thermo">열역학량 — 깁스 자유에너지</a></li>
+            <li><a href="#ir-raman">IR · Raman 스펙트럼 그리기</a></li>
+            <li><a href="#options">자주 쓰는 옵션</a></li>
+          </ul>
+        </div>
+
+        <h2 id="why">왜 진동수를 계산하는가</h2>
+        <p>최적화 후 진동수를 계산하는 데에는 세 가지 목적이 있습니다.</p>
+
+        <ol>
+          <li><strong>임계점의 성격을 확인</strong>: 모든 진동수가 양수이면 안정한 최소, 한 개의 허수 진동수가 있으면 전이 상태입니다.</li>
+          <li><strong>열역학 보정량 산출</strong>: 영점 진동에너지(ZPE), 열용량 보정, 엔트로피 → 깁스 자유에너지 G.</li>
+          <li><strong>IR·Raman 스펙트럼 예측</strong>: 실험과 직접 비교 가능한 진동 스펙트럼.</li>
+        </ol>
+
+        <h2 id="basic">기본 사용법 — AnFreq vs NumFreq</h2>
+        <p>두 가지 방식이 있습니다.</p>
+
+        <table>
+          <thead>
+            <tr><th>키워드</th><th>방식</th><th>특징</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Freq</code> 또는 <code>AnFreq</code></td><td>해석적 미분</td><td>빠르고 정확. HF, DFT, MP2, CASSCF에서 지원.</td></tr>
+            <tr><td><code>NumFreq</code></td><td>수치 미분</td><td>모든 방법에서 사용 가능. 6 × N<sub>atom</sub>배의 그래디언트 계산.</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="orca"><code><span class="cmt"># 해석적 진동수 (가능한 경우 권장)</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP Freq</span>
+
+<span class="cmt"># 수치 진동수 (CCSD(T) 등 해석적 미분이 없는 경우)</span>
+<span class="kw">!</span> <span class="kw2">CCSD(T) cc-pVDZ NumFreq</span></code></pre>
+
+        <div class="warning">
+          <div class="note-title">진동수는 반드시 최적화 구조에서</div>
+          <p>
+            진동수 계산은 <strong>그래디언트가 0인 점(stationary point)</strong>에서만 의미가 있습니다.
+            최적화하지 않은 구조에서 진동수를 계산하면 회전·병진 모드가 0이 아닌 값을 가지게 되고,
+            모든 진동수에 오류가 섞입니다. 반드시 동일한 메소드/베이시스로 먼저 최적화하시기 바랍니다.
+          </p>
+        </div>
+
+        <h2 id="combined">최적화와 동시에</h2>
+        <p>가장 흔한 패턴은 최적화와 진동수를 한 줄에 묶는 것입니다.</p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightOpt Freq</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <p>
+          최적화가 끝나면 ORCA는 자동으로 같은 레벨에서 진동수 계산을 이어 갑니다.
+          허수 진동수가 발견되면 <strong>그 모드를 따라 구조를 약간 비틀어</strong> 다시 최적화하면 보통 해결됩니다.
+        </p>
+
+        <h2 id="interpret">출력 해석</h2>
+        <p>진동수 계산이 끝나면 출력에 다음과 같은 표가 나타납니다.</p>
+
+        <pre data-lang="output"><code>-----------------------
+VIBRATIONAL FREQUENCIES
+-----------------------
+
+Scaling factor for frequencies =  1.000000000  (already applied!)
+
+   0:         0.00 cm**-1
+   1:         0.00 cm**-1
+   2:         0.00 cm**-1
+   3:         0.00 cm**-1
+   4:         0.00 cm**-1
+   5:         0.00 cm**-1
+   6:      1659.34 cm**-1
+   7:      3805.21 cm**-1
+   8:      3914.47 cm**-1</code></pre>
+
+        <p>
+          처음 6개(선형 분자는 5개)는 병진·회전 모드로 항상 0에 가까운 값이 출력됩니다.
+          그 다음부터가 실제 진동 모드입니다. 위 예에서 물 분자는 굽힘(1659), 대칭 신축(3805), 반대칭 신축(3914)
+          세 가지 모드를 가집니다.
+        </p>
+
+        <h3>모드의 시각화 — 정규 좌표</h3>
+        <p>각 모드의 변위 벡터는 “NORMAL MODES” 섹션에 출력됩니다.</p>
+
+        <pre data-lang="output"><code>------------
+NORMAL MODES
+------------
+                  0          1          2          3          4
+      0    0.000000   0.000000  -0.000000   0.000000  -0.000000
+      1    0.000000   0.000000   0.000000  -0.000000   0.000000
+      ...</code></pre>
+
+        <p>
+          정규 좌표를 직관적으로 보고 싶다면 ORCA의 <code>orca_pltvib</code> 유틸리티로 진동 trajectory를 만들 수 있습니다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt"># 6번 모드의 trajectory 추출 (XYZ로 저장)</span>
+orca_pltvib mol.hess 6</code></pre>
+
+        <h2 id="imaginary">허수 진동수 처리</h2>
+        <p>출력에서 허수 진동수는 음수로 표기됩니다.</p>
+
+        <pre data-lang="output"><code>   6:      -456.78 cm**-1   ***imaginary mode***
+   7:      1234.56 cm**-1
+   8:      ...</code></pre>
+
+        <p>전이 상태가 아닌데 허수 진동수가 나왔다면, 다음과 같이 해결합니다.</p>
+
+        <ol>
+          <li>허수 모드의 정규 좌표 방향으로 모든 원자를 약간(예: ± 0.1 Å) 이동시킨 새 좌표를 만듭니다. <code>orca_pltvib</code>로 첫 진폭의 구조를 추출하면 편합니다.</li>
+          <li>이 구조에서 다시 최적화합니다. 임계값을 <code>VeryTightOpt</code>로 올려도 좋습니다.</li>
+          <li>다시 진동수를 계산하여 모두 양수임을 확인합니다.</li>
+        </ol>
+
+        <div class="tip">
+          <div class="note-title">매우 작은 음의 진동수</div>
+          <p>
+            ±10 cm⁻¹ 정도의 매우 작은 음의 진동수는 종종 적분 격자나 SCF 임계값에서 비롯되는 수치 잡음입니다.
+            <code>DefGrid3 VeryTightSCF</code>로 격자와 SCF 정밀도를 올린 뒤 다시 시도하시면 보통 사라집니다.
+          </p>
+        </div>
+
+        <h2 id="thermo">열역학량 — 깁스 자유에너지</h2>
+        <p>
+          진동수 계산이 끝나면 ORCA는 자동으로 열역학량을 계산하여 출력합니다. 기본 조건은 298.15 K, 1 atm입니다.
+        </p>
+
+        <pre data-lang="output"><code>-------------------------
+THERMOCHEMISTRY AT 298.15K
+-------------------------
+
+Temperature         ... 298.15 K
+Pressure            ... 1.00 atm
+Total Mass          ... 18.01 AMU
+
+Zero point energy                ...     0.02143521 Eh      13.45 kcal/mol
+Thermal vibrational correction   ...     0.00010256 Eh       0.06 kcal/mol
+Thermal rotational correction    ...     0.00141572 Eh       0.89 kcal/mol
+Thermal translational correction ...     0.00141572 Eh       0.89 kcal/mol
+-------------------------------------------------
+Total thermal energy                  -76.39541321 Eh
+Total enthalpy                        -76.39447892 Eh
+Final Gibbs free energy               -76.42157345 Eh
+-------------------------------------------------
+G-E(el)                            ...   0.00219978 Eh       1.38 kcal/mol</code></pre>
+
+        <p>주요 항목의 정의는 다음과 같습니다.</p>
+
+        <table>
+          <thead><tr><th>항목</th><th>의미</th></tr></thead>
+          <tbody>
+            <tr><td>Zero point energy</td><td>영점 진동에너지(ZPE). 절대 영도에서도 남는 진동.</td></tr>
+            <tr><td>Total thermal energy</td><td>U = E<sub>el</sub> + ZPE + thermal corrections.</td></tr>
+            <tr><td>Total enthalpy</td><td>H = U + pV.</td></tr>
+            <tr><td>Final Gibbs free energy</td><td>G = H − TS. <strong>반응 자유에너지 계산의 핵심 값</strong>.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>온도·압력 변경</h3>
+        <pre data-lang="orca"><code><span class="kw">%freq</span>
+   <span class="kw2">Temp</span>     <span class="num">373.15</span>   <span class="cmt"># 100 °C</span>
+   <span class="kw2">Pressure</span> <span class="num">1.0</span>      <span class="cmt"># atm</span>
+<span class="kw">end</span></code></pre>
+
+        <div class="note">
+          <div class="note-title">저진동 보정과 quasi-RRHO</div>
+          <p>
+            기본 RRHO(rigid-rotor harmonic oscillator) 모델은 저주파수(&lt; 100 cm⁻¹) 모드에서 엔트로피를 과대평가합니다.
+            Grimme의 quasi-RRHO 보정을 적용하면 한층 정확한 자유에너지를 얻을 수 있습니다.
+            <code>%freq QuasiRRHO true CutOffFreq 35 end</code>으로 활성화합니다.
+            특히 컨포머 탐색이나 회전 가능한 분자에서 효과가 큽니다.
+          </p>
+        </div>
+
+        <h2 id="ir-raman">IR · Raman 스펙트럼 그리기</h2>
+        <p>
+          진동수 계산은 자동으로 IR 강도를 함께 출력합니다. 라만 강도는 <code>!NumFreq</code> 또는 polarizability 계산이 함께 켜져 있어야 얻을 수 있습니다.
+        </p>
+
+        <p>스펙트럼을 그리기 위해서는 <code>orca_mapspc</code> 유틸리티를 사용합니다.</p>
+
+        <pre data-lang="bash"><code><span class="cmt"># IR 스펙트럼 (.dat 파일 생성)</span>
+orca_mapspc mol.out ir -w25
+
+<span class="cmt"># Raman 스펙트럼</span>
+orca_mapspc mol.out raman -w50
+
+<span class="cmt"># 출력 파일 mol.out.ir.dat 또는 mol.out.raman.dat을 gnuplot, matplotlib 등으로 시각화</span></code></pre>
+
+        <p>
+          <code>-w</code> 옵션은 로렌츠 / 가우스 라인폭(cm⁻¹)을 지정합니다.
+          <code>orca_mapspc</code>를 인수 없이 실행하면 전체 옵션 목록을 볼 수 있습니다.
+        </p>
+
+        <h2 id="options">자주 쓰는 옵션</h2>
+
+        <pre data-lang="orca"><code><span class="kw">%freq</span>
+   <span class="kw2">CentralDiff</span>   <span class="kw">true</span>     <span class="cmt"># NumFreq에서 양측 차분 (기본 단측). 정확도 향상, 시간 2배.</span>
+   <span class="kw2">Increment</span>     <span class="num">0.005</span>    <span class="cmt"># 변위 크기 (bohr). 기본 0.005.</span>
+   <span class="kw2">Restart</span>       <span class="kw">true</span>     <span class="cmt"># 중단된 NumFreq 재시작</span>
+   <span class="kw2">ProjectTR</span>     <span class="kw">true</span>     <span class="cmt"># 병진/회전 모드 투영 제거 (기본 true)</span>
+   <span class="kw2">Mass2016</span>      <span class="kw">true</span>     <span class="cmt"># IUPAC 2016 원자 질량 사용</span>
+   <span class="kw2">QuasiRRHO</span>     <span class="kw">true</span>     <span class="cmt"># quasi-RRHO 엔트로피 보정</span>
+   <span class="kw2">CutOffFreq</span>    <span class="num">35.0</span>     <span class="cmt"># quasi-RRHO 컷오프 (cm^-1), 기본 35</span>
+<span class="kw">end</span></code></pre>
+
+        <div class="caution">
+          <div class="note-title">스케일링 인자</div>
+          <p>
+            DFT가 계산하는 조화 진동수는 실험치보다 보통 5~10% 높게 나옵니다.
+            문헌과 비교할 때는 함수별 권장 스케일링 인자를 곱해 보정하시기를 권합니다.
+            예컨대 B3LYP/6-31G(d)는 약 0.961, B3LYP/def2-TZVP는 약 0.965입니다.
+            NIST CCCBDB(<a href="https://cccbdb.nist.gov">cccbdb.nist.gov</a>)에 종합 표가 있습니다.
+          </p>
+        </div>
+
+        <p>
+          최소 구조와 전이 상태의 진동수를 모두 얻었다면, 이제 그것들을 연결하는 작업으로 넘어갑니다.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="geometry-optimization.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">구조 최적화</div>
+        </a>
+        <a class="next" href="transition-states.html">
+          <div class="page-nav-label">다음 →</div>
+          <div class="page-nav-title">전이 상태 · NEB</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

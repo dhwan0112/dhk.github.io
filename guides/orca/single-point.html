@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>단일점 에너지 · ORCA 사용자 가이드</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">ORCA</div>
+    <div class="brand-subtitle">사용자 가이드 · v6.0</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="keywords.html"><span class="nav-num">03</span>키워드 모음</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">자주 쓰는 계산</div>
+      <ul class="nav-list">
+        <li><a href="single-point.html"><span class="nav-num">04</span>단일점 에너지</a></li>
+        <li><a href="geometry-optimization.html"><span class="nav-num">05</span>구조 최적화</a></li>
+        <li><a href="frequencies.html"><span class="nav-num">06</span>진동수 계산</a></li>
+        <li><a href="transition-states.html"><span class="nav-num">07</span>전이 상태 · NEB</a></li>
+        <li><a href="excited-states.html"><span class="nav-num">08</span>들뜬 상태 · TD-DFT</a></li>
+        <li><a href="solvation.html"><span class="nav-num">09</span>용매 효과</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">방법론 선택</div>
+      <ul class="nav-list">
+        <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">실전 운영</div>
+      <ul class="nav-list">
+        <li><a href="tips.html"><span class="nav-num">13</span>팁 · 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 04 · 자주 쓰는 계산</div>
+        <h1 class="page-title">단일점 에너지</h1>
+        <p class="page-lede">고정된 구조에서 에너지와 파동함수를 얻는 가장 기본적인 작업. 모든 계산의 출발점입니다.</p>
+      </header>
+
+      <article class="content">
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <ul>
+            <li><a href="#basic">기본 예제 — HF, DFT</a></li>
+            <li><a href="#per-atom-basis">원자별 베이시스 변경</a></li>
+            <li><a href="#open-shell">열린 껍질 계산</a></li>
+            <li><a href="#reading-output">출력 해석 — 주요 항목</a></li>
+            <li><a href="#scf-workflow">SCF 수렴 후 후속 작업</a></li>
+            <li><a href="#population">모집단 분석</a></li>
+            <li><a href="#mo-plot">분자 궤도 시각화</a></li>
+          </ul>
+        </div>
+
+        <h2 id="basic">기본 예제 — HF, DFT</h2>
+        <p>
+          단일점 계산은 ORCA에서 가장 단순한 작업입니다. 메소드와 베이시스 세트, 그리고 좌표만 있으면 됩니다.
+          별도의 작업 유형 키워드를 적지 않으면 단일점이 기본값입니다.
+        </p>
+
+        <h3>HF 단일점</h3>
+        <pre data-lang="orca"><code><span class="cmt"># CO 분자의 HF 단일점</span>
+<span class="kw">!</span> <span class="kw2">HF def2-SVP</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  C   0.0   0.0   0.0
+  O   0.0   0.0   1.13
+<span class="kw">*</span></code></pre>
+
+        <h3>DFT (B3LYP) 단일점</h3>
+        <pre data-lang="orca"><code><span class="cmt"># 사이클로헥산의 B3LYP/def2-TZVP 단일점</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> cyclohexane.xyz</code></pre>
+
+        <p>
+          <code>RIJCOSX</code>와 <code>def2/J</code>를 함께 지정한 것은 하이브리드 DFT의 사실상 표준 가속 조합입니다.
+          이 둘을 켜면 Coulomb 항은 RI로, 교환 항은 COSX(Chain-of-Spheres exchange)로 처리되어,
+          중대형 분자에서 한 자릿수 배 이상의 속도 향상을 얻을 수 있습니다.
+        </p>
+
+        <div class="tip">
+          <div class="note-title">RIJCOSX는 거의 무료입니다</div>
+          <p>
+            매뉴얼에서 인용되는 벤치마크에 따르면 RIJCOSX의 에너지 오차는 정확한 적분에 비해
+            보통 마이크로 하트리(μE<sub>h</sub>) 수준이며,
+            대부분의 화학적 응용에서 무시할 수 있습니다.
+            하이브리드 DFT를 사용한다면 거의 무조건 RIJCOSX를 함께 켜시기를 권합니다.
+          </p>
+        </div>
+
+        <h2 id="per-atom-basis">원자별 베이시스 변경</h2>
+        <p>
+          전이금속 착물에서는 흔히 “금속에는 큰 베이시스, 리간드에는 작은 베이시스”를 쓰는 식의 혼합 전략이 유용합니다.
+          ORCA는 이를 간결한 문법으로 지원합니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># CuCl4 음이온 — Cu에 TZVPP, Cl에 DUNNING-DZP</span>
+<span class="kw">!</span> <span class="kw2">HF</span>
+
+<span class="kw">%basis</span>
+   <span class="kw2">basis</span> <span class="str">"SV"</span>                          <span class="cmt"># 전 원자 기본 SV</span>
+   <span class="kw2">newGTO</span> Cl <span class="str">"DUNNING-DZP"</span> <span class="kw">end</span>      <span class="cmt"># Cl만 DUNNING-DZP로 교체</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">-2 2</span>
+  Cu   0.00   0.00   0.00   <span class="kw2">newGTO</span> <span class="str">"TZVPP"</span> <span class="kw">end</span>  <span class="cmt"># Cu만 TZVPP로 교체</span>
+  Cl   2.25   0.00   0.00
+  Cl  -2.25   0.00   0.00
+  Cl   0.00   2.25   0.00
+  Cl   0.00  -2.25   0.00
+<span class="kw">*</span></code></pre>
+
+        <p>
+          이런 식으로 원자 단위·원소 단위로 베이시스를 자유롭게 섞을 수 있습니다.
+          유효 핵 포텐셜(ECP)도 같은 방식으로 지정할 수 있습니다.
+        </p>
+
+        <h2 id="open-shell">열린 껍질 계산</h2>
+        <p>
+          홀수 전자 분자나 짝짓지 않은 전자가 있는 다중항 시스템에서는
+          비제한 스핀(UHF/UKS)을 명시적으로 지정하시는 것을 권장합니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># OH 라디칼 (도플렛)</span>
+<span class="kw">!</span> <span class="kw2">UKS B3LYP D4 def2-TZVP TightSCF UNO</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 2</span>
+  O   0.0   0.0   0.000
+  H   0.0   0.0   0.969
+<span class="kw">*</span></code></pre>
+
+        <p>
+          <code>UNO</code> 키워드는 비제한 자연 궤도(Unrestricted Natural Orbitals)와 비제한 대응 궤도(UCO)를 출력합니다.
+          이는 스핀 오염도와 결합 다중성을 진단하는 데 매우 유용합니다.
+          출력에는 다음과 같은 표가 등장합니다.
+        </p>
+
+        <pre data-lang="output"><code>----------------------
+Orbital    Overlap(*)
+----------------------
+...
+101:      0.99563
+102:      0.74329   <-- 1보다 한참 작음 → 스핀-커플 페어
+103:      0.00000</code></pre>
+
+        <p>
+          오버랩이 1에 가까우면 이중 점유 궤도, 0이면 단일 점유, 그 사이의 값(보통 0.85 이하)이면
+          스핀-커플(예: 단일항 디라디칼)을 시사합니다. 이 정보 하나만으로 시스템의 전자 구조를 빠르게 진단할 수 있습니다.
+        </p>
+
+        <h2 id="reading-output">출력 해석 — 주요 항목</h2>
+        <p>
+          출력 파일은 길지만, 가장 중요한 줄들은 몇 군데로 압축할 수 있습니다.
+          DFT 단일점 계산의 출력에서 우선 확인할 부분은 다음과 같습니다.
+        </p>
+
+        <h3>① 입력 요약</h3>
+        <pre data-lang="output"><code>-----------
+INPUT FILE
+-----------
+NAME = water.inp
+...
+&gt; ! B3LYP D4 def2-TZVP RIJCOSX def2/J TightSCF
+&gt; * xyz 0 1
+&gt;   O   0.000000   0.000000   0.119262
+...</code></pre>
+        <p>입력이 의도대로 인식되었는지 확인합니다.</p>
+
+        <h3>② SCF 반복</h3>
+        <pre data-lang="output"><code>               SCF ITERATIONS
+ITER       Energy         Delta-E        Max-DP      RMS-DP
+  0    -76.3987452578   0.000000000000  0.04123455  0.00234567
+  1    -76.4128931256  -0.014147867    0.01234567  0.00112345
+  ...
+  8    -76.4197732345  -0.000000012    0.00000012  0.00000003
+
+         *****************************************************
+         *                     SUCCESS                       *
+         *           SCF CONVERGED AFTER  8 CYCLES           *
+         *****************************************************</code></pre>
+        <p>
+          SCF가 수렴했는지, 수렴까지 걸린 반복 횟수, 마지막 에너지 변화량을 확인합니다.
+          “SUCCESS” 메시지가 보여야 합니다.
+        </p>
+
+        <h3>③ 최종 단일점 에너지</h3>
+        <pre data-lang="output"><code>----------------
+TOTAL SCF ENERGY
+----------------
+Total Energy       :       -76.41977323 Eh        -2079.49852 eV
+
+Components:
+Nuclear Repulsion  :         9.16871523 Eh           249.49276 eV
+Electronic Energy  :       -85.58848846 Eh         -2328.99128 eV
+One Electron Energy:      -123.07512345 Eh         -3349.06713 eV
+Two Electron Energy:        37.48663499 Eh          1020.07585 eV
+...
+
+FINAL SINGLE POINT ENERGY       -76.419773234567</code></pre>
+
+        <p>
+          <code>FINAL SINGLE POINT ENERGY</code> 줄에 적힌 값이 최종 에너지(Hartree 단위)입니다.
+          1 Hartree ≈ 627.5095 kcal/mol ≈ 27.2114 eV임을 기억해 두시면 환산이 편합니다.
+        </p>
+
+        <h3>④ 궤도 에너지와 HOMO-LUMO 간극</h3>
+        <pre data-lang="output"><code>----------------
+ORBITAL ENERGIES
+----------------
+  NO   OCC          E(Eh)           E(eV)
+   0   2.0000     -19.131245      -520.5879
+   1   2.0000      -1.001234       -27.2451
+   2   2.0000      -0.512345       -13.9416
+   3   2.0000      -0.345678        -9.4067
+   4   2.0000      -0.267890        -7.2898    <- HOMO
+   5   0.0000      -0.012345        -0.3359    <- LUMO
+   6   0.0000       0.123456         3.3601
+   ...</code></pre>
+        <p>
+          HOMO와 LUMO를 확인하면 분자의 산화·환원 경향성, 광학적 특성에 대한 1차 추정이 가능합니다.
+        </p>
+
+        <h3>⑤ 쌍극자 모멘트와 사극자 모멘트</h3>
+        <pre data-lang="output"><code>-------------
+DIPOLE MOMENT
+-------------
+                                X          Y          Z
+Electronic contribution:   0.00000    0.00000   -0.74021
+Nuclear contribution   :   0.00000    0.00000    1.61234
+                          -----------------------------------------
+Total Dipole Moment    :   0.00000    0.00000    0.87213
+                          -----------------------------------------
+Magnitude (a.u.)       :   0.87213
+Magnitude (Debye)      :   2.21649</code></pre>
+
+        <h2 id="scf-workflow">SCF 수렴 후 후속 작업</h2>
+        <p>
+          단일점 계산 후 자주 이어지는 작업은 모집단 분석과 분자 궤도 시각화입니다.
+          모두 키워드 한두 개로 활성화할 수 있습니다.
+        </p>
+
+        <h2 id="population">모집단 분석</h2>
+        <p>매뉴얼이 권장하는 조합은 다음과 같습니다.</p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">HF def2-SVP Mulliken Loewdin Mayer ReducedPOP</span></code></pre>
+
+        <p>출력의 모집단 분석 부분은 다음과 같이 정리됩니다.</p>
+
+        <pre data-lang="output"><code>-----------------------
+MULLIKEN ATOMIC CHARGES
+-----------------------
+   0 O :   -0.612345
+   1 H :    0.306173
+   2 H :    0.306173
+Sum of atomic charges:   -0.0000000
+
+-----------------------------------------
+LOEWDIN ATOMIC CHARGES
+-----------------------------------------
+   0 O :   -0.487654
+   1 H :    0.243827
+   2 H :    0.243827
+
+-----------------
+MAYER POPULATION ANALYSIS
+-----------------
+   0 O :  Total valence: 2.012  Mean: 1.006  ...
+...
+   ATOM    ATOM     BOND ORDER
+   0 O     1 H        0.987
+   0 O     2 H        0.987</code></pre>
+
+        <div class="note">
+          <div class="note-title">어떤 분석을 신뢰할 것인가</div>
+          <p>
+            Mulliken 전하는 베이시스 세트에 매우 민감하여 큰 베이시스에서 발산하는 경향이 있습니다.
+            Loewdin은 그보다 안정적이고, Mayer 결합 차수(bond order)는 화학적 직관과 잘 일치합니다.
+            본격적인 정량 분석에는 NPA(Natural Population Analysis)나 CHELPG를 사용하시기를 권합니다.
+          </p>
+        </div>
+
+        <h2 id="mo-plot">분자 궤도 시각화</h2>
+        <p>
+          분자 궤도를 입체적으로 보고 싶다면 <code>%plots</code> 블록으로 큐브 파일을 생성하거나,
+          별도의 <code>orca_plot</code> 유틸리티를 사용합니다.
+        </p>
+
+        <h3>방법 ①: 입력 안에서 직접 생성</h3>
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP def2-SVP TightSCF</span>
+
+<span class="kw">%plots</span>
+   <span class="kw2">dim1</span>  <span class="num">45</span>
+   <span class="kw2">dim2</span>  <span class="num">45</span>
+   <span class="kw2">dim3</span>  <span class="num">45</span>
+   <span class="kw2">Format</span> <span class="kw">Gaussian_Cube</span>
+   <span class="kw2">MO</span>(<span class="str">"homo.cube"</span>, <span class="num">4</span>, <span class="num">0</span>)    <span class="cmt"># 인덱스 4번 알파 MO</span>
+   <span class="kw2">MO</span>(<span class="str">"lumo.cube"</span>, <span class="num">5</span>, <span class="num">0</span>)
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> water.xyz</code></pre>
+
+        <h3>방법 ②: 계산 후 <code>orca_plot</code> 사용</h3>
+        <pre data-lang="bash"><code><span class="cmt"># 대화형 모드 - 메뉴를 따라 진행</span>
+orca_plot water.gbw -i</code></pre>
+
+        <p>생성된 <code>.cube</code> 파일은 VMD, Avogadro, ChimeraX, PyMOL 등에서 시각화할 수 있습니다.</p>
+
+        <p>
+          단일점 계산은 ORCA의 모든 작업의 출발점입니다. 이 페이지에서 다룬 출력 해석법은 다른 모든 계산 유형에도 그대로 적용됩니다.
+          다음 장에서는 구조를 풀어 가는 작업, 즉 구조 최적화로 넘어갑니다.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="keywords.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">키워드 모음</div>
+        </a>
+        <a class="next" href="geometry-optimization.html">
+          <div class="page-nav-label">다음 →</div>
+          <div class="page-nav-title">구조 최적화</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

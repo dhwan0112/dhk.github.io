@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>용매 효과 · ORCA 사용자 가이드</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">ORCA</div>
+    <div class="brand-subtitle">사용자 가이드 · v6.0</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="keywords.html"><span class="nav-num">03</span>키워드 모음</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">자주 쓰는 계산</div>
+      <ul class="nav-list">
+        <li><a href="single-point.html"><span class="nav-num">04</span>단일점 에너지</a></li>
+        <li><a href="geometry-optimization.html"><span class="nav-num">05</span>구조 최적화</a></li>
+        <li><a href="frequencies.html"><span class="nav-num">06</span>진동수 계산</a></li>
+        <li><a href="transition-states.html"><span class="nav-num">07</span>전이 상태 · NEB</a></li>
+        <li><a href="excited-states.html"><span class="nav-num">08</span>들뜬 상태 · TD-DFT</a></li>
+        <li><a href="solvation.html"><span class="nav-num">09</span>용매 효과</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">방법론 선택</div>
+      <ul class="nav-list">
+        <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">실전 운영</div>
+      <ul class="nav-list">
+        <li><a href="tips.html"><span class="nav-num">13</span>팁 · 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 09 · 자주 쓰는 계산</div>
+        <h1 class="page-title">용매 효과</h1>
+        <p class="page-lede">음폐 용매 모델로 분자의 진짜 환경을 흉내내기. CPCM과 SMD의 실전 사용법.</p>
+      </header>
+
+      <article class="content">
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <ul>
+            <li><a href="#why">왜 용매 효과를 고려해야 하는가</a></li>
+            <li><a href="#models">사용 가능한 모델 — CPCM · SMD · ALPB</a></li>
+            <li><a href="#basic">기본 사용법 — 한 줄로 끝내기</a></li>
+            <li><a href="#smd">SMD — 자유에너지 보정까지 포함</a></li>
+            <li><a href="#advanced">세부 옵션 — %cpcm 블록</a></li>
+            <li><a href="#solvents">지원 용매 목록</a></li>
+            <li><a href="#explicit">SOLVATOR — 명시적 용매 분자 자동 배치</a></li>
+            <li><a href="#tddft">들뜬 상태와 용매 효과</a></li>
+          </ul>
+        </div>
+
+        <h2 id="why">왜 용매 효과를 고려해야 하는가</h2>
+        <p>
+          기체상 계산은 진공 환경의 분자를 가정합니다. 그러나 실제 화학 반응은 대부분 용액에서 일어나며,
+          극성 용매는 이온이나 쌍극자가 큰 종에서 에너지를 수 kcal/mol에서 수십 kcal/mol까지 안정화시킵니다.
+          용매 효과를 고려하지 않으면 반응 평형, 산-염기 평형, 자유에너지 장벽 등이 실험과 크게 어긋날 수 있습니다.
+        </p>
+
+        <h2 id="models">사용 가능한 모델 — CPCM · SMD · ALPB</h2>
+        <p>ORCA가 지원하는 음폐 용매 모델은 다음과 같습니다.</p>
+
+        <table>
+          <thead>
+            <tr><th>모델</th><th>키워드</th><th>특징</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>C-PCM</td><td><code>CPCM(용매명)</code></td><td>도체 같은 분극화 연속체. 분극 정전 에너지만 다룸. 가볍고 안정적.</td></tr>
+            <tr><td>SMD</td><td><code>CPCM(용매명)</code> + <code>%cpcm SMD true</code></td><td>Minnesota 그룹의 SMD. 비정전(공동·분산·표면장력) 보정 포함.</td></tr>
+            <tr><td>ALPB</td><td><code>%cpcm ALPB true</code></td><td>Analytical Linearized PB. XTB에서 자주 사용.</td></tr>
+            <tr><td>openCOSMO-RS</td><td>인터페이스 호출</td><td>활동도 계수·로그 P 계산을 위한 후속 처리.</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          본 가이드에서는 가장 자주 쓰이는 <strong>CPCM</strong>과 <strong>SMD</strong>를 중심으로 다룹니다.
+          매뉴얼에서는 두 모델을 같은 키워드로 활성화하지만, SMD는 비정전 기여(공동 형성, 분산, 표면 효과)를 함께 추가해 자유에너지 비교에 더 적합합니다.
+        </p>
+
+        <h2 id="basic">기본 사용법 — 한 줄로 끝내기</h2>
+        <p>CPCM은 키워드 라인에 한 단어를 추가하는 것으로 활성화됩니다.</p>
+
+        <pre data-lang="orca"><code><span class="cmt"># 물 환경에서 벤젠 최적화 (CPCM)</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J Opt</span> <span class="kw2">CPCM(water)</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> benzene.xyz</code></pre>
+
+        <p>
+          매뉴얼의 포름알데히드 예에서, 진공의 n → π* 전이 에너지가 4.633 eV였던 것이 물 환경(CPCM)에서는 4.857 eV로 증가합니다.
+          n 궤도가 수소결합 환경에서 더 안정화되어 전이 에너지가 0.224 eV(약 5 kcal/mol) 증가한 결과입니다.
+        </p>
+
+        <h2 id="smd">SMD — 자유에너지 보정까지 포함</h2>
+        <p>
+          순수 CPCM은 정전 자유에너지만 다룹니다. 용매화 자유에너지 ΔG<sub>solv</sub>를 산출하거나
+          반응 평형을 정량적으로 다룰 때는 비정전 보정을 포함하는 <strong>SMD</strong>가 더 적합합니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># SMD 활성화 — CPCM 키워드 + SMD true</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J Opt Freq CPCM(water)</span>
+
+<span class="kw">%cpcm</span>
+   <span class="kw2">SMD</span>       <span class="kw">true</span>
+   <span class="kw2">SMDSolvent</span> <span class="str">"water"</span>     <span class="cmt"># 용매를 한 번 더 명시</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <p>
+          SMD를 활성화하면 출력에 다음과 같은 추가 항목이 나타납니다.
+        </p>
+
+        <pre data-lang="output"><code>--------------------
+SMD CDS free energy
+--------------------
+G-CDS (kcal/mol):              1.234567
+...
+
+----------------------------------------------------
+SMD SOLVATION FREE ENERGY (CONTRIBUTIONS)
+----------------------------------------------------
+Total electrostatic    :     -8.456 kcal/mol
+Total non-electrostatic:      1.235 kcal/mol
+                         ===================
+SMD ΔG_solv            :     -7.221 kcal/mol</code></pre>
+
+        <div class="tip">
+          <div class="note-title">SMD는 “원래의 SMD 함수/베이시스”와 함께 사용</div>
+          <p>
+            SMD 모델의 파라미터는 본래 M05-2X/6-31G(d)에서 보정되었습니다. 그러나 실제 사용에서는
+            B3LYP, M06-2X, ωB97X-D 같은 일반적인 DFT 함수와 def2-TZVP 정도의 베이시스에서 잘 작동합니다.
+            가스상 계산과 동일한 메소드·베이시스를 사용해 ΔG<sub>solv</sub> = G(soln) − G(gas) 식으로 일관되게 비교하시면 됩니다.
+          </p>
+        </div>
+
+        <h2 id="advanced">세부 옵션 — <code>%cpcm</code> 블록</h2>
+        <p>유전 상수, 굴절률, 공동 형태 등을 정밀하게 제어하려면 <code>%cpcm</code> 블록을 사용합니다.</p>
+
+        <pre data-lang="orca"><code><span class="kw">%cpcm</span>
+   <span class="kw2">Epsilon</span>      <span class="num">80.4</span>          <span class="cmt"># 정적 유전 상수 (물)</span>
+   <span class="kw2">RefRac</span>       <span class="num">1.33</span>          <span class="cmt"># 굴절률 (응답 특성, TD-DFT에 필요)</span>
+   <span class="kw2">Rsolv</span>        <span class="num">1.385</span>         <span class="cmt"># 용매 반경 (Å)</span>
+   <span class="kw2">SurfaceType</span>  <span class="kw">vdw_gaussian</span>  <span class="cmt"># 공동 표면 종류</span>
+<span class="kw">end</span></code></pre>
+
+        <p>
+          <code>SurfaceType</code>에는 두 가지 선택지가 있습니다.
+        </p>
+
+        <table>
+          <thead><tr><th>옵션</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>vdw_gaussian</code></td><td><strong>기본값</strong>. 가우스 함수로 매끄러운 vdW 표면. 진동수·그래디언트가 잘 정의됨.</td></tr>
+            <tr><td><code>gepol_ses</code></td><td>GEPOL의 SES (Solvent Excluded Surface). 보다 현실적이지만 가끔 미분이 거침.</td></tr>
+          </tbody>
+        </table>
+
+        <p>표준 용매 키워드(<code>CPCM(water)</code>, <code>CPCM(ethanol)</code> 등)를 쓰면 위 값들이 자동으로 세팅되므로,
+          대부분의 경우 따로 건드릴 필요는 없습니다.
+        </p>
+
+        <h2 id="solvents">지원 용매 목록</h2>
+        <p>
+          CPCM 표준 용매로 지원되는 주요 용매는 다음과 같습니다. 약 30개 이상이 내장되어 있으며,
+          SMD는 더 많은 용매를 지원합니다. 완전한 목록은 매뉴얼 7.53절에 정리되어 있습니다.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>용매 키워드</th><th>유전 상수 (ε)</th><th>분류</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>water</code></td><td>80.4</td><td>극성 양성자성</td></tr>
+            <tr><td><code>methanol</code></td><td>32.63</td><td>극성 양성자성</td></tr>
+            <tr><td><code>ethanol</code></td><td>24.55</td><td>극성 양성자성</td></tr>
+            <tr><td><code>acetone</code></td><td>20.70</td><td>극성 비양성자성</td></tr>
+            <tr><td><code>acetonitrile</code></td><td>36.6</td><td>극성 비양성자성</td></tr>
+            <tr><td><code>dmf</code></td><td>38.3</td><td>극성 비양성자성</td></tr>
+            <tr><td><code>dmso</code></td><td>46.7</td><td>극성 비양성자성</td></tr>
+            <tr><td><code>thf</code></td><td>7.58</td><td>중간 극성</td></tr>
+            <tr><td><code>dichloromethane</code></td><td>9.08</td><td>중간 극성</td></tr>
+            <tr><td><code>chloroform</code></td><td>4.81</td><td>저극성</td></tr>
+            <tr><td><code>toluene</code></td><td>2.38</td><td>비극성</td></tr>
+            <tr><td><code>hexane</code></td><td>1.89</td><td>비극성</td></tr>
+            <tr><td><code>cyclohexane</code></td><td>2.02</td><td>비극성</td></tr>
+            <tr><td><code>benzene</code></td><td>2.27</td><td>비극성</td></tr>
+            <tr><td><code>octanol</code></td><td>10.30</td><td>logP 계산용</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="explicit">SOLVATOR — 명시적 용매 분자 자동 배치</h2>
+        <p>
+          음폐 모델은 수소결합처럼 방향성이 있는 상호작용을 잘 묘사하지 못합니다.
+          중요한 1~2개의 수소결합을 명시적으로 포함하면서 나머지는 CPCM으로 처리하는 “미세-용매화(microsolvation)” 접근이 유용한 경우가 많습니다.
+          ORCA 6에는 이를 자동화하는 SOLVATOR 도구가 들어 있습니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># 솔벤트 분자 5개를 자동 배치한 뒤 계산</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP Opt</span>
+
+<span class="kw">%solvator</span>
+   <span class="kw2">NSolv</span>     <span class="num">5</span>            <span class="cmt"># 솔벤트 분자 개수</span>
+   <span class="kw2">Solvent</span>   <span class="str">"water"</span>      <span class="cmt"># 내장 솔벤트 / .xyz 파일</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> solute.xyz</code></pre>
+
+        <p>
+          SOLVATOR는 사전 정의된 force field로 용매 분자를 용질 주변에 합리적으로 배치합니다.
+          배치된 구조는 별도 파일로 저장되고, 이어지는 양자화학 계산에 사용됩니다.
+          매뉴얼 6.10절에 자세한 옵션이 정리되어 있습니다.
+        </p>
+
+        <h2 id="tddft">들뜬 상태와 용매 효과</h2>
+        <p>
+          TD-DFT 계산에 CPCM을 함께 켜면 “용매 평형 효과”와 “비평형 응답”이 모두 자동으로 처리됩니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP CPCM(water)</span>
+
+<span class="kw">%tddft</span>
+   <span class="kw2">NRoots</span> <span class="num">10</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <p>
+          ORCA는 빠른 응답(굴절률을 통한 광학적 응답)과 느린 응답(정적 유전 상수)을 자동으로 분리해 처리합니다.
+          이는 흡수(빠른 응답)와 발광·평형(느린 응답)을 일관되게 다루는 표준 절차입니다.
+        </p>
+
+        <div class="caution">
+          <div class="note-title">평형 / 비평형 솔베이션의 함정</div>
+          <p>
+            흡수와 발광의 용매 이동(solvatochromic shift)을 동시에 다룰 때는
+            평형(equilibrium)과 비평형(non-equilibrium) 솔베이션 옵션을 적절히 설정해야 합니다.
+            기본값은 흡수에 대해 비평형(굴절률 기반), 발광에 대해 평형(유전 상수 기반)을 사용합니다.
+            매뉴얼 7.53절에 명시적 제어 방법이 설명되어 있습니다.
+          </p>
+        </div>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="excited-states.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">들뜬 상태 · TD-DFT</div>
+        </a>
+        <a class="next" href="coupled-cluster.html">
+          <div class="page-nav-label">다음 →</div>
+          <div class="page-nav-title">DLPNO-CCSD(T)</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

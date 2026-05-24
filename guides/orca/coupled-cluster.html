@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DLPNO-CCSD(T) · ORCA 사용자 가이드</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">ORCA</div>
+    <div class="brand-subtitle">사용자 가이드 · v6.0</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="keywords.html"><span class="nav-num">03</span>키워드 모음</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">자주 쓰는 계산</div>
+      <ul class="nav-list">
+        <li><a href="single-point.html"><span class="nav-num">04</span>단일점 에너지</a></li>
+        <li><a href="geometry-optimization.html"><span class="nav-num">05</span>구조 최적화</a></li>
+        <li><a href="frequencies.html"><span class="nav-num">06</span>진동수 계산</a></li>
+        <li><a href="transition-states.html"><span class="nav-num">07</span>전이 상태 · NEB</a></li>
+        <li><a href="excited-states.html"><span class="nav-num">08</span>들뜬 상태 · TD-DFT</a></li>
+        <li><a href="solvation.html"><span class="nav-num">09</span>용매 효과</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">방법론 선택</div>
+      <ul class="nav-list">
+        <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">실전 운영</div>
+      <ul class="nav-list">
+        <li><a href="tips.html"><span class="nav-num">13</span>팁 · 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 10 · 방법론 선택</div>
+        <h1 class="page-title">DLPNO-CCSD(T)</h1>
+        <p class="page-lede">대규모 분자에서도 사용 가능한 황금 표준 계산. 화학 정확도를 합리적 비용으로.</p>
+      </header>
+
+      <article class="content">
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <ul>
+            <li><a href="#why">왜 DLPNO-CCSD(T)인가</a></li>
+            <li><a href="#basic">기본 사용법</a></li>
+            <li><a href="#thresholds">정밀도 단계 — Loose / Normal / Tight</a></li>
+            <li><a href="#cbs">완전 베이시스 외삽 (CBS)</a></li>
+            <li><a href="#f12">F12 — 베이시스 한계에 빠르게 접근</a></li>
+            <li><a href="#open-shell">열린 껍질 — UHF 레퍼런스</a></li>
+            <li><a href="#workflow">권장 워크플로우</a></li>
+          </ul>
+        </div>
+
+        <h2 id="why">왜 DLPNO-CCSD(T)인가</h2>
+        <p>
+          CCSD(T)는 단일참조 양자화학의 “황금 표준”입니다. 일반적인 닫힌 껍질 화학종에서
+          상대 에너지를 ±1 kcal/mol(이른바 화학 정확도) 이내로 재현합니다.
+          그러나 표준 CCSD(T)는 시스템 크기에 대해 O(N<sup>7</sup>)로 증가하므로,
+          원자 20개를 넘는 시스템에서는 비현실적으로 비싸집니다.
+        </p>
+
+        <p>
+          DLPNO(Domain-based Local Pair Natural Orbital) 근사는 이 비용을 획기적으로 줄여 줍니다.
+          국소 궤도와 도메인 기반 페어 자연 궤도를 사용해 점근적으로 선형 확장(linear scaling)을 달성하면서도,
+          기준 CCSD(T) 에너지의 약 99.9%를 재현합니다. 매뉴얼은 DLPNO-CCSD(T)를
+          “DLPNO-MP2가 가능하면 DLPNO-CCSD(T)도 가능하다”고 설명합니다.
+          실제로 원자 수백 개 규모의 분자에도 적용 가능합니다.
+        </p>
+
+        <h2 id="basic">기본 사용법</h2>
+        <p>키워드 라인에 <code>DLPNO-CCSD(T)</code>와 함께 보조 베이시스를 지정하면 됩니다.</p>
+
+        <pre data-lang="orca"><code><span class="cmt"># 닫힌 껍질 단일점 — 일반적인 정밀 에너지</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) cc-pVTZ cc-pVTZ/C TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <p>
+          <strong>보조 베이시스(<code>/C</code> 접미사)</strong>는 RI-MP2와 동일한 형식입니다.
+          DLPNO-CCSD(T) 계산은 RI 적분이 필수이므로 반드시 함께 지정해야 합니다.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>주 베이시스</th><th>권장 보조 베이시스</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>cc-pVDZ</code></td><td><code>cc-pVDZ/C</code></td></tr>
+            <tr><td><code>cc-pVTZ</code></td><td><code>cc-pVTZ/C</code></td></tr>
+            <tr><td><code>cc-pVQZ</code></td><td><code>cc-pVQZ/C</code></td></tr>
+            <tr><td><code>def2-SVP</code></td><td><code>def2-SVP/C</code></td></tr>
+            <tr><td><code>def2-TZVP</code></td><td><code>def2-TZVP/C</code></td></tr>
+            <tr><td><code>def2-TZVPP</code></td><td><code>def2-TZVPP/C</code></td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="thresholds">정밀도 단계 — Loose / Normal / Tight</h2>
+        <p>DLPNO의 컷오프 임계값은 세 단계로 단순화되어 있습니다.</p>
+
+        <table>
+          <thead>
+            <tr><th>키워드</th><th>전형적 비용</th><th>상대 정확도</th><th>권장 사용처</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>LoosePNO</code></td><td>0.5×</td><td>약 95~98%</td><td>대규모 스크리닝, 빠른 탐색.</td></tr>
+            <tr><td><code>NormalPNO</code></td><td>1× (기본)</td><td>약 99.5%</td><td>일반 연구. <strong>기본 추천</strong>.</td></tr>
+            <tr><td><code>TightPNO</code></td><td>약 2~3×</td><td>약 99.9%</td><td>벤치마크, 발표 직전의 정밀 에너지.</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="orca"><code><span class="cmt"># 벤치마크 수준 정확도</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) TightPNO cc-pVTZ cc-pVTZ/C TightSCF</span></code></pre>
+
+        <div class="tip">
+          <div class="note-title">상대 에너지 비교에서는 동일한 임계값을</div>
+          <p>
+            반응 에너지나 결합 해리 에너지를 비교할 때는 모든 종에 같은 PNO 임계값을 적용해야 오류가 상쇄됩니다.
+            한 종은 NormalPNO로, 다른 종은 TightPNO로 계산하면 차이가 0.5 kcal/mol 정도 어긋날 수 있습니다.
+          </p>
+        </div>
+
+        <h2 id="cbs">완전 베이시스 외삽 (CBS)</h2>
+        <p>
+          CCSD(T)는 완전 베이시스 한계(CBS, Complete Basis Set limit)로 외삽할 때 가장 정확합니다.
+          ORCA의 <code>Extrapolate</code> 키워드는 이를 자동화합니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># cc-pVTZ와 cc-pVQZ로 CCSD(T) 단일점을 자동 외삽</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) Extrapolate(3/4, cc) TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <p>
+          <code>Extrapolate(X/Y, basis)</code> 형식입니다. <code>X</code>, <code>Y</code>는 베이시스의 카디널 수(2 = DZ, 3 = TZ, 4 = QZ, 5 = 5Z)이고,
+          <code>basis</code>는 <code>cc</code>(Dunning), <code>def2</code>, <code>aug-cc</code> 등 베이시스 패밀리입니다.
+        </p>
+
+        <table>
+          <thead><tr><th>입력</th><th>실제 수행 작업</th></tr></thead>
+          <tbody>
+            <tr><td><code>Extrapolate(2/3, cc)</code></td><td>cc-pVDZ와 cc-pVTZ의 두 계산을 자동 외삽.</td></tr>
+            <tr><td><code>Extrapolate(3/4, cc)</code></td><td>cc-pVTZ와 cc-pVQZ로 외삽. 가장 일반적.</td></tr>
+            <tr><td><code>Extrapolate(2/3, def2)</code></td><td>def2-SVP와 def2-TZVPP로 외삽.</td></tr>
+            <tr><td><code>Extrapolate(3, cc)</code></td><td>cc-pVDZ, cc-pVTZ, cc-pVQZ의 세 계산 + 두 쌍의 외삽.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>EP2 · EP3 — 더 큰 베이시스를 위한 효율적 외삽</h3>
+        <p>
+          큰 베이시스(예: cc-pV5Z)에서 CCSD(T)를 직접 계산하기는 비싸지만,
+          MP2 수준에서는 가능할 때가 많습니다. EP2/EP3 외삽은 “큰 베이시스의 MP2 + 작은 베이시스의 CCSD(T) − MP2 보정”을 결합해 효율을 높입니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># EP2: 작은 기저에서 CC, 큰 기저에서 MP2 외삽</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) ExtrapolateEP2(2/3, cc) TightSCF</span></code></pre>
+
+        <h2 id="f12">F12 — 베이시스 한계에 빠르게 접근</h2>
+        <p>
+          F12 명시적 상관 방법은 더 작은 베이시스로도 CBS 한계 근처의 정확도를 얻게 해 줍니다.
+          DLPNO-CCSD(T)-F12는 이 두 기법의 결합입니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># DLPNO-CCSD(T)-F12 with approach D — F12로 큰 베이시스 효과 대체</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T)-F12D cc-pVDZ-F12 cc-pVDZ-F12-CABS cc-pVDZ-F12/C TightSCF</span></code></pre>
+
+        <p>
+          F12에는 전용 베이시스와 CABS(Complementary Auxiliary Basis Set)가 필요합니다.
+          베이시스 이름 끝의 <code>-F12</code>, <code>-F12-CABS</code>를 잊지 마시기 바랍니다.
+          F12 방법을 사용하면 cc-pVDZ-F12 한 번의 계산이 cc-pVQZ 또는 cc-pV5Z CBS 외삽과 비슷한 정확도를 보입니다.
+        </p>
+
+        <h2 id="open-shell">열린 껍질 — UHF 레퍼런스</h2>
+        <p>
+          라디칼이나 다중항 시스템에서는 UHF 레퍼런스를 사용한 “UHF-DLPNO-CCSD(T)”를 씁니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">UHF DLPNO-CCSD(T) cc-pVTZ cc-pVTZ/C TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 2</span>          <span class="cmt"># 도플렛 라디칼</span>
+  O   0.0   0.0   0.000
+  H   0.0   0.0   0.969
+<span class="kw">*</span></code></pre>
+
+        <div class="warning">
+          <div class="note-title">스핀 오염 확인 필수</div>
+          <p>
+            UHF 레퍼런스를 사용할 때는 SCF 결과의 ⟨S²⟩ 값을 반드시 확인하시기 바랍니다.
+            도플렛(S = 1/2)의 이상 ⟨S²⟩는 0.75이지만, 스핀 오염이 심하면 1.0 이상이 나오기도 합니다.
+            그러면 후속 CCSD(T) 결과도 신뢰하기 어렵습니다.
+            오염이 심하면 ROHF 레퍼런스를 시도하거나, 다중참조 방법(CASSCF/NEVPT2)을 고려하셔야 합니다.
+          </p>
+        </div>
+
+        <h2 id="workflow">권장 워크플로우</h2>
+        <p>
+          DLPNO-CCSD(T)는 대개 단일점 에너지로만 쓰입니다. 그래디언트도 구현되어 있지만 비싸기 때문에,
+          구조 최적화는 가벼운 방법(DFT)으로 하고 그 위에 정밀 에너지를 얹는 “composite” 워크플로우가 표준입니다.
+        </p>
+
+        <ol>
+          <li><strong>구조 최적화 + 진동수</strong>: B3LYP-D4/def2-TZVP 또는 r2SCAN-3c로 수행. 깁스 보정 ΔG<sub>therm</sub> 확보.</li>
+          <li><strong>DLPNO-CCSD(T) 단일점</strong>: 위 구조에서 CBS 외삽 또는 F12로 정밀 전자 에너지 E<sub>elec</sub><sup>CC</sup> 산출.</li>
+          <li><strong>용매 보정</strong>: 필요 시 (DFT/SMD) − (DFT/gas) 차이로 ΔG<sub>solv</sub> 계산.</li>
+          <li><strong>최종 자유에너지</strong>: G<sub>final</sub> = E<sub>elec</sub><sup>CC</sup> + ΔG<sub>therm</sub><sup>DFT</sup> + ΔG<sub>solv</sub>.</li>
+        </ol>
+
+        <p>이 흐름의 입력 예시는 다음과 같습니다.</p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Step 1: 구조 최적화 + 진동수 (DFT)</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightOpt Freq</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz
+
+<span class="kw">$new_job</span>
+
+<span class="cmt"># Step 2: DLPNO-CCSD(T) 정밀 단일점 (CBS 외삽)</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) Extrapolate(3/4, cc) TightSCF</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span>
+
+<span class="kw">$new_job</span>
+
+<span class="cmt"># Step 3: 용매 효과 (SMD)</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J CPCM(water) TightSCF</span>
+<span class="kw">%cpcm</span>
+   <span class="kw2">SMD</span> <span class="kw">true</span>
+   <span class="kw2">SMDSolvent</span> <span class="str">"water"</span>
+<span class="kw">end</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span></code></pre>
+
+        <p>
+          반응 평형이나 자유에너지 장벽을 보고할 때 이 같은 “DFT 최적화 + CCSD(T) 정밀점 + SMD 용매” 조합은
+          오늘날 양자화학에서 가장 표준적인 절차이며, 학술지에서도 통상적으로 받아들여집니다.
+        </p>
+
+        <div class="note">
+          <div class="note-title">DLPNO를 다른 메소드와 결합</div>
+          <p>
+            DLPNO 근사는 CCSD(T) 외에도 CCSD, MP2, B2PLYP(이중 하이브리드)와 결합 가능합니다.
+            예컨대 <code>! DLPNO-B2PLYP D4 def2-TZVP def2-TZVP/C</code>로 이중 하이브리드의 비용을 크게 낮출 수 있어,
+            중대형 분자의 정밀 단일점에 매우 유용합니다.
+          </p>
+        </div>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="solvation.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">용매 효과</div>
+        </a>
+        <a class="next" href="basis-sets.html">
+          <div class="page-nav-label">다음 →</div>
+          <div class="page-nav-title">베이시스 세트</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
