@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>6. 4가지 프레임워크 비교 · LAMMPS Cu 표면 흡착 가이드</title>
+  <meta name="description" content="힘장 × 정전기 방법의 네 가지 조합을 비교하고 선택 기준을 제시합니다." />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">LAMMPS</div>
+    <div class="brand-subtitle">Cu 표면 흡착 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-overview.html"><span class="nav-num">01</span>시스템 개요</a></li>
+        <li><a href="02-data-files.html"><span class="nav-num">02</span>데이터 파일</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">이론과 방법론</div>
+      <ul class="nav-list">
+        <li><a href="03-force-fields.html"><span class="nav-num">03</span>힘장 비교</a></li>
+        <li><a href="04-electrostatics.html"><span class="nav-num">04</span>정전기 방법</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">실전 프로토콜</div>
+      <ul class="nav-list">
+        <li><a href="05-protocol.html"><span class="nav-num">05</span>5단계 프로토콜</a></li>
+        <li><a href="06-frameworks.html" class="active" aria-current="page"><span class="nav-num">06</span>4가지 프레임워크</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">분석과 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-analysis.html"><span class="nav-num">07</span>분석 방법</a></li>
+        <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 06 · 실전</div>
+        <h1 class="page-title">4가지 프레임워크 비교</h1>
+        <p class="page-lede">힘장 × 정전기 방법의 네 가지 조합을 비교하고 선택 기준을 제시합니다.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#61">6.1 직교 실험 설계</a></li>
+<li><a href="#62">6.2 프레임워크별 사전 관찰 (사용자 보고)</a></li>
+<li><a href="#63">6.3 프레임워크별 화학적 예측 비교</a><ul>
+<li><a href="#opls-aa">왜 OPLS-AA는 가열 단계에서 불안정한가</a></li>
+<li><a href="#_1">권장 수정 (소수 줄만 수정)</a></li>
+</ul>
+</li>
+<li><a href="#64">6.4 정전기 처리 비교 — 본 시스템에서의 권고</a></li>
+<li><a href="#65">6.5 출판용 비교 권장</a></li>
+<li><a href="#66">6.6 사용자의 실험 진행 권고</a></li>
+<li><a href="#67">6.7 출력 파일 명명 규칙 (권장)</a></li>
+<li><a href="#_2">참고문헌</a></li>
+</ul>
+</div>
+<hr />
+<h2 id="61">6.1 직교 실험 설계</h2>
+<p>본 가이드의 4가지 프레임워크는 다음과 같은 직교 (orthogonal) 실험 설계를 따른다.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PPPM</th>
+<th>MSM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OPLS-AA</strong></td>
+<td>OPLS+PPPM</td>
+<td>OPLS+MSM</td>
+</tr>
+<tr>
+<td><strong>TraPPE-UA</strong></td>
+<td>TraPPE+PPPM</td>
+<td>TraPPE+MSM</td>
+</tr>
+</tbody>
+</table>
+<p>이러한 설계의 강점:</p>
+<ul>
+<li><strong>힘장 효과 분리</strong>: PPPM 고정 조건에서 OPLS-AA vs TraPPE-UA 비교</li>
+<li><strong>정전기 처리 효과 분리</strong>: 동일 힘장에서 PPPM vs MSM 비교</li>
+<li><strong>상호작용 효과 검출</strong>: 두 인자의 조합 효과 (예: TraPPE+MSM이 다른 조합 대비 특히 잘/못 동작) 식별</li>
+</ul>
+<h2 id="62">6.2 프레임워크별 사전 관찰 (사용자 보고)</h2>
+<p>다음은 본 시스템에서 사용자가 실제로 관찰한 정성적 경향이다.
+이는 본 가이드의 기준 baseline 으로 활용된다.</p>
+<table>
+<thead>
+<tr>
+<th>프레임워크</th>
+<th>안정성</th>
+<th>SEI (분리 효율)</th>
+<th>흡착 에너지 (벤젠)</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OPLS-AA + PPPM</td>
+<td>가열 단계 불안정 가능</td>
+<td>부분 성공</td>
+<td>-</td>
+<td>온도 폭주 (runaway) 경향</td>
+</tr>
+<tr>
+<td>OPLS-AA + MSM</td>
+<td>안정</td>
+<td>양호</td>
+<td>-</td>
+<td>slab 보정 불필요</td>
+</tr>
+<tr>
+<td>TraPPE-UA + PPPM</td>
+<td>안정</td>
+<td>0.85-0.95</td>
+<td>-0.27 ~ -0.30 eV</td>
+<td>표준</td>
+</tr>
+<tr>
+<td>TraPPE-UA + MSM</td>
+<td>매우 안정</td>
+<td>0.93-1.00</td>
+<td>-0.27 ~ -0.32 eV</td>
+<td>최고 성능</td>
+</tr>
+</tbody>
+</table>
+<p>흡착 에너지 단위 변환: -0.30 eV ≈ -6.92 kcal/mol ≈ -28.95 kJ/mol.
+벤젠이 에탄올보다 더 강하게 표면에 흡착되는 것은 π-d 분산 상호작용 (London dispersion)
+과 LJ 파라미터의 적합 (fit) 으로 잘 재현된다.</p>
+<h2 id="63">6.3 프레임워크별 화학적 예측 비교</h2>
+<table>
+<thead>
+<tr>
+<th>물리량</th>
+<th>OPLS-AA 예측</th>
+<th>TraPPE-UA 예측</th>
+<th>화학적 기원</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>표면 1차 흡착층 조성</td>
+<td>벤젠 우세, 에탄올 협동 효과 가능</td>
+<td>벤젠 강한 우세</td>
+<td>수소 결합 처리 차이</td>
+</tr>
+<tr>
+<td>에탄올-에탄올 g(r) 첫 피크</td>
+<td>약 2.8 Å (O-H...O 수소 결합)</td>
+<td>약 2.8 Å (동등)</td>
+<td>명시적 H 차이</td>
+</tr>
+<tr>
+<td>평형화 시간</td>
+<td>7-10 ns</td>
+<td>2-3 ns</td>
+<td>협동성 vs 단순 LJ</td>
+</tr>
+<tr>
+<td>계면 장력</td>
+<td>약 25-30 mJ/m²</td>
+<td>약 22-27 mJ/m²</td>
+<td>분극성 처리 차이</td>
+</tr>
+</tbody>
+</table>
+<p>위 값들은 사용자의 실제 시뮬레이션 결과와 문헌값을 참고한 정성적 예측이며,
+출판 시에는 직접 측정한 값을 사용해야 한다.</p>
+<h3 id="opls-aa">왜 OPLS-AA는 가열 단계에서 불안정한가</h3>
+<p>OPLS-AA 시스템의 가열 단계 불안정성은 다음 원인이 흔하다:</p>
+<ol>
+<li><strong>시간 스텝이 너무 큰 경우</strong>: 1.0 fs는 OPLS-AA + 비 SHAKE 조합에서는 큰 편.
+   X-H 진동 (~3000 cm⁻¹) 주기는 약 11 fs로, Nyquist 기준으로 0.5 fs 이하 권장.</li>
+<li><strong>SHAKE 미사용</strong>: SHAKE로 X-H 결합을 고정하면 시간 스텝을 2.0 fs까지 늘릴 수 있다.</li>
+<li><strong>Langevin damp 너무 짧음</strong>: damp가 너무 작으면 (예: 10 fs) 무리한 에너지 펌핑으로 폭주 발생.</li>
+<li><strong>PPPM accuracy 너무 낮음</strong>: 1.0e-3 정도면 슬랩 보정과 결합 시 큰 정전기 오차 누적.</li>
+</ol>
+<h3 id="_1">권장 수정 (소수 줄만 수정)</h3>
+<p>기존 입력 파일에서 다음 두 줄만 수정해도 안정성이 크게 향상된다.</p>
+<pre><code class="language-bash"># 기존
+timestep 1.0
+
+# 수정 권장 (소수 줄)
+timestep 0.5
+fix shake_hydrogens organic shake 1.0e-4 20 0 b 2 4 6 7 8 9 10 11 a 3
+# b 다음에 X-H 결합 타입 번호들, a 다음에 H-X-H 각도 타입 번호
+</code></pre>
+<p><code>fix shake</code>의 b (bonds), a (angles), t (atom types), m (atom mass) 옵션은
+<a href="https://docs.lammps.org/fix_shake.html">LAMMPS fix shake 문서</a>에 정리되어 있다.</p>
+<h2 id="64">6.4 정전기 처리 비교 — 본 시스템에서의 권고</h2>
+<p>본 시스템 (슬랩 기하학, ~1500-2500 원자) 에서:</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>PPPM</th>
+<th>MSM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>초기 설정 복잡도</td>
+<td>중간 (<code>kspace_modify slab 3.0</code> 필요)</td>
+<td>낮음 (slab 보정 불필요)</td>
+</tr>
+<tr>
+<td>단일 노드 속도</td>
+<td>빠름</td>
+<td>약간 느림</td>
+</tr>
+<tr>
+<td>다중 노드 확장성</td>
+<td>큰 시스템에서 FFT 병목</td>
+<td>더 좋음</td>
+</tr>
+<tr>
+<td>슬랩 시스템 자연스러움</td>
+<td>보정 후 자연스러움</td>
+<td>본질적으로 자연스러움</td>
+</tr>
+<tr>
+<td>본 가이드 권장</td>
+<td>표준 비교군</td>
+<td>슬랩 기하학에 권장</td>
+</tr>
+</tbody>
+</table>
+<p>따라서 본 가이드의 결론적 권고는:</p>
+<ol>
+<li><strong>표준 비교</strong>: OPLS-AA + PPPM (커뮤니티 표준) 과 OPLS-AA + MSM (slab 친화) 동시 실행</li>
+<li><strong>빠른 스크리닝</strong>: TraPPE-UA + PPPM (저비용 표준)</li>
+<li><strong>고품질 슬랩 분석</strong>: TraPPE-UA + MSM (안정성 + slab 친화)</li>
+</ol>
+<h2 id="65">6.5 출판용 비교 권장</h2>
+<p>학술 출판을 목표로 하는 경우, 4가지 프레임워크를 모두 실행하여 다음을 보고하는 것이 견고하다.</p>
+<ul>
+<li><strong>힘장 효과</strong>: 같은 정전기 (예: MSM) 에서 OPLS vs TraPPE 결과 비교</li>
+<li><strong>정전기 효과</strong>: 같은 힘장 (예: TraPPE) 에서 PPPM vs MSM 결과 비교</li>
+<li><strong>상호작용 효과</strong>: 4가지 조합의 ANOVA 또는 직접 비교</li>
+</ul>
+<p>이러한 직교 실험 설계는 결과의 robustness 를 증명하는 데 효과적이며,
+특정 힘장/정전기 방식의 artifact 와 진정한 물리 효과를 구별하는 데 도움이 된다.</p>
+<h2 id="66">6.6 사용자의 실험 진행 권고</h2>
+<p>사용자의 이전 결과 (TraPPE-UA + MSM 성공, OPLS-AA + PPPM 부분 성공) 를 고려할 때
+다음 우선순위로 진행을 권한다.</p>
+<ol>
+<li><strong>OPLS-AA + PPPM 안정화 우선</strong>: 시간 스텝과 SHAKE 사용 (위 6.3절 참조).</li>
+<li><strong>OPLS-AA + MSM 실행</strong>: PPPM 안정화 후 동일 OPLS-AA 파라미터로 MSM 교체.
+   기존 입력 파일에서 <code>kspace_style</code> 라인만 변경.</li>
+<li><strong>TraPPE-UA + PPPM 추가</strong>: 이미 안정한 TraPPE-UA 시스템에서 정전기만 PPPM으로 교체.
+   기존 입력 파일에서 <code>kspace_style</code> 라인만 변경.</li>
+<li><strong>결과 통합 비교</strong>: 4가지 모두에서 SEI, 흡착 에너지, 표면 조성을 표로 정리.</li>
+</ol>
+<p>각 프레임워크 간 차이를 최소화 (논문에서 "minimal change") 하기 위해 다음을 통일:</p>
+<ul>
+<li>동일한 초기 데이터 파일 (<code>opls.data</code> 또는 <code>trappe.data</code>)</li>
+<li>동일한 시간 스텝, dump 빈도, thermo 출력 빈도</li>
+<li>동일한 평형화/생성 시간</li>
+<li>동일한 분석 스크립트 (<code>integrated_analysis.py</code>)</li>
+</ul>
+<h2 id="67">6.7 출력 파일 명명 규칙 (권장)</h2>
+<p>여러 프레임워크의 출력 파일이 섞이지 않도록 다음 명명 규칙을 권한다.</p>
+<pre><code class="language-text">&lt;framework&gt;/
+├── 01_soft.log
+├── 01_soft.lammpstrj
+├── 02_min.log
+├── 02_min.data
+├── 03_heat.log
+├── 03_heat.lammpstrj
+├── 04_eq.log
+├── 04_eq.lammpstrj
+├── 04_equilibrated.data
+├── 05_prod.log
+├── 05_production.lammpstrj
+└── analysis_results/
+</code></pre>
+<p>여기서 <code>&lt;framework&gt;</code>는 <code>opls-pppm</code>, <code>opls-msm</code>, <code>trappe-pppm</code>, <code>trappe-msm</code> 중 하나이다.</p>
+<h2 id="_2">참고문헌</h2>
+<ol>
+<li>
+<p>본 문서의 LAMMPS 명령어들은 모두 LAMMPS 공식 문서로 검증되었다:
+   <a href="https://docs.lammps.org/">https://docs.lammps.org/</a></p>
+</li>
+<li>
+<p>LAMMPS 공식 문서, <code>fix shake</code>:
+   <a href="https://docs.lammps.org/fix_shake.html">https://docs.lammps.org/fix_shake.html</a></p>
+</li>
+<li>
+<p>M. P. Allen, D. J. Tildesley,
+   "Computer Simulation of Liquids", 2nd ed., Oxford University Press (2017).</p>
+</li>
+<li>
+<p>사용자의 사전 시뮬레이션 결과는 본 가이드 작성의 baseline 으로 활용되었다.</p>
+</li>
+</ol>
+<hr />
+<p><a href="05-protocol">← 이전: 5. 5단계 프로토콜</a> ｜ <a href="07-analysis">다음: 7. 분석 방법 →</a></p>
+      </article>
+<nav class="page-nav"><a class="prev" href="05-protocol.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">5단계 프로토콜</div></a><a class="next" href="07-analysis.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">분석 방법</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

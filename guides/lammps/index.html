@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LAMMPS Cu 표면 흡착 가이드 · 한국어</title>
+  <meta name="description" content="Cu(100)/Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착의 분자동역학 시뮬레이션 프로토콜과 입력 파일 모음." />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">LAMMPS</div>
+    <div class="brand-subtitle">Cu 표면 흡착 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html" class="active" aria-current="page"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-overview.html"><span class="nav-num">01</span>시스템 개요</a></li>
+        <li><a href="02-data-files.html"><span class="nav-num">02</span>데이터 파일</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">이론과 방법론</div>
+      <ul class="nav-list">
+        <li><a href="03-force-fields.html"><span class="nav-num">03</span>힘장 비교</a></li>
+        <li><a href="04-electrostatics.html"><span class="nav-num">04</span>정전기 방법</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">실전 프로토콜</div>
+      <ul class="nav-list">
+        <li><a href="05-protocol.html"><span class="nav-num">05</span>5단계 프로토콜</a></li>
+        <li><a href="06-frameworks.html"><span class="nav-num">06</span>4가지 프레임워크</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">분석과 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-analysis.html"><span class="nav-num">07</span>분석 방법</a></li>
+        <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <section class="hero">
+        <h1 class="hero-title">
+          <em>LAMMPS</em><br />
+          <span class="hero-title-accent">Cu 표면 흡착 가이드</span>
+        </h1>
+        <p class="hero-tagline">Cu(100)/Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착의 분자동역학 시뮬레이션 프로토콜과 입력 파일 모음.</p>
+        <div class="hero-meta">
+          <span>대상</span> Cu(100) · Cu(111) · <span>힘장</span> OPLS-AA · TraPPE-UA · <span>정전기</span> PPPM · MSM
+        </div>
+      </section>
+      <article class="content">
+<p>Cu(100) 및 Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착 거동에 대한
+분자동역학 시뮬레이션 프로토콜과 입력 파일을 정리한 문서.</p>
+<hr />
+<h2 id="_1">본 가이드의 목적</h2>
+<p>본 가이드는 다음 네 가지 시뮬레이션 프레임워크를 체계적으로 비교하기 위해 작성되었다.</p>
+<table>
+<thead>
+<tr>
+<th>힘장 (Force field)</th>
+<th>정전기 방법</th>
+<th>약칭</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OPLS-AA</td>
+<td>PPPM</td>
+<td>OPLS+PPPM</td>
+</tr>
+<tr>
+<td>OPLS-AA</td>
+<td>MSM</td>
+<td>OPLS+MSM</td>
+</tr>
+<tr>
+<td>TraPPE-UA</td>
+<td>PPPM</td>
+<td>TraPPE+PPPM</td>
+</tr>
+<tr>
+<td>TraPPE-UA</td>
+<td>MSM</td>
+<td>TraPPE+MSM</td>
+</tr>
+</tbody>
+</table>
+<p>각 조합이 동일한 다섯 단계 프로토콜 (소프트 완화 → 에너지 최소화 → 단계적 가열 → 평형화 → 생성 동역학)을
+따르도록 구성되어 있으며, 이를 통해 힘장과 정전기 처리 방식이 계면 흡착 거동에 미치는 영향을
+분리하여 분석할 수 있다.</p>
+<h2 id="_2">빠른 둘러보기</h2>
+<ul>
+<li><a href="docs/01-overview">시스템 개요</a> — 화학적 배경과 시뮬레이션 셀 구성</li>
+<li><a href="docs/02-data-files">데이터 파일 구조</a> — <code>opls.data</code>, <code>trappe.data</code> 비교</li>
+<li><a href="docs/03-force-fields">힘장 비교</a> — OPLS-AA vs TraPPE-UA의 화학적 의미</li>
+<li><a href="docs/04-electrostatics">정전기 방법</a> — PPPM과 MSM, 그리고 슬랩 보정</li>
+<li><a href="docs/05-protocol">5단계 프로토콜</a> — 단계별 화학적 정당화와 입력 명령어</li>
+<li><a href="docs/06-frameworks">4가지 프레임워크 비교</a> — 조합별 차이와 선택 가이드</li>
+<li><a href="docs/07-analysis">분석 방법</a> — RDF, 밀도 프로파일, SEI, 계면 장력</li>
+<li><a href="docs/08-troubleshooting">트러블슈팅</a> — 빈번한 오류와 화학적 진단</li>
+</ul>
+<h2 id="_3">실행 환경</h2>
+<ul>
+<li><strong>LAMMPS</strong>: 23 Jun 2022 이후 안정 버전 권장 (KSPACE, MANYBODY, EXTRA-PAIR 패키지 포함)</li>
+<li><strong>MPI</strong>: 40코어 워크스테이션 기준으로 <code>mpirun -np 40</code> 권장</li>
+<li><strong>세션 관리</strong>: 장시간 실행에는 <code>tmux</code> 사용</li>
+</ul>
+<h2 id="_4">인용 시 참고문헌</h2>
+<p>본 가이드의 구성은 다음 핵심 문헌에 기반한다.</p>
+<ul>
+<li>
+<p>W. L. Jorgensen, D. S. Maxwell, J. Tirado-Rives,
+  "Development and Testing of the OPLS All-Atom Force Field on Conformational
+  Energetics and Properties of Organic Liquids",
+  <em>J. Am. Chem. Soc.</em> <strong>118</strong>, 11225-11236 (1996). DOI: <a href="https://doi.org/10.1021/ja9621760">10.1021/ja9621760</a></p>
+</li>
+<li>
+<p>B. Chen, J. J. Potoff, J. I. Siepmann,
+  "Monte Carlo Calculations for Alcohols and Their Mixtures with Alkanes.
+  Transferable Potentials for Phase Equilibria. 5. United-Atom Description of
+  Primary, Secondary, and Tertiary Alcohols",
+  <em>J. Phys. Chem. B</em> <strong>105</strong>, 3093-3104 (2001). DOI: <a href="https://doi.org/10.1021/jp003882x">10.1021/jp003882x</a></p>
+</li>
+<li>
+<p>N. Rai, J. I. Siepmann,
+  "Transferable Potentials for Phase Equilibria. 9. Explicit Hydrogen Description
+  of Benzene and Five-Membered and Six-Membered Heterocyclic Aromatic Compounds",
+  <em>J. Phys. Chem. B</em> <strong>111</strong>, 10790-10799 (2007). DOI: <a href="https://doi.org/10.1021/jp073586l">10.1021/jp073586l</a></p>
+</li>
+<li>
+<p>H. Heinz, R. A. Vaia, B. L. Farmer, R. R. Naik,
+  "Accurate Simulation of Surfaces and Interfaces of Face-Centered Cubic Metals
+  Using 12-6 and 9-6 Lennard-Jones Potentials",
+  <em>J. Phys. Chem. C</em> <strong>112</strong>, 17281-17290 (2008). DOI: <a href="https://doi.org/10.1021/jp801931d">10.1021/jp801931d</a></p>
+</li>
+<li>
+<p>A. P. Thompson 외, "LAMMPS - a flexible simulation tool for particle-based
+  materials modeling at the atomic, meso, and continuum scales",
+  <em>Comput. Phys. Commun.</em> <strong>271</strong>, 108171 (2022). DOI: <a href="https://doi.org/10.1016/j.cpc.2021.108171">10.1016/j.cpc.2021.108171</a></p>
+</li>
+</ul>
+      </article>
+<nav class="page-nav"><a class="next" href="01-overview.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">시스템 개요</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
