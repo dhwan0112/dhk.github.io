@@ -1,0 +1,51 @@
+# =============================================================
+# ff_opls_aa.in : OPLS-AA 힘장 설정 (12 atom types)
+# =============================================================
+# Reference: Jorgensen, Maxwell, Tirado-Rives,
+#            J. Am. Chem. Soc. 118, 11225 (1996). doi:10.1021/ja9621760
+# Cu LJ:     Heinz, Vaia, Farmer, Naik,
+#            J. Phys. Chem. C 112, 17281 (2008). doi:10.1021/jp801931d
+#
+# 사용 순서 : common.in -> read_data -> kspace_*.in -> ff_opls_aa.in
+# (pair_style 은 kspace_*.in 에서 미리 설정되어 있어야 한다.)
+#
+# Atom type mapping (opls.data 와 일치해야 함):
+#   1  CA   (aromatic C in benzene)
+#   2  HA   (aromatic H)
+#   3  CT_M (methyl C, CH3)
+#   4  CT_A (alpha C of ethanol, CH2-OH)
+#   5  HC_M (methyl H)
+#   6  HC_A (alpha H)
+#   7  OH   (hydroxyl O)
+#   8  HO   (hydroxyl H)
+#   9~11  (사용자 데이터 파일에 따른 추가 타입)
+#   12 Cu   (slab atom)
+# -------------------------------------------------------------
+
+# -- Pair modifier --
+pair_modify     mix geometric tail no    # OPLS-AA: 기하 평균, 슬랩에서 tail 보정 금지
+
+# -- 결합/각도/이면각 스타일 --
+bond_style      harmonic
+angle_style     harmonic
+dihedral_style  opls                     # OPLS 4-cosine
+improper_style  cvff
+
+# -- 1-4 스케일링 (OPLS 표준) --
+special_bonds   lj/coul 0.0 0.0 0.5
+
+# =============================================================
+# Pair coefficients (epsilon kcal/mol, sigma Å)
+# 데이터 파일의 Pair Coeffs 섹션에 이미 존재한다면 아래는 주석 처리.
+# =============================================================
+# pair_coeff   1   1   0.070   3.550   # CA aromatic C
+# pair_coeff   2   2   0.030   2.420   # HA aromatic H
+# pair_coeff   3   3   0.066   3.500   # CT methyl C
+# pair_coeff   4   4   0.066   3.500   # CT alpha C
+# pair_coeff   5   5   0.030   2.500   # HC methyl H
+# pair_coeff   6   6   0.030   2.500   # HC alpha H
+# pair_coeff   7   7   0.170   3.120   # OH hydroxyl O
+# pair_coeff   8   8   0.000   0.000   # HO hydroxyl H (no LJ)
+pair_coeff   12  12  4.720   2.616   # Cu (Heinz et al. 2008)
+
+# Cu-organic cross terms 은 mix geometric 으로 자동 생성됨.

@@ -1,0 +1,23 @@
+# =============================================================
+# kspace_pppm.in : PPPM 정전기 + 단거리 pair_style 설정
+# =============================================================
+# Reference (slab correction): Yeh, Berkowitz,
+#                              J. Chem. Phys. 111, 3155 (1999). doi:10.1063/1.479595
+# -------------------------------------------------------------
+
+# -- Pair style (PPPM/Ewald 와 호환되는 long 변종 사용) --
+pair_style      lj/cut/coul/long 12.0
+
+# -- K-space 스타일 --
+# 정확도 1e-4 는 슬랩에서 응력/에너지 안정성과 속도의 균형점.
+kspace_style    pppm 1.0e-4
+
+# -- 슬랩 보정 (Yeh-Berkowitz) --
+# 인자 3.0 : z 진공 영역이 box_z 의 약 3배가 되도록 가상적으로 확장.
+kspace_modify   slab 3.0
+
+# stress/atom 사용을 위해 K-space 압력 텐서를 스칼라 출력에서 제외.
+kspace_modify   pressure/scalar no
+
+# 도메인 분해 문제 시 차수 낮추기 (기본 5):
+# kspace_modify   order 4

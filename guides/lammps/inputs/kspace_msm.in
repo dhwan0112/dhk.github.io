@@ -1,0 +1,21 @@
+# =============================================================
+# kspace_msm.in : MSM 정전기 + 단거리 pair_style 설정
+# =============================================================
+# Reference: Hardy, Stone, Schulten,
+#            Parallel Comput. 35, 164 (2009). doi:10.1016/j.parco.2008.12.005
+#
+# MSM 은 격자 기반 멀티그리드 방법으로 FFT 를 사용하지 않으므로
+# 슬랩 형상에서 별도 보정이 불필요하다.
+# -------------------------------------------------------------
+
+# -- Pair style (MSM 전용 변종) --
+pair_style      lj/cut/coul/msm 14.0
+
+# -- K-space 스타일 --
+kspace_style    msm 1.0e-4
+
+# 슬랩 보정은 PPPM 전용이므로 MSM 에서는 절대 사용 금지.
+# (kspace_modify slab ... 라인은 절대 추가하지 말 것)
+
+# Stress 출력을 위한 설정
+kspace_modify   pressure/scalar no
