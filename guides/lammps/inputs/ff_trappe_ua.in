@@ -1,0 +1,48 @@
+# =============================================================
+# ff_trappe_ua.in : TraPPE-UA 힘장 설정 (6 atom types)
+# =============================================================
+# Reference (alcohol): Chen, Potoff, Siepmann,
+#                     J. Phys. Chem. B 105, 3093 (2001). doi:10.1021/jp003882x
+# Reference (aromatic CH): Wick, Martin, Siepmann,
+#                     J. Phys. Chem. B 104, 8008 (2000). doi:10.1021/jp001044x
+# Cu LJ:               Heinz et al., JPCC 112, 17281 (2008). doi:10.1021/jp801931d
+#
+# 사용 순서 : common.in -> read_data -> kspace_*.in -> ff_trappe_ua.in
+#
+# Atom type mapping (trappe.data 와 일치해야 함):
+#   1  CH_aro  (aromatic CH united-atom, benzene site)
+#   2  CH3     (methyl united-atom)
+#   3  CH2     (alpha CH2 united-atom)
+#   4  O       (hydroxyl O)
+#   5  H       (hydroxyl H)
+#   6  Cu      (slab atom)
+# -------------------------------------------------------------
+
+# -- Pair modifier --
+pair_modify     mix arithmetic tail no   # Lorentz-Berthelot, 슬랩이므로 tail 금지
+
+# -- 결합/각도/이면각 스타일 --
+bond_style      harmonic
+angle_style     harmonic
+dihedral_style  harmonic                 # TraPPE 는 OPLS 4-cosine 미사용
+
+# -- 1-4 스케일링 (TraPPE 표준: 완전 제외) --
+special_bonds   lj/coul 0.0 0.0 0.0
+
+# =============================================================
+# Pair coefficients
+# epsilon [kcal/mol] = (epsilon/k_B [K]) x 1.987 x 10^-3
+# =============================================================
+# Aromatic CH (Wick 2000): epsilon/k_B = 50.5 K, sigma = 3.695 A
+pair_coeff   1   1   0.10034  3.695    # CH_aro
+
+# Alcohol (Chen 2001):
+pair_coeff   2   2   0.19472  3.750    # CH3   (98.0  K)
+pair_coeff   3   3   0.09140  3.950    # CH2   (46.0  K)
+pair_coeff   4   4   0.18480  3.020    # O     (93.0  K)
+pair_coeff   5   5   0.00000  0.000    # H     (no LJ)
+
+# Cu (Heinz 2008):
+pair_coeff   6   6   4.72000  2.616    # Cu
+
+# Cu-organic cross terms 은 mix arithmetic 으로 자동 생성됨.

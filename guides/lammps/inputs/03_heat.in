@@ -1,0 +1,60 @@
+# =============================================================
+# 03_heat.in : Stage 3 — Staged heating (0.1 → 300 K)
+# =============================================================
+# 목적: 매우 낮은 온도에서 출발하여 점진적으로 상온까지 가열.
+#       전 원자 (OPLS-AA) 모델의 적분 불안정을 방지한다.
+#
+# 4단계 가열 :
+#   3a)   0.1 →  10 K    (100 ps)
+#   3b)   10  → 100 K    (200 ps)
+#   3c)   100 → 200 K    (200 ps)
+#   3d)   200 → 300 K    (200 ps)
+#
+# 입력: stage2.restart
+# 출력: stage3.restart
+# -------------------------------------------------------------
+
+# ---- (1) 공통 설정 ----
+include         common.in
+read_restart    stage2.restart
+
+include         kspace_pppm.in
+include         ff_opls_aa.in
+
+group           cu       type 12
+group           organic  subtract all cu
+
+fix             wall_top organic wall/lj93 zhi EDGE 0.1 3.0 10.0 units box
+fix             freeze_cu cu setforce 0.0 0.0 0.0
+
+# ---- (2) 초기 속도 부여 ----
+# Velocities 섹션이 데이터 파일에 없을 경우 필수
+velocity        organic create 0.1 87287 dist gaussian mom yes rot yes sum no
+
+# ---- (3) Langevin 적분 ----
+timestep        0.5
+fix             integrator organic nve
+
+# ---- (4) Stage 3a : 0.1 → 10 K (저온 영역) ----
+fix             thermo organic langevin 0.1 10.0 50.0 12345
+thermo          200
+thermo_style    custom step temp pe ke etotal press
+run             200000      # 100 ps
+
+# ---- (5) Stage 3b : 10 → 100 K ----
+unfix           thermo
+fix             thermo organic langevin 10.0 100.0 100.0 12346
+run             400000      # 200 ps
+
+# ---- (6) Stage 3c : 100 → 200 K (수소결합 재구성 영역) ----
+unfix           thermo
+fix             thermo organic langevin 100.0 200.0 100.0 12347
+run             400000      # 200 ps
+
+# ---- (7) Stage 3d : 200 → 300 K ----
+unfix           thermo
+fix             thermo organic langevin 200.0 300.0 100.0 12348
+run             400000      # 200 ps
+
+# ---- (8) 결과 저장 ----
+write_restart   stage3.restart

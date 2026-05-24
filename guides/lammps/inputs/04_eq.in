@@ -1,0 +1,45 @@
+# =============================================================
+# 04_eq.in : Stage 4 — NVT equilibration at 300 K
+# =============================================================
+# 목적: 가열 후 시스템을 충분히 평형시킨다. Nose-Hoover 열욕을 사용해
+#       정상적인 정준 분포 (canonical distribution) 를 얻는다.
+#
+# 평형 시간 :
+#   OPLS-AA : 1 ns 초기 + 6.5 ns 본 평형 = 7.5 ns
+#   TraPPE-UA : 3 ns 정도로 충분 (협력적 수소결합 효과 약함)
+#
+# 입력: stage3.restart
+# 출력: stage4.restart
+# -------------------------------------------------------------
+
+include         common.in
+read_restart    stage3.restart
+
+include         kspace_pppm.in
+include         ff_opls_aa.in
+
+group           cu       type 12
+group           organic  subtract all cu
+
+fix             wall_top organic wall/lj93 zhi EDGE 0.1 3.0 10.0 units box
+fix             freeze_cu cu setforce 0.0 0.0 0.0
+
+# ---- 적분 ----
+# Nose-Hoover NVT : 자유 에너지 계산과 호환되는 정준 앙상블
+timestep        0.5
+fix             thermo organic nvt temp 300.0 300.0 100.0
+
+# ---- 출력 ----
+thermo          500
+thermo_style    custom step temp pe ke etotal press density
+thermo_modify   flush yes
+
+# ---- 평형 (4a + 4b) ----
+# 4a) 초기 평형 1 ns
+run             2000000
+
+# 4b) 본 평형 6.5 ns (필요시 더 길게)
+run             13000000
+
+# ---- 결과 저장 ----
+write_restart   stage4.restart
