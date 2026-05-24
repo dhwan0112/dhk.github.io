@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ORCA 사용자 가이드 · 한국어</title>
+  <meta name="description" content="양자화학 계산 프로그램 ORCA의 한국어 사용자 가이드. 입력 파일 구조, 자주 쓰는 계산 예제, 방법론 선택을 포함합니다." />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">ORCA</div>
+    <div class="brand-subtitle">사용자 가이드 · v6.0</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="keywords.html"><span class="nav-num">03</span>키워드 모음</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">자주 쓰는 계산</div>
+      <ul class="nav-list">
+        <li><a href="single-point.html"><span class="nav-num">04</span>단일점 에너지</a></li>
+        <li><a href="geometry-optimization.html"><span class="nav-num">05</span>구조 최적화</a></li>
+        <li><a href="frequencies.html"><span class="nav-num">06</span>진동수 계산</a></li>
+        <li><a href="transition-states.html"><span class="nav-num">07</span>전이 상태 · NEB</a></li>
+        <li><a href="excited-states.html"><span class="nav-num">08</span>들뜬 상태 · TD-DFT</a></li>
+        <li><a href="solvation.html"><span class="nav-num">09</span>용매 효과</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">방법론 선택</div>
+      <ul class="nav-list">
+        <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">실전 운영</div>
+      <ul class="nav-list">
+        <li><a href="tips.html"><span class="nav-num">13</span>팁 · 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+    <main class="main">
+      <section class="hero">
+        <h1 class="hero-title">
+          <em>ORCA</em><br />
+          <span class="hero-title-accent">사용자 가이드</span>
+        </h1>
+        <p class="hero-tagline">
+          양자화학 계산 프로그램 ORCA를 한국어로 익히기 위한 실전 안내서.
+          매뉴얼 6.0.0판을 기준으로 자주 쓰이는 입력과 결과 해석을 정리했습니다.
+        </p>
+        <div class="hero-meta">
+          <span>버전</span> 6.0.0 · <span>지원</span> 5.0.2 / 5.0.4 / 6.0.0 · <span>기준</span> Manual 2024.07
+        </div>
+      </section>
+
+      <article class="content">
+        <h2>이 가이드에 관하여</h2>
+        <p>
+          ORCA는 막스 플랑크 석탄연구소(Max-Planck-Institut für Kohlenforschung)에서
+          개발하는 범용 양자화학 계산 패키지입니다. Hartree-Fock, DFT, MP2, Coupled Cluster, CASSCF 등
+          다양한 방법을 지원하며, 학술용으로 무료로 배포됩니다. 본 가이드는 1300페이지가 넘는 공식 매뉴얼에서
+          일상 연구에 가장 자주 등장하는 작업을 추려 정리한 것입니다.
+        </p>
+
+        <p>
+          왼쪽 사이드바를 통해 원하는 주제로 바로 이동할 수 있고, 각 페이지 하단에는
+          다음·이전 페이지로 이어지는 링크가 있습니다. 예제 입력은 모두 ORCA 6.0.0을 기준으로 작성되었으며,
+          5.0.x 계열에서도 대부분 그대로 사용할 수 있습니다. 하위 호환성에 영향을 주는 변경 사항은 별도로 표시해 두었습니다.
+        </p>
+
+        <h2>주제별로 들어가기</h2>
+
+        <h3>처음 시작한다면</h3>
+        <div class="cards">
+          <a class="card" href="getting-started.html">
+            <div class="card-num">01 · GETTING STARTED</div>
+            <div class="card-title">시작하기</div>
+            <div class="card-desc">설치 확인, 첫 실행, 출력 파일 둘러보기까지.</div>
+          </a>
+          <a class="card" href="input-structure.html">
+            <div class="card-num">02 · INPUT</div>
+            <div class="card-title">입력 파일 구조</div>
+            <div class="card-desc">키워드 라인, 블록, 좌표 입력 방식을 한눈에 정리했습니다.</div>
+          </a>
+          <a class="card" href="keywords.html">
+            <div class="card-num">03 · KEYWORDS</div>
+            <div class="card-title">키워드 모음</div>
+            <div class="card-desc">메소드, 베이시스, 수렴 조건 등 주요 키워드 사전.</div>
+          </a>
+        </div>
+
+        <h3>자주 수행하는 계산</h3>
+        <div class="cards">
+          <a class="card" href="single-point.html">
+            <div class="card-num">04 · SINGLE POINT</div>
+            <div class="card-title">단일점 에너지</div>
+            <div class="card-desc">고정된 구조에서 에너지와 파동함수를 얻는 가장 기본 작업.</div>
+          </a>
+          <a class="card" href="geometry-optimization.html">
+            <div class="card-num">05 · OPTIMIZATION</div>
+            <div class="card-title">구조 최적화</div>
+            <div class="card-desc">제약 조건과 좌표계 선택, 표면 스캔까지.</div>
+          </a>
+          <a class="card" href="frequencies.html">
+            <div class="card-num">06 · FREQUENCIES</div>
+            <div class="card-title">진동수 · 열화학</div>
+            <div class="card-desc">해석적 / 수치적 빈도, 깁스 자유에너지 산출.</div>
+          </a>
+          <a class="card" href="transition-states.html">
+            <div class="card-num">07 · TS · NEB</div>
+            <div class="card-title">전이 상태 · NEB</div>
+            <div class="card-desc">NEB-TS, ScanTS 등 활성화 장벽 탐색 전략.</div>
+          </a>
+          <a class="card" href="excited-states.html">
+            <div class="card-num">08 · EXCITED STATES</div>
+            <div class="card-title">들뜬 상태 · TD-DFT</div>
+            <div class="card-desc">UV-Vis 흡수 스펙트럼, 형광 계산의 기본기.</div>
+          </a>
+          <a class="card" href="solvation.html">
+            <div class="card-num">09 · SOLVATION</div>
+            <div class="card-title">용매 효과</div>
+            <div class="card-desc">CPCM, SMD 등 음폐 용매 모델의 실전 사용법.</div>
+          </a>
+        </div>
+
+        <h3>방법론 선택과 운영 노하우</h3>
+        <div class="cards">
+          <a class="card" href="coupled-cluster.html">
+            <div class="card-num">10 · CC</div>
+            <div class="card-title">DLPNO-CCSD(T)</div>
+            <div class="card-desc">대규모 분자에도 적용 가능한 황금 표준 계산.</div>
+          </a>
+          <a class="card" href="basis-sets.html">
+            <div class="card-num">11 · BASIS</div>
+            <div class="card-title">베이시스 세트 가이드</div>
+            <div class="card-desc">def2, cc-pVnZ, SARC 등 상황별 선택 기준.</div>
+          </a>
+          <a class="card" href="dft-functionals.html">
+            <div class="card-num">12 · DFT</div>
+            <div class="card-title">DFT 함수 선택</div>
+            <div class="card-desc">B3LYP를 넘어 r2SCAN, ωB97X-V까지.</div>
+          </a>
+          <a class="card" href="tips.html">
+            <div class="card-num">13 · TIPS</div>
+            <div class="card-title">팁과 트러블슈팅</div>
+            <div class="card-desc">SCF 수렴 실패, 메모리 부족 등 흔한 문제의 해결책.</div>
+          </a>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>인용에 관하여</h2>
+        <p>
+          ORCA를 사용한 연구를 발표할 때는 다음 세 편의 일반 인용을 함께 표기하시기 바랍니다.
+          여기에 더해, 실제로 사용한 방법론(예: DLPNO-CCSD(T), NEB-TS, CASSCF 등)의 원저 논문도
+          함께 인용하시는 것이 학계의 관례입니다.
+        </p>
+        <ul>
+          <li>Neese, F. <em>WIREs Comput. Mol. Sci.</em> <strong>2012</strong>, <em>2</em>, 73–78.</li>
+          <li>Neese, F. <em>WIREs Comput. Mol. Sci.</em> <strong>2018</strong>, <em>8</em>, e1327.</li>
+          <li>Neese, F.; Wennmohs, F.; Becker, U.; Riplinger, C. <em>J. Chem. Phys.</em> <strong>2020</strong>, <em>152</em>, 224108.</li>
+        </ul>
+
+        <div class="note">
+          <div class="note-title">참고 자료</div>
+          <p>
+            본 가이드의 모든 내용은 <code>orca_manual_6_0_0.pdf</code>(2024-07-24판)를 기반으로 합니다.
+            깊이 있는 옵션이나 특수한 사용 사례는 원문 매뉴얼을 직접 참조하시기를 권합니다.
+            공식 ORCA 포럼(<a href="https://orcaforum.kofo.mpg.de">orcaforum.kofo.mpg.de</a>)도
+            구체적인 사례 검색에 유용합니다.
+          </p>
+        </div>
+
+        <footer class="site-footer">
+          <p>
+            ORCA 한국어 사용자 가이드 · ORCA Manual 6.0.0 기반 · 본 가이드는 비공식 정리물입니다.<br />
+            ORCA는 Max-Planck-Institut für Kohlenforschung의 등록 상표이며, 학술용으로 무료 배포됩니다.
+          </p>
+        </footer>
+      </article>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

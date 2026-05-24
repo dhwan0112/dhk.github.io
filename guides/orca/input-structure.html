@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>입력 파일 구조 · ORCA 사용자 가이드</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">ORCA</div>
+    <div class="brand-subtitle">사용자 가이드 · v6.0</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="keywords.html"><span class="nav-num">03</span>키워드 모음</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">자주 쓰는 계산</div>
+      <ul class="nav-list">
+        <li><a href="single-point.html"><span class="nav-num">04</span>단일점 에너지</a></li>
+        <li><a href="geometry-optimization.html"><span class="nav-num">05</span>구조 최적화</a></li>
+        <li><a href="frequencies.html"><span class="nav-num">06</span>진동수 계산</a></li>
+        <li><a href="transition-states.html"><span class="nav-num">07</span>전이 상태 · NEB</a></li>
+        <li><a href="excited-states.html"><span class="nav-num">08</span>들뜬 상태 · TD-DFT</a></li>
+        <li><a href="solvation.html"><span class="nav-num">09</span>용매 효과</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">방법론 선택</div>
+      <ul class="nav-list">
+        <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">실전 운영</div>
+      <ul class="nav-list">
+        <li><a href="tips.html"><span class="nav-num">13</span>팁 · 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 02 · 시작</div>
+        <h1 class="page-title">입력 파일 구조</h1>
+        <p class="page-lede">키워드 라인, %블록, 좌표 입력. 이 세 요소만 익히면 ORCA 입력의 90%는 끝났습니다.</p>
+      </header>
+
+      <article class="content">
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <ul>
+            <li><a href="#anatomy">입력 파일의 해부</a></li>
+            <li><a href="#keyword-line">키워드 라인 <code>!</code></a></li>
+            <li><a href="#blocks">블록 입력 <code>%...end</code></a></li>
+            <li><a href="#coords">좌표 입력 방식</a></li>
+            <li><a href="#external">외부 파일에서 좌표 읽기</a></li>
+            <li><a href="#special">특수 원자 — 가짜 원자, 점전하, 동위원소</a></li>
+            <li><a href="#multi-job">하나의 파일에 여러 작업 — <code>$new_job</code></a></li>
+          </ul>
+        </div>
+
+        <h2 id="anatomy">입력 파일의 해부</h2>
+        <p>
+          ORCA 입력 파일은 자유 형식(free format) ASCII입니다. 들여쓰기는 자유이며,
+          대소문자도 구분하지 않습니다(파일 이름은 예외). 입력 파일은 크게 다음 세 요소로 구성됩니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># ① 키워드 라인 — 한 줄로 주요 설정을 끝냅니다</span>
+<span class="kw">!</span> <span class="kw2">B3LYP def2-TZVP TightSCF Opt</span>
+
+<span class="cmt"># ② 블록 — 세부 옵션을 상세히 지정합니다</span>
+<span class="kw">%scf</span>
+   <span class="kw2">MaxIter</span> <span class="num">200</span>
+<span class="kw">end</span>
+
+<span class="cmt"># ③ 좌표 입력</span>
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  O   0.000   0.000   0.119
+  H   0.000   0.763  -0.477
+  H   0.000  -0.763  -0.477
+<span class="kw">*</span></code></pre>
+
+        <p>
+          이 세 요소만 알면 대부분의 계산을 수행할 수 있습니다. 각각을 자세히 살펴봅시다.
+        </p>
+
+        <h2 id="keyword-line">키워드 라인 <code>!</code></h2>
+        <p>
+          느낌표(<code>!</code>)로 시작하는 줄은 “단순 입력(simple input)”이라고 부르며,
+          본래 여러 블록에 흩어져 있어야 할 설정을 한 줄로 요약해 줍니다. 한 입력 파일에 여러 줄을 둘 수도 있고,
+          공백으로 구분하여 한 줄에 모두 적어도 됩니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># 두 가지 형식 모두 동등합니다</span>
+<span class="kw">!</span> <span class="kw2">B3LYP def2-TZVP TightSCF</span>
+<span class="kw">!</span> <span class="kw2">RIJCOSX def2/J Opt Freq</span>
+
+<span class="cmt"># 한 줄에 적어도 동일</span>
+<span class="kw">!</span> <span class="kw2">B3LYP def2-TZVP TightSCF RIJCOSX def2/J Opt Freq</span></code></pre>
+
+        <p>키워드는 보통 다음 범주로 나뉩니다.</p>
+
+        <table>
+          <thead>
+            <tr><th>범주</th><th>예시</th><th>의미</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>방법(메소드)</td><td><code>HF</code>, <code>B3LYP</code>, <code>MP2</code>, <code>CCSD(T)</code>, <code>DLPNO-CCSD(T)</code></td><td>전자 구조 이론의 선택.</td></tr>
+            <tr><td>베이시스 세트</td><td><code>def2-SVP</code>, <code>def2-TZVP</code>, <code>cc-pVTZ</code></td><td>원자 궤도 기저 집합.</td></tr>
+            <tr><td>보조 베이시스</td><td><code>def2/J</code>, <code>def2-TZVP/C</code></td><td>RI/RIJCOSX에 필요한 피팅 기저.</td></tr>
+            <tr><td>작업 유형(Runtype)</td><td><code>Opt</code>, <code>Freq</code>, <code>EnGrad</code>, <code>NumFreq</code>, <code>NEB-TS</code></td><td>단일점, 최적화, 진동수 등.</td></tr>
+            <tr><td>알고리즘 옵션</td><td><code>RIJCOSX</code>, <code>RI-JK</code>, <code>UKS</code>, <code>UNO</code></td><td>적분 근사, 스핀 처리 등.</td></tr>
+            <tr><td>수렴 임계값</td><td><code>NormalSCF</code>, <code>TightSCF</code>, <code>VeryTightSCF</code></td><td>SCF 수렴 기준의 엄격함.</td></tr>
+            <tr><td>적분 격자</td><td><code>DefGrid1</code>, <code>DefGrid2</code>, <code>DefGrid3</code></td><td>DFT 수치 적분 격자(기본 DefGrid2).</td></tr>
+            <tr><td>용매 효과</td><td><code>CPCM(water)</code>, <code>SMD(ethanol)</code></td><td>음폐 용매 모델.</td></tr>
+            <tr><td>병렬</td><td><code>PAL4</code>, <code>PAL8</code>, ..., <code>PAL64</code></td><td>코어 개수 지정.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="tip">
+          <div class="note-title">키워드 순서는 중요하지 않습니다</div>
+          <p>
+            <code>! B3LYP def2-TZVP Opt</code>와 <code>! Opt def2-TZVP B3LYP</code>는 완전히 동등합니다.
+            가독성을 위해 일반적으로 <strong>방법 → 베이시스 → 보조 베이시스 → 작업 유형 → 옵션</strong> 순서로 적습니다.
+          </p>
+        </div>
+
+        <h2 id="blocks">블록 입력 <code>%...end</code></h2>
+        <p>
+          더 세밀한 설정이 필요할 때는 블록 입력을 씁니다. <code>%</code>로 시작해 <code>end</code>로 끝나며,
+          내부에는 “변수 = 값” 형식으로 옵션을 적습니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># SCF 수렴 관련 세부 설정</span>
+<span class="kw">%scf</span>
+   <span class="kw2">MaxIter</span>     <span class="num">300</span>          <span class="cmt"># 최대 반복 횟수</span>
+   <span class="kw2">ConvForced</span>   <span class="num">1</span>            <span class="cmt"># 비수렴 시에도 강제 진행</span>
+   <span class="kw2">DIIS</span>         <span class="kw">true</span>         <span class="cmt"># DIIS 가속 사용</span>
+   <span class="kw2">SOSCF</span>        <span class="kw">true</span>         <span class="cmt"># SOSCF 사용</span>
+<span class="kw">end</span>
+
+<span class="cmt"># DFT 함수의 세부 설정</span>
+<span class="kw">%method</span>
+   <span class="kw2">Functional</span>  <span class="kw">B3LYP</span>
+   <span class="kw2">RunTyp</span>      <span class="kw">Opt</span>
+<span class="kw">end</span>
+
+<span class="cmt"># 최적화 옵션</span>
+<span class="kw">%geom</span>
+   <span class="kw2">MaxIter</span>     <span class="num">200</span>
+   <span class="kw2">Constraints</span>
+       { <span class="kw">B</span> <span class="num">0 1</span> <span class="num">1.25</span> <span class="kw">C</span> }   <span class="cmt"># 1-2 결합 길이 1.25 Å로 고정</span>
+   <span class="kw2">end</span>
+<span class="kw">end</span></code></pre>
+
+        <p>
+          자주 등장하는 주요 블록은 다음과 같습니다.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>블록</th><th>역할</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>%scf</code></td><td>SCF 수렴 관련 옵션(반복 횟수, DIIS, level shift 등).</td></tr>
+            <tr><td><code>%method</code></td><td>함수, 작업 유형 등 메소드 일반.</td></tr>
+            <tr><td><code>%basis</code></td><td>원자별 베이시스 변경, ECP 지정.</td></tr>
+            <tr><td><code>%geom</code></td><td>최적화 옵션, 제약 조건, 표면 스캔.</td></tr>
+            <tr><td><code>%freq</code></td><td>진동수 계산 옵션(증분, 양측 차분 등).</td></tr>
+            <tr><td><code>%cpcm</code></td><td>음폐 용매 모델 세부 설정.</td></tr>
+            <tr><td><code>%tddft</code> / <code>%cis</code></td><td>TD-DFT, CIS 들뜬 상태 옵션.</td></tr>
+            <tr><td><code>%mp2</code></td><td>MP2 관련(DLPNO 임계값 등).</td></tr>
+            <tr><td><code>%mdci</code></td><td>Coupled-cluster 옵션.</td></tr>
+            <tr><td><code>%casscf</code></td><td>다중참조 활성공간 옵션.</td></tr>
+            <tr><td><code>%neb</code></td><td>Nudged Elastic Band 설정.</td></tr>
+            <tr><td><code>%pal</code></td><td>병렬 프로세스 설정.</td></tr>
+            <tr><td><code>%maxcore</code></td><td>코어당 메모리(MB).</td></tr>
+            <tr><td><code>%output</code></td><td>출력 상세 수준 제어.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="coords">좌표 입력 방식</h2>
+        <p>
+          좌표는 <code>*</code> ... <code>*</code>로 둘러싼 블록에 적습니다. 형식은 세 가지입니다.
+        </p>
+
+        <h3>① 데카르트 좌표 (xyz)</h3>
+        <p>가장 흔하고 권장되는 방식입니다. 단위는 기본적으로 옹스트롬(Å)입니다.</p>
+
+        <pre data-lang="orca"><code><span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>            <span class="cmt"># 전하 0, 다중도 1 (싱글릿)</span>
+  C   0.000000   0.000000   0.000000
+  O   0.000000   0.000000   1.130000
+<span class="kw">*</span></code></pre>
+
+        <p>
+          전하와 다중도 표기에 익숙해질 필요가 있습니다. 예를 들어 양이온 라디칼 CO<sup>+</sup>(전자가 하나 빠진 도플렛)는 다음과 같이 적습니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">1 2</span>            <span class="cmt"># 전하 +1, 다중도 2 (도플렛, S = 1/2)</span>
+  C   0.0   0.0   0.0
+  O   0.0   0.0   1.1105
+<span class="kw">*</span></code></pre>
+
+        <div class="note">
+          <div class="note-title">다중도 계산</div>
+          <p>
+            다중도(multiplicity)는 <em>2S + 1</em>로 계산합니다. 짝짓지 않은 전자 수에 따라
+            싱글릿 = 1, 도플렛 = 2, 트리플렛 = 3 등이 됩니다.
+            홀수 전자 시스템에서는 <code>! UKS</code>(또는 <code>! UHF</code>)를 함께 지정하시는 것을 권장합니다.
+          </p>
+        </div>
+
+        <h3>② 내부 좌표 (Z-matrix)</h3>
+        <p>
+          <code>int</code> 키워드를 쓰면 결합 길이·각도·이면각으로 좌표를 입력할 수 있습니다.
+          작은 분자나 구조 최적화 시 결합 길이를 직접 제어하고 싶을 때 편리합니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">*</span> <span class="kw2">int</span> <span class="num">0 1</span>
+  C   0 0 0    0.0     0.0     0.0
+  O   1 0 0    1.2     0.0     0.0       <span class="cmt"># C와 1.2 Å 결합</span>
+  H   1 2 0    1.1   120.0     0.0       <span class="cmt"># C-H 1.1, OCH 각도 120°</span>
+  H   1 2 3    1.1   120.0   180.0       <span class="cmt"># 이면각 180°</span>
+<span class="kw">*</span></code></pre>
+
+        <p>
+          연결 규칙은 다음과 같습니다.
+        </p>
+        <ul>
+          <li><strong>N<sub>A</sub></strong>: 현재 원자와 거리(R<sub>N</sub>)를 공유하는 원자.</li>
+          <li><strong>N<sub>B</sub></strong>: 현재 원자가 N<sub>A</sub>·N<sub>B</sub>와 각도(A<sub>N</sub>)를 이루는 원자.</li>
+          <li><strong>N<sub>C</sub></strong>: 이면각(D<sub>N</sub>)을 구성하는 네 번째 원자. N<sub>A</sub>-N<sub>B</sub> 축을 따라 내려다본 각도입니다.</li>
+        </ul>
+        <p>각도는 모두 도(degree) 단위이며, 원자 번호는 <strong>1부터</strong> 셉니다(예외 사례 중 하나입니다).</p>
+
+        <h3>③ Gaussian Z-matrix (gzmt)</h3>
+        <p>
+          Gaussian 프로그램과 동일한 Z-matrix 형식입니다. Gabedit, Avogadro, Molden 같은 GUI 도구가
+          이 형식으로 내보내 줄 때가 많습니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">*</span> <span class="kw2">gzmt</span> <span class="num">0 1</span>
+   C
+   O   1   1.200
+   H   1   1.100   2   120.0
+   H   1   1.100   2   120.0   3   180.0
+<span class="kw">*</span></code></pre>
+
+        <h2 id="external">외부 파일에서 좌표 읽기</h2>
+        <p>
+          좌표를 별도 파일로 분리하면 입력 파일이 깔끔해집니다. 가장 흔한 형식은 표준 <code>.xyz</code>입니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># mycoords.xyz 파일에서 좌표를 읽음</span>
+<span class="kw">!</span> <span class="kw2">B3LYP def2-SVP Opt</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mycoords.xyz</code></pre>
+
+        <p>
+          <code>.xyz</code> 파일의 표준 형식은 다음과 같습니다.
+        </p>
+
+        <pre data-lang="output"><code>3
+Water molecule, optimized at B3LYP/def2-TZVP
+O   0.000000   0.000000   0.119262
+H   0.000000   0.763239  -0.477047
+H   0.000000  -0.763239  -0.477047</code></pre>
+
+        <p>
+          첫 줄은 원자 개수, 둘째 줄은 주석(어떤 내용이든 무방), 셋째 줄부터 좌표입니다.
+          Gaussian Z-matrix 파일은 <code>* gzmtfile 0 1 file.gzmt</code>로 읽을 수 있습니다.
+        </p>
+
+        <h2 id="special">특수 원자 — 가짜 원자, 점전하, 동위원소</h2>
+        <table>
+          <thead>
+            <tr><th>표기</th><th>의미</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>DA</code>, <code>X</code>, <code>Xx</code></td><td>더미 원자(dummy atom). 좌표 정의용 가상 원자.</td></tr>
+            <tr><td><code>O:</code> (콜론)</td><td>고스트 원자. 베이시스만 두고 원자는 없음(BSSE 보정용).</td></tr>
+            <tr><td><code>Q</code></td><td>점전하. 뒤에 전하값을 명시합니다.</td></tr>
+            <tr><td><code>O&gt;</code> (꺾쇠)</td><td>매장 포텐셜(embedding potential).</td></tr>
+            <tr><td><code>M = 2.014</code></td><td>비표준 동위원소 질량 지정.</td></tr>
+            <tr><td><code>Z = 5.5</code></td><td>핵 전하 변경(분수 가능).</td></tr>
+            <tr><td><code>0.5$</code></td><td>좌표 뒤에 <code>$</code>를 붙이면 그 성분이 고정됩니다.</td></tr>
+          </tbody>
+        </table>
+
+        <p>아래는 HD(중수소화 수소)의 진동수 계산 예입니다. 두 번째 수소를 중수소로 지정했습니다.</p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP def2-TZVP Opt Freq</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  H   0.0   0.0   0.000
+  H   0.0   0.0   0.741   <span class="kw2">M</span> <span class="kw">=</span> <span class="num">2.014</span>
+<span class="kw">*</span></code></pre>
+
+        <h2 id="multi-job">하나의 파일에 여러 작업 — <code>$new_job</code></h2>
+        <p>
+          ORCA는 하나의 입력 파일에 여러 작업을 차례로 수행할 수 있습니다. 예를 들어 “저렴한 방법으로 구조 최적화 → 정밀한 방법으로 단일점 에너지” 같은 패턴이 흔합니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Step 1: BP86/def2-SVP 수준으로 구조 최적화</span>
+<span class="kw">!</span> <span class="kw2">BP86 def2-SVP def2/J Opt</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  O   0.0   0.0   0.119
+  H   0.0   0.763  -0.477
+  H   0.0  -0.763  -0.477
+<span class="kw">*</span>
+
+<span class="kw">$new_job</span>
+
+<span class="cmt"># Step 2: 위 최적화 구조에 대해 B3LYP/def2-TZVPP 단일점</span>
+<span class="kw">!</span> <span class="kw2">B3LYP def2-TZVPP RIJCOSX def2/J TightSCF</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span></code></pre>
+
+        <p>
+          <code>$new_job</code> 다음에 좌표를 <code>xyzfile</code>로 지정하되 파일명을 생략하면,
+          이전 작업의 최적화된 좌표가 자동으로 사용됩니다. 매우 편리한 기능입니다.
+        </p>
+
+        <div class="tip">
+          <div class="note-title">한 단계 더 — Compound 모듈</div>
+          <p>
+            반복 계산이나 조건 분기가 필요한 복잡한 워크플로우는 ORCA 6의 새로운 Compound 모듈로 자동화할 수 있습니다.
+            <code>%compound</code> 블록 안에서 변수, 반복문, 조건문, 출력 포맷을 직접 제어합니다.
+            매뉴얼 7.59절과 GitHub의 공식 스크립트 저장소(<a href="https://github.com/ORCAQuantumChemistry/CompoundScripts">ORCAQuantumChemistry/CompoundScripts</a>)에 풍부한 예제가 있습니다.
+          </p>
+        </div>
+
+        <p>
+          입력 파일의 기본 문법을 익혔다면, 다음 장에서는 자주 쓰는 키워드들을 한 곳에 모아 사전 형태로 정리합니다.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="getting-started.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">시작하기</div>
+        </a>
+        <a class="next" href="keywords.html">
+          <div class="page-nav-label">다음 →</div>
+          <div class="page-nav-title">키워드 모음</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

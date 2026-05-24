@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>들뜬 상태 · TD-DFT · ORCA 사용자 가이드</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">ORCA</div>
+    <div class="brand-subtitle">사용자 가이드 · v6.0</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="keywords.html"><span class="nav-num">03</span>키워드 모음</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">자주 쓰는 계산</div>
+      <ul class="nav-list">
+        <li><a href="single-point.html"><span class="nav-num">04</span>단일점 에너지</a></li>
+        <li><a href="geometry-optimization.html"><span class="nav-num">05</span>구조 최적화</a></li>
+        <li><a href="frequencies.html"><span class="nav-num">06</span>진동수 계산</a></li>
+        <li><a href="transition-states.html"><span class="nav-num">07</span>전이 상태 · NEB</a></li>
+        <li><a href="excited-states.html"><span class="nav-num">08</span>들뜬 상태 · TD-DFT</a></li>
+        <li><a href="solvation.html"><span class="nav-num">09</span>용매 효과</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">방법론 선택</div>
+      <ul class="nav-list">
+        <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">실전 운영</div>
+      <ul class="nav-list">
+        <li><a href="tips.html"><span class="nav-num">13</span>팁 · 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 08 · 자주 쓰는 계산</div>
+        <h1 class="page-title">들뜬 상태 · TD-DFT</h1>
+        <p class="page-lede">UV-Vis 흡수 스펙트럼과 형광. 광물리·광화학의 출발점입니다.</p>
+      </header>
+
+      <article class="content">
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <ul>
+            <li><a href="#methods">들뜬 상태 방법 — TDA · TD-DFT · CIS</a></li>
+            <li><a href="#basic">기본 사용법</a></li>
+            <li><a href="#interpret">출력 해석</a></li>
+            <li><a href="#triplets-sf">삼중항과 스핀-플립</a></li>
+            <li><a href="#opt-excited">들뜬 상태 최적화 — 형광 계산</a></li>
+            <li><a href="#nacme">비단열 결합과 ETF</a></li>
+            <li><a href="#xray">X-선 흡수 스펙트럼</a></li>
+            <li><a href="#tips">함수 선택과 주의 사항</a></li>
+          </ul>
+        </div>
+
+        <h2 id="methods">들뜬 상태 방법 — TDA · TD-DFT · CIS</h2>
+        <p>
+          ORCA는 여러 들뜬 상태 방법을 지원합니다. 단일참조(single-reference) 방법은 다음과 같습니다.
+          다중참조(CASSCF, NEVPT2, MRCI) 방법은 매뉴얼의 별도 장을 참조하시기 바랍니다.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>방법</th><th>키워드 · 블록</th><th>설명</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>TDA (Tamm-Dancoff)</td><td><code>%tddft TDA true</code></td><td>TD-DFT의 단순화. 안정적이며 약간 더 빠름.</td></tr>
+            <tr><td>TD-DFT</td><td><code>%tddft</code> (TDA false)</td><td>표준 TD-DFT. 진동자 강도 정확도 양호.</td></tr>
+            <tr><td>CIS</td><td>HF 레퍼런스 + <code>%cis</code></td><td>HF 기반 단일들뜸 CI.</td></tr>
+            <tr><td>CIS(D)</td><td><code>%mp2 RI true end</code> + CIS</td><td>CIS에 섭동 보정. 정확도 향상.</td></tr>
+            <tr><td>SF-TDA</td><td><code>%tddft SF true</code></td><td>스핀-플립 TDA. 디라디칼·교차점.</td></tr>
+            <tr><td>ROCIS</td><td><code>%rocis</code></td><td>제한 열린 껍질 CIS. 전이금속 흡수.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="basic">기본 사용법</h2>
+        <p>
+          가장 간단한 형태로는 “몇 개의 들뜬 상태를 구할지”만 지정하면 됩니다. 포름알데히드의 n → π* 전이를 포함한 첫 10개 들뜸 상태를 계산하는 예입니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP RIJCOSX def2/J</span>
+
+<span class="kw">%tddft</span>
+   <span class="kw2">NRoots</span>    <span class="num">10</span>          <span class="cmt"># 첫 10개 들뜸 상태</span>
+   <span class="kw2">MaxDim</span>    <span class="num">100</span>         <span class="cmt"># Davidson 부분공간 크기</span>
+   <span class="kw2">Triplets</span>  <span class="kw">true</span>        <span class="cmt"># 삼중항도 함께 (닫힌 껍질 레퍼런스 한정)</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">int</span> <span class="num">0 1</span>
+  C 0 0 0   0.00     0.0      0.00
+  O 1 0 0   1.20     0.0      0.00
+  H 1 2 0   1.08   120.0      0.00
+  H 1 2 3   1.08   120.0    180.00
+<span class="kw">*</span></code></pre>
+
+        <p>
+          <code>NRoots</code>는 실험에서 관심 있는 영역까지 포함하도록 넉넉히 잡으시기를 권합니다.
+          진동자 강도가 작은 어두운 상태가 사이에 끼어 있을 수 있어, 실험 흡수대에 맞는 상태를 놓치지 않으려면 여유가 필요합니다.
+        </p>
+
+        <h2 id="interpret">출력 해석</h2>
+        <p>
+          TD-DFT 계산이 끝나면 다음과 같은 표가 출력됩니다.
+        </p>
+
+        <pre data-lang="output"><code>-----------------------------
+TD-DFT/TDA EXCITED STATES (SINGLETS)
+-----------------------------
+
+STATE  1:  E=   0.155436 au      4.230 eV    34121.5 cm**-1 &lt;S**2&gt; =   0.000000
+     8a -&gt;   9a  :     0.984123  (c=  0.99202)
+     ...
+
+STATE  2:  E=   0.305212 au      8.305 eV    66987.2 cm**-1 &lt;S**2&gt; =   0.000000
+     ...
+
+-----------------------------------------------------------------------------
+         ABSORPTION SPECTRUM VIA TRANSITION ELECTRIC DIPOLE MOMENTS
+-----------------------------------------------------------------------------
+States    Energy   Wavelength   fosc     T2         TX        TY        TZ
+        (cm-1)      (nm)                 (au**2)    (au)      (au)      (au)
+-----------------------------------------------------------------------------
+ 0-1A   34121.5   293.1     0.00000123   0.00012   0.00000   0.00000   0.00345
+ 0-2A   66987.2   149.3     0.45612345   2.21345  -1.48732   0.00000   0.00000
+ ...</code></pre>
+
+        <p>각 열의 의미는 다음과 같습니다.</p>
+
+        <ul>
+          <li><strong>STATE n</strong>: <em>n</em>번째 들뜬 상태의 에너지(au, eV, cm⁻¹).</li>
+          <li><strong>x → y</strong>: 주요 단일 들뜸 (예: HOMO → LUMO). 계수가 클수록 그 들뜸이 지배적.</li>
+          <li><strong>fosc</strong>: 진동자 강도(oscillator strength). 0.01 이상이면 흡수가 “보일” 만큼 큽니다.</li>
+          <li><strong>Wavelength</strong>: 대응하는 흡수 파장(nm). UV-Vis 비교의 핵심.</li>
+        </ul>
+
+        <p>포름알데히드의 경우, 첫 번째 상태(약 290 nm)는 <em>n → π*</em> 전이로 진동자 강도가 매우 작고(대칭 금지), 두 번째 상태가 보통 실험에서 관측되는 흡수에 해당합니다.</p>
+
+        <h2 id="triplets-sf">삼중항과 스핀-플립</h2>
+        <p>닫힌 껍질 레퍼런스에서 삼중항을 함께 계산하려면 다음을 추가합니다.</p>
+
+        <pre data-lang="orca"><code><span class="kw">%tddft</span>
+   <span class="kw2">NRoots</span>   <span class="num">10</span>
+   <span class="kw2">Triplets</span> <span class="kw">true</span>
+<span class="kw">end</span></code></pre>
+
+        <p>
+          삼중항 들뜸 에너지(<em>T<sub>1</sub></em>, <em>T<sub>2</sub></em>, ...)는 항간교차(intersystem crossing)·인광 분석에 필수입니다.
+          한편, 정확한 단일항 디라디칼이나 교차점을 다루려면 “스핀-플립” TDA(SF-TDA)를 씁니다.
+          이때 레퍼런스는 반드시 <strong>열린 껍질(High-spin)</strong>이어야 합니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># 스핀-플립 TDA: 트리플렛 레퍼런스에서 시작</span>
+<span class="kw">!</span> <span class="kw2">UKS B3LYP D4 def2-SVP</span>
+
+<span class="kw">%tddft</span>
+   <span class="kw2">NRoots</span> <span class="num">5</span>
+   <span class="kw2">SF</span>     <span class="kw">true</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 3</span> mol.xyz</code></pre>
+
+        <h2 id="opt-excited">들뜬 상태 최적화 — 형광 계산</h2>
+        <p>
+          형광(emission) 파장을 얻으려면 들뜬 상태에서 구조를 다시 최적화해야 합니다.
+          그 구조에서 다시 들뜬 상태의 에너지를 계산하면, 그 값이 형광의 0-0 전이 에너지에 가깝습니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># 1번 들뜬 상태(S1)의 구조 최적화</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP Opt</span>
+
+<span class="kw">%tddft</span>
+   <span class="kw2">NRoots</span> <span class="num">3</span>
+   <span class="kw2">IRoot</span>  <span class="num">1</span>         <span class="cmt"># 어느 들뜸 상태를 최적화할지</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> ground_opt.xyz</code></pre>
+
+        <p>
+          <code>IRoot n</code>은 “<em>n</em>번째 들뜬 상태의 그래디언트를 계산하여 그 상태를 최적화한다”는 의미입니다.
+          최적화 후 다시 <code>!Freq</code>를 붙이면 들뜬 상태의 진동수도 얻을 수 있습니다.
+          이때 영점 보정을 포함해 산출한 0-0 전이 에너지가 발광 스펙트럼과 직접 비교 가능한 값입니다.
+        </p>
+
+        <h2 id="nacme">비단열 결합과 ETF</h2>
+        <p>
+          광화학 동역학(surface hopping)에서는 두 들뜬 상태 사이의 비단열 결합(NACME, non-adiabatic coupling matrix element)이 필요합니다.
+          ORCA 6에서는 이를 해석적으로 계산할 수 있으며, 전자 병진 인자(ETF, Electronic Translational Factor) 보정도 지원합니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%tddft</span>
+   <span class="kw2">NRoots</span>      <span class="num">5</span>
+   <span class="kw2">IRoot</span>       <span class="num">1</span>
+   <span class="kw2">NACME</span>       <span class="kw">true</span>      <span class="cmt"># NACME 계산 켜기</span>
+   <span class="kw2">ETF</span>         <span class="kw">true</span>      <span class="cmt"># ETF 보정</span>
+<span class="kw">end</span></code></pre>
+
+        <h2 id="xray">X-선 흡수 스펙트럼</h2>
+        <p>
+          K-edge X-선 흡수 스펙트럼의 pre-edge 영역은 TD-DFT로 정성적·정량적으로 모사할 수 있습니다.
+          매뉴얼은 TiCl<sub>4</sub>의 Ti K-edge를 예로 들고 있습니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">BP86 ZORA ZORA-def2-TZVP(-f) SARC/J TightSCF</span>
+
+<span class="kw">%tddft</span>
+   <span class="kw2">OrbWin[0]</span> <span class="kw">=</span> <span class="num">0, 0, -1, -1</span>   <span class="cmt"># 0번 궤도(Ti 1s)만 도너로</span>
+   <span class="kw2">NRoots</span>     <span class="num">25</span>
+   <span class="kw2">DoHigherMoments</span>      <span class="kw">true</span>   <span class="cmt"># 사극자 강도 포함</span>
+   <span class="kw2">DoFullSemiclassical</span>  <span class="kw">true</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">int</span> <span class="num">0 1</span>
+  Ti 0 0 0   0.00       0.00     0.00
+  Cl 1 2 3   2.15       0.00     0.00
+  Cl 1 2 3   2.15     109.47     0.00
+  Cl 1 2 3   2.15     109.47   120.00
+  Cl 1 2 3   2.15     109.47   240.00
+<span class="kw">*</span></code></pre>
+
+        <p>
+          핵심은 <code>OrbWin[0]</code>으로 “이 분자에서 0번 궤도(Ti의 1s)만 도너로 사용”하는 제한을 거는 점입니다.
+          그렇지 않으면 모든 occupied 궤도에서의 들뜸을 다 포함해야 해서 비현실적으로 큰 NRoots가 필요해집니다.
+          이런 제한은 K-edge 모사에서 일반적입니다.
+        </p>
+
+        <h2 id="tips">함수 선택과 주의 사항</h2>
+
+        <div class="note">
+          <div class="note-title">전하 이동 들뜸 상태의 함정</div>
+          <p>
+            B3LYP, PBE0 같은 표준 하이브리드 DFT는 전하 이동(charge-transfer) 들뜸 상태의 에너지를 크게 과소 평가합니다.
+            전하 이동 특성이 있는 시스템(도너-억셉터 분자, 큰 컨주게이션계)에서는
+            <code>CAM-B3LYP</code>, <code>ωB97X-V</code> 같은 장범위 분리(range-separated) 하이브리드를 사용하시기를 권합니다.
+          </p>
+        </div>
+
+        <p>일반적인 함수 추천은 다음과 같습니다.</p>
+
+        <table>
+          <thead>
+            <tr><th>상황</th><th>권장 함수</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>로컬 들뜸(국소 π → π*)</td><td>B3LYP, PBE0, M06-2X</td></tr>
+            <tr><td>전하 이동, 큰 컨주게이션</td><td>CAM-B3LYP, ωB97X-V, ωB97M-V</td></tr>
+            <tr><td>전이금속 d-d 전이</td><td>TPSSh, B3LYP, BP86</td></tr>
+            <tr><td>리이드버그 상태</td><td>장범위 분리 + diffuse 함수 (def2-TZVPD 등)</td></tr>
+          </tbody>
+        </table>
+
+        <h3>흡수 스펙트럼 플롯하기</h3>
+        <p>
+          <code>orca_mapspc</code>로 흡수 스펙트럼을 그릴 수 있습니다.
+          예를 들어 4890–14915 cm⁻¹(약 670–2040 nm) 범위, 가우스 라인폭 1.3을 적용하는 명령은 다음과 같습니다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt"># 표준 흡수 스펙트럼</span>
+orca_mapspc mol.out ABSQ -eV -x04890 -x14915 -w1.3
+
+<span class="cmt"># 사극자·자기쌍극자 효과까지 포함한 확장 스펙트럼</span>
+orca_mapspc mol.out ABSOI -eV -x04890 -x14915 -w1.3</code></pre>
+
+        <p>
+          출력된 <code>.dat</code> 파일을 gnuplot, matplotlib 등으로 시각화하면 실험 스펙트럼과 직접 겹쳐 비교할 수 있습니다.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="transition-states.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">전이 상태 · NEB</div>
+        </a>
+        <a class="next" href="solvation.html">
+          <div class="page-nav-label">다음 →</div>
+          <div class="page-nav-title">용매 효과</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

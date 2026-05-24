@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>키워드 모음 · ORCA 사용자 가이드</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">ORCA</div>
+    <div class="brand-subtitle">사용자 가이드 · v6.0</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="keywords.html"><span class="nav-num">03</span>키워드 모음</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">자주 쓰는 계산</div>
+      <ul class="nav-list">
+        <li><a href="single-point.html"><span class="nav-num">04</span>단일점 에너지</a></li>
+        <li><a href="geometry-optimization.html"><span class="nav-num">05</span>구조 최적화</a></li>
+        <li><a href="frequencies.html"><span class="nav-num">06</span>진동수 계산</a></li>
+        <li><a href="transition-states.html"><span class="nav-num">07</span>전이 상태 · NEB</a></li>
+        <li><a href="excited-states.html"><span class="nav-num">08</span>들뜬 상태 · TD-DFT</a></li>
+        <li><a href="solvation.html"><span class="nav-num">09</span>용매 효과</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">방법론 선택</div>
+      <ul class="nav-list">
+        <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">실전 운영</div>
+      <ul class="nav-list">
+        <li><a href="tips.html"><span class="nav-num">13</span>팁 · 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 03 · 시작</div>
+        <h1 class="page-title">키워드 모음</h1>
+        <p class="page-lede">방법, 베이시스, 알고리즘 옵션. 자주 마주치는 키워드를 한 자리에 모았습니다.</p>
+      </header>
+
+      <article class="content">
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <ul>
+            <li><a href="#runtypes">작업 유형 (Runtype)</a></li>
+            <li><a href="#hf-dft">Hartree-Fock · DFT 방법</a></li>
+            <li><a href="#correlated">상관 방법 — MP2, CCSD(T), DLPNO</a></li>
+            <li><a href="#scf-options">SCF 알고리즘 옵션</a></li>
+            <li><a href="#convergence">SCF · 최적화 수렴 임계값</a></li>
+            <li><a href="#grids">DFT 적분 격자</a></li>
+            <li><a href="#relativity">상대론적 옵션</a></li>
+            <li><a href="#output-control">출력 제어</a></li>
+            <li><a href="#composite">합성 방법 (Composite)</a></li>
+          </ul>
+        </div>
+
+        <p>
+          이 페이지는 ORCA 매뉴얼 4.2절의 키워드 표를 한국어로 다시 정리한 것입니다.
+          전체 키워드 목록은 1300페이지에 달하므로, 여기서는 일상 연구에서 자주 마주치는 것들에 집중했습니다.
+          전체 목록은 매뉴얼 4.2절을 참고하시면 됩니다.
+        </p>
+
+        <h2 id="runtypes">작업 유형 (Runtype)</h2>
+        <p>키워드 라인에 작업 유형이 지정되지 않으면 기본값은 <code>Energy</code>(단일점 에너지)입니다.</p>
+
+        <table>
+          <thead>
+            <tr><th>키워드</th><th>의미</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Energy</code> 또는 <code>SP</code></td><td>단일점 에너지 (기본값).</td></tr>
+            <tr><td><code>Opt</code></td><td>구조 최적화(2022년 도입 redundant internal 좌표 사용).</td></tr>
+            <tr><td><code>COpt</code></td><td>데카르트 좌표에서 최적화.</td></tr>
+            <tr><td><code>OptTS</code></td><td>전이 상태 최적화.</td></tr>
+            <tr><td><code>ScanTS</code></td><td>릴랙스 스캔 + 전이 상태 검색.</td></tr>
+            <tr><td><code>NEB</code>, <code>NEB-CI</code>, <code>NEB-TS</code></td><td>Nudged Elastic Band 방법.</td></tr>
+            <tr><td><code>IRC</code></td><td>고유반응경로(Intrinsic Reaction Coordinate) 추적.</td></tr>
+            <tr><td><code>Freq</code> 또는 <code>AnFreq</code></td><td>해석적 진동수 계산.</td></tr>
+            <tr><td><code>NumFreq</code></td><td>수치적 진동수 계산.</td></tr>
+            <tr><td><code>EnGrad</code></td><td>에너지 + 그래디언트만 계산(GBW 이외 별도 파일 생성).</td></tr>
+            <tr><td><code>NumGrad</code></td><td>수치 그래디언트(해석적 미분이 없는 경우).</td></tr>
+            <tr><td><code>MD</code></td><td>분자동역학.</td></tr>
+            <tr><td><code>GOAT</code></td><td>전역 구조 최적화 + 컨포머 탐색 (ORCA 6).</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="hf-dft">Hartree-Fock · DFT 방법</h2>
+
+        <h3>Hartree-Fock</h3>
+        <p>HF 자체는 키워드 한 단어로 끝납니다. 닫힌 껍질 / 열린 껍질을 명시할 수 있습니다.</p>
+        <table>
+          <thead><tr><th>키워드</th><th>의미</th></tr></thead>
+          <tbody>
+            <tr><td><code>HF</code></td><td>Hartree-Fock 방법.</td></tr>
+            <tr><td><code>RHF</code> / <code>RKS</code></td><td>닫힌 껍질 (제한된) SCF.</td></tr>
+            <tr><td><code>UHF</code> / <code>UKS</code></td><td>스핀 비제한 SCF.</td></tr>
+            <tr><td><code>ROHF</code> / <code>ROKS</code></td><td>열린 껍질 제한된 SCF.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>대표적인 DFT 함수</h3>
+        <p>아래는 자주 쓰이는 함수들입니다. 전체 목록은 <a href="dft-functionals.html">12. DFT 함수 선택</a>에서 다룹니다.</p>
+
+        <table>
+          <thead>
+            <tr><th>범주</th><th>키워드</th><th>설명</th></tr>
+          </thead>
+          <tbody>
+            <tr><td rowspan="3">GGA</td>
+                <td><code>BP86</code> · <code>BP</code></td><td>Becke88 교환 + Perdew86 상관. 전이금속에서 자주 사용.</td></tr>
+            <tr><td><code>BLYP</code></td><td>Becke88 + Lee-Yang-Parr.</td></tr>
+            <tr><td><code>PBE</code></td><td>Perdew-Burke-Ernzerhof. 범용성 우수.</td></tr>
+
+            <tr><td rowspan="4">하이브리드 GGA</td>
+                <td><code>B3LYP</code></td><td>20% HF 교환. 가장 널리 쓰이는 표준.</td></tr>
+            <tr><td><code>B3LYP/G</code></td><td>Gaussian 정의 변형(VWN5 대신 VWN3).</td></tr>
+            <tr><td><code>PBE0</code></td><td>25% HF 교환. NMR·EPR에서 강점.</td></tr>
+            <tr><td><code>BHANDHLYP</code></td><td>50% HF 교환.</td></tr>
+
+            <tr><td rowspan="3">메타-GGA</td>
+                <td><code>TPSS</code></td><td>대표 메타-GGA.</td></tr>
+            <tr><td><code>TPSSh</code></td><td>10% HF 교환 하이브리드.</td></tr>
+            <tr><td><code>M06L</code></td><td>Truhlar 그룹의 메타-GGA.</td></tr>
+
+            <tr><td rowspan="3">메타-GGA 하이브리드</td>
+                <td><code>M06</code></td><td>27% HF 교환.</td></tr>
+            <tr><td><code>M062X</code></td><td>54% HF 교환. 반응 장벽 잘 묘사.</td></tr>
+            <tr><td><code>r2SCANh</code> · <code>r2SCAN0</code></td><td>r²SCAN 하이브리드. 최신 추천.</td></tr>
+
+            <tr><td rowspan="3">장범위 분리</td>
+                <td><code>CAM-B3LYP</code></td><td>들뜬상태·전하이동에서 양호.</td></tr>
+            <tr><td><code>wB97X-V</code></td><td>VV10 비국소 상관 포함.</td></tr>
+            <tr><td><code>wB97M-V</code></td><td>메타-GGA + VV10. 종합 성능 최상위권.</td></tr>
+
+            <tr><td rowspan="2">이중 하이브리드</td>
+                <td><code>B2PLYP</code></td><td>B88+LYP+MP2 혼합. 정확도 높음.</td></tr>
+            <tr><td><code>DSD-PBEP86</code></td><td>SCS-MP2 결합 이중 하이브리드.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>분산력 보정</h3>
+        <p>DFT는 분산력을 제대로 묘사하지 못하므로, 거의 모든 경우 분산력 보정을 함께 사용하시기를 권합니다.</p>
+
+        <table>
+          <thead><tr><th>키워드</th><th>의미</th></tr></thead>
+          <tbody>
+            <tr><td><code>D4</code></td><td>최신 D4 보정. ORCA 6의 권장 옵션.</td></tr>
+            <tr><td><code>D3BJ</code></td><td>Grimme의 D3 + Becke-Johnson damping. 매우 안정적.</td></tr>
+            <tr><td><code>D3ZERO</code></td><td>D3 + zero damping.</td></tr>
+            <tr><td><code>D2</code></td><td>오래된 버전 — 사용 비권장.</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="orca"><code><span class="cmt"># B3LYP는 분산력 보정과 함께 쓰는 것이 거의 표준입니다</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP</span></code></pre>
+
+        <h2 id="correlated">상관 방법 — MP2, CCSD(T), DLPNO</h2>
+
+        <table>
+          <thead>
+            <tr><th>키워드</th><th>의미</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>MP2</code></td><td>표준 MP2.</td></tr>
+            <tr><td><code>RI-MP2</code> 또는 <code>MP2RI</code></td><td>RI 근사를 적용한 MP2. 보조 기저 필요.</td></tr>
+            <tr><td><code>SCS-MP2</code></td><td>Spin-Component Scaled MP2. 정확도 향상.</td></tr>
+            <tr><td><code>DLPNO-MP2</code></td><td>국소 PNO 기반 MP2. 대규모 분자에 적합.</td></tr>
+            <tr><td><code>CCSD</code></td><td>Coupled Cluster Singles & Doubles.</td></tr>
+            <tr><td><code>CCSD(T)</code></td><td>섭동 삼중 들뜸 추가. 황금 표준.</td></tr>
+            <tr><td><code>DLPNO-CCSD</code></td><td>국소 PNO 기반 CCSD (닫힌 껍질).</td></tr>
+            <tr><td><code>DLPNO-CCSD(T)</code></td><td>국소 PNO 기반 CCSD(T). 자세한 내용은 <a href="coupled-cluster.html">10장</a>.</td></tr>
+            <tr><td><code>F12-CCSD(T)</code> · <code>CCSD(T)-F12</code></td><td>F12 명시적 상관 포함. 기저 한계에 빠르게 접근.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>DLPNO 임계값</h3>
+        <p>DLPNO 계산의 정밀도는 다음 세 단계로 단순화되어 있습니다.</p>
+        <table>
+          <thead><tr><th>키워드</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>LoosePNO</code></td><td>가장 빠르지만 정밀도 낮음. 탐색용.</td></tr>
+            <tr><td><code>NormalPNO</code></td><td>기본값. 균형 잡힌 선택.</td></tr>
+            <tr><td><code>TightPNO</code></td><td>벤치마크·정밀 에너지용. 약 2배 느림.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="scf-options">SCF 알고리즘 옵션</h2>
+        <table>
+          <thead><tr><th>키워드</th><th>의미</th></tr></thead>
+          <tbody>
+            <tr><td><code>RIJCOSX</code></td><td>RI for Coulomb + Chain-of-Spheres exchange. 하이브리드 DFT의 표준 가속 옵션.</td></tr>
+            <tr><td><code>RI-JK</code></td><td>RI를 Coulomb과 Exchange 양쪽에 적용. 보조 JK 기저 필요.</td></tr>
+            <tr><td><code>RI</code></td><td>순수 GGA에서 자동 활성. Split-RI-J 사용.</td></tr>
+            <tr><td><code>NORI</code></td><td>RI 비활성.</td></tr>
+            <tr><td><code>DIRECT</code></td><td>적분 직접 계산(메모리 절약).</td></tr>
+            <tr><td><code>CONV</code></td><td>적분 디스크 저장(I/O 부담, 일부 후속 작업에 필요).</td></tr>
+            <tr><td><code>DIIS</code> · <code>NODIIS</code></td><td>DIIS 가속 켜기/끄기.</td></tr>
+            <tr><td><code>SOSCF</code></td><td>2차 SCF. 유기 닫힌 껍질에서 자주 효과적.</td></tr>
+            <tr><td><code>TRAH</code></td><td>Trust-Region Augmented Hessian SCF. 어려운 경우의 마지막 보루.</td></tr>
+            <tr><td><code>MOREAD</code></td><td>이전 계산의 분자 궤도 읽어 오기. <code>%moinp "file.gbw"</code>와 함께 사용.</td></tr>
+            <tr><td><code>NOITER</code></td><td>SCF 반복 0회 — 주어진 궤도로 정지.</td></tr>
+            <tr><td><code>UNO</code></td><td>UHF 자연 궤도 생성. 비제한 계산에서 권장.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="convergence">SCF · 최적화 수렴 임계값</h2>
+        <table>
+          <thead><tr><th>키워드</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>LooseSCF</code></td><td>느슨한 SCF 수렴 — 빠르지만 정밀하지 않음.</td></tr>
+            <tr><td><code>NormalSCF</code></td><td>기본값.</td></tr>
+            <tr><td><code>TightSCF</code></td><td>최적화·진동수의 권장 기준.</td></tr>
+            <tr><td><code>VeryTightSCF</code></td><td>정밀 에너지·NMR 등 민감한 작업.</td></tr>
+            <tr><td><code>ExtremeSCF</code></td><td>벤치마크 전용 — 매우 비쌈.</td></tr>
+            <tr><td><code>LooseOpt</code></td><td>느슨한 최적화 수렴.</td></tr>
+            <tr><td><code>NormalOpt</code></td><td>기본 최적화 수렴.</td></tr>
+            <tr><td><code>TightOpt</code></td><td>엄격한 최적화 — 정확한 진동수를 얻으려 할 때.</td></tr>
+            <tr><td><code>VeryTightOpt</code></td><td>매우 엄격.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>SCF 수렴 전략</h3>
+        <table>
+          <thead><tr><th>키워드</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>EasyConv</code></td><td>수렴 문제 없음을 가정 — 빠른 옵션.</td></tr>
+            <tr><td><code>NormalConv</code></td><td>일반 사례.</td></tr>
+            <tr><td><code>SlowConv</code></td><td>전이금속 착물 등 어려운 사례에 권장.</td></tr>
+            <tr><td><code>VerySlowConv</code></td><td>병적인 수렴 문제.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="grids">DFT 적분 격자</h2>
+        <p>DFT 수치 적분 격자의 크기는 <code>DefGridN</code> 키워드로 지정합니다. 기본값은 <code>DefGrid2</code>입니다.</p>
+
+        <table>
+          <thead><tr><th>키워드</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>DefGrid1</code></td><td>가장 거친 격자 — 빠르지만 정밀도 낮음.</td></tr>
+            <tr><td><code>DefGrid2</code></td><td>기본값. 일상 작업에 충분.</td></tr>
+            <tr><td><code>DefGrid3</code></td><td>큰 베이시스 또는 정밀 작업.</td></tr>
+            <tr><td><code>NoFinalGridX</code></td><td>COSX의 최종 격자 비활성. 비권장.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="relativity">상대론적 옵션</h2>
+        <p>전이금속의 5d·6d, 란타나이드, 악티나이드 등 무거운 원소를 다룰 때 사용합니다.</p>
+
+        <table>
+          <thead><tr><th>키워드</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>ZORA</code></td><td>Zero-Order Regular Approximation. 자기 특성 계산에 추천.</td></tr>
+            <tr><td><code>DKH</code> 또는 <code>DKH2</code></td><td>2차 Douglas-Kroll-Hess Hamiltonian. 전기 특성에 추천.</td></tr>
+            <tr><td><code>X2C</code></td><td>2-성분 변환. 최신 옵션.</td></tr>
+            <tr><td><code>SOMF(1X)</code></td><td>스핀-궤도 결합. 자기 특성에 자주 동반.</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          상대론적 계산은 전용 베이시스를 사용해야 합니다. 예를 들어
+          <code>! ZORA ZORA-def2-TZVP SARC/J</code>처럼 ZORA-재계약 베이시스와 SARC 보조 기저를 함께 지정합니다.
+        </p>
+
+        <h2 id="output-control">출력 제어</h2>
+        <table>
+          <thead><tr><th>키워드</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>NormalPrint</code></td><td>표준 출력 (기본).</td></tr>
+            <tr><td><code>SmallPrint</code></td><td>축약된 출력.</td></tr>
+            <tr><td><code>LargePrint</code></td><td>자세한 출력 — 디버깅용.</td></tr>
+            <tr><td><code>MiniPrint</code></td><td>최소 출력.</td></tr>
+            <tr><td><code>PrintMOs</code></td><td>분자 궤도 계수 인쇄.</td></tr>
+            <tr><td><code>PrintBasis</code></td><td>사용된 기저 인쇄.</td></tr>
+            <tr><td><code>PrintGap</code></td><td>매 SCF 반복마다 HOMO-LUMO 간극 표시.</td></tr>
+            <tr><td><code>XYZFile</code></td><td>좌표를 <code>.xyz</code>로 출력.</td></tr>
+            <tr><td><code>PDBFile</code></td><td>좌표를 <code>.pdb</code>로 출력.</td></tr>
+            <tr><td><code>NoPop</code></td><td>모든 모집단 분석 끄기.</td></tr>
+            <tr><td><code>Mulliken</code>, <code>Loewdin</code>, <code>Mayer</code></td><td>각 모집단 분석 켜기.</td></tr>
+            <tr><td><code>NBO</code></td><td>NBO 분석 인터페이스(GENNBO 필요).</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="composite">합성 방법 (Composite Methods)</h2>
+        <p>
+          합성 방법은 “함수 + 베이시스 + 보정”을 하나의 키워드로 묶은 것입니다.
+          ORCA 6에서는 Grimme 그룹의 “3c” 합성 방법이 강력하게 권장됩니다. 별도의 베이시스 지정 없이 한 줄로 끝납니다.
+        </p>
+
+        <table>
+          <thead><tr><th>키워드</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>HF-3c</code></td><td>HF 기반. 매우 빠르며 구조 탐색용.</td></tr>
+            <tr><td><code>B97-3c</code></td><td>GGA + 수정된 def2-mTZVP. 일상 최적화에 우수.</td></tr>
+            <tr><td><code>r2SCAN-3c</code></td><td>메타-GGA + 수정된 def2-mTZVPP. <strong>가성비 최강 추천</strong>.</td></tr>
+            <tr><td><code>PBEh-3c</code></td><td>하이브리드(42% HF) + 수정된 def2-mSVP.</td></tr>
+            <tr><td><code>wB97X-3c</code></td><td>장범위 분리 하이브리드 + valence 더블 제타.</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="orca"><code><span class="cmt"># r2SCAN-3c — 베이시스, 보정 모두 자동 적용</span>
+<span class="kw">!</span> <span class="kw2">r2SCAN-3c Opt Freq</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <div class="tip">
+          <div class="note-title">r2SCAN-3c를 첫 시도로</div>
+          <p>
+            중간 크기 분자(원자 50~200개)의 구조 최적화·진동수에는 <code>r2SCAN-3c</code>를 첫 시도로 사용하시는 것을 추천합니다.
+            B3LYP/def2-TZVP 수준의 정확도를 절반 미만의 시간으로 달성합니다.
+            보다 정밀한 단일점 에너지가 필요하면 그 위에 <code>DLPNO-CCSD(T)/cc-pVTZ</code> 등을 얹는 식의 워크플로우가 잘 작동합니다.
+          </p>
+        </div>
+
+        <p>다음 장부터는 실제 계산 예제를 통해 이 키워드들이 어떻게 조합되는지 살펴봅니다.</p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="input-structure.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">입력 파일 구조</div>
+        </a>
+        <a class="next" href="single-point.html">
+          <div class="page-nav-label">다음 →</div>
+          <div class="page-nav-title">단일점 에너지</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

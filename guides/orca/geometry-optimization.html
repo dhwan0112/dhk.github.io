@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>구조 최적화 · ORCA 사용자 가이드</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">ORCA</div>
+    <div class="brand-subtitle">사용자 가이드 · v6.0</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="keywords.html"><span class="nav-num">03</span>키워드 모음</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">자주 쓰는 계산</div>
+      <ul class="nav-list">
+        <li><a href="single-point.html"><span class="nav-num">04</span>단일점 에너지</a></li>
+        <li><a href="geometry-optimization.html"><span class="nav-num">05</span>구조 최적화</a></li>
+        <li><a href="frequencies.html"><span class="nav-num">06</span>진동수 계산</a></li>
+        <li><a href="transition-states.html"><span class="nav-num">07</span>전이 상태 · NEB</a></li>
+        <li><a href="excited-states.html"><span class="nav-num">08</span>들뜬 상태 · TD-DFT</a></li>
+        <li><a href="solvation.html"><span class="nav-num">09</span>용매 효과</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">방법론 선택</div>
+      <ul class="nav-list">
+        <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">실전 운영</div>
+      <ul class="nav-list">
+        <li><a href="tips.html"><span class="nav-num">13</span>팁 · 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 05 · 자주 쓰는 계산</div>
+        <h1 class="page-title">구조 최적화</h1>
+        <p class="page-lede">에너지 표면의 안정점을 찾는 작업. 제약 조건과 좌표계 선택, 그리고 표면 스캔까지.</p>
+      </header>
+
+      <article class="content">
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <ul>
+            <li><a href="#basic">기본 사용법</a></li>
+            <li><a href="#coords-system">좌표계 — 데카르트와 redundant internal</a></li>
+            <li><a href="#convergence">수렴 임계값 읽기</a></li>
+            <li><a href="#constraints">제약 조건 최적화</a></li>
+            <li><a href="#hydrogens">수소만 최적화 · 부분 최적화</a></li>
+            <li><a href="#scan">완화 표면 스캔(Relaxed Scan)</a></li>
+            <li><a href="#initial-hessian">초기 헤시안 선택</a></li>
+            <li><a href="#tips">잘 풀리지 않을 때</a></li>
+          </ul>
+        </div>
+
+        <h2 id="basic">기본 사용법</h2>
+        <p>
+          구조 최적화는 키워드 라인에 <code>Opt</code>만 추가하면 됩니다. 다음은 포름알데히드(HCHO)를 B3LYP/SV(P) 수준에서 최적화하는 예입니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP Opt</span>
+
+<span class="kw">*</span> <span class="kw2">int</span> <span class="num">0 1</span>
+  C 0 0 0   0.000     0.000     0.00
+  O 1 0 0   1.203     0.000     0.00
+  H 1 2 0   1.107   122.016     0.00
+  H 1 2 3   1.107   122.016   180.00
+<span class="kw">*</span></code></pre>
+
+        <p>
+          순수 GGA 함수(예: BP86)를 쓸 때는 RI 근사가 기본 활성화되므로 별도 옵션이 필요 없습니다.
+          하이브리드 함수에서는 <code>RIJCOSX def2/J</code>를 함께 켜는 것이 표준입니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># RI + BP86 — 매우 빠른 최적화</span>
+<span class="kw">!</span> <span class="kw2">BP86 D4 def2-SVP Opt</span>
+
+<span class="cmt"># 하이브리드는 RIJCOSX와 함께</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J Opt</span></code></pre>
+
+        <h2 id="coords-system">좌표계 — 데카르트와 redundant internal</h2>
+        <p>
+          ORCA 6의 <code>Opt</code> 키워드는 기본적으로 <strong>redundant internal coordinates</strong>를 사용합니다.
+          이 좌표계는 화학적으로 의미 있는 결합 길이·각도·이면각의 조합으로 표현되어, 일반적으로 가장 빠르게 수렴합니다.
+        </p>
+
+        <p>대안으로 데카르트 좌표를 강제할 수도 있지만, 다음과 같은 특수한 경우에만 권장됩니다.</p>
+
+        <table>
+          <thead>
+            <tr><th>키워드</th><th>좌표계</th><th>사용 시점</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Opt</code></td><td>Redundant internal</td><td>대부분의 분자 — 기본 선택.</td></tr>
+            <tr><td><code>COpt</code></td><td>Cartesian</td><td>큰 시스템, 단편(fragment) 최적화, 매우 평탄한 표면.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="convergence">수렴 임계값 읽기</h2>
+        <p>
+          최적화는 각 단계마다 5개의 수렴 지표를 평가합니다. 모두 임계값 이하가 될 때 “converged”로 판정됩니다.
+        </p>
+
+        <pre data-lang="output"><code>            *********************HURRAY********************
+            ***        THE OPTIMIZATION HAS CONVERGED     ***
+            *************************************************
+
+------------------------|Geometry convergence|---------------------------
+Item                value                   Tolerance       Converged
+---------------------------------------------------------------------------
+Energy change       -0.0000001234 Eh        0.0000050000      YES
+RMS gradient         0.0000234567 Eh/bohr   0.0001000000      YES
+MAX gradient         0.0000456789 Eh/bohr   0.0003000000      YES
+RMS step             0.0001234567 bohr      0.0020000000      YES
+MAX step             0.0002345678 bohr      0.0040000000      YES
+---------------------------------------------------------------------------</code></pre>
+
+        <p>임계값은 <code>NormalOpt</code>(기본), <code>TightOpt</code>, <code>VeryTightOpt</code>로 단계를 올릴 수 있습니다.</p>
+
+        <table>
+          <thead>
+            <tr><th>지표</th><th>NormalOpt</th><th>TightOpt</th><th>VeryTightOpt</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Energy change (E<sub>h</sub>)</td><td>5e-6</td><td>1e-6</td><td>2e-7</td></tr>
+            <tr><td>Max gradient (E<sub>h</sub>/bohr)</td><td>3e-4</td><td>1e-4</td><td>3e-5</td></tr>
+            <tr><td>RMS gradient</td><td>1e-4</td><td>3e-5</td><td>1e-5</td></tr>
+            <tr><td>Max step (bohr)</td><td>4e-3</td><td>2e-3</td><td>6e-4</td></tr>
+            <tr><td>RMS step</td><td>2e-3</td><td>1e-3</td><td>3e-4</td></tr>
+          </tbody>
+        </table>
+
+        <div class="tip">
+          <div class="note-title">진동수 계산 전에는 TightOpt</div>
+          <p>
+            진동수 계산이 후속 작업으로 예정되어 있다면, 최적화는 <code>TightOpt</code> 이상으로 수렴시키시기를 권합니다.
+            그렇지 않으면 평형 위치에서 충분히 멀리 있는 점에서 진동수가 계산되어
+            허수 진동수가 의도와 다르게 나타날 수 있습니다.
+          </p>
+        </div>
+
+        <h2 id="constraints">제약 조건 최적화</h2>
+        <p>
+          반응 경로 일부를 고정하거나 특정 결합·각도를 묶어 두고 싶을 때 사용합니다.
+          <code>%geom Constraints</code> 블록에 다음 문법으로 적습니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP Opt</span>
+
+<span class="kw">%geom</span> <span class="kw2">Constraints</span>
+   { <span class="kw">B</span> <span class="num">0 1</span> <span class="num">1.25</span> <span class="kw">C</span> }       <span class="cmt"># 0-1 결합 길이를 1.25 Å로 고정</span>
+   { <span class="kw">A</span> <span class="num">2 0 3</span> <span class="num">120.0</span> <span class="kw">C</span> }   <span class="cmt"># 2-0-3 각도를 120°로 고정</span>
+   { <span class="kw">D</span> <span class="num">3 1 0 2</span> <span class="num">180.0</span> <span class="kw">C</span> } <span class="cmt"># 3-1-0-2 이면각 180°로 고정</span>
+   { <span class="kw">C</span> <span class="num">5</span> <span class="kw">C</span> }              <span class="cmt"># 5번 원자 데카르트 좌표 전체 고정</span>
+<span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <p>중괄호 안의 첫 글자가 제약 종류를 지정합니다.</p>
+
+        <table>
+          <thead>
+            <tr><th>유형</th><th>문법</th><th>의미</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>결합 길이</td><td><code>{ B N1 N2 값 C }</code></td><td>원자 N1-N2 사이 거리를 “값”(Å)으로 고정.</td></tr>
+            <tr><td>결합 각도</td><td><code>{ A N1 N2 N3 값 C }</code></td><td>N1-N2-N3 각도를 “값”(°)으로 고정.</td></tr>
+            <tr><td>이면각</td><td><code>{ D N1 N2 N3 N4 값 C }</code></td><td>네 원자의 이면각을 고정.</td></tr>
+            <tr><td>데카르트</td><td><code>{ C N1 C }</code></td><td>원자 N1의 (x,y,z)를 모두 고정.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <div class="note-title">중요한 세부 사항</div>
+          <p>
+            “값”은 선택 사항입니다. 생략하면 입력 구조의 현재 값이 그대로 고정됩니다.
+            데카르트 제약에는 값을 줄 수 없고, 항상 초기 위치가 사용됩니다.
+            원자 번호는 <strong>0부터</strong> 시작합니다(좌표 입력의 “int” 모드와 정반대이므로 헷갈리지 마시기를).
+          </p>
+        </div>
+
+        <h3>와일드카드와 범위</h3>
+        <p>여러 좌표를 한 번에 묶을 수도 있습니다.</p>
+        <pre data-lang="orca"><code><span class="kw">%geom</span> <span class="kw2">Constraints</span>
+   { <span class="kw">B</span> <span class="num">3</span> <span class="kw">*</span> <span class="kw">C</span> }        <span class="cmt"># 3번 원자가 관여하는 모든 결합 길이</span>
+   { <span class="kw">B</span> <span class="kw">*</span> <span class="kw">*</span> <span class="kw">C</span> }        <span class="cmt"># 모든 결합 길이</span>
+   { <span class="kw">A</span> <span class="kw">*</span> <span class="num">5</span> <span class="kw">*</span> <span class="kw">C</span> }      <span class="cmt"># 5번이 중앙인 모든 각도</span>
+   { <span class="kw">C</span> <span class="num">10:17</span> <span class="kw">C</span> }       <span class="cmt"># 10~17번 원자의 데카르트 고정</span>
+<span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+
+        <h3>역제약(InvertConstraints)</h3>
+        <p>
+          몇 개의 좌표만 풀고 나머지를 모두 고정하고 싶다면, 풀고 싶은 좌표를 적은 뒤 <code>invertConstraints true</code>를 추가합니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%geom</span> <span class="kw2">Constraints</span>
+   { <span class="kw">B</span> <span class="num">0 1</span> <span class="kw">C</span> }
+<span class="kw">end</span>
+   <span class="kw2">invertConstraints</span> <span class="kw">true</span>   <span class="cmt"># C-O 거리만 최적화하고 나머지는 모두 고정</span>
+<span class="kw">end</span></code></pre>
+
+        <h2 id="hydrogens">수소만 최적화 · 부분 최적화</h2>
+        <p>
+          큰 단백질 활성자리나 X-선 구조에서 수소만 따로 최적화하고 싶을 때 사용합니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%geom</span> <span class="kw2">optimizehydrogens</span> <span class="kw">true</span>
+<span class="kw">end</span></code></pre>
+
+        <h2 id="scan">완화 표면 스캔 (Relaxed Scan)</h2>
+        <p>
+          한 좌표를 고정값에서 다른 값까지 점진적으로 변화시키며,
+          각 점에서 나머지를 모두 최적화하는 작업입니다. 반응 좌표나 컨포머 변화를 탐색할 때 가장 자주 쓰입니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># H2O2의 H-O-O-H 이면각을 0°에서 180°까지 19점으로 스캔</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP Opt</span>
+
+<span class="kw">%geom</span> <span class="kw2">Scan</span>
+   <span class="kw">D</span> <span class="num">0 1 2 3</span> <span class="kw">=</span> <span class="num">0.0, 180.0, 19</span>   <span class="cmt"># 이면각 0 → 180, 19개 점</span>
+<span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  H   0.000   0.872   0.873
+  O   0.000   0.625  -0.085
+  O   0.000  -0.625  -0.085
+  H   0.000  -0.872   0.873
+<span class="kw">*</span></code></pre>
+
+        <p>
+          스캔이 끝나면 ORCA는 <code>basename.relaxscanact.dat</code> 파일에 각 점의 (좌표값, 에너지) 쌍을 출력합니다.
+          또한 모든 중간 구조가 <code>basename_trj.xyz</code>에 누적되어 있으므로 시각화에 활용할 수 있습니다.
+        </p>
+
+        <div class="tip">
+          <div class="note-title">바깥에서 안쪽으로 스캔하기</div>
+          <p>
+            반응 좌표 스캔에서는 “안에서 밖으로(짧은 거리 → 긴 거리)”보다
+            “밖에서 안으로(긴 거리 → 짧은 거리)”가 더 부드럽게 진행되는 경우가 많습니다.
+            긴 거리에서 시작하면 반응이 진행 중인 상태(구조가 이미 풀려 있음)에서 출발하므로
+            국소 최소에 잘 갇히지 않습니다.
+          </p>
+        </div>
+
+        <h3>다차원 스캔</h3>
+        <p>두 좌표를 동시에 스캔하면 표면이 만들어집니다.</p>
+
+        <pre data-lang="orca"><code><span class="kw">%geom</span> <span class="kw2">Scan</span>
+   <span class="kw">B</span> <span class="num">0 1</span> <span class="kw">=</span> <span class="num">3.0, 1.0, 15</span>
+   <span class="kw">B</span> <span class="num">1 2</span> <span class="kw">=</span> <span class="num">1.0, 3.0, 15</span>
+<span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+
+        <p>
+          기본적으로 위 두 스캔은 “격자(grid)” 형태로 결합되어 총 15 × 15 = 225개 점이 계산됩니다.
+          만약 두 스캔을 동시에 진행(같은 인덱스끼리 짝지어 15점만)하고 싶다면 <code>Simul_Scan true</code>를 추가합니다.
+        </p>
+
+        <h2 id="initial-hessian">초기 헤시안 선택</h2>
+        <p>
+          최적화 알고리즘은 단계마다 헤시안(2차 미분 행렬)의 근사가 필요합니다.
+          기본값은 모델 헤시안(<code>Almloef</code>)으로, 대부분의 유기 분자에서 잘 작동합니다.
+          어려운 시스템에서는 다음 옵션을 시도해 볼 수 있습니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%geom</span>
+   <span class="kw2">InHess</span> <span class="kw">Almloef</span>      <span class="cmt"># 기본값. 안정적.</span>
+<span class="kw">end</span></code></pre>
+
+        <table>
+          <thead>
+            <tr><th>옵션</th><th>설명</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Almloef</code></td><td>기본값. Almlöf 모델.</td></tr>
+            <tr><td><code>Lindh</code></td><td>Lindh 모델. 평탄한 표면에 효과적.</td></tr>
+            <tr><td><code>Swart</code></td><td>Swart 모델. 전이금속에서 안정적.</td></tr>
+            <tr><td><code>Schlegel</code></td><td>Schlegel 모델. 일반 유기.</td></tr>
+            <tr><td><code>Unit</code></td><td>단위 행렬. 매우 어려운 경우의 마지막 보루.</td></tr>
+            <tr><td><code>Read</code></td><td>이전 진동수 계산의 <code>.hess</code> 파일을 읽음.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>이전 헤시안 읽어 오기</h3>
+        <p>
+          저렴한 방법(예: 준경험적)으로 헤시안을 미리 계산해 두면, 어려운 최적화에서 큰 도움이 됩니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># 1단계: XTB로 헤시안 빠르게 계산</span>
+<span class="kw">!</span> <span class="kw2">XTB2 NumFreq</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz
+
+<span class="kw">$new_job</span>
+
+<span class="cmt"># 2단계: 위 헤시안을 초기값으로 사용한 정밀 최적화</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP Opt TightSCF</span>
+<span class="kw">%geom</span>
+   <span class="kw2">InHess</span>     <span class="kw">Read</span>
+   <span class="kw2">InHessName</span> <span class="str">"mol_job1.hess"</span>
+<span class="kw">end</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span></code></pre>
+
+        <h2 id="tips">잘 풀리지 않을 때</h2>
+        <p>최적화가 발산하거나 진동할 때 시도해 볼 만한 옵션입니다.</p>
+
+        <ul>
+          <li><strong>최대 반복 횟수를 늘리기</strong>: <code>%geom MaxIter 500 end</code>로 늘려 보시기 바랍니다.</li>
+          <li><strong>최대 step 크기를 줄이기</strong>: <code>%geom MaxStep 0.1 end</code> (bohr 단위).</li>
+          <li><strong>데카르트 좌표로 전환</strong>: <code>!COpt</code>를 시도해 볼 만합니다.</li>
+          <li><strong>초기 헤시안을 정밀하게</strong>: 위에서 설명한 <code>InHess Read</code> 패턴.</li>
+          <li><strong>좌표 입력을 점검</strong>: 결합 길이가 비현실적으로 짧거나 길지 않은지, 원자가 겹쳐 있지 않은지 확인합니다.</li>
+        </ul>
+
+        <p>
+          이제 안정점을 찾았으니, 다음 단계는 그 점이 실제로 최소인지(허수 진동수 없는지)
+          진동수 계산으로 검증하는 일입니다.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="single-point.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">단일점 에너지</div>
+        </a>
+        <a class="next" href="frequencies.html">
+          <div class="page-nav-label">다음 →</div>
+          <div class="page-nav-title">진동수 계산</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
