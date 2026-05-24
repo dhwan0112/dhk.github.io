@@ -35,6 +35,36 @@ permalink: /guides/
                     <span class="tag">TD-DFT</span>
                 </div>
             </article>
+
+            <article class="post-preview">
+                <div class="post-header">
+                    <h2 class="post-title">
+                        <a href="{{ '/guides/lammps/' | relative_url }}">LAMMPS · Cu 표면 흡착 가이드</a>
+                    </h2>
+                    <div class="post-meta">
+                        <span class="post-category"><i class="fas fa-cubes"></i> Molecular Dynamics</span>
+                        <span class="post-category"><i class="fas fa-microscope"></i> Cu(100) · Cu(111)</span>
+                    </div>
+                </div>
+                <div class="post-excerpt">
+                    <p>
+                        Cu(100)/Cu(111) 표면 위 벤젠-에탄올 혼합물의 경쟁 흡착 거동에 대한
+                        분자동역학 시뮬레이션 프로토콜과 입력 파일 모음입니다. 시스템 개요부터
+                        데이터 파일 구조, OPLS-AA vs TraPPE-UA 힘장 비교, PPPM vs MSM 정전기
+                        방법, 5단계 시뮬레이션 프로토콜, 4가지 프레임워크 비교, RDF·밀도
+                        프로파일·계면 장력 분석, 트러블슈팅까지 9개 장으로 구성되어 있습니다.
+                    </p>
+                    <a href="{{ '/guides/lammps/' | relative_url }}" class="read-more">가이드 열기 →</a>
+                </div>
+                <div class="post-tags">
+                    <span class="tag">LAMMPS</span>
+                    <span class="tag">OPLS-AA</span>
+                    <span class="tag">TraPPE-UA</span>
+                    <span class="tag">PPPM</span>
+                    <span class="tag">MSM</span>
+                    <span class="tag">Interface MD</span>
+                </div>
+            </article>
         </div>
     </div>
 </section>
