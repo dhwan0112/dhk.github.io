@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>8. 트러블슈팅 · LAMMPS Cu 표면 흡착 가이드</title>
+  <meta name="description" content="자주 발생하는 LAMMPS 오류와 화학적 근원, 진단 명령어 모음." />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">LAMMPS</div>
+    <div class="brand-subtitle">Cu 표면 흡착 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-overview.html"><span class="nav-num">01</span>시스템 개요</a></li>
+        <li><a href="02-data-files.html"><span class="nav-num">02</span>데이터 파일</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">이론과 방법론</div>
+      <ul class="nav-list">
+        <li><a href="03-force-fields.html"><span class="nav-num">03</span>힘장 비교</a></li>
+        <li><a href="04-electrostatics.html"><span class="nav-num">04</span>정전기 방법</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">실전 프로토콜</div>
+      <ul class="nav-list">
+        <li><a href="05-protocol.html"><span class="nav-num">05</span>5단계 프로토콜</a></li>
+        <li><a href="06-frameworks.html"><span class="nav-num">06</span>4가지 프레임워크</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">분석과 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-analysis.html"><span class="nav-num">07</span>분석 방법</a></li>
+        <li><a href="08-troubleshooting.html" class="active" aria-current="page"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 08 · 운영</div>
+        <h1 class="page-title">트러블슈팅</h1>
+        <p class="page-lede">자주 발생하는 LAMMPS 오류와 화학적 근원, 진단 명령어 모음.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#81-bond-atoms-missing-on-proc-n-at-step-m">8.1 "Bond atoms missing on proc N at step M"</a><ul>
+<li><a href="#_1">증상</a></li>
+<li><a href="#_2">진단</a></li>
+<li><a href="#_3">해결책</a></li>
+</ul>
+</li>
+<li><a href="#82">8.2 가열 단계에서의 온도 폭주</a><ul>
+<li><a href="#_4">증상</a></li>
+<li><a href="#_5">원인 분석</a></li>
+<li><a href="#_6">추가 조치: 에너지 등가화</a></li>
+</ul>
+</li>
+<li><a href="#83-domain-decomposition">8.3 도메인 분해 (Domain Decomposition) 문제</a><ul>
+<li><a href="#_7">증상</a></li>
+<li><a href="#_8">원인</a></li>
+<li><a href="#_9">해결책</a></li>
+</ul>
+</li>
+<li><a href="#84-opls-aa">8.4 평형 시간이 지나치게 길어짐 (OPLS-AA)</a><ul>
+<li><a href="#_10">증상</a></li>
+<li><a href="#_11">원인</a></li>
+<li><a href="#_12">권장 절차</a></li>
+</ul>
+</li>
+<li><a href="#85-stress-nan">8.5 Stress 계산 시 NaN 또는 발산</a><ul>
+<li><a href="#_13">증상</a></li>
+<li><a href="#_14">원인</a></li>
+<li><a href="#_15">해결책</a></li>
+</ul>
+</li>
+<li><a href="#86">8.6 진단 체크리스트</a></li>
+<li><a href="#_16">참고문헌</a></li>
+</ul>
+</div>
+<hr />
+<p>본 장에서는 본 시뮬레이션 시스템에서 실제로 관측된 오류 사례와 그 해결 방법을 정리한다.
+일반적인 LAMMPS 오류 일람은 공식 문서 <a href="https://docs.lammps.org/Errors.html">Errors</a> 를 참조한다.</p>
+<hr />
+<h2 id="81-bond-atoms-missing-on-proc-n-at-step-m">8.1 "Bond atoms missing on proc N at step M"</h2>
+<h3 id="_1">증상</h3>
+<pre><code>ERROR: Bond atoms missing on proc 3 at step 12450 (../ntopo_bond_all.cpp:62)
+</code></pre>
+<p>본 오류는 결합으로 연결된 두 원자 중 한쪽이 인접 프로세서의 통신 영역 (ghost atom region) 을
+벗어났을 때 발생한다. 분자가 비정상적으로 늘어났거나 (bond stretching), 통신 차단 거리가
+너무 짧을 때 나타난다.</p>
+<h3 id="_2">진단</h3>
+<p>가장 먼저 확인할 사항은 마지막 출력된 온도와 압력 값이다. 온도가 비정상적으로 높은
+값 (예: 10000 K 이상) 으로 폭주했다면 원인은 결합 자체가 아니라 적분 불안정이다.
+8.2 절을 참조한다.</p>
+<h3 id="_3">해결책</h3>
+<p><strong>1) Communication cutoff 확장</strong></p>
+<p>기본값은 force cutoff 와 동일하나, 결합 길이가 커진 상태에서는 충분치 않다.
+<code>common.in</code> 또는 시작부에 다음을 추가한다.</p>
+<pre><code class="language-lammps">comm_modify cutoff 14.0   # force cutoff 의 1.3~1.4 배 권장
+neighbor    2.0 bin       # neighbor skin 증가
+neigh_modify every 1 delay 0 check yes
+</code></pre>
+<p><strong>2) Soft potential 초기 단계 확인</strong></p>
+<p>데이터 파일에서 분자 구조가 비현실적으로 가까이 배치된 경우 (특히 packmol 출력의
+경계 영역), 첫 단계 <code>fix nve/limit</code> 의 변위 제한을 더 작게 한다.</p>
+<pre><code class="language-lammps">fix relax all nve/limit 0.01   # 기본 0.05 에서 축소
+run 50000
+</code></pre>
+<p><strong>3) 데이터 파일 검증</strong></p>
+<pre><code class="language-bash">grep -c &quot;^[[:space:]]*[0-9]&quot; opls.data    # 원자 수 카운트
+</code></pre>
+<p>기대값 (OPLS-AA 2471, TraPPE-UA 1371) 과 일치하는지 확인한다. 분자 ID, 원자 타입,
+전하 컬럼이 모두 채워져 있는지 직접 확인한다.</p>
+<hr />
+<h2 id="82">8.2 가열 단계에서의 온도 폭주</h2>
+<h3 id="_4">증상</h3>
+<p>가열 단계 (특히 0.1 K → 10 K 또는 100 K → 200 K 전환부) 에서 온도가
+지정 값을 크게 초과하여 발산한다. OPLS-AA + PPPM 조합에서 빈번히 관측되었다.</p>
+<h3 id="_5">원인 분석</h3>
+<p>세 가지 가능성을 차례로 점검한다.</p>
+<p><strong>1) 타임스텝 과대</strong></p>
+<p>수소 진동 주기는 약 10 fs 이며, OPLS-AA 전 원자 모델은 C-H 결합을 명시적으로 적분한다.
+SHAKE 미사용 시 0.5 fs 이하가 안전하다.</p>
+<pre><code class="language-lammps">timestep 0.5
+</code></pre>
+<p>SHAKE 를 사용하면 1.0~2.0 fs 까지 허용된다.</p>
+<pre><code class="language-lammps">fix shake all shake 0.0001 20 0 b 1 2 3 a 1 2
+timestep 2.0
+</code></pre>
+<p><strong>2) Langevin damping 부족</strong></p>
+<p>저온 영역에서 damping 파라미터가 너무 크면 (즉 마찰이 약하면) 열욕과의 결합이
+느려져 국소 핫스팟이 형성된다. 4.2 절 권장값을 따른다.</p>
+<pre><code class="language-lammps">fix lang all langevin 0.1 10.0 50.0 12345   # damp = 50 fs (저온)
+fix lang all langevin 100.0 200.0 100.0 12345  # damp = 100 fs (중온 이후)
+</code></pre>
+<p><strong>3) 초기 속도 미설정</strong></p>
+<p>데이터 파일에 Velocities 섹션이 없으면 모든 원자가 정지 상태에서 시작한다.
+0.1 K 가열을 의도했다 하더라도 초기 속도를 명시적으로 부여해야 한다.</p>
+<pre><code class="language-lammps">velocity organic create 0.1 87287 dist gaussian mom yes rot yes
+</code></pre>
+<h3 id="_6">추가 조치: 에너지 등가화</h3>
+<p>극저온 단계에서 단단한 LJ 코어가 활성화되면 적분이 불안정해진다.
+1 단계에서 soft potential 을 충분히 길게 (≥ 50 ps) 돌린 뒤 진행한다.</p>
+<hr />
+<h2 id="83-domain-decomposition">8.3 도메인 분해 (Domain Decomposition) 문제</h2>
+<h3 id="_7">증상</h3>
+<pre><code>ERROR: Out of range atoms - cannot compute PPPM
+ERROR: Domain too small for processor sub-domains
+</code></pre>
+<p>또는 병렬 처리 시 특정 프로세서 수에서만 발생하는 충돌.</p>
+<h3 id="_8">원인</h3>
+<p>PPPM 은 도메인 분해 기반의 FFT 를 사용하므로, 슬랩 형상 (z 방향이 짧고 진공이 큰 경우)
+에서 z 축 분할이 비효율적이다. 본 시스템 박스 (30 × 30 × 41.9 Å) 는 z 분할이
+4 이상이 되면 한 서브도메인의 두께가 PPPM 격자 간격보다 작아진다.</p>
+<h3 id="_9">해결책</h3>
+<p><strong>1) Processor 그리드 수동 지정</strong></p>
+<p>z 방향 분할을 1로 고정하고 xy 평면에서만 분할한다.</p>
+<pre><code class="language-lammps">processors * * 1
+</code></pre>
+<p>40 코어 환경에서는 다음을 고려한다.</p>
+<pre><code class="language-lammps">processors 8 5 1
+</code></pre>
+<p><strong>2) PPPM 차수 및 격자 조정</strong></p>
+<pre><code class="language-lammps">kspace_style pppm 1.0e-5
+kspace_modify slab 3.0 pressure/scalar no
+kspace_modify order 5    # 기본 5, 4까지 낮춰 도메인 요구 완화 가능
+</code></pre>
+<p><strong>3) MSM 으로 전환</strong></p>
+<p>MSM 은 격자 기반 멀티그리드 방법으로, FFT 가 필요 없으며 슬랩 형상에서
+도메인 분해 제약이 훨씬 약하다. 4.3 절 참조.</p>
+<pre><code class="language-lammps">kspace_style msm 1.0e-4
+</code></pre>
+<p>본 프로젝트에서 TraPPE-UA + MSM 조합이 안정적이었던 이유 중 하나가 이것이다.</p>
+<hr />
+<h2 id="84-opls-aa">8.4 평형 시간이 지나치게 길어짐 (OPLS-AA)</h2>
+<h3 id="_10">증상</h3>
+<p>NVT 평형 단계에서 4~5 ns 가 지나도 에탄올 OH 그룹의 RDF 첫 피크 위치가 계속
+이동한다. 에너지는 평형으로 보이나 구조는 미평형 상태.</p>
+<h3 id="_11">원인</h3>
+<p>OPLS-AA 전 원자 모델은 에탄올의 협력적 수소결합 (cooperative H-bonding)
+재구성을 정확히 기술하며, 이 과정의 특성 시간은 수 ns 이다. United-atom 모델
+(TraPPE-UA) 에서는 명시적 OH 수소가 없어 이 효과가 약화되므로 평형이 빠르다.</p>
+<h3 id="_12">권장 절차</h3>
+<p>총 평형 시간 7.5 ns 권장 (1 단계 평형 + 6.5 ns 재평형).</p>
+<pre><code class="language-lammps"># Stage 4a: 초기 평형
+fix eq1 organic nvt temp 300.0 300.0 100.0
+run 500000        # 1 ns @ dt=2fs
+
+# Stage 4b: 본 평형
+unfix eq1
+fix eq2 organic nvt temp 300.0 300.0 100.0
+run 3250000       # 6.5 ns
+</code></pre>
+<p>평형 판정은 다음 두 가지를 모두 충족할 때만 인정한다.</p>
+<ol>
+<li>마지막 500 ps 의 총 에너지 표준편차 / 평균 &lt; 0.1%</li>
+<li>마지막 500 ps 와 그 이전 500 ps 의 O-H 첫 피크 RDF 변화 &lt; 5%</li>
+</ol>
+<hr />
+<h2 id="85-stress-nan">8.5 Stress 계산 시 NaN 또는 발산</h2>
+<h3 id="_13">증상</h3>
+<pre><code>WARNING: Inconsistent image flags
+</code></pre>
+<p>또는 압력 텐서 일부 성분이 비현실적으로 큰 값.</p>
+<h3 id="_14">원인</h3>
+<p><code>compute stress/atom</code> 사용 시 K-space 기여가 분자별로 잘 정의되지 않으면
+잘못된 응력이 누적된다. 특히 슬랩 보정이 있는 PPPM 에서 빈번하다.</p>
+<h3 id="_15">해결책</h3>
+<pre><code class="language-lammps">compute stress all stress/atom NULL pair bond angle dihedral
+</code></pre>
+<p>K-space 항을 명시적으로 제외하고 pair, bond, angle, dihedral 만 포함한다.
+Irving-Kirkwood 적분 시 K-space 의 장거리 기여는 별도로 계산하거나,
+짧은 cutoff 영역에서의 응력만 의미있게 해석한다.</p>
+<p><code>kspace_modify pressure/scalar no</code> 옵션도 함께 설정해야 응력 텐서가
+정상적으로 출력된다.</p>
+<hr />
+<h2 id="86">8.6 진단 체크리스트</h2>
+<p>문제 발생 시 다음 순서로 점검한다.</p>
+<ol>
+<li><strong>로그 파일 마지막 50줄 확인</strong> — 온도, 압력, 에너지의 거동</li>
+<li><strong>데이터 파일 무결성</strong> — 원자 수, 결합 수, 전하 합</li>
+<li><strong>타임스텝 적정성</strong> — SHAKE 유무에 따라 0.5 / 2.0 fs</li>
+<li><strong>K-space 설정</strong> — PPPM 은 slab 보정 필요, MSM 은 불필요</li>
+<li><strong>Communication cutoff</strong> — <code>comm_modify cutoff</code> 적정성</li>
+<li><strong>Processor 분할</strong> — <code>processors * * 1</code> 슬랩 권장</li>
+<li><strong>Soft potential 단계</strong> — 충분한 시간 (≥ 50 ps)</li>
+<li><strong>재현성</strong> — 다른 random seed 로 같은 오류가 재현되는가</li>
+</ol>
+<hr />
+<h2 id="_16">참고문헌</h2>
+<ol>
+<li>LAMMPS Documentation, Common Errors.
+   <a href="https://docs.lammps.org/Errors_common.html">https://docs.lammps.org/Errors_common.html</a></li>
+<li>Plimpton, S. <em>J. Comput. Phys.</em> <strong>117</strong>, 1 (1995).
+   DOI: <a href="https://doi.org/10.1006/jcph.1995.1039">10.1006/jcph.1995.1039</a></li>
+<li>Frenkel, D.; Smit, B. <em>Understanding Molecular Simulation: From
+   Algorithms to Applications</em>, 2nd ed.; Academic Press, 2002. Chapter 4.</li>
+<li>Allen, M. P.; Tildesley, D. J. <em>Computer Simulation of Liquids</em>,
+   2nd ed.; Oxford University Press, 2017. Section 3.5.</li>
+</ol>
+      </article>
+<nav class="page-nav"><a class="prev" href="07-analysis.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">분석 방법</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

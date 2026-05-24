@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>7. 분석 방법 · LAMMPS Cu 표면 흡착 가이드</title>
+  <meta name="description" content="RDF, 밀도 프로파일, 잉여 표면 흡착, 계면 장력의 정량 분석 절차." />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">LAMMPS</div>
+    <div class="brand-subtitle">Cu 표면 흡착 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-overview.html"><span class="nav-num">01</span>시스템 개요</a></li>
+        <li><a href="02-data-files.html"><span class="nav-num">02</span>데이터 파일</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">이론과 방법론</div>
+      <ul class="nav-list">
+        <li><a href="03-force-fields.html"><span class="nav-num">03</span>힘장 비교</a></li>
+        <li><a href="04-electrostatics.html"><span class="nav-num">04</span>정전기 방법</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">실전 프로토콜</div>
+      <ul class="nav-list">
+        <li><a href="05-protocol.html"><span class="nav-num">05</span>5단계 프로토콜</a></li>
+        <li><a href="06-frameworks.html"><span class="nav-num">06</span>4가지 프레임워크</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">분석과 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-analysis.html" class="active" aria-current="page"><span class="nav-num">07</span>분석 방법</a></li>
+        <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 07 · 분석</div>
+        <h1 class="page-title">분석 방법</h1>
+        <p class="page-lede">RDF, 밀도 프로파일, 잉여 표면 흡착, 계면 장력의 정량 분석 절차.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#71-radial-distribution-function-rdf">7.1 방사 분포 함수 (Radial Distribution Function, RDF)</a><ul>
+<li><a href="#_1">정의</a></li>
+<li><a href="#_2">분석 페어와 화학적 의미</a></li>
+<li><a href="#lammps-rdf">LAMMPS 내부 RDF 계산</a></li>
+</ul>
+</li>
+<li><a href="#72-z">7.2 밀도 프로파일 (z 방향)</a><ul>
+<li><a href="#_3">정의</a></li>
+<li><a href="#_4">예상되는 프로파일 형태</a></li>
+<li><a href="#lammps">LAMMPS 내부 밀도 프로파일 계산</a></li>
+</ul>
+</li>
+<li><a href="#73-separation-efficiency-index-sei">7.3 분리 효율 지수 (Separation Efficiency Index, SEI)</a><ul>
+<li><a href="#_5">정의</a></li>
+<li><a href="#_6">계산 방법</a></li>
+</ul>
+</li>
+<li><a href="#74-adsorption-energy">7.4 흡착 에너지 (Adsorption Energy)</a><ul>
+<li><a href="#_7">정의</a></li>
+<li><a href="#md">MD에서의 추정</a></li>
+<li><a href="#_8">본 시스템에서의 예상 값</a></li>
+</ul>
+</li>
+<li><a href="#75-interfacial-tension-irving-kirkwood">7.5 계면 장력 (Interfacial Tension) — Irving-Kirkwood 방법</a><ul>
+<li><a href="#_9">정의</a></li>
+<li><a href="#lammps_1">LAMMPS에서 응력 텐서 계산</a></li>
+<li><a href="#_10">단위 변환</a></li>
+<li><a href="#_11">본 시스템에서의 예상 값</a></li>
+</ul>
+</li>
+<li><a href="#76">7.6 통합 분석 스크립트 사용법</a></li>
+<li><a href="#77">7.7 분석 결과의 통계적 신뢰성</a></li>
+<li><a href="#_12">참고문헌</a></li>
+</ul>
+</div>
+<hr />
+<p>본 가이드는 시뮬레이션 후처리에 <code>integrated_analysis.py</code> (MDAnalysis 기반) 를 사용한다.
+주요 분석 항목과 각각의 화학적 의미를 정리한다.</p>
+<h2 id="71-radial-distribution-function-rdf">7.1 방사 분포 함수 (Radial Distribution Function, RDF)</h2>
+<h3 id="_1">정의</h3>
+<p>방사 분포 함수 $g(r)$ 은 임의의 기준 입자에서 거리 $r$ 에 다른 입자가 발견될 확률을
+이상 기체 (균일 분포) 와 비교하여 정규화한 양이다.</p>
+<p>$$
+g_{\alpha\beta}(r) = \frac{1}{\rho_\beta} \left\langle \sum_{i \in \alpha} \sum_{j \in \beta, j \neq i} \frac{\delta(r - r_{ij})}{4\pi r^2} \right\rangle
+$$</p>
+<h3 id="_2">분석 페어와 화학적 의미</h3>
+<table>
+<thead>
+<tr>
+<th>페어</th>
+<th>첫 피크 위치 (Å)</th>
+<th>화학적 의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cu - 벤젠 C</td>
+<td>약 3.0-3.5</td>
+<td>첫 흡착층 거리 (π-d 분산력)</td>
+</tr>
+<tr>
+<td>Cu - 에탄올 O</td>
+<td>약 2.7-3.2</td>
+<td>산소가 표면에 닿는 거리</td>
+</tr>
+<tr>
+<td>벤젠 - 벤젠 (C-C)</td>
+<td>약 3.6-3.8</td>
+<td>π-π stacking 거리</td>
+</tr>
+<tr>
+<td>에탄올 O - 에탄올 H</td>
+<td>약 1.8 (수소 결합)</td>
+<td>수산기 수소 결합</td>
+</tr>
+<tr>
+<td>에탄올 O - 에탄올 O</td>
+<td>약 2.8</td>
+<td>수산기 O-O 분리</td>
+</tr>
+</tbody>
+</table>
+<p>벤젠-벤젠 stacking 거리 약 3.7 Å은 sandwich 또는 T-shape 배열에 해당한다.
+벤젠 dimer의 ab initio 계산값은 3.4-3.9 Å (Sherrill 외) 이므로 OPLS-AA 결과는 좋은 예측을 보여야 한다.</p>
+<h3 id="lammps-rdf">LAMMPS 내부 RDF 계산</h3>
+<p>LAMMPS에서 직접 RDF를 계산할 수도 있다.</p>
+<pre><code class="language-bash">compute rdf_cu_o all rdf 200 12 5 cutoff 15.0     # OPLS-AA: Cu(12)-O(5)
+fix     rdf_save all ave/time 100 10 1000 c_rdf_cu_o[*] file rdf_cu_o.dat mode vector
+</code></pre>
+<p><a href="https://docs.lammps.org/compute_rdf.html">LAMMPS compute rdf 문서</a> 참조.</p>
+<p>다만 본 가이드는 외부 후처리 (<code>integrated_analysis.py</code>) 가 더 유연하므로 그쪽을 권장한다.</p>
+<h2 id="72-z">7.2 밀도 프로파일 (z 방향)</h2>
+<h3 id="_3">정의</h3>
+<p>z 방향 (표면 수직) 의 분자별 밀도 분포는 슬랩 시스템에서 가장 중요한 분석량이다.</p>
+<p>$$
+\rho_\alpha(z) = \frac{\langle N_\alpha(z, z + \Delta z) \rangle}{L_x L_y \Delta z} \cdot m_\alpha
+$$</p>
+<p>여기서 $m_\alpha$ 는 종 $\alpha$ 분자의 질량이다.</p>
+<h3 id="_4">예상되는 프로파일 형태</h3>
+<table>
+<thead>
+<tr>
+<th>영역</th>
+<th>벤젠 밀도</th>
+<th>에탄올 밀도</th>
+<th>화학적 의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>z &lt; 0 (슬랩 내부)</td>
+<td>0</td>
+<td>0</td>
+<td>진공 또는 슬랩</td>
+</tr>
+<tr>
+<td>z = 슬랩 표면 ~ +5 Å</td>
+<td>큰 봉우리</td>
+<td>작은 봉우리</td>
+<td>1차 흡착층</td>
+</tr>
+<tr>
+<td>+5 Å ~ +10 Å</td>
+<td>작은 봉우리</td>
+<td>봉우리</td>
+<td>2차 층</td>
+</tr>
+<tr>
+<td>+10 Å 이상</td>
+<td>일정값 (벌크)</td>
+<td>일정값 (벌크)</td>
+<td>액체상</td>
+</tr>
+<tr>
+<td>z &gt; 박스 상한</td>
+<td>0</td>
+<td>0</td>
+<td>진공</td>
+</tr>
+</tbody>
+</table>
+<h3 id="lammps">LAMMPS 내부 밀도 프로파일 계산</h3>
+<pre><code class="language-bash">compute     z_bins all chunk/atom bin/1d z lower 1.0 units box
+fix         density_save all ave/chunk 100 10 1000 z_bins density/mass file density.dat
+</code></pre>
+<p><code>bin/1d z lower 1.0 units box</code>: z 방향으로 박스 하단부터 1 Å 폭의 빈으로 분할.
+<a href="https://docs.lammps.org/compute_chunk_atom.html">LAMMPS compute chunk/atom 문서</a> 참조.</p>
+<p>그룹별 밀도를 분리하려면 group을 먼저 정의한 뒤 chunk를 그룹에 적용한다.</p>
+<pre><code class="language-bash">compute     z_bins_benzene benzene chunk/atom bin/1d z lower 1.0 units box
+fix         density_benzene benzene ave/chunk 100 10 1000 z_bins_benzene density/mass file density_benzene.dat
+</code></pre>
+<h2 id="73-separation-efficiency-index-sei">7.3 분리 효율 지수 (Separation Efficiency Index, SEI)</h2>
+<h3 id="_5">정의</h3>
+<p>SEI는 표면 1차 흡착층에서 두 분자 종의 분리 정도를 정량화한다.</p>
+<p>$$
+\text{SEI} = \left| x_{\text{benzene}}^{\text{surf}} - x_{\text{benzene}}^{\text{bulk}} \right|
+$$</p>
+<p>여기서</p>
+<ul>
+<li>$x_{\text{benzene}}^{\text{surf}}$: 표면 1차 흡착층에서의 벤젠 분율</li>
+<li>$x_{\text{benzene}}^{\text{bulk}}$: 벌크 영역에서의 벤젠 분율</li>
+</ul>
+<p>값의 의미:</p>
+<ul>
+<li><strong>SEI = 0</strong>: 표면 조성 = 벌크 조성 (분리 없음, 완전 혼합)</li>
+<li><strong>SEI = 1</strong>: 표면이 한 종만 흡착 (완전 분리)</li>
+</ul>
+<h3 id="_6">계산 방법</h3>
+<ol>
+<li>Cu 슬랩의 가장 상단 z 좌표 $z_{\text{Cu,max}}$ 결정.</li>
+<li>표면 영역 정의: $z_{\text{Cu,max}} < z < z_{\text{Cu,max}} + 5$ Å.</li>
+<li>벌크 영역 정의: $z > z_{\text{Cu,max}} + 10$ Å (또는 박스 상부 일정 거리).</li>
+<li>각 영역에서 각 분자의 분자 수 (또는 질량) 평균.</li>
+<li>분율 계산 및 차이 계산.</li>
+</ol>
+<p>본 가이드의 사용자는 TraPPE-UA + MSM에서 SEI = 0.93-1.00 을 보고하였다.
+이는 벤젠이 표면을 거의 완전히 점유한다는 것을 의미한다.</p>
+<h2 id="74-adsorption-energy">7.4 흡착 에너지 (Adsorption Energy)</h2>
+<h3 id="_7">정의</h3>
+<p>분자 $\alpha$ 의 흡착 에너지는 다음과 같다.</p>
+<p>$$
+\Delta E_{\text{ads}}^\alpha = E_{\text{surf+mol}} - E_{\text{surf}} - E_{\text{mol}}
+$$</p>
+<p>여기서</p>
+<ul>
+<li>$E_{\text{surf+mol}}$: 표면에 흡착된 분자가 있는 시스템의 에너지</li>
+<li>$E_{\text{surf}}$: 같은 표면만의 에너지</li>
+<li>$E_{\text{mol}}$: 같은 분자가 자유롭게 (vacuum) 있는 에너지</li>
+</ul>
+<h3 id="md">MD에서의 추정</h3>
+<p>엄밀한 흡착 에너지 계산은 thermodynamic integration 등 별도 시뮬레이션이 필요하지만,
+본 가이드의 production 궤적에서는 다음 양으로 근사할 수 있다.</p>
+<p>$$
+E_{\text{ads}}^\alpha \approx \langle E_{\text{Cu-}\alpha}^{\text{LJ+Coul}} \rangle_{\text{surf}} - \langle E_{\text{Cu-}\alpha}^{\text{LJ+Coul}} \rangle_{\text{far}}
+$$</p>
+<p>LAMMPS에서 group-group 상호작용 에너지를 계산:</p>
+<pre><code class="language-bash">group benzene type 1 2
+group copper  type 12
+
+# 두 그룹 간 비결합 상호작용 에너지 계산
+compute     cu_benzene all group/group benzene copper kspace yes
+thermo_style custom step temp c_cu_benzene
+</code></pre>
+<p><a href="https://docs.lammps.org/compute_group_group.html">LAMMPS compute group/group 문서</a> 참조.</p>
+<p>이 값은 표면에 가까운 벤젠 (1차 흡착층) 과 멀리 있는 벤젠 (벌크) 의 평균을 비교하여
+흡착 에너지로 변환할 수 있다.</p>
+<h3 id="_8">본 시스템에서의 예상 값</h3>
+<table>
+<thead>
+<tr>
+<th>분자</th>
+<th>흡착 에너지 (eV)</th>
+<th>흡착 에너지 (kJ/mol)</th>
+<th>화학적 특징</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>벤젠</td>
+<td>-0.27 ~ -0.32</td>
+<td>-26 ~ -31</td>
+<td>π-d 분산 (강)</td>
+</tr>
+<tr>
+<td>에탄올</td>
+<td>-0.15 ~ -0.25</td>
+<td>-14 ~ -24</td>
+<td>산소 + 수소 결합 (중간)</td>
+</tr>
+</tbody>
+</table>
+<p>이는 Heinz et al. (2008) 의 LJ 파라미터가 표면 장력 및 단순 분자 흡착에 fit 되었다는 점,
+그리고 사용자의 사전 결과와 일치한다.</p>
+<h2 id="75-interfacial-tension-irving-kirkwood">7.5 계면 장력 (Interfacial Tension) — Irving-Kirkwood 방법</h2>
+<h3 id="_9">정의</h3>
+<p>계면 장력 $\gamma$ 는 시스템의 응력 텐서 (stress tensor) 의 z 방향 성분과 횡방향 성분의 차이로 계산된다 (Irving &amp; Kirkwood 1950).</p>
+<p>$$
+\gamma = \frac{1}{2} \int_{-\infty}^{+\infty} \left[ P_{zz}(z) - \frac{P_{xx}(z) + P_{yy}(z)}{2} \right] dz
+$$</p>
+<p>여기서 $P_{xx}, P_{yy}, P_{zz}$ 는 각 위치에서의 압력 텐서 성분이다.
+$1/2$ 계수는 슬랩에 두 개의 계면 (위/아래) 이 있기 때문에 한 계면당 장력으로 나누는 것이다.</p>
+<h3 id="lammps_1">LAMMPS에서 응력 텐서 계산</h3>
+<pre><code class="language-bash">compute   stress_atom all stress/atom NULL pair kspace bond angle dihedral improper
+compute   z_bins all chunk/atom bin/1d z lower 1.0 units box
+fix       stress_save all ave/chunk 100 10 1000 z_bins &amp;
+          v_stress_xx v_stress_yy v_stress_zz file stress_profile.dat
+
+variable  stress_xx atom -c_stress_atom[1]/vol
+variable  stress_yy atom -c_stress_atom[2]/vol
+variable  stress_zz atom -c_stress_atom[3]/vol
+</code></pre>
+<p><code>stress/atom</code> 의 부호는 응력 (tension positive) 이고, 압력은 음의 응력이므로 변환 시 부호 주의.
+<a href="https://docs.lammps.org/compute_stress_atom.html">LAMMPS compute stress/atom 문서</a> 참조.</p>
+<h3 id="_10">단위 변환</h3>
+<p>LAMMPS <code>real</code> 단위에서 응력은 bar·Å (또는 atm·Å³의 부피당) 으로 나타난다.
+계면 장력 SI 단위 (mJ/m² = mN/m) 로 변환:</p>
+<p>$$
+\gamma [\text{mJ/m}^2] = \gamma [\text{atm·Å}] \times 1.01325 \times 10^{-1}
+$$</p>
+<p>또는 더 일반적으로:</p>
+<p>$$
+1 \text{ bar·Å} = 0.1 \text{ mJ/m}^2
+$$</p>
+<h3 id="_11">본 시스템에서의 예상 값</h3>
+<table>
+<thead>
+<tr>
+<th>계면 종류</th>
+<th>계면 장력 (mJ/m²)</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>액체 벤젠 - 진공 (300 K)</td>
+<td>~28</td>
+<td>실험값</td>
+</tr>
+<tr>
+<td>액체 에탄올 - 진공 (300 K)</td>
+<td>~22</td>
+<td>실험값</td>
+</tr>
+<tr>
+<td>Cu 표면 - 벤젠 (시뮬레이션)</td>
+<td>음의 값 가능</td>
+<td>강한 흡착</td>
+</tr>
+<tr>
+<td>Cu 표면 - 에탄올 (시뮬레이션)</td>
+<td>중간 값</td>
+<td></td>
+</tr>
+<tr>
+<td>벤젠/에탄올 혼합 - Cu (시뮬레이션)</td>
+<td>25-30</td>
+<td>OPLS-AA</td>
+</tr>
+<tr>
+<td></td>
+<td>22-27</td>
+<td>TraPPE-UA</td>
+</tr>
+</tbody>
+</table>
+<h2 id="76">7.6 통합 분석 스크립트 사용법</h2>
+<p>본 프로젝트의 <code>integrated_analysis.py</code> 는 위의 모든 분석을 한 번에 수행한다.</p>
+<pre><code class="language-bash"># Production 단계 분석
+python integrated_analysis.py \
+    --topology trappe.data \
+    --trajectories 05_production.lammpstrj \
+    --stages production \
+    --log lammps_run.log \
+    --output analysis_trappe_msm
+</code></pre>
+<pre><code class="language-bash"># 다단계 분석 (heating, equilibration, production 모두)
+python integrated_analysis.py \
+    --topology trappe.data \
+    --trajectories 03_heat.lammpstrj 04_eq.lammpstrj 05_production.lammpstrj \
+    --stages heating equilibration production \
+    --log lammps_run.log \
+    --output analysis_trappe_msm
+</code></pre>
+<p>스크립트는 힘장 (OPLS-AA vs TraPPE-UA) 을 원자 수로 자동 감지하며,
+RDF, 밀도 프로파일, SEI, 흡착 에너지를 모두 계산하여 PNG 및 DAT 파일로 저장한다.</p>
+<h2 id="77">7.7 분석 결과의 통계적 신뢰성</h2>
+<p>각 분석량의 신뢰성을 보장하려면 다음을 점검해야 한다.</p>
+<ol>
+<li><strong>자기 상관 시간 확인</strong>: $\tau_A$ 가 production 시간보다 충분히 짧아야 함.
+   (Allen &amp; Tildesley 2017, Frenkel &amp; Smit 2002)</li>
+<li><strong>블록 평균 (Block average) 방법</strong>: production 을 5-10 개 블록으로 나누어 블록 간 분산 계산.</li>
+<li><strong>수렴 그래프 표시</strong>: 누적 평균값이 시간에 따라 수렴하는지 시각화.</li>
+</ol>
+<p>이러한 신뢰성 분석은 출판 시 평가자가 요구하는 표준 절차이다.</p>
+<h2 id="_12">참고문헌</h2>
+<ol>
+<li>
+<p>J. H. Irving, J. G. Kirkwood,
+   "The Statistical Mechanical Theory of Transport Processes. IV.",
+   <em>J. Chem. Phys.</em> <strong>18</strong>, 817-829 (1950).
+   DOI: <a href="https://doi.org/10.1063/1.1747782">10.1063/1.1747782</a></p>
+</li>
+<li>
+<p>N. Michaud-Agrawal, E. J. Denning, T. B. Woolf, O. Beckstein,
+   "MDAnalysis: A toolkit for the analysis of molecular dynamics simulations",
+   <em>J. Comput. Chem.</em> <strong>32</strong>, 2319-2327 (2011).
+   DOI: <a href="https://doi.org/10.1002/jcc.21787">10.1002/jcc.21787</a></p>
+</li>
+<li>
+<p>M. P. Allen, D. J. Tildesley,
+   "Computer Simulation of Liquids", 2nd ed., Oxford University Press (2017).
+   ISBN: 9780198803195.</p>
+</li>
+<li>
+<p>D. Frenkel, B. Smit,
+   "Understanding Molecular Simulation", 2nd ed., Academic Press (2002).
+   ISBN: 9780122673511.</p>
+</li>
+<li>
+<p>LAMMPS 공식 문서, <code>compute rdf</code>:
+   <a href="https://docs.lammps.org/compute_rdf.html">https://docs.lammps.org/compute_rdf.html</a></p>
+</li>
+<li>
+<p>LAMMPS 공식 문서, <code>compute chunk/atom</code>:
+   <a href="https://docs.lammps.org/compute_chunk_atom.html">https://docs.lammps.org/compute_chunk_atom.html</a></p>
+</li>
+<li>
+<p>LAMMPS 공식 문서, <code>compute stress/atom</code>:
+   <a href="https://docs.lammps.org/compute_stress_atom.html">https://docs.lammps.org/compute_stress_atom.html</a></p>
+</li>
+<li>
+<p>LAMMPS 공식 문서, <code>compute group/group</code>:
+   <a href="https://docs.lammps.org/compute_group_group.html">https://docs.lammps.org/compute_group_group.html</a></p>
+</li>
+</ol>
+<hr />
+<p><a href="06-frameworks">← 이전: 6. 4가지 프레임워크 비교</a> ｜ <a href="08-troubleshooting">다음: 8. 트러블슈팅 →</a></p>
+      </article>
+<nav class="page-nav"><a class="prev" href="06-frameworks.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">4가지 프레임워크</div></a><a class="next" href="08-troubleshooting.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">트러블슈팅</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

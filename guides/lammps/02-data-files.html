@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>2. 데이터 파일 구조 · LAMMPS Cu 표면 흡착 가이드</title>
+  <meta name="description" content="opls.data 와 trappe.data 의 구조와 차이, 원자 종류 매핑 방법." />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">LAMMPS</div>
+    <div class="brand-subtitle">Cu 표면 흡착 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-overview.html"><span class="nav-num">01</span>시스템 개요</a></li>
+        <li><a href="02-data-files.html" class="active" aria-current="page"><span class="nav-num">02</span>데이터 파일</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">이론과 방법론</div>
+      <ul class="nav-list">
+        <li><a href="03-force-fields.html"><span class="nav-num">03</span>힘장 비교</a></li>
+        <li><a href="04-electrostatics.html"><span class="nav-num">04</span>정전기 방법</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">실전 프로토콜</div>
+      <ul class="nav-list">
+        <li><a href="05-protocol.html"><span class="nav-num">05</span>5단계 프로토콜</a></li>
+        <li><a href="06-frameworks.html"><span class="nav-num">06</span>4가지 프레임워크</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">분석과 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-analysis.html"><span class="nav-num">07</span>분석 방법</a></li>
+        <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 02 · 시작</div>
+        <h1 class="page-title">데이터 파일 구조</h1>
+        <p class="page-lede">opls.data 와 trappe.data 의 구조와 차이, 원자 종류 매핑 방법.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#21">2.1 두 데이터 파일의 헤더 비교</a><ul>
+<li><a href="#oplsdata-opls-aa-all-atom">opls.data (OPLS-AA, all-atom)</a></li>
+<li><a href="#trappedata-trappe-ua-united-atom">trappe.data (TraPPE-UA, united-atom)</a></li>
+</ul>
+</li>
+<li><a href="#22">2.2 원자 수가 다른 이유 — 화학적 해석</a><ul>
+<li><a href="#c6h6">벤젠 (C₆H₆)</a></li>
+<li><a href="#ch3-ch2-oh">에탄올 (CH₃-CH₂-OH)</a></li>
+<li><a href="#_1">시스템별 분자 수</a></li>
+</ul>
+</li>
+<li><a href="#23-atoms">2.3 Atoms 섹션의 컬럼 구조</a><ul>
+<li><a href="#opls-aa-12">OPLS-AA의 12가지 원자 타입</a></li>
+<li><a href="#trappe-ua-6">TraPPE-UA의 6가지 원자 타입</a></li>
+</ul>
+</li>
+<li><a href="#24-atoms-q">2.4 부분 전하 (Atoms 섹션의 q 열)</a><ul>
+<li><a href="#trappe-ua">TraPPE-UA 에탄올의 부분 전하</a></li>
+<li><a href="#opls-aa">OPLS-AA 에탄올의 부분 전하</a></li>
+</ul>
+</li>
+<li><a href="#25">2.5 데이터 파일 검증 체크리스트</a></li>
+<li><a href="#_2">참고문헌</a></li>
+</ul>
+</div>
+<hr />
+<p>LAMMPS의 <code>read_data</code> 명령어가 읽어들이는 데이터 파일은 시스템의 원자 위치, 결합 토폴로지, 부분 전하를 모두 포함한다.
+본 가이드의 두 데이터 파일 <code>opls.data</code>와 <code>trappe.data</code>는 동일한 물리계를 표현하지만,
+힘장의 분자 표현 방식이 다르기 때문에 원자 수와 토폴로지가 크게 다르다.</p>
+<h2 id="21">2.1 두 데이터 파일의 헤더 비교</h2>
+<p>다음은 각 데이터 파일의 헤더 (전역 정보) 부분이다.</p>
+<h3 id="oplsdata-opls-aa-all-atom">opls.data (OPLS-AA, all-atom)</h3>
+<pre><code class="language-text">LAMMPS data file from PDB (v7.2 - Angle Format Fix)
+
+2471 atoms
+2000 bonds
+3100 angles
+3600 dihedrals
+600 impropers
+
+12 atom types
+10 bond types
+15 angle types
+16 dihedral types
+1 improper types
+
+0.000000 30.000000 xlo xhi
+0.000000 30.000000 ylo yhi
+0.000000 41.895000 zlo zhi
+</code></pre>
+<h3 id="trappedata-trappe-ua-united-atom">trappe.data (TraPPE-UA, united-atom)</h3>
+<pre><code class="language-text">LAMMPS data file for TraPPE-UA (converted from OPLS-AA)
+
+1371 atoms
+900 bonds
+800 angles
+700 dihedrals
+
+6 atom types
+4 bond types
+3 angle types
+2 dihedral types
+
+0.000000 30.000000 xlo xhi
+0.000000 30.000000 ylo yhi
+0.000000 41.895000 zlo zhi
+</code></pre>
+<h2 id="22">2.2 원자 수가 다른 이유 — 화학적 해석</h2>
+<p>두 데이터 파일은 박스 크기가 동일하나, 원자 수는 약 1.8배 차이가 난다.
+이는 united-atom (UA) 모형이 메틸기와 메틸렌기를 단일 사이트로 흡수하기 때문이다.</p>
+<h3 id="c6h6">벤젠 (C₆H₆)</h3>
+<table>
+<thead>
+<tr>
+<th>표현</th>
+<th>사이트 수</th>
+<th>사이트 종류</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OPLS-AA (all-atom)</td>
+<td>12 사이트</td>
+<td>6 × C + 6 × H</td>
+</tr>
+<tr>
+<td>TraPPE-UA</td>
+<td>6 사이트</td>
+<td>6 × CH (C-H를 묶음)</td>
+</tr>
+</tbody>
+</table>
+<p>벤젠은 TraPPE-EH (explicit hydrogen) 버전이 일반적으로 사용되지만,
+본 시스템은 통일성을 위해 UA 6-site 모형 (CH를 단일 사이트로) 으로 단순화되어 있다.
+이때 벤젠 평면성은 SHAKE 또는 rigid 알고리즘으로 유지하거나 강한 dihedral 항을 통해 부과한다.</p>
+<h3 id="ch3-ch2-oh">에탄올 (CH₃-CH₂-OH)</h3>
+<table>
+<thead>
+<tr>
+<th>표현</th>
+<th>사이트 수</th>
+<th>사이트 종류</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OPLS-AA (all-atom)</td>
+<td>9 사이트</td>
+<td>CH₃(C+3H) + CH₂(C+2H) + O + H</td>
+</tr>
+<tr>
+<td>TraPPE-UA</td>
+<td>4 사이트</td>
+<td>CH₃ + CH₂ + O + H</td>
+</tr>
+</tbody>
+</table>
+<p>UA 표현에서는 메틸과 메틸렌의 수소 원자가 명시적으로 다뤄지지 않으며,
+하나의 CH₃ 또는 CH₂ 사이트로 흡수된다 (Chen, Potoff, Siepmann 2001).
+다만 수산기 (-OH)의 H는 수소 결합을 형성하므로 명시적으로 유지된다.</p>
+<h3 id="_1">시스템별 분자 수</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>OPLS-AA</th>
+<th>TraPPE-UA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>벤젠 분자 수</td>
+<td>33 (× 12 = 396)</td>
+<td>100 (× 6 = 600)</td>
+</tr>
+<tr>
+<td>에탄올 분자 수</td>
+<td>33 (× 9 = 297)</td>
+<td>100 (× 4 = 400)</td>
+</tr>
+<tr>
+<td>Cu 원자 수</td>
+<td>2471 - 693 = 1778</td>
+<td>1371 - 1000 = 371</td>
+</tr>
+<tr>
+<td>총합</td>
+<td>2471</td>
+<td>1371</td>
+</tr>
+</tbody>
+</table>
+<p>OPLS-AA 시스템의 Cu 슬랩이 더 두꺼운 이유는 모든 H를 명시하기 위한 계산 비용 균형을 맞추기 위함으로 추측되며,
+계면 비교 시 슬랩 두께 차이를 인지하고 분석해야 한다.</p>
+<h2 id="23-atoms">2.3 Atoms 섹션의 컬럼 구조</h2>
+<p>OPLS-AA, TraPPE-UA 모두 <code>atom_style full</code> 형식을 사용한다.
+각 행은 다음과 같은 컬럼을 갖는다 (<a href="https://docs.lammps.org/atom_style.html">LAMMPS atom_style 문서</a> 참조).</p>
+<pre><code>atom-ID  molecule-ID  atom-type  q  x  y  z
+</code></pre>
+<h3 id="opls-aa-12">OPLS-AA의 12가지 원자 타입</h3>
+<p><code>opls.data</code> 헤더의 Masses 섹션:</p>
+<pre><code class="language-text">Masses
+
+1 12.0110 # benzene_C
+2 1.0080  # benzene_H
+3 12.0110 # ethanol_C00
+4 12.0110 # ethanol_C01
+5 15.9990 # ethanol_O02
+6 1.0080  # ethanol_H03
+7 1.0080  # ethanol_H04
+8 1.0080  # ethanol_H05
+9 1.0080  # ethanol_H06
+10 1.0080 # ethanol_H07
+11 1.0080 # ethanol_H08
+12 63.5460 # Cu
+</code></pre>
+<p>타입 6-11이 모두 수소이지만 OPLS-AA에서는 화학적 환경에 따라 다른 부분 전하를 부여하므로
+별개의 타입으로 구분하는 것이 권장된다 (Jorgensen 외 1996의 화학 단위별 전하 할당 관례).</p>
+<h3 id="trappe-ua-6">TraPPE-UA의 6가지 원자 타입</h3>
+<p><code>trappe.data</code> 헤더의 Masses 섹션:</p>
+<pre><code class="language-text">Masses
+
+1 13.0190  # benzene CH (12.011 + 1.008)
+2 15.0350  # ethanol CH3 (12.011 + 3 × 1.008)
+3 14.0270  # ethanol CH2 (12.011 + 2 × 1.008)
+4 15.9990  # ethanol O
+5 1.0080   # ethanol H (수산기)
+6 63.5460  # Cu
+</code></pre>
+<p>UA 사이트의 질량은 묶인 그룹 전체의 질량의 합이다.
+예를 들어 CH₂는 14.027 = 12.011 + 2 × 1.008 g/mol.</p>
+<h2 id="24-atoms-q">2.4 부분 전하 (Atoms 섹션의 q 열)</h2>
+<h3 id="trappe-ua">TraPPE-UA 에탄올의 부분 전하</h3>
+<p><code>trappe.data</code>의 Atoms 섹션 (앞 몇 줄):</p>
+<pre><code class="language-text">1 1 2 0.0000 2.903313 17.497132 21.087920   # CH3, q = 0
+2 1 3 0.2650 2.948696 18.272399 19.631332   # CH2, q = +0.265
+3 1 4 -0.7000 4.248000 17.888000 19.055000  # O,   q = -0.700
+4 1 5 0.4350 4.959000 18.191999 19.643999   # H,   q = +0.435
+</code></pre>
+<p>벤젠 CH는 모두 중성 (q = 0).
+에탄올의 전하 분포는 Chen, Potoff, Siepmann (2001) 의 OPLS-UA 유래 전하 분포를 따른다:
+CH₂ +0.265, O -0.700, H(수산기) +0.435.
+이 전하 분포는 메탄올부터 옥탄올까지의 1차/2차/3차 알코올 전 시리즈에서 공통으로 사용된다.</p>
+<h3 id="opls-aa">OPLS-AA 에탄올의 부분 전하</h3>
+<p>OPLS-AA에서는 모든 원자가 명시적이므로 전하가 분산된다 (Jorgensen 외 1996, Table 4 참조).
+대표적인 OPLS-AA 에탄올 전하:</p>
+<table>
+<thead>
+<tr>
+<th>원자</th>
+<th>OPLS atom type (OPLS DB)</th>
+<th>부분 전하 (e)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HO (수산기 H)</td>
+<td>155</td>
+<td>+0.435</td>
+</tr>
+<tr>
+<td>OH (수산기 O)</td>
+<td>154</td>
+<td>-0.683</td>
+</tr>
+<tr>
+<td>CH₂-OH의 C</td>
+<td>157</td>
+<td>+0.145</td>
+</tr>
+<tr>
+<td>CH₂-OH의 H</td>
+<td>140</td>
+<td>+0.040</td>
+</tr>
+<tr>
+<td>CH₃의 C</td>
+<td>158</td>
+<td>-0.180</td>
+</tr>
+<tr>
+<td>CH₃의 H</td>
+<td>140</td>
+<td>+0.060</td>
+</tr>
+</tbody>
+</table>
+<p>총 전하의 합은 0 (에탄올 분자는 중성).
+이 값들은 OPLS-AA 공식 파라미터 (oplsaa.lt 또는 OPLS 데이터베이스)에서 확인 가능하며,
+연구자에 따라 다소 변형된 값을 사용하기도 한다.</p>
+<h2 id="25">2.5 데이터 파일 검증 체크리스트</h2>
+<p>데이터 파일이 LAMMPS에 의해 올바르게 읽히는지 확인하기 위한 체크리스트:</p>
+<ol>
+<li><strong>전하 합 검증</strong>: <code>awk '{sum+=$4} END {print sum}' atoms_section.txt</code>
+   결과가 0에 매우 가까워야 한다 (반올림 오차 ~ 1e-6).</li>
+<li><strong>원자 ID 연속성</strong>: ID가 1부터 N까지 연속해야 한다.</li>
+<li><strong>분자 ID 일관성</strong>: 같은 분자의 원자는 같은 molecule-ID를 공유해야 한다.</li>
+<li><strong>결합/각도 토폴로지 일치</strong>: 결합 수 = (벤젠 분자 × 6) + (에탄올 분자 × 4) 등이 맞아야 한다.</li>
+<li><strong>박스 경계 내부</strong>: 모든 원자 좌표가 박스 한계 내에 있어야 한다.</li>
+</ol>
+<p>LAMMPS에서 <code>read_data</code> 시 자동으로 검증되는 항목도 있지만,
+"Bond atoms missing" 오류를 회피하려면 사전 검증이 권장된다.
+이 오류의 트러블슈팅은 <a href="08-troubleshooting">트러블슈팅</a> 문서를 참조.</p>
+<h2 id="_2">참고문헌</h2>
+<ol>
+<li>
+<p>W. L. Jorgensen, D. S. Maxwell, J. Tirado-Rives,
+   "Development and Testing of the OPLS All-Atom Force Field on Conformational
+   Energetics and Properties of Organic Liquids",
+   <em>J. Am. Chem. Soc.</em> <strong>118</strong>, 11225-11236 (1996).
+   DOI: <a href="https://doi.org/10.1021/ja9621760">10.1021/ja9621760</a></p>
+</li>
+<li>
+<p>B. Chen, J. J. Potoff, J. I. Siepmann,
+   "Monte Carlo Calculations for Alcohols and Their Mixtures with Alkanes.
+   Transferable Potentials for Phase Equilibria. 5.",
+   <em>J. Phys. Chem. B</em> <strong>105</strong>, 3093-3104 (2001).
+   DOI: <a href="https://doi.org/10.1021/jp003882x">10.1021/jp003882x</a></p>
+</li>
+<li>
+<p>LAMMPS 공식 문서, <code>atom_style</code> 명령어:
+   <a href="https://docs.lammps.org/atom_style.html">https://docs.lammps.org/atom_style.html</a></p>
+</li>
+<li>
+<p>LAMMPS 공식 문서, <code>read_data</code> 명령어:
+   <a href="https://docs.lammps.org/read_data.html">https://docs.lammps.org/read_data.html</a></p>
+</li>
+</ol>
+<hr />
+<p><a href="01-overview">← 이전: 1. 시스템 개요</a> ｜ <a href="03-force-fields">다음: 3. 힘장 비교 →</a></p>
+      </article>
+<nav class="page-nav"><a class="prev" href="01-overview.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">시스템 개요</div></a><a class="next" href="03-force-fields.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">힘장 비교</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
