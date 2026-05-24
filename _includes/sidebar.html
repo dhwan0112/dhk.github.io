@@ -32,13 +32,17 @@
             <i class="fas fa-pen"></i>
             <span>Blog</span>
         </a>
-        <a href="{{ '/guides/orca/' | relative_url }}" class="sidebar-link sidebar-sublink {% if page.url contains 'guides/orca' %}active{% endif %}">
-            <i class="fas fa-atom"></i>
-            <span>ORCA Guide</span>
-        </a>
         <a href="{{ '/teaching' | relative_url }}" class="sidebar-link {% if page.url contains 'teaching' %}active{% endif %}">
             <i class="fas fa-chalkboard-teacher"></i>
             <span>Teaching</span>
+        </a>
+        <a href="{{ '/guides' | relative_url }}" class="sidebar-link {% if page.url == '/guides/' or page.url contains '/guides/' and page.url != '/guides/orca/' %}active{% endif %}">
+            <i class="fas fa-book-open"></i>
+            <span>Guides</span>
+        </a>
+        <a href="{{ '/guides/orca/' | relative_url }}" class="sidebar-link sidebar-sublink {% if page.url contains 'guides/orca' %}active{% endif %}">
+            <i class="fas fa-atom"></i>
+            <span>ORCA</span>
         </a>
         <a href="{{ '/' | relative_url }}#skills" class="sidebar-link">
             <i class="fas fa-lightbulb"></i>
