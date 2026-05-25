@@ -82,6 +82,7 @@
             <li><a href="#ecp">Effective core potentials (ECPs)</a></li>
             <li><a href="#sarc">SARC — for heavy elements</a></li>
             <li><a href="#recommendations">Recommendations by situation</a></li>
+            <li><a href="#bsse">BSSE and counterpoise correction</a></li>
           </ul>
         </div>
 
@@ -288,9 +289,132 @@
           When comparing reaction energies or bond-dissociation energies, always apply the
           same basis to every species so the basis-set superposition errors (BSSE) cancel.
           BSSE partially cancels when the same basis is used, but the cancellation breaks down
-          if bases are mixed. For intermolecular interactions where BSSE is a concern, consider
-          counterpoise correction (ghost atoms, the <code>:</code> suffix).
+          if bases are mixed.
         </p>
+
+        <h2 id="bsse">BSSE and counterpoise correction — quantifying intermolecular interactions</h2>
+        <p>
+          When two molecules sit close to one another, each molecule's basis effectively
+          "borrows" functions from the other's region, so the dimer energy comes out
+          artificially low compared to the sum of the monomer energies. This is the
+          Basis-Set Superposition Error (BSSE), and it is responsible for overestimating
+          binding energies in hydrogen bonds, π–π stacks, and vdW complexes by 1–3 kcal/mol.
+        </p>
+
+        <p>
+          The textbook fix is the Boys–Bernardi <strong>counterpoise (CP) correction</strong>.
+          In ORCA, a <strong>ghost atom</strong> is created by appending a colon
+          <code>:</code> to the element symbol. A ghost atom carries a basis set but has no
+          nucleus and no electrons — a "virtual" atom.
+        </p>
+
+        <h3>The 4-step CP procedure</h3>
+        <p>
+          Below is the calculation of the binding energy of a water-methanol dimer with the CP
+          correction. The four jobs are chained inside a single input via <code>$new_job</code>.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Step 1: full dimer — the "raw" binding energy</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  O   0.0000   0.0000   0.0000        <span class="cmt"># water O</span>
+  H   0.0000   0.7572  -0.5800
+  H   0.0000  -0.7572  -0.5800
+  O   2.7800   0.0000   1.8400        <span class="cmt"># methanol O</span>
+  C   3.2400   0.0000   3.1500
+  H   3.2400   1.0300   3.4900
+  H   3.2400  -1.0300   3.4900
+  H   4.2700   0.0000   2.7900
+  H   2.5000   0.0000   1.3000
+<span class="kw">*</span>
+
+<span class="kw">$new_job</span>
+<span class="cmt"># Step 2: water alone (methanol as ghosts) — A on the dimer basis</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  O   0.0000   0.0000   0.0000
+  H   0.0000   0.7572  -0.5800
+  H   0.0000  -0.7572  -0.5800
+  O:  2.7800   0.0000   1.8400        <span class="cmt"># ghost</span>
+  C:  3.2400   0.0000   3.1500
+  H:  3.2400   1.0300   3.4900
+  H:  3.2400  -1.0300   3.4900
+  H:  4.2700   0.0000   2.7900
+  H:  2.5000   0.0000   1.3000
+<span class="kw">*</span>
+
+<span class="kw">$new_job</span>
+<span class="cmt"># Step 3: methanol alone (water as ghosts) — B on the dimer basis</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  O:  0.0000   0.0000   0.0000
+  H:  0.0000   0.7572  -0.5800
+  H:  0.0000  -0.7572  -0.5800
+  O   2.7800   0.0000   1.8400
+  C   3.2400   0.0000   3.1500
+  H   3.2400   1.0300   3.4900
+  H   3.2400  -1.0300   3.4900
+  H   4.2700   0.0000   2.7900
+  H   2.5000   0.0000   1.3000
+<span class="kw">*</span>
+
+<span class="kw">$new_job</span>
+<span class="cmt"># Step 4: reference — methanol on its own (monomer basis only, no ghosts)</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  O   2.7800   0.0000   1.8400
+  C   3.2400   0.0000   3.1500
+  H   3.2400   1.0300   3.4900
+  H   3.2400  -1.0300   3.4900
+  H   4.2700   0.0000   2.7900
+  H   2.5000   0.0000   1.3000
+<span class="kw">*</span></code></pre>
+
+        <p>
+          (A separate Step 4 for water alone on its own monomer basis is also required; for
+          brevity only methanol is shown.) The four energies give two binding energies:
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Quantity</th><th>Definition</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>ΔE<sub>raw</sub></td><td>E<sub>dimer</sub> − [E<sub>A,monomer-basis</sub> + E<sub>B,monomer-basis</sub>]</td></tr>
+            <tr><td>ΔE<sub>CP</sub></td><td>E<sub>dimer</sub> − [E<sub>A,dimer-basis</sub> + E<sub>B,dimer-basis</sub>]</td></tr>
+            <tr><td>BSSE correction</td><td>ΔE<sub>raw</sub> − ΔE<sub>CP</sub> &nbsp;(typically positive → "raw" overbinds)</td></tr>
+          </tbody>
+        </table>
+
+        <div class="tip">
+          <div class="note-title">CP correction is "half-truth"</div>
+          <p>
+            CP correction does not exactly recover the true (complete basis-set limit) binding
+            energy. In small bases, BSSE overbinds while basis-set incompleteness error (BSIE)
+            underbinds, and the two partially cancel. A common compromise is
+            <code>ΔE<sub>best</sub> ≈ (ΔE<sub>raw</sub> + ΔE<sub>CP</sub>) / 2</code>
+            (the "halfway" estimate), or simply moving to a larger basis such as
+            def2-QZVPP or aug-cc-pVQZ.
+          </p>
+        </div>
+
+        <h3>Other uses of ghost atoms</h3>
+        <p>
+          Ghost atoms (<code>:</code>) are useful beyond CP correction:
+        </p>
+        <ul>
+          <li><strong>Extending the basis of a neighbouring fragment</strong>: putting ghosts
+              around an active site adds basis-function freedom without treating those atoms
+              explicitly.</li>
+          <li><strong>Floating orbitals for polarisability</strong>: ghost atoms placed
+              outside the molecule expand the basis available for response functions.</li>
+          <li><strong>Reference centres for EPR / NMR</strong>: explicitly fixing the origin
+              when computing magnetic properties.</li>
+        </ul>
       </article>
 
       <nav class="page-nav">

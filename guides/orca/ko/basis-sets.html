@@ -81,6 +81,7 @@
             <li><a href="#ecp">유효 핵 포텐셜(ECP)</a></li>
             <li><a href="#sarc">SARC — 무거운 원소를 위한 베이시스</a></li>
             <li><a href="#recommendations">상황별 권장</a></li>
+            <li><a href="#bsse">BSSE와 counterpoise 보정</a></li>
           </ul>
         </div>
 
@@ -278,8 +279,131 @@
         <p>
           반응 에너지나 결합 해리 에너지를 비교할 때는 반드시 모든 종에 같은 베이시스를 적용해야 합니다.
           베이시스 슈퍼포지션 오차(BSSE)는 동일한 베이시스에서 부분적으로 상쇄되지만, 베이시스가 섞이면 그 상쇄가 깨집니다.
-          BSSE가 우려되는 분자 간 상호작용 계산에서는 counterpoise 보정(고스트 원자, <code>:</code> 접미사)을 고려하시기 바랍니다.
         </p>
+
+        <h2 id="bsse">BSSE와 counterpoise 보정 — 분자 간 상호작용 정량화</h2>
+        <p>
+          두 분자가 가까이 있을 때, 각각의 베이시스가 상대 분자의 영역까지 “빌려서” 사용되므로
+          dimer 의 에너지가 monomer 의 에너지 합보다 인위적으로 낮아집니다. 이것이
+          베이시스 슈퍼포지션 오차(BSSE, Basis-Set Superposition Error)이고, 수소결합·
+          π-π 적층·vdW 복합체 같은 약한 상호작용에서 결합 에너지를 1–3 kcal/mol 가량 과대평가
+          하는 주범입니다.
+        </p>
+
+        <p>
+          가장 정석적 해결은 Boys-Bernardi <strong>counterpoise (CP) 보정</strong>입니다.
+          ORCA 에서는 <strong>고스트 원자(ghost atom)</strong>를 원소 기호 뒤에 콜론
+          <code>:</code> 를 붙여 정의합니다. 고스트 원자는 베이시스는 두지만 핵·전자는 없는 “가상의 원자”입니다.
+        </p>
+
+        <h3>CP 보정의 4-step 계산</h3>
+        <p>
+          물-메탄올 dimer 의 결합 에너지를 CP 보정으로 구하는 예입니다. 한 입력 안에서
+          <code>$new_job</code> 으로 4 단계를 이어 붙입니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Step 1: dimer 전체 — 결합 에너지의 “raw” 값</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  O   0.0000   0.0000   0.0000        <span class="cmt"># water O</span>
+  H   0.0000   0.7572  -0.5800
+  H   0.0000  -0.7572  -0.5800
+  O   2.7800   0.0000   1.8400        <span class="cmt"># methanol O</span>
+  C   3.2400   0.0000   3.1500
+  H   3.2400   1.0300   3.4900
+  H   3.2400  -1.0300   3.4900
+  H   4.2700   0.0000   2.7900
+  H   2.5000   0.0000   1.3000
+<span class="kw">*</span>
+
+<span class="kw">$new_job</span>
+<span class="cmt"># Step 2: water 단독 (메탄올은 고스트로) — A on dimer basis</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  O   0.0000   0.0000   0.0000
+  H   0.0000   0.7572  -0.5800
+  H   0.0000  -0.7572  -0.5800
+  O:  2.7800   0.0000   1.8400        <span class="cmt"># 고스트</span>
+  C:  3.2400   0.0000   3.1500
+  H:  3.2400   1.0300   3.4900
+  H:  3.2400  -1.0300   3.4900
+  H:  4.2700   0.0000   2.7900
+  H:  2.5000   0.0000   1.3000
+<span class="kw">*</span>
+
+<span class="kw">$new_job</span>
+<span class="cmt"># Step 3: methanol 단독 (water 는 고스트로) — B on dimer basis</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  O:  0.0000   0.0000   0.0000
+  H:  0.0000   0.7572  -0.5800
+  H:  0.0000  -0.7572  -0.5800
+  O   2.7800   0.0000   1.8400
+  C   3.2400   0.0000   3.1500
+  H   3.2400   1.0300   3.4900
+  H   3.2400  -1.0300   3.4900
+  H   4.2700   0.0000   2.7900
+  H   2.5000   0.0000   1.3000
+<span class="kw">*</span>
+
+<span class="kw">$new_job</span>
+<span class="cmt"># Step 4: 비교용 — methanol 단독, monomer basis only (고스트 없이)</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  O   2.7800   0.0000   1.8400
+  C   3.2400   0.0000   3.1500
+  H   3.2400   1.0300   3.4900
+  H   3.2400  -1.0300   3.4900
+  H   4.2700   0.0000   2.7900
+  H   2.5000   0.0000   1.3000
+<span class="kw">*</span></code></pre>
+
+        <p>
+          (Step 4 의 water 만 한 monomer 도 한 번 더 같은 방식으로. 분량 절약을 위해
+          위 예제는 methanol 만 보여 줍니다.) 4 단계의 에너지로 두 가지 결합 에너지를
+          계산합니다.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>양</th><th>정의</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>ΔE<sub>raw</sub></td><td>E<sub>dimer</sub> − [E<sub>A,monomer-basis</sub> + E<sub>B,monomer-basis</sub>]</td></tr>
+            <tr><td>ΔE<sub>CP</sub></td><td>E<sub>dimer</sub> − [E<sub>A,dimer-basis</sub> + E<sub>B,dimer-basis</sub>]</td></tr>
+            <tr><td>BSSE 보정량</td><td>ΔE<sub>raw</sub> − ΔE<sub>CP</sub> &nbsp;(보통 양수 → raw 가 과대평가)</td></tr>
+          </tbody>
+        </table>
+
+        <div class="tip">
+          <div class="note-title">CP 보정의 “반쪽 진리”</div>
+          <p>
+            CP 보정이 진실의 결합 에너지(complete basis-set limit, ΔE<sub>CBS</sub>)를
+            정확히 회복시키지는 않습니다. 작은 베이시스에서는 BSSE 가 결합을 키우고,
+            동시에 베이시스의 불완전성(BSIE, basis-set incompleteness error)이 결합을
+            줄여, 두 오차가 일부 상쇄되기도 합니다. 표준 권장은
+            <code>ΔE<sub>best</sub> ≈ (ΔE<sub>raw</sub> + ΔE<sub>CP</sub>) / 2</code>
+            (Halfway estimate)이거나, def2-QZVPP 이상의 큰 베이시스를 쓰는 것입니다.
+          </p>
+        </div>
+
+        <h3>고스트 원자의 다른 용도</h3>
+        <p>
+          고스트 원자 (<code>:</code>) 는 CP 보정 외에도 다음과 같은 곳에 쓰입니다.
+        </p>
+        <ul>
+          <li><strong>인근 fragment 의 베이시스만 확장</strong>: 활성자리 주변 원자를 고스트로
+              두면, 명시적으로 다루지 않으면서도 베이시스 함수가 활성자리로 “스며들어” 자유도
+              증가.</li>
+          <li><strong>편극도(polarizability)에 대한 floating orbital</strong>: 분자 외부의
+              특정 위치에 고스트 원자를 두고 베이시스만 부여하여 응답 함수의 자유도를 높임.</li>
+          <li><strong>EPR / NMR 의 reference center</strong>: 자기 특성 계산에서 origin 을
+              명시할 때.</li>
+        </ul>
       </article>
 
       <nav class="page-nav">
