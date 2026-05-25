@@ -119,6 +119,67 @@ compute의 결과는 그 자체로는 어디에도 저장되지 않습니다.
 `thermo_style custom ... c_myT` 또는 다음에 나오는 `fix ave/time` 으로
 "꺼내야" 비로소 값을 볼 수 있습니다.
 
+### 실제 결과 ① — g(r) (동경 분포 함수)
+
+위 chapter 6 에서 돌린 LJ NPT production 5000 step 에 다음 두 줄을 더해
+RDF 를 함께 계산했습니다.
+
+```lammps
+compute         rdf1 all rdf 100              # 100 bin 까지의 g(r)
+fix             rdfavg all ave/time 10 100 1000 c_rdf1[*] file rdf.dat mode vector
+```
+
+결과 파일 `rdf.dat` 를 그림으로 그리면 LJ 액체의 전형적인 동경 분포 함수를
+얻습니다 — 첫 피크가 r ≈ 1.09 σ 에서 g(r) ≈ 2.41, 두 번째 piek 가 ~ 2.1 σ
+부근에 보이는 액체 특유의 진동 구조입니다.
+
+<figure>
+  <img src="assets/images/lj-rdf.png" alt="LJ 액체의 동경 분포 함수 g(r) 과 누적 배위수 N(r)" style="width:100%;max-width:760px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
+  <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
+    그림 1. NPT (T = 1.0, P = 0.5, ρ ≈ 0.70) 평형에서 측정한 LJ 액체의 g(r) (파란).
+    첫 피크 r ≈ 1.09 σ 는 σ ≈ 0.94 (Lennard-Jones 의 σ ≈ 0.89 × r<sub>min</sub>)와
+    근접하며, 두 번째 봉우리 ~ 2.1 σ 는 두 번째 배위 껍질입니다. 함께 그린
+    주황 점선은 누적 배위수 N(r) = 4π ρ ∫₀ʳ r'² g(r') dr' 로, 단순한 LJ 액체에서도
+    한 입자 주위의 가까운 배위수가 약 12–14 정도임을 보여 줍니다.
+  </figcaption>
+</figure>
+
+### 실제 결과 ② — MSD 와 자기확산계수
+
+같은 production 단계에서 MSD 도 함께 계산했습니다.
+
+```lammps
+compute         msd1 all msd
+fix             msdavg all ave/time 1 1 100 c_msd1[1] c_msd1[2] c_msd1[3] c_msd1[4] file msd.dat
+```
+
+⟨Δr²(t)⟩ 가 시간에 대해 선형으로 증가하는 정상 확산(normal diffusion) 거동이
+관찰되고, Einstein 관계 ⟨Δr²(t)⟩ = 6 D t 에서 직선 fit 의 기울기로 자기확산
+계수 D 를 추정할 수 있습니다. 본 가이드의 5000-step 데이터에서 fit 결과는
+D ≈ 0.117 (LJ 단위) 입니다.
+
+<figure>
+  <img src="assets/images/lj-msd.png" alt="LJ 액체의 평균 제곱 변위 (MSD) 와 선형 fit" style="width:100%;max-width:760px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
+  <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
+    그림 2. NPT (T = 1.0, P = 0.5, 2048 LJ 입자) 의 평균 제곱 변위. 녹색 굵은 선이
+    3차원 총 MSD, 옅은 보라/주황/빨강 선은 x/y/z 성분으로 거의 동일 — 등방 확산을
+    의미합니다. 검은 점선은 후반 75 % 구간의 선형 fit 이고, Einstein 관계로부터
+    D ≈ 0.117 (LJ 단위). dt = 0.005 τ 의 5000 step ≈ 25 τ 시간 동안 측정한 값입니다.
+  </figcaption>
+</figure>
+
+<div class="tip">
+  <div class="note-title">compute 결과는 fix ave/time 으로 꺼내라</div>
+  <p>
+    위 두 예제는 모두 <code>compute</code> 가 정의하고 <code>fix ave/time</code> 이
+    실제 파일로 출력하는 패턴입니다. <code>compute</code> 자체는 <em>한 스텝의</em>
+    값만 유지하므로, 그것을 직접 thermo 컬럼(<code>c_msd1[4]</code>)으로 꺼내거나
+    <code>fix ave/time</code> 으로 시간 평균을 파일에 쓰는 방식이 표준입니다.
+    <code>rdf</code> 같은 vector 출력에는 <code>mode vector</code> 옵션을 잊지
+    마십시오.
+  </p>
+</div>
+
 ## 7.5 fix ave/* — 시간 평균을 자동으로
 
 ```lammps
