@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Solvation · ORCA User Guide</title>
-  <meta name="description" content="Practical use of implicit-solvent models such as CPCM and SMD." />
+  <meta name="description" content="Practical use of implicit-solvent models — CPCM and SMD." />
   <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
@@ -67,30 +67,234 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 09 · COMMON CALCULATIONS</div>
         <h1 class="page-title">Solvation</h1>
-        <p class="page-lede">Practical use of implicit-solvent models such as CPCM and SMD.</p>
+        <p class="page-lede">Approximating the real environment of a molecule with an implicit-solvent model — CPCM and SMD in practice.</p>
       </header>
 
       <article class="content">
-        <div class="note">
-          <div class="note-title">Translation in progress</div>
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#why">Why account for solvation</a></li>
+            <li><a href="#models">Available models — CPCM · SMD · ALPB</a></li>
+            <li><a href="#basic">Basic usage — one extra keyword</a></li>
+            <li><a href="#smd">SMD — including the free-energy correction</a></li>
+            <li><a href="#advanced">Fine control — the <code>%cpcm</code> block</a></li>
+            <li><a href="#solvents">Built-in solvent list</a></li>
+            <li><a href="#explicit">SOLVATOR — automated placement of explicit solvent molecules</a></li>
+            <li><a href="#tddft">Excited states + solvation</a></li>
+          </ul>
+        </div>
+
+        <h2 id="why">Why account for solvation</h2>
+        <p>
+          Gas-phase calculations describe a molecule in a vacuum. Real chemistry usually
+          happens in solution, however, and a polar solvent can stabilise ions or molecules
+          with large dipoles by anywhere from a few to several tens of kcal/mol. Ignoring
+          solvation can put reaction equilibria, acid–base equilibria, and free-energy
+          barriers far from experiment.
+        </p>
+
+        <h2 id="models">Available models — CPCM · SMD · ALPB</h2>
+        <p>ORCA supports the following implicit-solvent models:</p>
+
+        <table>
+          <thead>
+            <tr><th>Model</th><th>Keyword</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>C-PCM</td><td><code>CPCM(solvent)</code></td><td>Conductor-like polarisable continuum. Polarisation electrostatics only. Lightweight and robust.</td></tr>
+            <tr><td>SMD</td><td><code>CPCM(solvent)</code> + <code>%cpcm SMD true</code></td><td>Minnesota SMD. Adds non-electrostatic (cavity, dispersion, surface-tension) contributions.</td></tr>
+            <tr><td>ALPB</td><td><code>%cpcm ALPB true</code></td><td>Analytical Linearised PB. Often used with XTB.</td></tr>
+            <tr><td>openCOSMO-RS</td><td>Interface call</td><td>Post-processing for activity coefficients, log P, etc.</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          This page focuses on the two you will use most often — <strong>CPCM</strong> and
+          <strong>SMD</strong>. The manual activates both via the same keyword, but SMD also
+          includes non-electrostatic terms (cavity formation, dispersion, surface tension) that
+          make it more appropriate for free-energy comparisons.
+        </p>
+
+        <h2 id="basic">Basic usage — one extra keyword</h2>
+        <p>CPCM is activated by adding one keyword to the keyword line:</p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Benzene optimisation in water (CPCM)</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J Opt</span> <span class="kw2">CPCM(water)</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> benzene.xyz</code></pre>
+
+        <p>
+          In the formaldehyde example from the manual, the gas-phase n → π* excitation energy
+          of 4.633 eV shifts to 4.857 eV in water with CPCM. The n-orbital is stabilised
+          further in a hydrogen-bonding environment, so the excitation energy increases by
+          0.224 eV (~5 kcal/mol).
+        </p>
+
+        <h2 id="smd">SMD — including the free-energy correction</h2>
+        <p>
+          Plain CPCM gives only the electrostatic free energy. For solvation free energies
+          ΔG<sub>solv</sub> or quantitative reaction equilibria, <strong>SMD</strong> — which
+          includes the non-electrostatic correction — is more appropriate.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Activate SMD — CPCM keyword + SMD true</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J Opt Freq CPCM(water)</span>
+
+<span class="kw">%cpcm</span>
+   <span class="kw2">SMD</span>       <span class="kw">true</span>
+   <span class="kw2">SMDSolvent</span> <span class="str">"water"</span>     <span class="cmt"># solvent must be repeated here</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <p>With SMD active, the output gains entries such as:</p>
+
+        <pre data-lang="output"><code>--------------------
+SMD CDS free energy
+--------------------
+G-CDS (kcal/mol):              1.234567
+...
+
+----------------------------------------------------
+SMD SOLVATION FREE ENERGY (CONTRIBUTIONS)
+----------------------------------------------------
+Total electrostatic    :     -8.456 kcal/mol
+Total non-electrostatic:      1.235 kcal/mol
+                         ===================
+SMD ΔG_solv            :     -7.221 kcal/mol</code></pre>
+
+        <div class="tip">
+          <div class="note-title">SMD with non-SMD functionals</div>
           <p>
-            The English version of this chapter is being written. In the meantime, the
-            corresponding Korean chapter is fully available — please follow the link below
-            or use the <strong>KO</strong> toggle in the top-left of the sidebar.
-          </p>
-          <p>
-            → <a href="../ko/solvation.html">Read this chapter in Korean (한국어)</a>
+            SMD's parameters were originally calibrated for M05-2X/6-31G(d). In practice it
+            works well with common DFT functionals (B3LYP, M06-2X, ωB97X-D, …) and a basis like
+            def2-TZVP. Use the same method and basis as your gas-phase run, and compare
+            ΔG<sub>solv</sub> = G(soln) − G(gas) consistently.
           </p>
         </div>
 
+        <h2 id="advanced">Fine control — the <code>%cpcm</code> block</h2>
+        <p>For precise control over the dielectric constant, refractive index and cavity shape, use the <code>%cpcm</code> block:</p>
+
+        <pre data-lang="orca"><code><span class="kw">%cpcm</span>
+   <span class="kw2">Epsilon</span>      <span class="num">80.4</span>          <span class="cmt"># static dielectric constant (water)</span>
+   <span class="kw2">RefRac</span>       <span class="num">1.33</span>          <span class="cmt"># refractive index (for the dynamic response in TD-DFT)</span>
+   <span class="kw2">Rsolv</span>        <span class="num">1.385</span>         <span class="cmt"># solvent radius (Å)</span>
+   <span class="kw2">SurfaceType</span>  <span class="kw">vdw_gaussian</span>  <span class="cmt"># cavity surface type</span>
+<span class="kw">end</span></code></pre>
+
+        <p>Two surface types are available for <code>SurfaceType</code>:</p>
+
+        <table>
+          <thead><tr><th>Option</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>vdw_gaussian</code></td><td><strong>Default</strong>. Smooth Gaussian-weighted vdW surface — well-defined gradients and frequencies.</td></tr>
+            <tr><td><code>gepol_ses</code></td><td>GEPOL Solvent-Excluded Surface. More realistic shape, but derivatives can be rougher.</td></tr>
+          </tbody>
+        </table>
+
         <p>
-          If you would like to be notified when the English translation lands, please open
-          an issue at
-          <a href="https://github.com/dhwan0112/dhk.github.io/issues">dhwan0112/dhk.github.io</a>.
+          With the standard solvent keywords (<code>CPCM(water)</code>, <code>CPCM(ethanol)</code>,
+          …) all of the above defaults are set automatically; you rarely need to touch them.
         </p>
+
+        <h2 id="solvents">Built-in solvent list</h2>
+        <p>
+          The CPCM standard solvents include the entries below; more than 30 are built in, and
+          SMD supports even more. The complete list is in section 7.53 of the manual.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Keyword</th><th>ε</th><th>Class</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>water</code></td><td>80.4</td><td>Polar protic</td></tr>
+            <tr><td><code>methanol</code></td><td>32.63</td><td>Polar protic</td></tr>
+            <tr><td><code>ethanol</code></td><td>24.55</td><td>Polar protic</td></tr>
+            <tr><td><code>acetone</code></td><td>20.70</td><td>Polar aprotic</td></tr>
+            <tr><td><code>acetonitrile</code></td><td>36.6</td><td>Polar aprotic</td></tr>
+            <tr><td><code>dmf</code></td><td>38.3</td><td>Polar aprotic</td></tr>
+            <tr><td><code>dmso</code></td><td>46.7</td><td>Polar aprotic</td></tr>
+            <tr><td><code>thf</code></td><td>7.58</td><td>Moderately polar</td></tr>
+            <tr><td><code>dichloromethane</code></td><td>9.08</td><td>Moderately polar</td></tr>
+            <tr><td><code>chloroform</code></td><td>4.81</td><td>Low polarity</td></tr>
+            <tr><td><code>toluene</code></td><td>2.38</td><td>Non-polar</td></tr>
+            <tr><td><code>hexane</code></td><td>1.89</td><td>Non-polar</td></tr>
+            <tr><td><code>cyclohexane</code></td><td>2.02</td><td>Non-polar</td></tr>
+            <tr><td><code>benzene</code></td><td>2.27</td><td>Non-polar</td></tr>
+            <tr><td><code>octanol</code></td><td>10.30</td><td>For log P calculations</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="explicit">SOLVATOR — automated placement of explicit solvent molecules</h2>
+        <p>
+          Implicit models cannot capture directional interactions such as specific hydrogen
+          bonds. A microsolvation strategy — explicitly modelling the few most important
+          hydrogen bonds while treating the rest with CPCM — is often a worthwhile compromise.
+          ORCA 6 includes the SOLVATOR utility to automate this.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Auto-place 5 solvent molecules around the solute, then compute</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP Opt</span>
+
+<span class="kw">%solvator</span>
+   <span class="kw2">NSolv</span>     <span class="num">5</span>            <span class="cmt"># number of solvent molecules</span>
+   <span class="kw2">Solvent</span>   <span class="str">"water"</span>      <span class="cmt"># built-in name or .xyz file</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> solute.xyz</code></pre>
+
+        <p>
+          SOLVATOR places solvent molecules around the solute using a pre-defined force field.
+          The resulting geometry is saved to a separate file and used for the subsequent
+          quantum-chemistry calculation. Details are in section 6.10 of the manual.
+        </p>
+
+        <h2 id="tddft">Excited states + solvation</h2>
+        <p>
+          When you combine TD-DFT with CPCM, both the equilibrium and non-equilibrium solvent
+          responses are handled automatically.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP CPCM(water)</span>
+
+<span class="kw">%tddft</span>
+   <span class="kw2">NRoots</span> <span class="num">10</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <p>
+          ORCA separates the fast (optical) response, which depends on the refractive index,
+          from the slow (electrostatic) response, which depends on the static dielectric
+          constant. This is the standard recipe for treating absorption (fast) and
+          emission / equilibrium (slow) consistently.
+        </p>
+
+        <div class="caution">
+          <div class="note-title">The equilibrium / non-equilibrium pitfall</div>
+          <p>
+            When treating absorption and emission solvent shifts simultaneously, the
+            equilibrium / non-equilibrium solvation options must be set carefully. The defaults
+            use non-equilibrium (refractive-index based) solvation for absorption and
+            equilibrium (dielectric-constant based) for emission. See section 7.53 of the
+            manual for explicit control.
+          </p>
+        </div>
       </article>
 
-<nav class="page-nav"><a class="prev" href="excited-states.html"><div class="page-nav-label">← previous</div><div class="page-nav-title">Excited states · TD-DFT</div></a><a class="next" href="coupled-cluster.html"><div class="page-nav-label">next →</div><div class="page-nav-title">DLPNO-CCSD(T)</div></a></nav>
+      <nav class="page-nav">
+        <a class="prev" href="excited-states.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Excited states · TD-DFT</div>
+        </a>
+        <a class="next" href="coupled-cluster.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">DLPNO-CCSD(T)</div>
+        </a>
+      </nav>
     </main>
   </div>
   <script src="../assets/js/main.js"></script>
