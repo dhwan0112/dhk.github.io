@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Geometry optimisation · ORCA User Guide</title>
-  <meta name="description" content="Constraints, choice of coordinate system, and one-/two-dimensional potential-surface scans." />
+  <meta name="description" content="Find stationary points on the energy surface — constraints, choice of coordinate system, and relaxed scans." />
   <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
@@ -67,30 +67,315 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 05 · COMMON CALCULATIONS</div>
         <h1 class="page-title">Geometry optimisation</h1>
-        <p class="page-lede">Constraints, choice of coordinate system, and one-/two-dimensional potential-surface scans.</p>
+        <p class="page-lede">Finding stationary points on the energy surface — constraints, choice of coordinate system, and relaxed scans.</p>
       </header>
 
       <article class="content">
-        <div class="note">
-          <div class="note-title">Translation in progress</div>
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#basic">Basic usage</a></li>
+            <li><a href="#coords-system">Coordinate systems — Cartesian vs redundant internal</a></li>
+            <li><a href="#convergence">Reading the convergence criteria</a></li>
+            <li><a href="#constraints">Constrained optimisation</a></li>
+            <li><a href="#hydrogens">Hydrogen-only / partial optimisation</a></li>
+            <li><a href="#scan">Relaxed surface scan</a></li>
+            <li><a href="#initial-hessian">Choice of initial Hessian</a></li>
+            <li><a href="#tips">When the optimisation refuses to converge</a></li>
+          </ul>
+        </div>
+
+        <h2 id="basic">Basic usage</h2>
+        <p>
+          Add <code>Opt</code> to the keyword line. The example below optimises formaldehyde
+          (HCHO) at B3LYP/SV(P):
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP Opt</span>
+
+<span class="kw">*</span> <span class="kw2">int</span> <span class="num">0 1</span>
+  C 0 0 0   0.000     0.000     0.00
+  O 1 0 0   1.203     0.000     0.00
+  H 1 2 0   1.107   122.016     0.00
+  H 1 2 3   1.107   122.016   180.00
+<span class="kw">*</span></code></pre>
+
+        <p>
+          Pure GGA functionals (e.g. BP86) enable the RI approximation automatically, so no
+          extra option is needed. For hybrids, pair the run with <code>RIJCOSX def2/J</code>:
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># RI + BP86 — extremely fast optimisation</span>
+<span class="kw">!</span> <span class="kw2">BP86 D4 def2-SVP Opt</span>
+
+<span class="cmt"># Hybrids pair with RIJCOSX</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J Opt</span></code></pre>
+
+        <h2 id="coords-system">Coordinate systems — Cartesian vs redundant internal</h2>
+        <p>
+          In ORCA 6 the <code>Opt</code> keyword defaults to <strong>redundant internal
+          coordinates</strong>. This coordinate system represents the geometry as a chemically
+          meaningful set of bond lengths, angles, and dihedrals, and usually converges fastest.
+        </p>
+
+        <p>You can force Cartesian coordinates instead, but only in special cases:</p>
+
+        <table>
+          <thead>
+            <tr><th>Keyword</th><th>Coordinates</th><th>When to use</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Opt</code></td><td>Redundant internal</td><td>Almost all molecules — the default.</td></tr>
+            <tr><td><code>COpt</code></td><td>Cartesian</td><td>Very large systems, fragment optimisations, extremely flat surfaces.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="convergence">Reading the convergence criteria</h2>
+        <p>
+          Each optimisation step evaluates five convergence indicators. The geometry is declared
+          converged once they all fall below their thresholds.
+        </p>
+
+        <pre data-lang="output"><code>            *********************HURRAY********************
+            ***        THE OPTIMIZATION HAS CONVERGED     ***
+            *************************************************
+
+------------------------|Geometry convergence|---------------------------
+Item                value                   Tolerance       Converged
+---------------------------------------------------------------------------
+Energy change       -0.0000001234 Eh        0.0000050000      YES
+RMS gradient         0.0000234567 Eh/bohr   0.0001000000      YES
+MAX gradient         0.0000456789 Eh/bohr   0.0003000000      YES
+RMS step             0.0001234567 bohr      0.0020000000      YES
+MAX step             0.0002345678 bohr      0.0040000000      YES
+---------------------------------------------------------------------------</code></pre>
+
+        <p>
+          Thresholds tighten in three steps: <code>NormalOpt</code> (default),
+          <code>TightOpt</code>, <code>VeryTightOpt</code>.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Indicator</th><th>NormalOpt</th><th>TightOpt</th><th>VeryTightOpt</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Energy change (E<sub>h</sub>)</td><td>5e-6</td><td>1e-6</td><td>2e-7</td></tr>
+            <tr><td>Max gradient (E<sub>h</sub>/bohr)</td><td>3e-4</td><td>1e-4</td><td>3e-5</td></tr>
+            <tr><td>RMS gradient</td><td>1e-4</td><td>3e-5</td><td>1e-5</td></tr>
+            <tr><td>Max step (bohr)</td><td>4e-3</td><td>2e-3</td><td>6e-4</td></tr>
+            <tr><td>RMS step</td><td>2e-3</td><td>1e-3</td><td>3e-4</td></tr>
+          </tbody>
+        </table>
+
+        <div class="tip">
+          <div class="note-title">Use TightOpt before a frequency calculation</div>
           <p>
-            The English version of this chapter is being written. In the meantime, the
-            corresponding Korean chapter is fully available — please follow the link below
-            or use the <strong>KO</strong> toggle in the top-left of the sidebar.
-          </p>
-          <p>
-            → <a href="../ko/geometry-optimization.html">Read this chapter in Korean (한국어)</a>
+            If a frequency calculation is the next step, converge the geometry to at least
+            <code>TightOpt</code>. Otherwise the frequencies are evaluated at a point too far
+            from the true equilibrium, and you may see spurious imaginary modes.
           </p>
         </div>
 
+        <h2 id="constraints">Constrained optimisation</h2>
         <p>
-          If you would like to be notified when the English translation lands, please open
-          an issue at
-          <a href="https://github.com/dhwan0112/dhk.github.io/issues">dhwan0112/dhk.github.io</a>.
+          Use this when you want to freeze part of a reaction path, hold specific bonds or
+          angles fixed, etc. Write the constraints inside a <code>%geom Constraints</code>
+          block:
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP Opt</span>
+
+<span class="kw">%geom</span> <span class="kw2">Constraints</span>
+   { <span class="kw">B</span> <span class="num">0 1</span> <span class="num">1.25</span> <span class="kw">C</span> }       <span class="cmt"># freeze 0–1 bond length at 1.25 Å</span>
+   { <span class="kw">A</span> <span class="num">2 0 3</span> <span class="num">120.0</span> <span class="kw">C</span> }   <span class="cmt"># freeze 2-0-3 angle at 120°</span>
+   { <span class="kw">D</span> <span class="num">3 1 0 2</span> <span class="num">180.0</span> <span class="kw">C</span> } <span class="cmt"># freeze 3-1-0-2 dihedral at 180°</span>
+   { <span class="kw">C</span> <span class="num">5</span> <span class="kw">C</span> }              <span class="cmt"># freeze atom 5 (full Cartesian)</span>
+<span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <p>The first character inside the braces selects the constraint type:</p>
+
+        <table>
+          <thead>
+            <tr><th>Type</th><th>Syntax</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Bond length</td><td><code>{ B N1 N2 value C }</code></td><td>Freeze the N1–N2 distance at <em>value</em> (Å).</td></tr>
+            <tr><td>Bond angle</td><td><code>{ A N1 N2 N3 value C }</code></td><td>Freeze the N1–N2–N3 angle at <em>value</em> (°).</td></tr>
+            <tr><td>Dihedral</td><td><code>{ D N1 N2 N3 N4 value C }</code></td><td>Freeze the four-atom dihedral.</td></tr>
+            <tr><td>Cartesian</td><td><code>{ C N1 C }</code></td><td>Freeze atom N1's (x, y, z).</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <div class="note-title">Important details</div>
+          <p>
+            The <em>value</em> is optional. If omitted, the current value in the input geometry
+            is preserved. Cartesian constraints accept no value — they always use the initial
+            position. Atom indices are <strong>0-based</strong>, the opposite of the
+            <code>int</code> coordinate input — easy to get wrong, watch out.
+          </p>
+        </div>
+
+        <h3>Wildcards and ranges</h3>
+        <p>Multiple coordinates can be tied down in one go:</p>
+        <pre data-lang="orca"><code><span class="kw">%geom</span> <span class="kw2">Constraints</span>
+   { <span class="kw">B</span> <span class="num">3</span> <span class="kw">*</span> <span class="kw">C</span> }        <span class="cmt"># all bonds that involve atom 3</span>
+   { <span class="kw">B</span> <span class="kw">*</span> <span class="kw">*</span> <span class="kw">C</span> }        <span class="cmt"># every bond</span>
+   { <span class="kw">A</span> <span class="kw">*</span> <span class="num">5</span> <span class="kw">*</span> <span class="kw">C</span> }      <span class="cmt"># all angles centred on atom 5</span>
+   { <span class="kw">C</span> <span class="num">10:17</span> <span class="kw">C</span> }       <span class="cmt"># Cartesian-freeze atoms 10 through 17</span>
+<span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+
+        <h3>Inverse constraints</h3>
+        <p>
+          To <em>release</em> only a few coordinates and fix everything else, list the
+          coordinates you want to be free and add <code>invertConstraints true</code>:
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%geom</span> <span class="kw2">Constraints</span>
+   { <span class="kw">B</span> <span class="num">0 1</span> <span class="kw">C</span> }
+<span class="kw">end</span>
+   <span class="kw2">invertConstraints</span> <span class="kw">true</span>   <span class="cmt"># optimise only the C–O distance, freeze everything else</span>
+<span class="kw">end</span></code></pre>
+
+        <h2 id="hydrogens">Hydrogen-only / partial optimisation</h2>
+        <p>
+          Useful for large active sites or X-ray structures where you want to relax only the
+          hydrogens:
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%geom</span> <span class="kw2">optimizehydrogens</span> <span class="kw">true</span>
+<span class="kw">end</span></code></pre>
+
+        <h2 id="scan">Relaxed surface scan</h2>
+        <p>
+          Step one coordinate from one value to another and at each point relax everything else
+          — the standard tool for exploring a reaction coordinate or a conformational change.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Scan the H–O–O–H dihedral of H2O2 from 0° to 180° in 19 points</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP Opt</span>
+
+<span class="kw">%geom</span> <span class="kw2">Scan</span>
+   <span class="kw">D</span> <span class="num">0 1 2 3</span> <span class="kw">=</span> <span class="num">0.0, 180.0, 19</span>   <span class="cmt"># dihedral 0 → 180, 19 points</span>
+<span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  H   0.000   0.872   0.873
+  O   0.000   0.625  -0.085
+  O   0.000  -0.625  -0.085
+  H   0.000  -0.872   0.873
+<span class="kw">*</span></code></pre>
+
+        <p>
+          After the scan ORCA writes the (coordinate value, energy) pairs to
+          <code>basename.relaxscanact.dat</code>, and every intermediate geometry is appended
+          to <code>basename_trj.xyz</code> for visualisation.
+        </p>
+
+        <div class="tip">
+          <div class="note-title">Scan from outside in</div>
+          <p>
+            For reaction-coordinate scans it is often smoother to go "from outside in" (long
+            distance → short distance) than the other way around. Starting from a stretched
+            geometry the system is already partially relaxed, and the scan is less likely to
+            fall into local minima.
+          </p>
+        </div>
+
+        <h3>Multidimensional scans</h3>
+        <p>Scanning two coordinates simultaneously produces a surface:</p>
+
+        <pre data-lang="orca"><code><span class="kw">%geom</span> <span class="kw2">Scan</span>
+   <span class="kw">B</span> <span class="num">0 1</span> <span class="kw">=</span> <span class="num">3.0, 1.0, 15</span>
+   <span class="kw">B</span> <span class="num">1 2</span> <span class="kw">=</span> <span class="num">1.0, 3.0, 15</span>
+<span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+
+        <p>
+          By default the two scans combine as a grid, giving 15 × 15 = 225 points. To run them
+          synchronously instead (pair the same indices, 15 points total), add
+          <code>Simul_Scan true</code>.
+        </p>
+
+        <h2 id="initial-hessian">Choice of initial Hessian</h2>
+        <p>
+          The optimisation algorithm needs an approximate Hessian (matrix of second
+          derivatives) at each step. The default is a model Hessian
+          (<code>Almloef</code>), which works well for most organic molecules. For tricky
+          systems other options are worth trying:
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%geom</span>
+   <span class="kw2">InHess</span> <span class="kw">Almloef</span>      <span class="cmt"># default, robust</span>
+<span class="kw">end</span></code></pre>
+
+        <table>
+          <thead>
+            <tr><th>Option</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Almloef</code></td><td>Default. Almlöf model.</td></tr>
+            <tr><td><code>Lindh</code></td><td>Lindh model. Effective on flat surfaces.</td></tr>
+            <tr><td><code>Swart</code></td><td>Swart model. Stable for transition metals.</td></tr>
+            <tr><td><code>Schlegel</code></td><td>Schlegel model. General organics.</td></tr>
+            <tr><td><code>Unit</code></td><td>Identity matrix. Last resort for very hard cases.</td></tr>
+            <tr><td><code>Read</code></td><td>Read a <code>.hess</code> file from a previous frequency job.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Reading a previously computed Hessian</h3>
+        <p>
+          Computing a Hessian cheaply first (e.g. a semi-empirical method) and using it as the
+          initial guess can make a difficult optimisation tractable:
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Step 1: quick Hessian with XTB</span>
+<span class="kw">!</span> <span class="kw2">XTB2 NumFreq</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz
+
+<span class="kw">$new_job</span>
+
+<span class="cmt"># Step 2: high-quality optimisation seeded with the XTB Hessian</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP Opt TightSCF</span>
+<span class="kw">%geom</span>
+   <span class="kw2">InHess</span>     <span class="kw">Read</span>
+   <span class="kw2">InHessName</span> <span class="str">"mol_job1.hess"</span>
+<span class="kw">end</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span></code></pre>
+
+        <h2 id="tips">When the optimisation refuses to converge</h2>
+        <p>Things to try when the optimisation diverges or oscillates:</p>
+
+        <ul>
+          <li><strong>Raise the iteration cap</strong>: <code>%geom MaxIter 500 end</code>.</li>
+          <li><strong>Shrink the maximum step</strong>: <code>%geom MaxStep 0.1 end</code> (bohr).</li>
+          <li><strong>Switch to Cartesian</strong>: try <code>! COpt</code> instead.</li>
+          <li><strong>Improve the initial Hessian</strong>: the <code>InHess Read</code> pattern shown above.</li>
+          <li><strong>Sanity-check the input geometry</strong>: look for unreasonable bond lengths or overlapping atoms.</li>
+        </ul>
+
+        <p>
+          You now have a stationary point. The next step is to check that it really is a
+          minimum (no imaginary frequencies) — over to the next chapter.
         </p>
       </article>
 
-<nav class="page-nav"><a class="prev" href="single-point.html"><div class="page-nav-label">← previous</div><div class="page-nav-title">Single point energy</div></a><a class="next" href="frequencies.html"><div class="page-nav-label">next →</div><div class="page-nav-title">Frequencies</div></a></nav>
+      <nav class="page-nav">
+        <a class="prev" href="single-point.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Single point energy</div>
+        </a>
+        <a class="next" href="frequencies.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Frequencies</div>
+        </a>
+      </nav>
     </main>
   </div>
   <script src="../assets/js/main.js"></script>
