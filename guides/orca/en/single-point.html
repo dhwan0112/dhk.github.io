@@ -81,6 +81,7 @@
             <li><a href="#scf-workflow">What to do after the SCF converges</a></li>
             <li><a href="#population">Population analysis</a></li>
             <li><a href="#mo-plot">Visualising molecular orbitals</a></li>
+            <li><a href="#spectroscopy">Spectroscopic applications — NMR · EPR g-tensor</a></li>
           </ul>
         </div>
 
@@ -343,6 +344,104 @@ MAYER POPULATION ANALYSIS
 orca_plot water.gbw -i</code></pre>
 
         <p>The resulting <code>.cube</code> files can be visualised in VMD, Avogadro, ChimeraX, PyMOL, and similar tools.</p>
+
+        <h2 id="spectroscopy">Spectroscopic applications — NMR shielding and EPR g-tensor</h2>
+        <p>
+          One of the most common follow-ups to a single point is the calculation of
+          spectroscopic parameters. ORCA's <code>%eprnmr</code> block lets you handle NMR
+          chemical shifts, EPR g-tensors, hyperfine splittings (A-tensor), and quadrupole
+          couplings (Q-tensor) in a single input.
+        </p>
+
+        <h3>① NMR shielding and chemical shifts</h3>
+        <p>
+          An NMR calculation prints absolute shielding constants σ (ppm). Chemical shifts δ are
+          obtained by subtracting the σ of a reference molecule (TMS for ¹H / ¹³C and so on).
+          For the basis, Jensen's <code>pcSseg-1</code> / <code>pcSseg-2</code> bases are
+          specifically optimised for NMR and are the standard choice.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># 1H · 13C NMR shielding constants of ethanol</span>
+<span class="kw">!</span> <span class="kw2">PBE0 D4 pcSseg-2 RIJK def2/JK TightSCF NMR</span>
+
+<span class="kw">%eprnmr</span>
+   <span class="kw2">Nuclei</span> <span class="kw">=</span> <span class="kw">all</span> H { <span class="kw2">shift</span> }    <span class="cmt"># every H</span>
+   <span class="kw2">Nuclei</span> <span class="kw">=</span> <span class="kw">all</span> C { <span class="kw2">shift</span> }    <span class="cmt"># every C</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> ethanol.xyz</code></pre>
+
+        <p>The key output section looks like:</p>
+
+        <pre data-lang="output"><code>-------------------------------
+CHEMICAL SHIELDING SUMMARY (ppm)
+-------------------------------
+Nucleus            Element   Isotropic Value         Anisotropy
+   0                  C         170.123                  39.412
+   1                  C         157.876                  28.501
+   2                  H          31.245                   8.103
+   3                  H          31.122                   7.984
+   ...</code></pre>
+
+        <p>
+          Subtracting the shielding constant of the reference compound (TMS at PBE0/pcSseg-2 ≈
+          31.5 ppm for ¹H, 188.1 ppm for ¹³C) gives the chemical shifts δ that can be compared
+          directly to experiment. NIST CCCBDB
+          (<a href="https://cccbdb.nist.gov">cccbdb.nist.gov</a>) collects functional- and
+          basis-specific reference values.
+        </p>
+
+        <h3>② EPR g-tensor and A-tensor (radicals / magnetic systems)</h3>
+        <p>
+          The EPR parameters of open-shell radicals and transition-metal complexes are expressed
+          through the g-tensor (electronic Zeeman splitting) and the A-tensor (hyperfine
+          coupling). ORCA handles both in a single input. Spin-orbit coupling is enabled with
+          the <code>SOMF(1X)</code> operator.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># g-tensor + A-tensor of the vanadyl(IV) cation (51V, 16O)</span>
+<span class="kw">!</span> <span class="kw2">UKS PBE0 D4 def2-TZVP DKH2 SARC-DKH-TZVP RIJCOSX SARC/J TightSCF SOMF(1X)</span>
+
+<span class="kw">%eprnmr</span>
+   <span class="kw2">GTensor</span>     <span class="num">1</span>
+   <span class="kw2">DTensor</span>     <span class="kw">true</span>           <span class="cmt"># zero-field splitting</span>
+   <span class="kw2">Nuclei</span> <span class="kw">=</span> <span class="kw">all</span> V { <span class="kw2">aiso</span>, <span class="kw2">adip</span>, <span class="kw2">fc</span>, <span class="kw2">sd</span> }
+   <span class="kw2">Nuclei</span> <span class="kw">=</span> <span class="kw">all</span> O { <span class="kw2">aiso</span>, <span class="kw2">adip</span> }
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">2 2</span>             <span class="cmt"># V(IV)=O doublet</span>
+   V    0.000   0.000   0.000
+   O    0.000   0.000   1.580
+<span class="kw">*</span></code></pre>
+
+        <p>The output contains tables like:</p>
+
+        <pre data-lang="output"><code>-------------------
+g-TENSOR (origin = center of electronic charge)
+-------------------
+g(1) =  1.9698     g_iso = (g1 + g2 + g3) / 3
+g(2) =  1.9701
+g(3) =  1.9925
+delta-g_iso (vs g_e) =  -0.0156 ppt
+
+-------------------
+HYPERFINE COUPLING (A) MATRIX, Nucleus  0V
+-------------------
+A(iso) = -156.42 MHz
+A(dip) =  -28.13,  +14.21,  +13.92  MHz
+</code></pre>
+
+        <div class="tip">
+          <div class="note-title">Magnetic properties almost always need ZORA or DKH</div>
+          <p>
+            For pure 3d radicals a non-relativistic calculation can still be useful as a first
+            approximation. For 4d and heavier transition metals or lanthanides, however, scalar
+            relativity (<code>ZORA</code> or <code>DKH2</code>) and a relativistically
+            recontracted basis (<code>ZORA-def2-TZVP</code> / <code>SARC-DKH-TZVP</code>) are
+            essentially mandatory. Functionals whose EPR-specific performance has been
+            benchmarked (<code>PBE0</code>, <code>B3LYP</code>) generally fit g-tensors better.
+          </p>
+        </div>
 
         <p>
           The single point is the starting point for every kind of ORCA calculation. The output
