@@ -207,21 +207,48 @@ mpirun -np 4 lmp -in in.lj &gt; out.lj
 <h2 id="14">1.4 출력 결과 살펴보기</h2>
 <p>실행이 끝나면 <code>out.lj</code> 라는 출력 파일과 <code>log.lammps</code> 라는 로그 파일이
 생성됩니다. 둘 다 텍스트 파일이므로 일반 에디터로 열 수 있습니다.</p>
-<p><code>out.lj</code> 의 끝부분을 보면 다음과 같은 형태의 표가 있습니다.</p>
-<pre><code class="language-text">Step          Temp          E_pair         E_mol          TotEng       Press
-   0          1.44         -6.7733...      0.0           -4.6133...   -5.0228
-  50          0.7572       -5.7585...      0.0           -4.6240...    0.1924
- 100          0.7592       -5.7625...      0.0           -4.6253...    0.2058
- ...
- 250          0.7480       -5.7400...      0.0           -4.6201...    0.2330
-Loop time of 0.0XX on 4 procs for 250 steps with 4000 atoms
+<p><code>out.lj</code> 의 끝부분을 보면 다음과 같은 형태의 표가 있습니다 (아래는 본 가이드를
+작성하며 LAMMPS 29 Aug 2024로 동일 입력을 실제 직렬 실행해 얻은 결과입니다).</p>
+<pre><code class="language-text">   Step          Temp          E_pair         E_mol          TotEng         Press
+      0       1.4400       -6.7733681       0           -4.6139081      -5.0199732
+     50       0.7437       -5.7370606       0           -4.6218173       0.3080484
+    100       0.7572       -5.7581426       0           -4.6226965       0.2085022
+    150       0.7518       -5.7510464       0           -4.6235610       0.2270706
+    200       0.7514       -5.7500924       0           -4.6232753       0.2536280
+    250       0.7595       -5.7621762       0           -4.6231440       0.2172998
+Loop time of 0.306876 on 1 procs for 250 steps with 4000 atoms
 </code></pre>
 <p><code>Step</code> 은 시뮬레이션 스텝 번호, <code>Temp</code> 는 온도, <code>TotEng</code> 은 총 에너지(kinetic + potential)
 입니다. 초기에 1.44 였던 온도가 빠르게 0.75 부근으로 떨어지면서 평형에 도달하는
 것을 볼 수 있는데, 이는 NVE 앙상블에서 초기 격자가 풀어지면서 운동에너지가
-포텐셜에너지로 분배되는 자연스러운 현상입니다.</p>
+포텐셜에너지로 분배되는 자연스러운 현상입니다. 동시에 <code>TotEng</code> 은 약 −4.6231
+부근에서 거의 일정하게 유지되어, NVE 적분이 에너지를 잘 보존하고 있음을
+확인할 수 있습니다 — NVE를 첫 시뮬레이션으로 자주 돌리는 이유가 바로 이
+점검 때문입니다.</p>
 <p>마지막 줄의 <code>Loop time</code> 은 시뮬레이션이 소요한 wall-clock 시간으로,
-LAMMPS 성능 진단의 출발점입니다.</p>
+LAMMPS 성능 진단의 출발점입니다. 코어 수나 시스템 크기를 바꿔 가며 이
+값이 어떻게 변하는지 보는 것이 가장 단순한 성능 감각 익히기입니다.</p>
+<div class="tip">
+  <div class="note-title">위 출력은 실제 측정값입니다</div>
+  <p>
+    위 표는 본 가이드를 작성하며 동일한 입력 파일을 LAMMPS 29 Aug 2024
+    (conda-forge 빌드, 직렬)로 실제 실행해 얻은 값입니다. 자기 환경에서
+    같은 스크립트를 돌리면 마지막 자리 부동소수점은 약간 다를 수 있어도
+    스텝별 거동(온도가 1.44 → 0.75 부근으로 떨어지며 총 에너지 보존)은
+    동일하게 재현되어야 합니다. 재현이 안 된다면 입력에 오타가 있거나
+    LAMMPS 버전이 매우 오래된 경우일 가능성이 높습니다.
+  </p>
+</div>
+
+<figure>
+  <img src="assets/images/lj-thermo.png" alt="LJ 액체 첫 시뮬레이션의 온도와 총 에너지 추이" style="width:100%;max-width:880px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
+  <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
+    그림 1. 위 입력 파일로 얻은 thermo 출력의 시각화.
+    왼쪽: 초기 1.44 였던 온도가 첫 50 step 만에 0.75 부근으로 떨어진다(평형화).
+    오른쪽: 총 에너지(녹색)는 거의 일정하게 유지되어 NVE 적분이 에너지를 잘 보존함을 확인 — 보라색은 포텐셜 에너지(E_pair).
+  </figcaption>
+</figure>
+
 <h2 id="15">1.5 다음 단계</h2>
 <p>이번 장에서는 LAMMPS 실행 방법과 가장 단순한 입력 스크립트의 형태만
 훑어보았습니다. 다음 장에서는 이 스크립트를 한 줄 한 줄 뜯어보며,
