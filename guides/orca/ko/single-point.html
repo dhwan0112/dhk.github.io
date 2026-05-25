@@ -80,6 +80,7 @@
             <li><a href="#scf-workflow">SCF 수렴 후 후속 작업</a></li>
             <li><a href="#population">모집단 분석</a></li>
             <li><a href="#mo-plot">분자 궤도 시각화</a></li>
+            <li><a href="#spectroscopy">분광학 응용 — NMR · EPR g-tensor</a></li>
           </ul>
         </div>
 
@@ -336,6 +337,99 @@ MAYER POPULATION ANALYSIS
 orca_plot water.gbw -i</code></pre>
 
         <p>생성된 <code>.cube</code> 파일은 VMD, Avogadro, ChimeraX, PyMOL 등에서 시각화할 수 있습니다.</p>
+
+        <h2 id="spectroscopy">분광학 응용 — NMR 차폐 상수와 EPR g-tensor</h2>
+        <p>
+          단일점 계산 위에서 자주 이어지는 후속 작업이 분광학 매개변수의 산출입니다.
+          ORCA는 자기특성 계산용 <code>%eprnmr</code> 블록을 통해 NMR 화학 이동, EPR g-tensor,
+          초미세 분리(A-tensor), 사극자 결합(Q-tensor)을 한 번에 다룰 수 있습니다.
+        </p>
+
+        <h3>① NMR 차폐 상수와 화학 이동</h3>
+        <p>
+          NMR 계산은 차폐 상수 σ(ppm)를 출력합니다. 화학 이동 δ는 기준 분자(TMS for ¹H/¹³C 등)의
+          σ_ref와의 차이로 환산합니다. 베이시스는 NMR용으로 최적화된 Jensen의
+          <code>pcSseg-1</code>·<code>pcSseg-2</code>가 표준입니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># 에탄올의 1H · 13C NMR 차폐 상수 계산</span>
+<span class="kw">!</span> <span class="kw2">PBE0 D4 pcSseg-2 RIJK def2/JK TightSCF NMR</span>
+
+<span class="kw">%eprnmr</span>
+   <span class="kw2">Nuclei</span> <span class="kw">=</span> <span class="kw">all</span> H { <span class="kw2">shift</span> }    <span class="cmt"># 모든 H</span>
+   <span class="kw2">Nuclei</span> <span class="kw">=</span> <span class="kw">all</span> C { <span class="kw2">shift</span> }    <span class="cmt"># 모든 C</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> ethanol.xyz</code></pre>
+
+        <p>출력의 핵심 부분은 다음과 같습니다.</p>
+
+        <pre data-lang="output"><code>-------------------------------
+CHEMICAL SHIELDING SUMMARY (ppm)
+-------------------------------
+Nucleus            Element   Isotropic Value         Anisotropy
+   0                  C         170.123                  39.412
+   1                  C         157.876                  28.501
+   2                  H          31.245                   8.103
+   3                  H          31.122                   7.984
+   ...</code></pre>
+
+        <p>
+          기준 화합물(TMS at PBE0/pcSseg-2 ≈ 31.5 ppm for ¹H, 188.1 ppm for ¹³C)의 차폐
+          상수에서 빼면 실험과 직접 비교 가능한 δ가 나옵니다. NIST CCCBDB
+          (<a href="https://cccbdb.nist.gov">cccbdb.nist.gov</a>)에 함수별·베이시스별 기준값
+          표가 정리되어 있습니다.
+        </p>
+
+        <h3>② EPR g-tensor와 A-tensor (라디칼 / 자기 시스템)</h3>
+        <p>
+          개껍질 라디칼·전이금속 착물의 EPR 매개변수는 g-tensor(전자 Zeeman 분리)와
+          A-tensor(초미세 결합)로 표현됩니다. ORCA는 두 가지를 한 입력 안에서 처리합니다.
+          스핀-궤도 결합을 위해 <code>SOMF(1X)</code> 연산자를 활성화합니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Vanadyl(IV) 이온의 g-tensor + A-tensor (51V, 16O)</span>
+<span class="kw">!</span> <span class="kw2">UKS PBE0 D4 def2-TZVP DKH2 SARC-DKH-TZVP RIJCOSX SARC/J TightSCF SOMF(1X)</span>
+
+<span class="kw">%eprnmr</span>
+   <span class="kw2">GTensor</span>     <span class="num">1</span>
+   <span class="kw2">DTensor</span>     <span class="kw">true</span>           <span class="cmt"># zero-field splitting</span>
+   <span class="kw2">Nuclei</span> <span class="kw">=</span> <span class="kw">all</span> V { <span class="kw2">aiso</span>, <span class="kw2">adip</span>, <span class="kw2">fc</span>, <span class="kw2">sd</span> }
+   <span class="kw2">Nuclei</span> <span class="kw">=</span> <span class="kw">all</span> O { <span class="kw2">aiso</span>, <span class="kw2">adip</span> }
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">2 2</span>             <span class="cmt"># V(IV)=O 도플렛</span>
+   V    0.000   0.000   0.000
+   O    0.000   0.000   1.580
+<span class="kw">*</span></code></pre>
+
+        <p>출력에 다음과 같은 표가 나타납니다.</p>
+
+        <pre data-lang="output"><code>-------------------
+g-TENSOR (origin = center of electronic charge)
+-------------------
+g(1) =  1.9698     g_iso = (g1 + g2 + g3) / 3
+g(2) =  1.9701
+g(3) =  1.9925
+delta-g_iso (vs g_e) =  -0.0156 ppt
+
+-------------------
+HYPERFINE COUPLING (A) MATRIX, Nucleus  0V
+-------------------
+A(iso) = -156.42 MHz
+A(dip) =  -28.13,  +14.21,  +13.92  MHz
+</code></pre>
+
+        <div class="tip">
+          <div class="note-title">자기 특성에는 ZORA 또는 DKH가 거의 필수</div>
+          <p>
+            3d 라디칼만 다루는 경우라면 비상대론적 계산도 1차 근사로 가능하지만, 4d 이상
+            전이금속이나 란타나이드에서는 스칼라 상대론(<code>ZORA</code> 또는
+            <code>DKH2</code>) + 전용 베이시스(<code>ZORA-def2-TZVP</code> / <code>SARC-DKH-TZVP</code>)
+            가 거의 필수입니다. 또한 g-tensor에는 EPR 전용 매개변수가 fit된 함수
+            (<code>PBE0</code>, <code>B3LYP</code>)가 일반적으로 더 잘 맞습니다.
+          </p>
+        </div>
 
         <p>
           단일점 계산은 ORCA의 모든 작업의 출발점입니다. 이 페이지에서 다룬 출력 해석법은 다른 모든 계산 유형에도 그대로 적용됩니다.
