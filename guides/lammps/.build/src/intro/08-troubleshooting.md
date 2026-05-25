@@ -179,10 +179,17 @@ restart 파일도 누적되면 무거우므로 오래된 것은 주기적으로 
 |------|------|
 | [docs.lammps.org](https://docs.lammps.org/) | 공식 매뉴얼. 명령어별 상세 옵션과 예제 |
 | [lammps.org/forum.html](https://www.lammps.org/forum.html) | 사용자 포럼. 실전 질문/답변 검색에 좋음 |
-| `examples/` 폴더 | 소스 트리에 포함된 예제. 작은 단위로 학습하기 좋음 |
+| [lammpstutorials.github.io](https://lammpstutorials.github.io/) | Gravelle 외(저자 다수)의 단계별 튜토리얼. LJ 액체, 나노튜브 변형, GCMC 등 실전 예제 풍부 |
+| `examples/` 폴더 | LAMMPS 소스 트리에 포함된 공식 예제. 작은 단위로 학습하기 좋음 |
 | `bench/` 폴더 | 성능 벤치마크 입력들 |
 | Mark Tuckerman, *Statistical Mechanics: Theory and Molecular Simulation* | MD 이론 교과서 표준 |
 | Daan Frenkel, Berend Smit, *Understanding Molecular Simulation* | MD 알고리즘 교과서 표준 |
+
+본 입문 가이드는 LAMMPS 매뉴얼의 4-part 구조를 기준으로 한 번 훑어보는
+역할이고, 같은 토픽을 다른 시각·다른 예제로 다시 보면 이해가 훨씬 단단해
+집니다. 특히 [lammpstutorials.github.io](https://lammpstutorials.github.io/)
+는 본 가이드와 짝지어 읽기 좋은 영문 자료입니다 — 같은 LJ 액체를 어떻게
+다르게 풀어쓰는지, 어떤 진단 명령을 끼워 넣는지 비교해 보시기를 권합니다.
 
 본 입문 가이드는 여기서 끝납니다. 실제 연구 문제에 LAMMPS를 적용하는
 구체적 사례는 [Cu 표면 흡착 시리즈](cu-overview.html)에서 이어집니다.
