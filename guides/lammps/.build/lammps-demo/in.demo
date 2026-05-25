@@ -1,0 +1,42 @@
+# LJ liquid: minimize -> NVT (T=1.0) -> NPT (T=1.0, P=0.5) -> production with rdf + msd
+units           lj
+atom_style      atomic
+lattice         fcc 0.8442
+region          box block 0 8 0 8 0 8
+create_box      1 box
+create_atoms    1 box
+mass            1 1.0
+
+pair_style      lj/cut 2.5
+pair_coeff      1 1 1.0 1.0 2.5
+
+velocity        all create 1.0 12345 mom yes rot yes dist gaussian
+neighbor        0.3 bin
+neigh_modify    every 20 delay 0 check no
+
+thermo_style    custom step temp press pe ke etotal density
+thermo          200
+
+# Stage 1: minimize
+min_style       cg
+minimize        1.0e-4 1.0e-6 1000 10000
+
+# Stage 2: NVT warm-up
+fix             1 all nvt temp 1.0 1.0 0.5
+run             2000
+unfix           1
+
+# Stage 3: NPT equilibration
+fix             2 all npt temp 1.0 1.0 0.5 iso 0.5 0.5 5.0
+run             3000
+
+# Stage 4: production with measurements
+reset_timestep  0
+compute         rdf1 all rdf 100
+fix             rdfavg all ave/time 10 100 1000 c_rdf1[*] file rdf.dat mode vector
+
+compute         msd1 all msd
+fix             msdavg all ave/time 1 1 100 c_msd1[1] c_msd1[2] c_msd1[3] c_msd1[4] file msd.dat
+
+thermo          100
+run             5000

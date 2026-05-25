@@ -214,6 +214,64 @@ run             200000             # 생성 시뮬레이션
 
 이 순서가 거의 모든 입문 예제에 들어맞는 표준 구성입니다.
 
+### 실제로 돌려본 결과 — LJ 액체의 NPT 안정성
+
+본 가이드의 검증을 위해 위 패턴을 LJ 액체에 적용해 실제로 돌려보았습니다.
+8 × 8 × 8 격자(fcc 0.8442, 원자 2048개)를 최소화 → NVT (T = 1.0, 2000 step) →
+NPT (T = 1.0, P = 0.5, 3000 step) → production (NPT, 5000 step) 흐름으로,
+LAMMPS 29 Aug 2024 직렬 빌드에서 약 7초 만에 완료됐습니다.
+
+```lammps
+# in.demo (요약) — 위 패턴의 LJ 버전, 실제 실행된 입력
+units           lj
+atom_style      atomic
+lattice         fcc 0.8442
+region          box block 0 8 0 8 0 8
+create_box      1 box
+create_atoms    1 box
+mass            1 1.0
+pair_style      lj/cut 2.5
+pair_coeff      1 1 1.0 1.0 2.5
+velocity        all create 1.0 12345 mom yes rot yes dist gaussian
+neighbor        0.3 bin
+neigh_modify    every 20 delay 0 check no
+
+min_style       cg
+minimize        1.0e-4 1.0e-6 1000 10000
+
+fix             1 all nvt temp 1.0 1.0 0.5
+run             2000
+unfix           1
+
+fix             2 all npt temp 1.0 1.0 0.5 iso 0.5 0.5 5.0
+run             3000
+# (이후 reset_timestep 0; production run 5000)
+```
+
+production 단계의 thermo 추이를 보면, 온도는 setpoint 1.0 부근에서 ±0.04 정도,
+압력은 setpoint 0.5 부근에서 ±0.2 정도로 진동하면서 평형을 유지합니다.
+밀도는 0.69–0.70 부근으로 NPT 평형에 도달했습니다.
+
+<figure>
+  <img src="assets/images/lj-production.png" alt="LJ 액체 NPT production 단계의 온도·압력·밀도 추이" style="width:100%;max-width:980px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
+  <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
+    그림 1. NPT production 5000 step의 thermo 추이. 좌: 온도가 setpoint T = 1.0
+    근방에서 정착(thermostat 동작 확인). 중: 압력이 setpoint P = 0.5 근방으로
+    수렴(barostat 동작 확인). 우: 밀도가 0.69–0.70 부근에서 평형. 모두 본 가이드의
+    in.demo 를 LAMMPS 29 Aug 2024 (conda-forge, 직렬)로 실제 실행해 얻은 값입니다.
+  </figcaption>
+</figure>
+
+<div class="tip">
+  <div class="note-title">검증된 NVT → NPT 워크플로</div>
+  <p>
+    위 패턴(velocity → minimize → NVT 단기간 → NPT)은 작은 LJ 시스템부터 큰 분자
+    시스템까지 거의 그대로 통합니다. 시스템에 따라 timestep, T_damp, P_damp 값만
+    조정하면 됩니다. 본 가이드의 in.demo 와 출력 파일은 저장소의
+    <code>guides/lammps/.build/lammps-demo/</code> 에서 직접 확인할 수 있습니다.
+  </p>
+</div>
+
 ## 6.9 다음 단계
 
 이제 시뮬레이션을 돌릴 수 있게 됐으니, 그 결과를 어떻게 출력하고 분석할지
