@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>8. 트러블슈팅 · LAMMPS Cu 표면 흡착 가이드</title>
-  <meta name="description" content="자주 발생하는 LAMMPS 오류와 화학적 근원, 진단 명령어 모음." />
+  <title>트러블슈팅과 운영 팁 · LAMMPS 가이드</title>
+  <meta name="description" content="자주 발생하는 오류, 결과 의심 시 점검 순서, 병렬 실행과 성능 진단, 좋은 운영 습관." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -27,36 +28,45 @@
 <aside class="sidebar">
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">LAMMPS</div>
-    <div class="brand-subtitle">Cu 표면 흡착 가이드</div>
+    <div class="brand-subtitle">한국어 입문 가이드</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">시작</div>
+      <div class="nav-section-title">입문 · 시작</div>
       <ul class="nav-list">
         <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-overview.html"><span class="nav-num">01</span>시스템 개요</a></li>
-        <li><a href="02-data-files.html"><span class="nav-num">02</span>데이터 파일</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 스크립트 구조</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">이론과 방법론</div>
+      <div class="nav-section-title">입문 · 시뮬레이션 만들기</div>
       <ul class="nav-list">
-        <li><a href="03-force-fields.html"><span class="nav-num">03</span>힘장 비교</a></li>
-        <li><a href="04-electrostatics.html"><span class="nav-num">04</span>정전기 방법</a></li>
+        <li><a href="03-units-atomstyle.html"><span class="nav-num">03</span>단위계와 atom_style</a></li>
+        <li><a href="04-system.html"><span class="nav-num">04</span>시스템 정의</a></li>
+        <li><a href="05-forcefield.html"><span class="nav-num">05</span>상호작용 모델</a></li>
+        <li><a href="06-fix-run.html"><span class="nav-num">06</span>셋업과 실행</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">실전 프로토콜</div>
+      <div class="nav-section-title">입문 · 결과와 운영</div>
       <ul class="nav-list">
-        <li><a href="05-protocol.html"><span class="nav-num">05</span>5단계 프로토콜</a></li>
-        <li><a href="06-frameworks.html"><span class="nav-num">06</span>4가지 프레임워크</a></li>
-      </ul>
-    </div>
-    <div class="nav-section">
-      <div class="nav-section-title">분석과 운영</div>
-      <ul class="nav-list">
-        <li><a href="07-analysis.html"><span class="nav-num">07</span>분석 방법</a></li>
+        <li><a href="07-output.html"><span class="nav-num">07</span>출력과 분석</a></li>
         <li><a href="08-troubleshooting.html" class="active" aria-current="page"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">응용 · Cu 표면 흡착</div>
+      <ul class="nav-list">
+        <li><a href="cu-overview.html"><span class="nav-num">A0</span>개요</a></li>
+        <li><a href="cu-01-system.html"><span class="nav-num">A1</span>시스템 개요</a></li>
+        <li><a href="cu-02-data-files.html"><span class="nav-num">A2</span>데이터 파일</a></li>
+        <li><a href="cu-03-force-fields.html"><span class="nav-num">A3</span>힘장 비교</a></li>
+        <li><a href="cu-04-electrostatics.html"><span class="nav-num">A4</span>정전기 방법</a></li>
+        <li><a href="cu-05-protocol.html"><span class="nav-num">A5</span>5단계 프로토콜</a></li>
+        <li><a href="cu-06-frameworks.html"><span class="nav-num">A6</span>4가지 프레임워크</a></li>
+        <li><a href="cu-07-analysis.html"><span class="nav-num">A7</span>분석 방법</a></li>
+        <li><a href="cu-08-troubleshooting.html"><span class="nav-num">A8</span>응용 트러블슈팅</a></li>
       </ul>
     </div>
   </nav>
@@ -64,209 +74,212 @@
     <main class="main">
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 08 · 운영</div>
-        <h1 class="page-title">트러블슈팅</h1>
-        <p class="page-lede">자주 발생하는 LAMMPS 오류와 화학적 근원, 진단 명령어 모음.</p>
+        <h1 class="page-title">트러블슈팅과 운영 팁</h1>
+        <p class="page-lede">자주 발생하는 오류, 결과 의심 시 점검 순서, 병렬 실행과 성능 진단, 좋은 운영 습관.</p>
       </header>
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
-<li><a href="#81-bond-atoms-missing-on-proc-n-at-step-m">8.1 "Bond atoms missing on proc N at step M"</a><ul>
-<li><a href="#_1">증상</a></li>
-<li><a href="#_2">진단</a></li>
-<li><a href="#_3">해결책</a></li>
+<li><a href="#81">8.1 가장 자주 마주치는 오류 일곱 가지</a><ul>
+<li><a href="#error-lost-atoms-lost-atom">"ERROR: Lost atoms" 또는 "lost atom" 경고</a></li>
+<li><a href="#error-bondangle-atoms-missing">"ERROR: Bond/Angle atoms missing"</a></li>
+<li><a href="#error-neighbor-list-overflow">"ERROR: Neighbor list overflow"</a></li>
+<li><a href="#error-could-not-find-pair_coeff-for-type-x-y">"ERROR: Could not find pair_coeff for type X-Y"</a></li>
+<li><a href="#error-out-of-range-atoms-cannot-compute-pppm">"ERROR: Out of range atoms - cannot compute PPPM"</a></li>
+<li><a href="#warning-inconsistent-image-flags">"WARNING: Inconsistent image flags"</a></li>
+<li><a href="#error-energy-was-not-tallied-on-neighbor-sublist">"ERROR: Energy was not tallied on neighbor sublist"</a></li>
 </ul>
 </li>
-<li><a href="#82">8.2 가열 단계에서의 온도 폭주</a><ul>
-<li><a href="#_4">증상</a></li>
-<li><a href="#_5">원인 분석</a></li>
-<li><a href="#_6">추가 조치: 에너지 등가화</a></li>
+<li><a href="#82">8.2 결과가 의심스러울 때 점검 순서</a></li>
+<li><a href="#83">8.3 병렬 실행</a><ul>
+<li><a href="#_1">코어 수 선택 가이드</a></li>
+<li><a href="#lammps-timing">LAMMPS 자체 timing 진단</a></li>
 </ul>
 </li>
-<li><a href="#83-domain-decomposition">8.3 도메인 분해 (Domain Decomposition) 문제</a><ul>
-<li><a href="#_7">증상</a></li>
-<li><a href="#_8">원인</a></li>
-<li><a href="#_9">해결책</a></li>
-</ul>
-</li>
-<li><a href="#84-opls-aa">8.4 평형 시간이 지나치게 길어짐 (OPLS-AA)</a><ul>
-<li><a href="#_10">증상</a></li>
-<li><a href="#_11">원인</a></li>
-<li><a href="#_12">권장 절차</a></li>
-</ul>
-</li>
-<li><a href="#85-stress-nan">8.5 Stress 계산 시 NaN 또는 발산</a><ul>
-<li><a href="#_13">증상</a></li>
-<li><a href="#_14">원인</a></li>
-<li><a href="#_15">해결책</a></li>
-</ul>
-</li>
-<li><a href="#86">8.6 진단 체크리스트</a></li>
-<li><a href="#_16">참고문헌</a></li>
+<li><a href="#84">8.4 디스크와 메모리 관리</a></li>
+<li><a href="#85">8.5 좋은 습관 다섯 가지</a></li>
+<li><a href="#86">8.6 더 읽어 볼 자료</a></li>
 </ul>
 </div>
 <hr />
-<p>본 장에서는 본 시뮬레이션 시스템에서 실제로 관측된 오류 사례와 그 해결 방법을 정리한다.
-일반적인 LAMMPS 오류 일람은 공식 문서 <a href="https://docs.lammps.org/Errors.html">Errors</a> 를 참조한다.</p>
-<hr />
-<h2 id="81-bond-atoms-missing-on-proc-n-at-step-m">8.1 "Bond atoms missing on proc N at step M"</h2>
-<h3 id="_1">증상</h3>
-<pre><code>ERROR: Bond atoms missing on proc 3 at step 12450 (../ntopo_bond_all.cpp:62)
+<h2 id="81">8.1 가장 자주 마주치는 오류 일곱 가지</h2>
+<h3 id="error-lost-atoms-lost-atom">"ERROR: Lost atoms" 또는 "lost atom" 경고</h3>
+<p>가장 흔한 오류입니다. 원자가 박스 밖으로 나갔거나, 너무 큰 힘을 받아 폭주한
+경우입니다. 진단 순서:</p>
+<ol>
+<li><strong>첫 timestep에 바로 발생</strong> → 초기 구조가 너무 가까운 원자 쌍을 갖고 있을
+   확률이 높음. <code>minimize</code> 를 먼저 돌리거나, 첫 1000 스텝은 <code>fix nve/limit</code>
+   (한 스텝당 최대 변위 제한)을 적용.</li>
+<li><strong>수천~수만 스텝 후 발생</strong> → timestep 이 너무 큼. 절반으로 줄여서 재시도.</li>
+<li><strong>비주기 경계(<code>f</code>)에서 발생</strong> → <code>fix wall/lj93</code> 같은 벽을 명시적으로
+   둘러서 원자가 박스 밖으로 나가지 못하게 해야 함.</li>
+</ol>
+<h3 id="error-bondangle-atoms-missing">"ERROR: Bond/Angle atoms missing"</h3>
+<p>분자 시스템에서 한 분자의 원자가 박스 경계 양쪽에 걸쳐 있을 때, MPI 통신
+buffer가 그 분자를 한 번에 못 보면 나는 오류입니다.</p>
+<ul>
+<li><code>neighbor</code> skin 을 늘리세요 (<code>neighbor 5.0 bin</code>).</li>
+<li>가장 큰 분자보다 박스가 두 배 이상 커야 합니다.</li>
+<li>그래도 해결이 안 되면 <code>comm_modify cutoff 15.0</code> 으로 통신 cutoff 를 강제로
+  늘리세요.</li>
+</ul>
+<h3 id="error-neighbor-list-overflow">"ERROR: Neighbor list overflow"</h3>
+<p>이웃 리스트가 미리 잡아둔 메모리를 넘었습니다.</p>
+<pre><code class="language-lammps">neigh_modify    one 5000 page 100000
 </code></pre>
-<p>본 오류는 결합으로 연결된 두 원자 중 한쪽이 인접 프로세서의 통신 영역 (ghost atom region) 을
-벗어났을 때 발생한다. 분자가 비정상적으로 늘어났거나 (bond stretching), 통신 차단 거리가
-너무 짧을 때 나타난다.</p>
-<h3 id="_2">진단</h3>
-<p>가장 먼저 확인할 사항은 마지막 출력된 온도와 압력 값이다. 온도가 비정상적으로 높은
-값 (예: 10000 K 이상) 으로 폭주했다면 원인은 결합 자체가 아니라 적분 불안정이다.
-8.2 절을 참조한다.</p>
-<h3 id="_3">해결책</h3>
-<p><strong>1) Communication cutoff 확장</strong></p>
-<p>기본값은 force cutoff 와 동일하나, 결합 길이가 커진 상태에서는 충분치 않다.
-<code>common.in</code> 또는 시작부에 다음을 추가한다.</p>
-<pre><code class="language-lammps">comm_modify cutoff 14.0   # force cutoff 의 1.3~1.4 배 권장
-neighbor    2.0 bin       # neighbor skin 증가
-neigh_modify every 1 delay 0 check yes
+<p><code>one</code> 은 한 원자가 가질 수 있는 이웃 최대 수, <code>page</code> 는 메모리 페이지 크기입니다.</p>
+<h3 id="error-could-not-find-pair_coeff-for-type-x-y">"ERROR: Could not find pair_coeff for type X-Y"</h3>
+<p><code>pair_coeff</code> 에 모든 type 조합을 정의했는지 확인. 또는</p>
+<pre><code class="language-lammps">pair_modify     mix arithmetic
 </code></pre>
-<p><strong>2) Soft potential 초기 단계 확인</strong></p>
-<p>데이터 파일에서 분자 구조가 비현실적으로 가까이 배치된 경우 (특히 packmol 출력의
-경계 영역), 첫 단계 <code>fix nve/limit</code> 의 변위 제한을 더 작게 한다.</p>
-<pre><code class="language-lammps">fix relax all nve/limit 0.01   # 기본 0.05 에서 축소
-run 50000
+<p>로 i-j (i ≠ j) 조합을 자동 생성하게 두는 방법도 있습니다.</p>
+<h3 id="error-out-of-range-atoms-cannot-compute-pppm">"ERROR: Out of range atoms - cannot compute PPPM"</h3>
+<p>PPPM이 격자 외부의 전하를 처리 못 함. 원인은 보통 슬랩 시스템에서 정전기
+보정을 안 한 경우입니다.</p>
+<pre><code class="language-lammps">kspace_modify   slab 3.0
 </code></pre>
-<p><strong>3) 데이터 파일 검증</strong></p>
-<pre><code class="language-bash">grep -c &quot;^[[:space:]]*[0-9]&quot; opls.data    # 원자 수 카운트
+<h3 id="warning-inconsistent-image-flags">"WARNING: Inconsistent image flags"</h3>
+<p>분자가 박스 경계를 잘못 넘으면서 image flag(어느 주기 셀에 속하는지)가
+어긋났습니다. 평형화 중에는 무시해도 되지만, 분석 단계에서는</p>
+<pre><code class="language-lammps">write_data      check.data
+read_data       check.data
 </code></pre>
-<p>기대값 (OPLS-AA 2471, TraPPE-UA 1371) 과 일치하는지 확인한다. 분자 ID, 원자 타입,
-전하 컬럼이 모두 채워져 있는지 직접 확인한다.</p>
-<hr />
-<h2 id="82">8.2 가열 단계에서의 온도 폭주</h2>
-<h3 id="_4">증상</h3>
-<p>가열 단계 (특히 0.1 K → 10 K 또는 100 K → 200 K 전환부) 에서 온도가
-지정 값을 크게 초과하여 발산한다. OPLS-AA + PPPM 조합에서 빈번히 관측되었다.</p>
-<h3 id="_5">원인 분석</h3>
-<p>세 가지 가능성을 차례로 점검한다.</p>
-<p><strong>1) 타임스텝 과대</strong></p>
-<p>수소 진동 주기는 약 10 fs 이며, OPLS-AA 전 원자 모델은 C-H 결합을 명시적으로 적분한다.
-SHAKE 미사용 시 0.5 fs 이하가 안전하다.</p>
-<pre><code class="language-lammps">timestep 0.5
-</code></pre>
-<p>SHAKE 를 사용하면 1.0~2.0 fs 까지 허용된다.</p>
-<pre><code class="language-lammps">fix shake all shake 0.0001 20 0 b 1 2 3 a 1 2
-timestep 2.0
-</code></pre>
-<p><strong>2) Langevin damping 부족</strong></p>
-<p>저온 영역에서 damping 파라미터가 너무 크면 (즉 마찰이 약하면) 열욕과의 결합이
-느려져 국소 핫스팟이 형성된다. 4.2 절 권장값을 따른다.</p>
-<pre><code class="language-lammps">fix lang all langevin 0.1 10.0 50.0 12345   # damp = 50 fs (저온)
-fix lang all langevin 100.0 200.0 100.0 12345  # damp = 100 fs (중온 이후)
-</code></pre>
-<p><strong>3) 초기 속도 미설정</strong></p>
-<p>데이터 파일에 Velocities 섹션이 없으면 모든 원자가 정지 상태에서 시작한다.
-0.1 K 가열을 의도했다 하더라도 초기 속도를 명시적으로 부여해야 한다.</p>
-<pre><code class="language-lammps">velocity organic create 0.1 87287 dist gaussian mom yes rot yes
-</code></pre>
-<h3 id="_6">추가 조치: 에너지 등가화</h3>
-<p>극저온 단계에서 단단한 LJ 코어가 활성화되면 적분이 불안정해진다.
-1 단계에서 soft potential 을 충분히 길게 (≥ 50 ps) 돌린 뒤 진행한다.</p>
-<hr />
-<h2 id="83-domain-decomposition">8.3 도메인 분해 (Domain Decomposition) 문제</h2>
-<h3 id="_7">증상</h3>
-<pre><code>ERROR: Out of range atoms - cannot compute PPPM
-ERROR: Domain too small for processor sub-domains
-</code></pre>
-<p>또는 병렬 처리 시 특정 프로세서 수에서만 발생하는 충돌.</p>
-<h3 id="_8">원인</h3>
-<p>PPPM 은 도메인 분해 기반의 FFT 를 사용하므로, 슬랩 형상 (z 방향이 짧고 진공이 큰 경우)
-에서 z 축 분할이 비효율적이다. 본 시스템 박스 (30 × 30 × 41.9 Å) 는 z 분할이
-4 이상이 되면 한 서브도메인의 두께가 PPPM 격자 간격보다 작아진다.</p>
-<h3 id="_9">해결책</h3>
-<p><strong>1) Processor 그리드 수동 지정</strong></p>
-<p>z 방향 분할을 1로 고정하고 xy 평면에서만 분할한다.</p>
-<pre><code class="language-lammps">processors * * 1
-</code></pre>
-<p>40 코어 환경에서는 다음을 고려한다.</p>
-<pre><code class="language-lammps">processors 8 5 1
-</code></pre>
-<p><strong>2) PPPM 차수 및 격자 조정</strong></p>
-<pre><code class="language-lammps">kspace_style pppm 1.0e-5
-kspace_modify slab 3.0 pressure/scalar no
-kspace_modify order 5    # 기본 5, 4까지 낮춰 도메인 요구 완화 가능
-</code></pre>
-<p><strong>3) MSM 으로 전환</strong></p>
-<p>MSM 은 격자 기반 멀티그리드 방법으로, FFT 가 필요 없으며 슬랩 형상에서
-도메인 분해 제약이 훨씬 약하다. 4.3 절 참조.</p>
-<pre><code class="language-lammps">kspace_style msm 1.0e-4
-</code></pre>
-<p>본 프로젝트에서 TraPPE-UA + MSM 조합이 안정적이었던 이유 중 하나가 이것이다.</p>
-<hr />
-<h2 id="84-opls-aa">8.4 평형 시간이 지나치게 길어짐 (OPLS-AA)</h2>
-<h3 id="_10">증상</h3>
-<p>NVT 평형 단계에서 4~5 ns 가 지나도 에탄올 OH 그룹의 RDF 첫 피크 위치가 계속
-이동한다. 에너지는 평형으로 보이나 구조는 미평형 상태.</p>
-<h3 id="_11">원인</h3>
-<p>OPLS-AA 전 원자 모델은 에탄올의 협력적 수소결합 (cooperative H-bonding)
-재구성을 정확히 기술하며, 이 과정의 특성 시간은 수 ns 이다. United-atom 모델
-(TraPPE-UA) 에서는 명시적 OH 수소가 없어 이 효과가 약화되므로 평형이 빠르다.</p>
-<h3 id="_12">권장 절차</h3>
-<p>총 평형 시간 7.5 ns 권장 (1 단계 평형 + 6.5 ns 재평형).</p>
-<pre><code class="language-lammps"># Stage 4a: 초기 평형
-fix eq1 organic nvt temp 300.0 300.0 100.0
-run 500000        # 1 ns @ dt=2fs
+<p>식으로 한 번 cycle을 돌려 정리하기도 합니다.</p>
+<h3 id="error-energy-was-not-tallied-on-neighbor-sublist">"ERROR: Energy was not tallied on neighbor sublist"</h3>
+<p>대부분 <code>pair_modify shift yes</code> 또는 <code>tail yes</code> 와 호환 안 되는 pair_style
+을 쓴 경우. pair_style을 바꾸거나 옵션을 제거하면 해결됩니다.</p>
+<h2 id="82">8.2 결과가 의심스러울 때 점검 순서</h2>
+<p>오류 없이 끝났더라도 결과가 이상하면 다음 순서로 점검하시기를 권합니다.</p>
+<ol>
+<li><strong>NVE 보존</strong> — 짧게 NVE로 돌렸을 때 총 에너지가 거의 일정해야 함.
+   변동이 ±0.01% 이상이면 timestep 이 큼.</li>
+<li><strong>온도 안정성</strong> — NVT의 setpoint 와 실제 평균 온도가 ±1 K 이내인지.</li>
+<li><strong>압력 분포</strong> — NPT 라면 밀도가 안정 값에 수렴하는지.</li>
+<li><strong>RDF 첫 피크 위치</strong> — 첫 g(r) 피크가 알려진 결합 길이/접근 거리와 일치하는지.</li>
+<li><strong>시각화</strong> — OVITO/VMD로 trajectory를 직접 한 번 보십시오.
+   숫자만 봐서는 보이지 않는 비정상 행동(클러스터링, 표면 누출 등)이 한눈에 보입니다.</li>
+</ol>
+<h2 id="83">8.3 병렬 실행</h2>
+<p>LAMMPS는 MPI 기반이므로 코어 수가 늘어날수록 거의 선형으로 빨라집니다.
+다만 통신 비용이 있어 항상 그런 것은 아닙니다.</p>
+<pre><code class="language-bash"># MPI 4 코어
+mpirun -np 4 lmp -in in.run
 
-# Stage 4b: 본 평형
-unfix eq1
-fix eq2 organic nvt temp 300.0 300.0 100.0
-run 3250000       # 6.5 ns
+# 8 코어 + OpenMP 2 쓰레드/코어
+export OMP_NUM_THREADS=2
+mpirun -np 8 lmp -sf omp -pk omp 2 -in in.run
+
+# GPU 가속 (KOKKOS)
+mpirun -np 4 lmp -k on g 1 -sf kk -in in.run
 </code></pre>
-<p>평형 판정은 다음 두 가지를 모두 충족할 때만 인정한다.</p>
-<ol>
-<li>마지막 500 ps 의 총 에너지 표준편차 / 평균 &lt; 0.1%</li>
-<li>마지막 500 ps 와 그 이전 500 ps 의 O-H 첫 피크 RDF 변화 &lt; 5%</li>
-</ol>
-<hr />
-<h2 id="85-stress-nan">8.5 Stress 계산 시 NaN 또는 발산</h2>
-<h3 id="_13">증상</h3>
-<pre><code>WARNING: Inconsistent image flags
+<h3 id="_1">코어 수 선택 가이드</h3>
+<table>
+<thead>
+<tr>
+<th>시스템 크기</th>
+<th>추천 코어 수</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>~수천 원자</td>
+<td>1~4</td>
+</tr>
+<tr>
+<td>~수만 원자</td>
+<td>8~32</td>
+</tr>
+<tr>
+<td>~수십만 원자</td>
+<td>64~256</td>
+</tr>
+<tr>
+<td>수백만 원자 이상</td>
+<td>수백~수천</td>
+</tr>
+</tbody>
+</table>
+<p>원자 수가 코어 수의 100배 이하로 떨어지면 통신 오버헤드가 커집니다.
+의심되면 <code>thermo</code> 의 <code>cpu</code> 컬럼을 보면서 짧게 비교 실행해 보십시오.</p>
+<h3 id="lammps-timing">LAMMPS 자체 timing 진단</h3>
+<p>시뮬레이션이 끝나면 LAMMPS는 자동으로 다음과 같은 timing breakdown을
+출력합니다.</p>
+<pre><code class="language-text">MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    |  12.5      |  12.7      |  12.9      |   1.2 |  61.0
+Bond    |   0.3      |   0.3      |   0.4      |   0.1 |   1.7
+Kspace  |   3.4      |   3.5      |   3.6      |   0.5 |  16.7
+Neigh   |   1.1      |   1.1      |   1.2      |   0.2 |   5.3
+Comm    |   2.0      |   2.1      |   2.3      |   1.8 |  10.0
+...
 </code></pre>
-<p>또는 압력 텐서 일부 성분이 비현실적으로 큰 값.</p>
-<h3 id="_14">원인</h3>
-<p><code>compute stress/atom</code> 사용 시 K-space 기여가 분자별로 잘 정의되지 않으면
-잘못된 응력이 누적된다. 특히 슬랩 보정이 있는 PPPM 에서 빈번하다.</p>
-<h3 id="_15">해결책</h3>
-<pre><code class="language-lammps">compute stress all stress/atom NULL pair bond angle dihedral
-</code></pre>
-<p>K-space 항을 명시적으로 제외하고 pair, bond, angle, dihedral 만 포함한다.
-Irving-Kirkwood 적분 시 K-space 의 장거리 기여는 별도로 계산하거나,
-짧은 cutoff 영역에서의 응력만 의미있게 해석한다.</p>
-<p><code>kspace_modify pressure/scalar no</code> 옵션도 함께 설정해야 응력 텐서가
-정상적으로 출력된다.</p>
-<hr />
-<h2 id="86">8.6 진단 체크리스트</h2>
-<p>문제 발생 시 다음 순서로 점검한다.</p>
+<p><code>Pair</code> 또는 <code>Kspace</code> 가 압도적으로 큰 비중을 차지하는 것이 정상입니다.
+<code>Comm</code> 비중이 30% 이상이면 코어를 너무 많이 쓴 것이고, <code>Neigh</code> 가 너무
+크다면 <code>neigh_modify every</code> 를 늘려 재구성을 줄일 수 있습니다.</p>
+<h2 id="84">8.4 디스크와 메모리 관리</h2>
+<p>긴 시뮬레이션은 dump 파일로 디스크가 빠르게 찹니다.</p>
+<ul>
+<li><code>dump custom 5000 ...</code> 처럼 주기를 늘리세요.</li>
+<li>좌표만 필요하면 <code>dump dcd</code> 또는 <code>dump netcdf</code> (바이너리)가 텍스트보다
+  훨씬 작습니다.</li>
+<li><code>dump_modify ... pad 8</code> 로 정렬된 파일명을 쓰면 후처리 도구가 자동
+  인식합니다.</li>
+</ul>
+<p>restart 파일도 누적되면 무거우므로 오래된 것은 주기적으로 정리하시기 바랍니다.</p>
+<h2 id="85">8.5 좋은 습관 다섯 가지</h2>
 <ol>
-<li><strong>로그 파일 마지막 50줄 확인</strong> — 온도, 압력, 에너지의 거동</li>
-<li><strong>데이터 파일 무결성</strong> — 원자 수, 결합 수, 전하 합</li>
-<li><strong>타임스텝 적정성</strong> — SHAKE 유무에 따라 0.5 / 2.0 fs</li>
-<li><strong>K-space 설정</strong> — PPPM 은 slab 보정 필요, MSM 은 불필요</li>
-<li><strong>Communication cutoff</strong> — <code>comm_modify cutoff</code> 적정성</li>
-<li><strong>Processor 분할</strong> — <code>processors * * 1</code> 슬랩 권장</li>
-<li><strong>Soft potential 단계</strong> — 충분한 시간 (≥ 50 ps)</li>
-<li><strong>재현성</strong> — 다른 random seed 로 같은 오류가 재현되는가</li>
+<li><strong><code>thermo</code> 컬럼을 충분히 늘려라</strong>. <code>step temp pe ke etotal press density vol</code>
+   정도는 항상 켜 두세요. 사후에 무엇이 이상했는지 추적하는 1차 정보원입니다.</li>
+<li><strong>변수로 입력을 매개변수화하라</strong>. 온도, 시드, run 길이는 <code>variable</code> +
+   <code>${...}</code> 로. 여러 조건 비교 실험이 한 입력 파일로 처리됩니다.</li>
+<li><strong><code>include</code> 로 입력을 잘게 쪼개라</strong>. 힘장 정의, 시스템 정의, run 절차를
+   분리해 두면 한 부분만 갈아 끼우기 쉽습니다.</li>
+<li><strong>반드시 <code>restart</code> 를 켜라</strong>. 4시간 이상 걸리는 모든 시뮬레이션은 그렇게
+   하세요.</li>
+<li><strong>결과는 항상 한 번 시각화하라</strong>. 숫자만 보면 놓치는 실수가 자주 있습니다.
+   OVITO/VMD에서 trajectory를 한 번 돌려보는 것이 가장 빠른 sanity check
+   입니다.</li>
 </ol>
-<hr />
-<h2 id="_16">참고문헌</h2>
-<ol>
-<li>LAMMPS Documentation, Common Errors.
-   <a href="https://docs.lammps.org/Errors_common.html">https://docs.lammps.org/Errors_common.html</a></li>
-<li>Plimpton, S. <em>J. Comput. Phys.</em> <strong>117</strong>, 1 (1995).
-   DOI: <a href="https://doi.org/10.1006/jcph.1995.1039">10.1006/jcph.1995.1039</a></li>
-<li>Frenkel, D.; Smit, B. <em>Understanding Molecular Simulation: From
-   Algorithms to Applications</em>, 2nd ed.; Academic Press, 2002. Chapter 4.</li>
-<li>Allen, M. P.; Tildesley, D. J. <em>Computer Simulation of Liquids</em>,
-   2nd ed.; Oxford University Press, 2017. Section 3.5.</li>
-</ol>
+<h2 id="86">8.6 더 읽어 볼 자료</h2>
+<table>
+<thead>
+<tr>
+<th>자료</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://docs.lammps.org/">docs.lammps.org</a></td>
+<td>공식 매뉴얼. 명령어별 상세 옵션과 예제</td>
+</tr>
+<tr>
+<td><a href="https://www.lammps.org/forum.html">lammps.org/forum.html</a></td>
+<td>사용자 포럼. 실전 질문/답변 검색에 좋음</td>
+</tr>
+<tr>
+<td><code>examples/</code> 폴더</td>
+<td>소스 트리에 포함된 예제. 작은 단위로 학습하기 좋음</td>
+</tr>
+<tr>
+<td><code>bench/</code> 폴더</td>
+<td>성능 벤치마크 입력들</td>
+</tr>
+<tr>
+<td>Mark Tuckerman, <em>Statistical Mechanics: Theory and Molecular Simulation</em></td>
+<td>MD 이론 교과서 표준</td>
+</tr>
+<tr>
+<td>Daan Frenkel, Berend Smit, <em>Understanding Molecular Simulation</em></td>
+<td>MD 알고리즘 교과서 표준</td>
+</tr>
+</tbody>
+</table>
+<p>본 입문 가이드는 여기서 끝납니다. 실제 연구 문제에 LAMMPS를 적용하는
+구체적 사례는 <a href="cu-overview.html">Cu 표면 흡착 시리즈</a>에서 이어집니다.</p>
       </article>
-<nav class="page-nav"><a class="prev" href="07-analysis.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">분석 방법</div></a></nav>
+<nav class="page-nav"><a class="prev" href="07-output.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">출력과 분석</div></a><a class="next" href="cu-overview.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">개요</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

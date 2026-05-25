@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>입력 스크립트 구조 · LAMMPS 가이드</title>
+  <meta name="description" content="공식 매뉴얼이 정의하는 입력 스크립트의 4단계 구조와 각 단계의 핵심 명령." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">LAMMPS</div>
+    <div class="brand-subtitle">한국어 입문 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html" class="active" aria-current="page"><span class="nav-num">02</span>입력 스크립트 구조</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시뮬레이션 만들기</div>
+      <ul class="nav-list">
+        <li><a href="03-units-atomstyle.html"><span class="nav-num">03</span>단위계와 atom_style</a></li>
+        <li><a href="04-system.html"><span class="nav-num">04</span>시스템 정의</a></li>
+        <li><a href="05-forcefield.html"><span class="nav-num">05</span>상호작용 모델</a></li>
+        <li><a href="06-fix-run.html"><span class="nav-num">06</span>셋업과 실행</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 결과와 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-output.html"><span class="nav-num">07</span>출력과 분석</a></li>
+        <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">응용 · Cu 표면 흡착</div>
+      <ul class="nav-list">
+        <li><a href="cu-overview.html"><span class="nav-num">A0</span>개요</a></li>
+        <li><a href="cu-01-system.html"><span class="nav-num">A1</span>시스템 개요</a></li>
+        <li><a href="cu-02-data-files.html"><span class="nav-num">A2</span>데이터 파일</a></li>
+        <li><a href="cu-03-force-fields.html"><span class="nav-num">A3</span>힘장 비교</a></li>
+        <li><a href="cu-04-electrostatics.html"><span class="nav-num">A4</span>정전기 방법</a></li>
+        <li><a href="cu-05-protocol.html"><span class="nav-num">A5</span>5단계 프로토콜</a></li>
+        <li><a href="cu-06-frameworks.html"><span class="nav-num">A6</span>4가지 프레임워크</a></li>
+        <li><a href="cu-07-analysis.html"><span class="nav-num">A7</span>분석 방법</a></li>
+        <li><a href="cu-08-troubleshooting.html"><span class="nav-num">A8</span>응용 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 02 · 시작</div>
+        <h1 class="page-title">입력 스크립트 구조</h1>
+        <p class="page-lede">공식 매뉴얼이 정의하는 입력 스크립트의 4단계 구조와 각 단계의 핵심 명령.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#21-4">2.1 매뉴얼이 정의하는 4단계 구조</a></li>
+<li><a href="#22">2.2 단계별 핵심 명령어</a><ul>
+<li><a href="#1">1단계: 초기화</a></li>
+<li><a href="#2">2단계: 시스템 정의</a></li>
+<li><a href="#3">3단계: 시뮬레이션 설정</a></li>
+<li><a href="#4">4단계: 실행</a></li>
+</ul>
+</li>
+<li><a href="#23-1">2.3 1장 예제 다시 보기</a></li>
+<li><a href="#24">2.4 알아 두면 좋은 문법 요소</a><ul>
+<li><a href="#_1">주석과 줄 바꿈</a></li>
+<li><a href="#_2">변수와 치환</a></li>
+<li><a href="#include">include — 입력 파일 분할</a></li>
+</ul>
+</li>
+<li><a href="#25">2.5 다음 단계</a></li>
+</ul>
+</div>
+<hr />
+<h2 id="21-4">2.1 매뉴얼이 정의하는 4단계 구조</h2>
+<p>LAMMPS 공식 매뉴얼은 "전형적인 입력 스크립트는 다음 네 부분으로 구성된다"고
+명시합니다.</p>
+<ol>
+<li><strong>초기화 (Initialization)</strong> — 원자를 만들거나 읽기 전에 정해야 하는 전역 설정</li>
+<li><strong>시스템 정의 (System Definition)</strong> — 시뮬레이션 박스와 원자를 만드는 단계</li>
+<li><strong>시뮬레이션 설정 (Simulation Settings)</strong> — 힘장 계수, 출력, fix 등 모든 운영 옵션</li>
+<li><strong>실행 (Run a Simulation)</strong> — <code>minimize</code>, <code>run</code> 등 실제 적분/최소화 명령</li>
+</ol>
+<p>매뉴얼은 또한 "<strong>마지막 두 부분은 원하는 만큼 반복할 수 있다</strong>"고 밝히고 있습니다.
+즉, 한 입력 파일 안에서 <em>설정 변경 → 짧은 run → 다른 설정 → 또 run</em> 처럼
+여러 단계를 잇대어 쓰는 것이 정상적인 사용 방식입니다.</p>
+<p>이 4단계 구조는 입력 스크립트를 짤 때 명령어 순서를 결정하는 가장 큰
+원리이므로, 작성할 때마다 머릿속에 떠올려 두시면 좋습니다.</p>
+<h2 id="22">2.2 단계별 핵심 명령어</h2>
+<h3 id="1">1단계: 초기화</h3>
+<p>원자가 만들어진 후에는 바꿀 수 없는 전역 설정들을 먼저 선언합니다.</p>
+<table>
+<thead>
+<tr>
+<th>명령</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>units</code></td>
+<td>단위계 선택 (lj, real, metal, …)</td>
+</tr>
+<tr>
+<td><code>dimension</code></td>
+<td>시뮬레이션 차원 (2 또는 3)</td>
+</tr>
+<tr>
+<td><code>boundary</code></td>
+<td>경계 조건 (p 주기적, f 고정, s 축소, m 다항식)</td>
+</tr>
+<tr>
+<td><code>atom_style</code></td>
+<td>원자가 가지는 속성 종류 (atomic, charge, full, …)</td>
+</tr>
+<tr>
+<td><code>newton</code></td>
+<td>작용-반작용 처리 방식</td>
+</tr>
+<tr>
+<td><code>processors</code></td>
+<td>MPI 프로세스 분할 방식</td>
+</tr>
+<tr>
+<td><code>pair_style</code>, <code>bond_style</code> 등</td>
+<td>상호작용 모델의 종류 선언</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2">2단계: 시스템 정의</h3>
+<p>박스와 원자를 만드는 단계입니다. 매뉴얼이 제시하는 방법은 세 가지입니다.</p>
+<ul>
+<li>데이터 파일에서 읽기: <code>read_data</code></li>
+<li>재시작 파일에서 읽기: <code>read_restart</code></li>
+<li>격자/영역을 정의하고 원자를 채우기: <code>lattice</code> → <code>region</code> → <code>create_box</code> → <code>create_atoms</code></li>
+</ul>
+<p>분자 단위 시스템(단백질, 폴리머 등)은 거의 항상 <code>read_data</code> 로 외부 파일에서
+읽어들이고, 결정 또는 단순 액체는 격자에서 직접 만드는 편입니다.</p>
+<h3 id="3">3단계: 시뮬레이션 설정</h3>
+<p>이 단계에서 가장 많은 명령이 등장합니다.</p>
+<table>
+<thead>
+<tr>
+<th>명령</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pair_coeff</code>, <code>bond_coeff</code> 등</td>
+<td>힘장 계수 입력</td>
+</tr>
+<tr>
+<td><code>kspace_style</code></td>
+<td>장범위 정전기 알고리즘 (ewald, pppm)</td>
+</tr>
+<tr>
+<td><code>neighbor</code>, <code>neigh_modify</code></td>
+<td>이웃 리스트 관리</td>
+</tr>
+<tr>
+<td><code>group</code></td>
+<td>원자 집합을 이름으로 묶기</td>
+</tr>
+<tr>
+<td><code>velocity</code></td>
+<td>초기 속도 설정</td>
+</tr>
+<tr>
+<td><code>timestep</code></td>
+<td>적분 시간 간격</td>
+</tr>
+<tr>
+<td><code>fix</code></td>
+<td>NVE/NVT/NPT, 제약, 외력 등 거의 모든 운영 효과</td>
+</tr>
+<tr>
+<td><code>compute</code></td>
+<td>특정 양(에너지, RDF 등) 계산 정의</td>
+</tr>
+<tr>
+<td><code>thermo</code>, <code>dump</code></td>
+<td>화면 출력 / 좌표 출력</td>
+</tr>
+<tr>
+<td><code>restart</code></td>
+<td>재시작 파일 저장 주기</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4">4단계: 실행</h3>
+<table>
+<thead>
+<tr>
+<th>명령</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>minimize</code></td>
+<td>에너지 최소화</td>
+</tr>
+<tr>
+<td><code>run</code></td>
+<td>지정 스텝 수만큼 동역학 적분</td>
+</tr>
+<tr>
+<td><code>rerun</code></td>
+<td>기존 trajectory를 다시 처리</td>
+</tr>
+<tr>
+<td><code>temper</code></td>
+<td>parallel tempering(레플리카 교환)</td>
+</tr>
+</tbody>
+</table>
+<p><code>run</code> 또는 <code>minimize</code> 명령이 호출돼야만 실제 계산이 시작됩니다. 그 전까지의
+모든 명령은 단순히 "설정을 누적"할 뿐입니다.</p>
+<h2 id="23-1">2.3 1장 예제 다시 보기</h2>
+<p><a href="01-getting-started.html">1장</a>에서 본 LJ 액체 예제를 위 4단계로 다시 분해하면
+다음과 같습니다.</p>
+<pre><code class="language-lammps"># === 1단계: 초기화 ===
+units           lj
+atom_style      atomic
+
+# === 2단계: 시스템 정의 ===
+lattice         fcc 0.8442
+region          box block 0 10 0 10 0 10
+create_box      1 box
+create_atoms    1 box
+mass            1 1.0
+
+# === 3단계: 시뮬레이션 설정 ===
+pair_style      lj/cut 2.5
+pair_coeff      1 1 1.0 1.0 2.5
+
+velocity        all create 1.44 87287 loop geom
+
+neighbor        0.3 bin
+neigh_modify    every 20 delay 0 check no
+
+fix             1 all nve
+thermo          50
+
+# === 4단계: 실행 ===
+run             250
+</code></pre>
+<p>이 정도 단위로 주석을 달아두면, 나중에 다시 읽을 때 어떤 명령이 어떤 단계에
+속하는지 한눈에 보입니다. 작은 습관 같지만 입력 파일 수가 늘어날수록 큰
+차이를 만듭니다.</p>
+<h2 id="24">2.4 알아 두면 좋은 문법 요소</h2>
+<h3 id="_1">주석과 줄 바꿈</h3>
+<ul>
+<li><code>#</code> 으로 시작하는 줄은 주석입니다. 한 줄 안에서 <code>#</code> 뒤도 주석으로 무시됩니다.</li>
+<li>명령이 길어질 때는 줄 끝에 <code>&amp;</code> 를 붙여 다음 줄로 이어 쓸 수 있습니다.</li>
+</ul>
+<pre><code class="language-lammps">fix             1 all npt &amp;
+                temp 300.0 300.0 100.0 &amp;
+                iso  1.0   1.0   1000.0
+</code></pre>
+<h3 id="_2">변수와 치환</h3>
+<p><code>variable</code> 로 입력 안에서 변수를 정의하면 <code>${var}</code> 형태로 어디서나 참조할 수
+있습니다.</p>
+<pre><code class="language-lammps">variable        T equal 300.0
+variable        seed equal 12345
+
+velocity        all create ${T} ${seed}
+fix             1 all nvt temp ${T} ${T} 100.0
+</code></pre>
+<p>명령줄에서 변수를 주입할 수도 있습니다 (<code>-var</code> 또는 <code>-v</code>).</p>
+<pre><code class="language-bash">lmp -in in.run -var T 400 -var seed 99999
+</code></pre>
+<p>여러 온도에서 같은 입력을 돌릴 때 매우 편리합니다.</p>
+<h3 id="include">include — 입력 파일 분할</h3>
+<p>입력이 길어지면 <code>include</code> 로 여러 파일에 나눠 두는 것이 좋습니다.</p>
+<pre><code class="language-lammps">include         ff_opls.in       # 힘장 정의 한 파일
+include         system.in        # 박스/원자 한 파일
+</code></pre>
+<p>응용 시리즈에서는 이 패턴을 적극 사용합니다.</p>
+<h2 id="25">2.5 다음 단계</h2>
+<p>4단계 구조를 머릿속에 그렸다면, 그 가장 첫 단계인 <strong>단위계 선택과 원자 표현</strong>
+부터 자세히 들여다보겠습니다. 같은 시뮬레이션도 어떤 단위에서 돌리느냐에
+따라 입력값과 출력값 모두 의미가 달라지므로, 처음에 한 번만 잘 정해 두면
+이후가 훨씬 편해집니다.</p>
+      </article>
+<nav class="page-nav"><a class="prev" href="01-getting-started.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">시작하기</div></a><a class="next" href="03-units-atomstyle.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">단위계와 atom_style</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

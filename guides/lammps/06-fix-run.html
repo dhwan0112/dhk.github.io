@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>셋업과 실행 · LAMMPS 가이드</title>
+  <meta name="description" content="velocity, timestep, fix(NVE/NVT/NPT/Langevin), minimize, run — 시뮬레이션을 돌리는 마지막 한 묶음." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">LAMMPS</div>
+    <div class="brand-subtitle">한국어 입문 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 스크립트 구조</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시뮬레이션 만들기</div>
+      <ul class="nav-list">
+        <li><a href="03-units-atomstyle.html"><span class="nav-num">03</span>단위계와 atom_style</a></li>
+        <li><a href="04-system.html"><span class="nav-num">04</span>시스템 정의</a></li>
+        <li><a href="05-forcefield.html"><span class="nav-num">05</span>상호작용 모델</a></li>
+        <li><a href="06-fix-run.html" class="active" aria-current="page"><span class="nav-num">06</span>셋업과 실행</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 결과와 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-output.html"><span class="nav-num">07</span>출력과 분석</a></li>
+        <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">응용 · Cu 표면 흡착</div>
+      <ul class="nav-list">
+        <li><a href="cu-overview.html"><span class="nav-num">A0</span>개요</a></li>
+        <li><a href="cu-01-system.html"><span class="nav-num">A1</span>시스템 개요</a></li>
+        <li><a href="cu-02-data-files.html"><span class="nav-num">A2</span>데이터 파일</a></li>
+        <li><a href="cu-03-force-fields.html"><span class="nav-num">A3</span>힘장 비교</a></li>
+        <li><a href="cu-04-electrostatics.html"><span class="nav-num">A4</span>정전기 방법</a></li>
+        <li><a href="cu-05-protocol.html"><span class="nav-num">A5</span>5단계 프로토콜</a></li>
+        <li><a href="cu-06-frameworks.html"><span class="nav-num">A6</span>4가지 프레임워크</a></li>
+        <li><a href="cu-07-analysis.html"><span class="nav-num">A7</span>분석 방법</a></li>
+        <li><a href="cu-08-troubleshooting.html"><span class="nav-num">A8</span>응용 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 06 · 시뮬레이션 만들기</div>
+        <h1 class="page-title">셋업과 실행</h1>
+        <p class="page-lede">velocity, timestep, fix(NVE/NVT/NPT/Langevin), minimize, run — 시뮬레이션을 돌리는 마지막 한 묶음.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#61">6.1 동역학을 돌리기 위한 마지막 한 묶음</a></li>
+<li><a href="#62-velocity">6.2 velocity — 초기 속도 부여</a></li>
+<li><a href="#63-timestep">6.3 timestep — 적분 시간 간격</a></li>
+<li><a href="#64-neighbor">6.4 neighbor — 이웃 리스트</a></li>
+<li><a href="#65-fix">6.5 fix — 거의 모든 것을 하는 명령</a><ul>
+<li><a href="#nve">NVE (마이크로캐노니컬)</a></li>
+<li><a href="#nvt-nose-hoover">NVT (캐노니컬, Nose-Hoover 열욕)</a></li>
+<li><a href="#npt">NPT (등압등온)</a></li>
+<li><a href="#langevin-nvt">Langevin 온도 욕조 (NVT 대안)</a></li>
+<li><a href="#fix">그 외 자주 쓰는 fix</a></li>
+</ul>
+</li>
+<li><a href="#66-minimize">6.6 minimize — 에너지 최소화</a></li>
+<li><a href="#67-run">6.7 run — 적분 실행</a></li>
+<li><a href="#68">6.8 전형적인 입력 마무리</a></li>
+<li><a href="#69">6.9 다음 단계</a></li>
+</ul>
+</div>
+<hr />
+<h2 id="61">6.1 동역학을 돌리기 위한 마지막 한 묶음</h2>
+<p>박스, 원자, 힘장이 모두 정의되었다면 시뮬레이션을 시작하기까지 보통 다음
+다섯 가지를 더 정합니다.</p>
+<ol>
+<li><strong>초기 속도</strong> — <code>velocity</code></li>
+<li><strong>시간 간격</strong> — <code>timestep</code></li>
+<li><strong>이웃 리스트</strong> — <code>neighbor</code>, <code>neigh_modify</code></li>
+<li><strong>앙상블 / 제약</strong> — <code>fix</code></li>
+<li><strong>실행</strong> — <code>minimize</code> 또는 <code>run</code></li>
+</ol>
+<p>이 묶음은 워낙 자주 묶여 다니므로 <em>입력 스크립트의 3·4단계 표준 마무리</em>
+라고 봐도 무방합니다.</p>
+<h2 id="62-velocity">6.2 velocity — 초기 속도 부여</h2>
+<pre><code class="language-lammps">velocity        all create 300.0 12345 mom yes rot yes dist gaussian
+</code></pre>
+<ul>
+<li><code>all</code> — 속도를 줄 그룹 이름 (<code>group</code> 명령으로 정의 가능, <code>all</code> 은 기본 제공)</li>
+<li><code>create 300.0 12345</code> — 가우시안 분포로 온도 300 K, 시드 12345</li>
+<li><code>mom yes</code> — 시스템 전체 운동량을 0으로 보정</li>
+<li><code>rot yes</code> — 시스템 전체 각운동량을 0으로 보정 (비주기 시스템에서 권장)</li>
+<li><code>dist gaussian</code> — 가우시안 분포 (기본은 <code>uniform</code>)</li>
+</ul>
+<p>비주기 시스템에서 <code>mom</code>/<code>rot</code> 을 켜지 않으면 시스템 전체가 일정 속도로 흘러가
+버립니다(drift). 항상 켜 두는 것을 권장합니다.</p>
+<h2 id="63-timestep">6.3 timestep — 적분 시간 간격</h2>
+<pre><code class="language-lammps">timestep        1.0      # units real 의 경우 1 fs
+</code></pre>
+<table>
+<thead>
+<tr>
+<th><code>units</code></th>
+<th>보통 출발점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>real</code></td>
+<td>1.0 (fs)</td>
+</tr>
+<tr>
+<td><code>metal</code></td>
+<td>0.001 (ps = 1 fs)</td>
+</tr>
+<tr>
+<td><code>lj</code></td>
+<td>0.005 (τ)</td>
+</tr>
+</tbody>
+</table>
+<p>물 또는 H 가 있는 시스템에서 1 fs도 길게 느껴지면, 결합을 SHAKE/RATTLE 로
+구속하고 timestep을 2 fs로 늘리는 것이 일반적입니다.</p>
+<pre><code class="language-lammps">fix             shake all shake 0.0001 20 0 b 1 a 1
+timestep        2.0
+</code></pre>
+<h2 id="64-neighbor">6.4 neighbor — 이웃 리스트</h2>
+<pre><code class="language-lammps">neighbor        2.0 bin
+neigh_modify    every 1 delay 0 check yes
+</code></pre>
+<ul>
+<li><code>neighbor 2.0 bin</code> — 이웃 리스트의 buffer skin 2.0 (단위계 길이), bin 방식</li>
+<li><code>neigh_modify ...</code> — 매 step 마다 체크하고 필요하면 재구성</li>
+</ul>
+<p><code>units lj</code> 에서는 보통 <code>neighbor 0.3 bin</code>, <code>units real / metal</code> 에서는
+<code>neighbor 2.0 bin</code> 정도가 안전한 출발점입니다. 잘못 잡으면 "Lost atoms" 또는
+"Neighbor list overflow" 오류가 나기 쉽습니다.</p>
+<h2 id="65-fix">6.5 fix — 거의 모든 것을 하는 명령</h2>
+<p><code>fix</code> 는 LAMMPS에서 가장 자주 등장하는 명령입니다.
+앙상블 적분, 제약 조건, 외력, 측정량 평균, 통계 출력 — 거의 모두 fix로 표현합니다.</p>
+<p>기본 형식:</p>
+<pre><code class="language-lammps">fix             ID  group-ID  style  arguments...
+</code></pre>
+<p>가장 자주 쓰는 적분 fix는 다음과 같습니다.</p>
+<h3 id="nve">NVE (마이크로캐노니컬)</h3>
+<pre><code class="language-lammps">fix             1 all nve
+</code></pre>
+<p>가장 단순. 에너지 보존이 검증되는 유일한 앙상블이라 처음 시험할 때 자주 씁니다.</p>
+<h3 id="nvt-nose-hoover">NVT (캐노니컬, Nose-Hoover 열욕)</h3>
+<pre><code class="language-lammps">fix             1 all nvt temp 300.0 300.0 100.0
+#                          T_start T_stop T_damp
+</code></pre>
+<p><code>T_damp</code> 는 보통 timestep × 100 정도가 출발점 (<code>units real</code> 에서 100 fs).</p>
+<h3 id="npt">NPT (등압등온)</h3>
+<pre><code class="language-lammps">fix             1 all npt temp 300.0 300.0 100.0 iso 1.0 1.0 1000.0
+#                                                  ^ ^   ^   ^
+#                                              P_axis P_s P_e P_damp
+</code></pre>
+<p><code>iso</code> 외에 <code>aniso</code>(축별 독립), <code>tri</code>(완전 비등방), <code>x</code>/<code>y</code>/<code>z</code>(축 지정) 등이
+가능합니다. <code>P_damp</code> 는 보통 <code>T_damp × 10</code> 정도.</p>
+<h3 id="langevin-nvt">Langevin 온도 욕조 (NVT 대안)</h3>
+<pre><code class="language-lammps">fix             1 all nve
+fix             2 all langevin 300.0 300.0 100.0 12345
+</code></pre>
+<p>Langevin은 NVT와 비슷한 효과를 주지만 표면 흡착 또는 거대 분자 시스템에서
+Nose-Hoover보다 빠르게 평형으로 끌고 갑니다.</p>
+<div class="caution">
+  <div class="note-title">적분 fix는 한 개만</div>
+  <p>
+    같은 그룹에 동시에 두 개의 적분 fix(예: <code>nve</code>와 <code>nvt</code>)를
+    걸면 적분이 두 번 이루어져 결과가 망가집니다.
+    Langevin과 NVE 조합처럼 명시적으로 "적분은 nve가, 온도 제어는 langevin이"
+    하도록 분리된 경우만 두 fix를 같이 씁니다.
+  </p>
+</div>
+
+<h3 id="fix">그 외 자주 쓰는 fix</h3>
+<table>
+<thead>
+<tr>
+<th>fix</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fix shake</code></td>
+<td>결합/각도 구속 (긴 timestep용)</td>
+</tr>
+<tr>
+<td><code>fix wall/lj93</code></td>
+<td>LJ 벽 (슬랩 비주기 면)</td>
+</tr>
+<tr>
+<td><code>fix recenter</code></td>
+<td>시스템 무게 중심 고정</td>
+</tr>
+<tr>
+<td><code>fix momentum</code></td>
+<td>주기적으로 운동량 0으로 리셋</td>
+</tr>
+<tr>
+<td><code>fix print</code></td>
+<td>시뮬레이션 중 변수를 파일에 출력</td>
+</tr>
+<tr>
+<td><code>fix ave/time</code></td>
+<td>시간 평균 출력</td>
+</tr>
+<tr>
+<td><code>fix indent</code></td>
+<td>점진적 압축(인덴터)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="66-minimize">6.6 minimize — 에너지 최소화</h2>
+<p>격자에서 만든 시스템이나 데이터 파일에서 막 읽은 시스템은 종종 어떤 원자가
+너무 가깝게 놓여 있어 첫 적분에서 폭주합니다. <code>minimize</code> 를 먼저 돌리는 것이
+가장 안전합니다.</p>
+<pre><code class="language-lammps">min_style       cg                    # 또는 sd, fire, hftn
+minimize        1.0e-4 1.0e-6 1000 10000
+#               etol    ftol  maxiter maxeval
+</code></pre>
+<ul>
+<li><code>etol</code> — 에너지 수렴 기준 (상대 변화량)</li>
+<li><code>ftol</code> — 힘 수렴 기준 (norm)</li>
+<li><code>maxiter</code> — 최대 iteration</li>
+<li><code>maxeval</code> — 최대 에너지/힘 평가 횟수</li>
+</ul>
+<p>대부분의 경우 <code>cg</code>(conjugate gradient)가 합리적이고, 매우 거친 초기 구조라면
+<code>fire</code> 가 안정적입니다.</p>
+<h2 id="67-run">6.7 run — 적분 실행</h2>
+<pre><code class="language-lammps">run             10000
+</code></pre>
+<p><code>run</code> 또는 <code>minimize</code> 가 호출되기 전까지의 모든 명령은 단순히 설정만 누적할
+뿐 실제 계산은 일어나지 않습니다.</p>
+<p><code>run</code> 명령의 옵션도 알아두면 유용합니다.</p>
+<pre><code class="language-lammps">run             10000 every 100 &quot;print 'step $step done'&quot;   # 매 100 step 후 명령 실행
+run             50000 pre no post no                         # 연속 run의 초기화 생략
+run             20000 start 0 stop 100000                    # fix nvt 의 T_start~T_stop 보정용
+</code></pre>
+<h2 id="68">6.8 전형적인 입력 마무리</h2>
+<p>이 모든 것을 묶으면 보통 입력 스크립트의 끝은 다음과 같은 형태가 됩니다.</p>
+<pre><code class="language-lammps"># === 시뮬레이션 설정 ===
+velocity        all create 300.0 12345 mom yes rot yes
+timestep        1.0
+neighbor        2.0 bin
+neigh_modify    every 1 delay 0 check yes
+
+# === 단계별 fix ===
+min_style       cg
+minimize        1.0e-4 1.0e-6 1000 10000
+
+fix             1 all nvt temp 300.0 300.0 100.0
+thermo          1000
+run             50000              # 평형화
+
+unfix           1
+fix             1 all npt temp 300.0 300.0 100.0 iso 1.0 1.0 1000.0
+run             200000             # 생성 시뮬레이션
+</code></pre>
+<p>이 순서가 거의 모든 입문 예제에 들어맞는 표준 구성입니다.</p>
+<h2 id="69">6.9 다음 단계</h2>
+<p>이제 시뮬레이션을 돌릴 수 있게 됐으니, 그 결과를 어떻게 출력하고 분석할지
+배울 차례입니다. 다음 장에서는 <code>thermo</code>, <code>dump</code>, <code>compute</code>, <code>fix ave/*</code> 와
+대표적인 후처리 도구를 다룹니다.</p>
+      </article>
+<nav class="page-nav"><a class="prev" href="05-forcefield.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">상호작용 모델</div></a><a class="next" href="07-output.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">출력과 분석</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

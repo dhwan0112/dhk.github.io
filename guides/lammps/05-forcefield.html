@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>상호작용 모델 · LAMMPS 가이드</title>
+  <meta name="description" content="pair_style 개관, 결합 상호작용, kspace_style. 입력에서 가장 흔히 헷갈리는 부분 정리." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">LAMMPS</div>
+    <div class="brand-subtitle">한국어 입문 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 스크립트 구조</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시뮬레이션 만들기</div>
+      <ul class="nav-list">
+        <li><a href="03-units-atomstyle.html"><span class="nav-num">03</span>단위계와 atom_style</a></li>
+        <li><a href="04-system.html"><span class="nav-num">04</span>시스템 정의</a></li>
+        <li><a href="05-forcefield.html" class="active" aria-current="page"><span class="nav-num">05</span>상호작용 모델</a></li>
+        <li><a href="06-fix-run.html"><span class="nav-num">06</span>셋업과 실행</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 결과와 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-output.html"><span class="nav-num">07</span>출력과 분석</a></li>
+        <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">응용 · Cu 표면 흡착</div>
+      <ul class="nav-list">
+        <li><a href="cu-overview.html"><span class="nav-num">A0</span>개요</a></li>
+        <li><a href="cu-01-system.html"><span class="nav-num">A1</span>시스템 개요</a></li>
+        <li><a href="cu-02-data-files.html"><span class="nav-num">A2</span>데이터 파일</a></li>
+        <li><a href="cu-03-force-fields.html"><span class="nav-num">A3</span>힘장 비교</a></li>
+        <li><a href="cu-04-electrostatics.html"><span class="nav-num">A4</span>정전기 방법</a></li>
+        <li><a href="cu-05-protocol.html"><span class="nav-num">A5</span>5단계 프로토콜</a></li>
+        <li><a href="cu-06-frameworks.html"><span class="nav-num">A6</span>4가지 프레임워크</a></li>
+        <li><a href="cu-07-analysis.html"><span class="nav-num">A7</span>분석 방법</a></li>
+        <li><a href="cu-08-troubleshooting.html"><span class="nav-num">A8</span>응용 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 05 · 시뮬레이션 만들기</div>
+        <h1 class="page-title">상호작용 모델</h1>
+        <p class="page-lede">pair_style 개관, 결합 상호작용, kspace_style. 입력에서 가장 흔히 헷갈리는 부분 정리.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#51-lammps">5.1 LAMMPS의 상호작용 표현</a></li>
+<li><a href="#52-pair_style">5.2 pair_style 개관</a><ul>
+<li><a href="#ljcut-lj">lj/cut 예제 (LJ 액체)</a></li>
+<li><a href="#ljcutcoullong">lj/cut/coul/long 예제 (분자 시스템)</a></li>
+<li><a href="#eam">eam 예제 (금속)</a></li>
+</ul>
+</li>
+<li><a href="#53">5.3 결합 상호작용</a></li>
+<li><a href="#54-kspace_style">5.4 장범위 정전기 — kspace_style</a></li>
+<li><a href="#55">5.5 잘못 매칭한 흔한 사례</a></li>
+<li><a href="#56">5.6 다음 단계</a></li>
+</ul>
+</div>
+<hr />
+<h2 id="51-lammps">5.1 LAMMPS의 상호작용 표현</h2>
+<p>LAMMPS에서 원자 사이의 상호작용은 크게 두 갈래로 표현됩니다.</p>
+<ul>
+<li><strong>비결합 상호작용 (non-bonded)</strong> — <code>pair_style</code> 로 정의.
+  두 원자 사이의 거리만으로 결정되는 모든 상호작용(LJ, 쿨롱, EAM 등).</li>
+<li><strong>결합 상호작용 (bonded)</strong> — <code>bond_style</code>, <code>angle_style</code>,
+  <code>dihedral_style</code>, <code>improper_style</code>. 분자 시스템에서만 사용.</li>
+</ul>
+<p>추가로 장범위 정전기를 위한 <strong><code>kspace_style</code></strong> 이 있습니다.</p>
+<p>각 style은 박스가 정의되기 <em>전에</em> 한 번 선언되고, 계수 입력은 박스 정의
+<em>후에</em> <code>pair_coeff</code>, <code>bond_coeff</code> 등으로 줍니다.</p>
+<h2 id="52-pair_style">5.2 pair_style 개관</h2>
+<p>가장 자주 마주치는 pair_style 들을 짧게 정리하면 다음과 같습니다.</p>
+<table>
+<thead>
+<tr>
+<th>pair_style</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lj/cut</code></td>
+<td>순수 Lennard-Jones, 절단 거리</td>
+</tr>
+<tr>
+<td><code>lj/cut/coul/cut</code></td>
+<td>LJ + 단순 절단 쿨롱</td>
+</tr>
+<tr>
+<td><code>lj/cut/coul/long</code></td>
+<td>LJ + 장범위 쿨롱 (kspace 필요)</td>
+</tr>
+<tr>
+<td><code>morse</code></td>
+<td>Morse 포텐셜 (결합 해리 모델)</td>
+</tr>
+<tr>
+<td><code>buck</code></td>
+<td>Buckingham (산화물 등)</td>
+</tr>
+<tr>
+<td><code>eam</code>, <code>eam/alloy</code>, <code>eam/fs</code></td>
+<td>EAM (금속)</td>
+</tr>
+<tr>
+<td><code>tersoff</code>, <code>tersoff/mod</code></td>
+<td>Tersoff (공유 결합 비금속)</td>
+</tr>
+<tr>
+<td><code>meam</code>, <code>meam/c</code></td>
+<td>MEAM (금속·반도체)</td>
+</tr>
+<tr>
+<td><code>reaxff</code></td>
+<td>ReaxFF (반응성 시뮬레이션)</td>
+</tr>
+<tr>
+<td><code>airebo</code>, <code>rebo</code></td>
+<td>탄소 시스템 (REBO/AIREBO)</td>
+</tr>
+<tr>
+<td><code>sw</code></td>
+<td>Stillinger-Weber (Si, Ge)</td>
+</tr>
+<tr>
+<td><code>hybrid</code>, <code>hybrid/overlay</code></td>
+<td>위 style들을 한 시뮬레이션에서 조합</td>
+</tr>
+</tbody>
+</table>
+<p>자신이 쓰려는 힘장의 원본 논문이 어떤 functional form을 가정하는지 확인한 뒤
+그에 해당하는 style을 골라야 합니다.</p>
+<h3 id="ljcut-lj">lj/cut 예제 (LJ 액체)</h3>
+<pre><code class="language-lammps">pair_style      lj/cut 2.5
+pair_coeff      1 1 1.0 1.0 2.5
+#                ^ ^  ^   ^   ^
+#                i j  ε   σ   cutoff (옵션)
+</code></pre>
+<p><code>pair_coeff i j eps sigma cutoff</code> 형식. 모든 type 조합에 대해 한 번씩 입력해야
+하지만, <code>pair_modify mix arithmetic</code> 또는 <code>geometric</code> 으로 i ≠ j 조합을
+자동 생성할 수도 있습니다.</p>
+<h3 id="ljcutcoullong">lj/cut/coul/long 예제 (분자 시스템)</h3>
+<pre><code class="language-lammps">units           real
+atom_style      full
+
+pair_style      lj/cut/coul/long 10.0 10.0
+pair_coeff      1 1 0.1660 3.5000   # 예: OPLS-AA의 C, kcal/mol·Å
+pair_coeff      2 2 0.0300 2.5000   # 예: H
+# ...
+pair_modify     mix geometric tail yes
+kspace_style    pppm 1.0e-4
+</code></pre>
+<p><code>lj/cut/coul/long</code> 은 단거리 LJ + 단거리 쿨롱은 직접 계산하고, 장거리
+쿨롱은 <code>kspace_style</code> 에 위임합니다. OPLS-AA, AMBER, CHARMM 계열의
+대부분이 이 조합을 사용합니다.</p>
+<h3 id="eam">eam 예제 (금속)</h3>
+<pre><code class="language-lammps">units           metal
+atom_style      atomic
+
+pair_style      eam
+pair_coeff      * * Cu_u3.eam
+</code></pre>
+<p>EAM은 단일 매개변수 파일에 모든 정보가 들어 있으므로 <code>pair_coeff</code> 가 매우
+간단합니다. <code>* *</code> 는 "모든 type 조합"을 뜻합니다.</p>
+<h2 id="53">5.3 결합 상호작용</h2>
+<p>분자 시스템(<code>atom_style full</code> 또는 <code>molecular</code>)은 결합·각·다이히드럴
+계수도 함께 정의해야 합니다.</p>
+<pre><code class="language-lammps">bond_style      harmonic
+bond_coeff      1   340.0  1.090     # K(kcal/mol/Å²), r0(Å)
+
+angle_style     harmonic
+angle_coeff     1    33.0  107.8     # K(kcal/mol/rad²), θ0(°)
+
+dihedral_style  opls
+dihedral_coeff  1   0.0  0.0  0.30  0.0
+
+improper_style  harmonic
+improper_coeff  1   1.1   0.0
+</code></pre>
+<p>각 style의 계수 의미는 매뉴얼의 해당 페이지에서 확인하셔야 합니다.
+<code>harmonic</code> 외에 <code>morse</code>, <code>class2</code>, <code>fourier</code>, <code>charmm</code> 등이 있습니다.</p>
+<p>데이터 파일에서 <code>Bonds</code>, <code>Angles</code>, <code>Dihedrals</code> 섹션을 가져오면 어떤 결합이
+어떤 type 인지가 자동으로 들어갑니다.</p>
+<h2 id="54-kspace_style">5.4 장범위 정전기 — kspace_style</h2>
+<p>쿨롱 상호작용을 단순히 절단하면(<code>coul/cut</code>) 시스템에 따라 큰 인공물이
+생깁니다. 따라서 정전기가 있는 시스템은 거의 대부분 장범위 처리를 합니다.</p>
+<pre><code class="language-lammps">kspace_style    pppm 1.0e-4      # Particle-Particle Particle-Mesh, 정확도 1e-4
+# 또는
+kspace_style    ewald 1.0e-6     # 작은 시스템용
+# 또는
+kspace_style    msm 1.0e-4       # 슬랩/비주기 일부에 유리
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>알고리즘</th>
+<th>특징</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ewald</code></td>
+<td>정통 Ewald 합. 작은 시스템(원자 수 &lt; ~수천)에 효율적</td>
+</tr>
+<tr>
+<td><code>pppm</code></td>
+<td>mesh 기반 Ewald. 큰 시스템에서 가장 흔히 쓰임</td>
+</tr>
+<tr>
+<td><code>msm</code></td>
+<td>multi-level summation. 비주기 차원 처리에 강점</td>
+</tr>
+</tbody>
+</table>
+<p>PPPM은 <em>완전 주기적</em>(p p p) 시스템에 가장 잘 동작하고, MSM은 <em>일부 차원이
+비주기적</em>(p p f) 인 슬랩 시스템에서 보정 비용이 작습니다.</p>
+<p>슬랩 시스템에서 PPPM을 쓰려면 <code>kspace_modify slab 3.0</code> 같은 보정을 추가합니다.</p>
+<h2 id="55">5.5 잘못 매칭한 흔한 사례</h2>
+<ul>
+<li><code>atom_style atomic</code> 인데 <code>bond_style</code> 을 선언 → 결합 정보 자체를 저장할
+  공간이 없어 오류.</li>
+<li><code>kspace_style</code> 을 선언했는데 <code>pair_style</code> 이 <code>coul/long</code> 류가 아니면 의미 X.</li>
+<li>단위계와 계수 단위가 어긋남 — 예: <code>units real</code> 인데 eV 단위의 EAM 파일.</li>
+<li>데이터 파일 안의 type 수와 <code>pair_coeff</code> 의 type 수가 어긋남.</li>
+</ul>
+<p>오류 메시지가 떨어지면 거의 항상 위 네 가지 중 하나입니다.</p>
+<h2 id="56">5.6 다음 단계</h2>
+<p>상호작용이 정의되면 비로소 시뮬레이션을 "돌릴" 준비가 끝납니다. 다음 장에서는
+시뮬레이션 셋업의 마지막 단계 — 초기 속도, 시간 간격, fix(앙상블),
+minimize, run — 를 다룹니다.</p>
+      </article>
+<nav class="page-nav"><a class="prev" href="04-system.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">시스템 정의</div></a><a class="next" href="06-fix-run.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">셋업과 실행</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

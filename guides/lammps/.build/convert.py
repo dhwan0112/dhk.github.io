@@ -1,66 +1,96 @@
 """Convert LAMMPS guide Markdown sources into ORCA-style standalone HTML pages.
 
-Reads /tmp/lammps-src/*.md (just-the-docs flavour) and writes the
-dhk.github.io/guides/lammps/*.html sub-site that reuses the ORCA guide
-style sheet. Math equations are protected via placeholders so kramdown
-attribute lists, Markdown italics and KaTeX delimiters do not collide
-during conversion.
+Source layout under SRC:
+    intro/      8 introductory chapters + index.md (LAMMPS itself)
+    cu/         8 applied chapters + index.md (Cu surface adsorption)
+
+Output: dhk.github.io/guides/lammps/*.html (flat, prefix "cu-" for applied
+series). Reuses the ORCA guide style sheet and adds KaTeX (math) and Prism
+(code highlighting) via CDN.
 """
 
 from __future__ import annotations
 
 import html as html_lib
 import re
-import shutil
 from pathlib import Path
 
 import markdown
 import yaml
 
-SRC = Path("C:/Users/denny/AppData/Local/Temp/lammps-src")
-DST = Path("C:/Users/denny/Desktop/GitHub Pages/dhk.github.io/guides/lammps")
+SRC = Path(__file__).resolve().parent / "src"
+DST = Path(__file__).resolve().parent.parent
 DST.mkdir(parents=True, exist_ok=True)
 
-# (output_filename, source_filename, page_eyebrow, page_lede)
+# (output_filename, source_md_relpath, page_eyebrow, page_lede)
 PAGES = [
-    ("index.html",            "index.md",              None,
-        "Cu(100)/Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착의 분자동역학 시뮬레이션 프로토콜과 입력 파일 모음."),
-    ("01-overview.html",      "01-overview.md",        "CHAPTER 01 · 시작",
-        "벤젠과 에탄올의 화학적 배경, 슬랩 셀 기하, 표면 흡착 메커니즘을 정리합니다."),
-    ("02-data-files.html",    "02-data-files.md",      "CHAPTER 02 · 시작",
-        "opls.data 와 trappe.data 의 구조와 차이, 원자 종류 매핑 방법."),
-    ("03-force-fields.html",  "03-force-fields.md",    "CHAPTER 03 · 이론",
-        "OPLS-AA 와 TraPPE-UA 가 분자 거동에 미치는 영향을 비교합니다."),
-    ("04-electrostatics.html","04-electrostatics.md",  "CHAPTER 04 · 이론",
-        "PPPM 과 MSM 의 알고리즘 차이, 슬랩 계에서의 정전기 보정."),
-    ("05-protocol.html",      "05-protocol.md",        "CHAPTER 05 · 실전",
+    # === Intro series ===
+    ("index.html",                "intro/index.md",              None,
+        "Lennard-Jones 액체 한 예제부터 시작해 LAMMPS 입력 스크립트의 4단계 구조와 자주 쓰는 명령을 차근차근 풉니다."),
+    ("01-getting-started.html",   "intro/01-getting-started.md", "CHAPTER 01 · 시작",
+        "LAMMPS 설치, 첫 명령, Lennard-Jones 액체 예제, 출력 파일의 의미."),
+    ("02-input-structure.html",   "intro/02-input-structure.md", "CHAPTER 02 · 시작",
+        "공식 매뉴얼이 정의하는 입력 스크립트의 4단계 구조와 각 단계의 핵심 명령."),
+    ("03-units-atomstyle.html",   "intro/03-units-atomstyle.md", "CHAPTER 03 · 시뮬레이션 만들기",
+        "단위계(lj/real/metal …) 선택과 atom_style 의 의미, 그리고 둘이 함께 결정하는 입력의 톤."),
+    ("04-system.html",            "intro/04-system.md",          "CHAPTER 04 · 시뮬레이션 만들기",
+        "박스와 원자를 만드는 세 가지 방법: read_data, read_restart, lattice + create_atoms."),
+    ("05-forcefield.html",        "intro/05-forcefield.md",      "CHAPTER 05 · 시뮬레이션 만들기",
+        "pair_style 개관, 결합 상호작용, kspace_style. 입력에서 가장 흔히 헷갈리는 부분 정리."),
+    ("06-fix-run.html",           "intro/06-fix-run.md",         "CHAPTER 06 · 시뮬레이션 만들기",
+        "velocity, timestep, fix(NVE/NVT/NPT/Langevin), minimize, run — 시뮬레이션을 돌리는 마지막 한 묶음."),
+    ("07-output.html",            "intro/07-output.md",          "CHAPTER 07 · 결과 보기",
+        "thermo, dump, compute, fix ave/*, restart 그리고 OVITO/VMD 등 후처리 도구."),
+    ("08-troubleshooting.html",   "intro/08-troubleshooting.md", "CHAPTER 08 · 운영",
+        "자주 발생하는 오류, 결과 의심 시 점검 순서, 병렬 실행과 성능 진단, 좋은 운영 습관."),
+    # === Applied: Cu surface adsorption ===
+    ("cu-overview.html",          "cu/index.md",                 "APPLIED · OVERVIEW",
+        "응용 시리즈 진입 — Cu(100)/Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착 프로토콜 개요."),
+    ("cu-01-system.html",         "cu/01-overview.md",           "APPLIED · CHAPTER 01",
+        "벤젠과 에탄올의 화학적 배경, 슬랩 셀 기하, 표면 흡착 메커니즘."),
+    ("cu-02-data-files.html",     "cu/02-data-files.md",         "APPLIED · CHAPTER 02",
+        "opls.data 와 trappe.data 의 구조와 차이, 원자 종류 매핑."),
+    ("cu-03-force-fields.html",   "cu/03-force-fields.md",       "APPLIED · CHAPTER 03",
+        "OPLS-AA 와 TraPPE-UA 가 분자 거동에 미치는 영향 비교."),
+    ("cu-04-electrostatics.html", "cu/04-electrostatics.md",     "APPLIED · CHAPTER 04",
+        "PPPM 과 MSM 의 알고리즘 차이, 슬랩 계의 정전기 보정."),
+    ("cu-05-protocol.html",       "cu/05-protocol.md",           "APPLIED · CHAPTER 05",
         "소프트 완화 → 최소화 → 가열 → 평형화 → 생성 동역학의 5단계 프로토콜."),
-    ("06-frameworks.html",    "06-frameworks.md",      "CHAPTER 06 · 실전",
-        "힘장 × 정전기 방법의 네 가지 조합을 비교하고 선택 기준을 제시합니다."),
-    ("07-analysis.html",      "07-analysis.md",        "CHAPTER 07 · 분석",
-        "RDF, 밀도 프로파일, 잉여 표면 흡착, 계면 장력의 정량 분석 절차."),
-    ("08-troubleshooting.html","08-troubleshooting.md","CHAPTER 08 · 운영",
-        "자주 발생하는 LAMMPS 오류와 화학적 근원, 진단 명령어 모음."),
+    ("cu-06-frameworks.html",     "cu/06-frameworks.md",         "APPLIED · CHAPTER 06",
+        "힘장 × 정전기 조합 네 가지의 비교와 선택 기준."),
+    ("cu-07-analysis.html",       "cu/07-analysis.md",           "APPLIED · CHAPTER 07",
+        "RDF, 밀도 프로파일, 잉여 표면 흡착, 계면 장력의 정량 분석."),
+    ("cu-08-troubleshooting.html","cu/08-troubleshooting.md",    "APPLIED · CHAPTER 08",
+        "응용 시리즈에서 자주 마주치는 오류와 화학적 진단."),
 ]
 
-# Sidebar nav grouping (matches ORCA guide structure)
+# Sidebar nav grouping
 NAV_SECTIONS = [
-    ("시작", [
-        ("index.html",            "00", "개요"),
-        ("01-overview.html",      "01", "시스템 개요"),
-        ("02-data-files.html",    "02", "데이터 파일"),
+    ("입문 · 시작", [
+        ("index.html",                "00", "개요"),
+        ("01-getting-started.html",   "01", "시작하기"),
+        ("02-input-structure.html",   "02", "입력 스크립트 구조"),
     ]),
-    ("이론과 방법론", [
-        ("03-force-fields.html",  "03", "힘장 비교"),
-        ("04-electrostatics.html","04", "정전기 방법"),
+    ("입문 · 시뮬레이션 만들기", [
+        ("03-units-atomstyle.html",   "03", "단위계와 atom_style"),
+        ("04-system.html",            "04", "시스템 정의"),
+        ("05-forcefield.html",        "05", "상호작용 모델"),
+        ("06-fix-run.html",           "06", "셋업과 실행"),
     ]),
-    ("실전 프로토콜", [
-        ("05-protocol.html",      "05", "5단계 프로토콜"),
-        ("06-frameworks.html",    "06", "4가지 프레임워크"),
+    ("입문 · 결과와 운영", [
+        ("07-output.html",            "07", "출력과 분석"),
+        ("08-troubleshooting.html",   "08", "트러블슈팅"),
     ]),
-    ("분석과 운영", [
-        ("07-analysis.html",      "07", "분석 방법"),
-        ("08-troubleshooting.html","08","트러블슈팅"),
+    ("응용 · Cu 표면 흡착", [
+        ("cu-overview.html",          "A0", "개요"),
+        ("cu-01-system.html",         "A1", "시스템 개요"),
+        ("cu-02-data-files.html",     "A2", "데이터 파일"),
+        ("cu-03-force-fields.html",   "A3", "힘장 비교"),
+        ("cu-04-electrostatics.html", "A4", "정전기 방법"),
+        ("cu-05-protocol.html",       "A5", "5단계 프로토콜"),
+        ("cu-06-frameworks.html",     "A6", "4가지 프레임워크"),
+        ("cu-07-analysis.html",       "A7", "분석 방법"),
+        ("cu-08-troubleshooting.html","A8", "응용 트러블슈팅"),
     ]),
 ]
 
@@ -70,7 +100,7 @@ def render_sidebar(current: str) -> str:
         '<aside class="sidebar">',
         '  <a href="index.html" class="sidebar-brand">',
         '    <div class="brand-title">LAMMPS</div>',
-        '    <div class="brand-subtitle">Cu 표면 흡착 가이드</div>',
+        '    <div class="brand-subtitle">한국어 입문 가이드</div>',
         '  </a>',
         '  <nav>',
     ]
@@ -159,9 +189,26 @@ def restore_math(html_out: str, blocks):
     return html_out
 
 
+# just-the-docs source links → our flat filenames
+LINK_FIX_MAP = {
+    "docs/01-overview":      "cu-01-system.html",
+    "docs/02-data-files":    "cu-02-data-files.html",
+    "docs/03-force-fields":  "cu-03-force-fields.html",
+    "docs/04-electrostatics":"cu-04-electrostatics.html",
+    "docs/05-protocol":      "cu-05-protocol.html",
+    "docs/06-frameworks":    "cu-06-frameworks.html",
+    "docs/07-analysis":      "cu-07-analysis.html",
+    "docs/08-troubleshooting":"cu-08-troubleshooting.html",
+}
+
+
+def fix_links(text: str) -> str:
+    for src, dst in LINK_FIX_MAP.items():
+        text = text.replace(f'href="{src}"', f'href="{dst}"')
+    return text
+
+
 def convert_body(md_body: str) -> tuple[str, str]:
-    """Return (html_body, toc_inner_html). Prepends a styled TOC component
-    when the source contained a kramdown {:toc} block."""
     had_toc_block = bool(KRAMDOWN_TOC_BLOCK.search(md_body))
     md_body = KRAMDOWN_TOC_BLOCK.sub("", md_body)
     md_body = KRAMDOWN_ATTR_LINE.sub("", md_body)
@@ -190,6 +237,7 @@ def convert_body(md_body: str) -> tuple[str, str]:
         body_html = toc_block + body_html
 
     body_html = restore_math(body_html, math)
+    body_html = fix_links(body_html)
     return body_html, toc_html
 
 
@@ -200,6 +248,7 @@ HEAD_TMPL = """<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
   <meta name="description" content="{description}" />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -236,11 +285,11 @@ HEAD_TMPL = """<!DOCTYPE html>
 HERO_TMPL = """      <section class="hero">
         <h1 class="hero-title">
           <em>LAMMPS</em><br />
-          <span class="hero-title-accent">Cu 표면 흡착 가이드</span>
+          <span class="hero-title-accent">한국어 입문 가이드</span>
         </h1>
         <p class="hero-tagline">{lede}</p>
         <div class="hero-meta">
-          <span>대상</span> Cu(100) · Cu(111) · <span>힘장</span> OPLS-AA · TraPPE-UA · <span>정전기</span> PPPM · MSM
+          <span>대상 버전</span> 22 Jul 2024 이상 · <span>출발 예제</span> Lennard-Jones 액체 · <span>응용 시리즈</span> Cu 표면 흡착
         </div>
       </section>"""
 
@@ -252,32 +301,36 @@ PAGE_HEADER_TMPL = """      <header class="page-header">
 
 
 def main():
-    for out_name, src_name, eyebrow, lede in PAGES:
-        src_path = SRC / src_name
+    for out_name, src_rel, eyebrow, lede in PAGES:
+        src_path = SRC / src_rel
         text = src_path.read_text(encoding="utf-8")
         fm, body = split_frontmatter(text)
 
-        title_raw = fm.get("title", "") or ""
-        title_clean = str(title_raw).strip()
+        title_raw = str(fm.get("title", "") or "").strip()
         if out_name == "index.html":
-            page_title_full = "LAMMPS Cu 표면 흡착 가이드 · 한국어"
+            page_title_full = "LAMMPS 한국어 입문 가이드"
+        elif out_name == "cu-overview.html":
+            page_title_full = "응용 · Cu 표면 흡착 시리즈 개요 · LAMMPS 가이드"
         else:
-            page_title_full = f"{title_clean} · LAMMPS Cu 표면 흡착 가이드"
+            short = title_raw.split(". ", 1)[-1] if ". " in title_raw else title_raw
+            page_title_full = f"{short} · LAMMPS 가이드"
 
         body_html, _toc = convert_body(body)
 
         if out_name == "index.html":
             header_html = HERO_TMPL.format(lede=html_lib.escape(lede))
         else:
+            # for the cu series, the cu-overview hero stays page-header
+            short = title_raw.split(". ", 1)[-1] if ". " in title_raw else title_raw
             header_html = PAGE_HEADER_TMPL.format(
-                eyebrow=html_lib.escape(eyebrow),
-                title=html_lib.escape(title_clean.split(". ", 1)[-1] if ". " in title_clean else title_clean),
-                lede=html_lib.escape(lede),
+                eyebrow=html_lib.escape(eyebrow or ""),
+                title=html_lib.escape(short or title_raw),
+                lede=html_lib.escape(lede or ""),
             )
 
         html_out = HEAD_TMPL.format(
             title=html_lib.escape(page_title_full),
-            description=html_lib.escape(lede),
+            description=html_lib.escape(lede or ""),
             sidebar=render_sidebar(out_name),
             header=header_html,
             body=body_html,
@@ -285,7 +338,7 @@ def main():
         )
 
         (DST / out_name).write_text(html_out, encoding="utf-8")
-        print(f"wrote {out_name}  ({len(body_html):>6} bytes body)")
+        print(f"wrote {out_name:<32}  ({len(body_html):>6} bytes body)")
 
 
 if __name__ == "__main__":

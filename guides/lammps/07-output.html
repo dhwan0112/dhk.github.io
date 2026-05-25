@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>출력과 분석 · LAMMPS 가이드</title>
+  <meta name="description" content="thermo, dump, compute, fix ave/*, restart 그리고 OVITO/VMD 등 후처리 도구." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">LAMMPS</div>
+    <div class="brand-subtitle">한국어 입문 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 스크립트 구조</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시뮬레이션 만들기</div>
+      <ul class="nav-list">
+        <li><a href="03-units-atomstyle.html"><span class="nav-num">03</span>단위계와 atom_style</a></li>
+        <li><a href="04-system.html"><span class="nav-num">04</span>시스템 정의</a></li>
+        <li><a href="05-forcefield.html"><span class="nav-num">05</span>상호작용 모델</a></li>
+        <li><a href="06-fix-run.html"><span class="nav-num">06</span>셋업과 실행</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 결과와 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-output.html" class="active" aria-current="page"><span class="nav-num">07</span>출력과 분석</a></li>
+        <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">응용 · Cu 표면 흡착</div>
+      <ul class="nav-list">
+        <li><a href="cu-overview.html"><span class="nav-num">A0</span>개요</a></li>
+        <li><a href="cu-01-system.html"><span class="nav-num">A1</span>시스템 개요</a></li>
+        <li><a href="cu-02-data-files.html"><span class="nav-num">A2</span>데이터 파일</a></li>
+        <li><a href="cu-03-force-fields.html"><span class="nav-num">A3</span>힘장 비교</a></li>
+        <li><a href="cu-04-electrostatics.html"><span class="nav-num">A4</span>정전기 방법</a></li>
+        <li><a href="cu-05-protocol.html"><span class="nav-num">A5</span>5단계 프로토콜</a></li>
+        <li><a href="cu-06-frameworks.html"><span class="nav-num">A6</span>4가지 프레임워크</a></li>
+        <li><a href="cu-07-analysis.html"><span class="nav-num">A7</span>분석 방법</a></li>
+        <li><a href="cu-08-troubleshooting.html"><span class="nav-num">A8</span>응용 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 07 · 결과 보기</div>
+        <h1 class="page-title">출력과 분석</h1>
+        <p class="page-lede">thermo, dump, compute, fix ave/*, restart 그리고 OVITO/VMD 등 후처리 도구.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#71-lammps">7.1 LAMMPS가 내보내는 다섯 갈래 결과</a></li>
+<li><a href="#72-thermo-log">7.2 thermo — 화면과 log에 찍히는 열역학</a></li>
+<li><a href="#73-dump">7.3 dump — 좌표·속도 트라젝토리</a></li>
+<li><a href="#74-compute">7.4 compute — 시뮬레이션 중 계산</a></li>
+<li><a href="#75-fix-ave">7.5 fix ave/* — 시간 평균을 자동으로</a></li>
+<li><a href="#76-restart">7.6 restart — 중간 저장</a></li>
+<li><a href="#77">7.7 후처리 도구</a></li>
+<li><a href="#78">7.8 분석을 위한 좋은 출력 습관</a></li>
+<li><a href="#79">7.9 다음 단계</a></li>
+</ul>
+</div>
+<hr />
+<h2 id="71-lammps">7.1 LAMMPS가 내보내는 다섯 갈래 결과</h2>
+<p>LAMMPS의 출력은 보통 다음 다섯 가지로 정리할 수 있습니다.</p>
+<table>
+<thead>
+<tr>
+<th>결과</th>
+<th>명령</th>
+<th>파일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>열역학 수치 (화면/log)</td>
+<td><code>thermo</code>, <code>thermo_style</code></td>
+<td><code>log.lammps</code></td>
+</tr>
+<tr>
+<td>좌표/속도 트라젝토리</td>
+<td><code>dump</code></td>
+<td><code>*.lammpstrj</code>, <code>*.xyz</code>, <code>*.dcd</code></td>
+</tr>
+<tr>
+<td>사용자 정의 계산값</td>
+<td><code>compute</code> + <code>fix ave/*</code></td>
+<td>별도 파일</td>
+</tr>
+<tr>
+<td>재시작 파일</td>
+<td><code>restart</code></td>
+<td><code>*.restart</code></td>
+</tr>
+<tr>
+<td>그 외 진단 출력</td>
+<td><code>print</code>, <code>fix print</code></td>
+<td>임의 파일</td>
+</tr>
+</tbody>
+</table>
+<p>각각을 살펴봅니다.</p>
+<h2 id="72-thermo-log">7.2 thermo — 화면과 log에 찍히는 열역학</h2>
+<p><code>thermo N</code> 은 매 N 스텝마다 한 줄을 출력합니다. <code>thermo_style</code> 로 어떤 열을
+표시할지 정합니다.</p>
+<pre><code class="language-lammps">thermo          100
+thermo_style    custom step temp pe ke etotal press density
+</code></pre>
+<p>기본 컬럼은 <code>step temp epair emol etotal press</code> 정도이며,
+사용자 정의에는 다음 같은 컬럼들을 자유롭게 섞을 수 있습니다.</p>
+<table>
+<thead>
+<tr>
+<th>컬럼</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>step</code></td>
+<td>스텝 번호</td>
+</tr>
+<tr>
+<td><code>temp</code></td>
+<td>온도</td>
+</tr>
+<tr>
+<td><code>pe</code>, <code>ke</code>, <code>etotal</code></td>
+<td>포텐셜·운동·총 에너지</td>
+</tr>
+<tr>
+<td><code>enthalpy</code></td>
+<td>enthalpy</td>
+</tr>
+<tr>
+<td><code>press</code>, <code>vol</code>, <code>density</code></td>
+<td>압력, 부피, 밀도</td>
+</tr>
+<tr>
+<td><code>pxx pyy pzz</code></td>
+<td>응력 텐서 대각</td>
+</tr>
+<tr>
+<td><code>cpu</code>, <code>cpuremain</code></td>
+<td>누적 CPU 시간, 남은 추정 시간</td>
+</tr>
+<tr>
+<td><code>c_&lt;computeID&gt;</code></td>
+<td>compute 결과</td>
+</tr>
+<tr>
+<td><code>v_&lt;variableID&gt;</code></td>
+<td>변수 값</td>
+</tr>
+</tbody>
+</table>
+<p><code>thermo</code> 출력은 평형화 모니터링과 성능 점검의 출발점입니다.</p>
+<h2 id="73-dump">7.3 dump — 좌표·속도 트라젝토리</h2>
+<pre><code class="language-lammps">dump            1 all custom 1000 traj.lammpstrj id type x y z
+</code></pre>
+<ul>
+<li><code>1</code> — dump의 ID (취소할 때 <code>undump 1</code>)</li>
+<li><code>all</code> — 출력 대상 그룹</li>
+<li><code>custom</code> — dump style</li>
+<li><code>1000</code> — 매 1000 step</li>
+<li><code>traj.lammpstrj</code> — 파일명</li>
+<li><code>id type x y z</code> — 출력 컬럼</li>
+</ul>
+<p>대표 dump style은 다음과 같습니다.</p>
+<table>
+<thead>
+<tr>
+<th>dump style</th>
+<th>특징</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>atom</code></td>
+<td>LAMMPS 기본 텍스트, 가벼움</td>
+</tr>
+<tr>
+<td><code>custom</code></td>
+<td>컬럼을 자유롭게 선택. 가장 흔히 사용</td>
+</tr>
+<tr>
+<td><code>xyz</code></td>
+<td>단순 XYZ 포맷 (VMD 즉시 열림)</td>
+</tr>
+<tr>
+<td><code>dcd</code></td>
+<td>CHARMM/NAMD 호환 바이너리</td>
+</tr>
+<tr>
+<td><code>netcdf</code></td>
+<td>AMBER 호환 바이너리 (대용량 효율적)</td>
+</tr>
+<tr>
+<td><code>image</code>, <code>movie</code></td>
+<td>시뮬레이션 도중 png/avi 생성 (디버그용)</td>
+</tr>
+</tbody>
+</table>
+<p>또한 <code>dump_modify</code> 로 추가 설정이 가능합니다.</p>
+<pre><code class="language-lammps">dump_modify     1 sort id           # 원자 ID 순으로 정렬
+dump_modify     1 element Cu C O H  # type → 원소 매핑 (OVITO에서 색깔 자동)
+</code></pre>
+<p><code>sort id</code> 는 후처리 도구가 원자를 추적할 때 매우 중요합니다.</p>
+<h2 id="74-compute">7.4 compute — 시뮬레이션 중 계산</h2>
+<p>LAMMPS는 시뮬레이션 도중에 다양한 양을 직접 계산할 수 있습니다.</p>
+<pre><code class="language-lammps">compute         myT  all temp
+compute         myKE all ke
+compute         myPE all pe
+compute         myRDF all rdf 100 1 1 1 2
+compute         myMSD all msd
+</code></pre>
+<p>자주 쓰는 compute:</p>
+<table>
+<thead>
+<tr>
+<th>compute style</th>
+<th>계산하는 양</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>temp</code>, <code>temp/com</code>, <code>temp/region</code></td>
+<td>온도 (집단별·영역별)</td>
+</tr>
+<tr>
+<td><code>pe</code>, <code>ke</code>, <code>pe/atom</code></td>
+<td>에너지</td>
+</tr>
+<tr>
+<td><code>pressure</code></td>
+<td>압력</td>
+</tr>
+<tr>
+<td><code>rdf</code></td>
+<td>동경 분포 함수 g(r)</td>
+</tr>
+<tr>
+<td><code>msd</code></td>
+<td>평균 제곱 변위</td>
+</tr>
+<tr>
+<td><code>coord/atom</code></td>
+<td>원자별 배위수</td>
+</tr>
+<tr>
+<td><code>cna/atom</code>, <code>centro/atom</code></td>
+<td>결정 구조 분석</td>
+</tr>
+<tr>
+<td><code>chunk/atom</code>, <code>density/atom</code></td>
+<td>공간 영역별 평균</td>
+</tr>
+<tr>
+<td><code>stress/atom</code></td>
+<td>원자별 응력</td>
+</tr>
+</tbody>
+</table>
+<p>compute의 결과는 그 자체로는 어디에도 저장되지 않습니다.
+<code>thermo_style custom ... c_myT</code> 또는 다음에 나오는 <code>fix ave/time</code> 으로
+"꺼내야" 비로소 값을 볼 수 있습니다.</p>
+<h2 id="75-fix-ave">7.5 fix ave/* — 시간 평균을 자동으로</h2>
+<pre><code class="language-lammps">fix             1 all ave/time 10 100 1000 c_myT c_myPE file thermo_ave.txt
+</code></pre>
+<p>위 한 줄의 의미는 "1000 스텝마다, 직전 100개 sample을 10 스텝 간격으로 모아
+평균"입니다.</p>
+<ul>
+<li><code>Nevery</code> (10) — sampling 간격</li>
+<li><code>Nrepeat</code> (100) — 평균에 사용할 sample 개수</li>
+<li><code>Nfreq</code> (1000) — 출력 주기</li>
+</ul>
+<p><code>fix ave/atom</code> 은 원자별 양을 시간 평균, <code>fix ave/chunk</code> 는 공간 chunk별
+시간 평균을 만듭니다. RDF, 밀도 프로파일, 응력 분포 같은 대부분의 분석은
+이 두 fix 위에 구현됩니다.</p>
+<pre><code class="language-lammps"># 밀도 프로파일 (z축 슬라이스)
+compute         cc all chunk/atom bin/1d z 0.0 1.0 units box
+fix             dens all ave/chunk 10 100 1000 cc density/mass file dens.txt
+</code></pre>
+<h2 id="76-restart">7.6 restart — 중간 저장</h2>
+<pre><code class="language-lammps">restart         50000 sim.restart
+</code></pre>
+<p>50000 스텝마다 <code>sim.restart.50000</code> 같은 파일을 남깁니다. 다음에는</p>
+<pre><code class="language-lammps">read_restart    sim.restart.50000
+</code></pre>
+<p>로 이어서 시작할 수 있습니다. 장시간 시뮬레이션은 항상 restart를 켜 두는 것이
+안전합니다.</p>
+<h2 id="77">7.7 후처리 도구</h2>
+<p>LAMMPS는 트라젝토리만 충실히 남기고, 시각화·분석은 외부 도구에 맡기는
+설계입니다. 자주 쓰이는 도구는 다음과 같습니다.</p>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>강점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OVITO</strong></td>
+<td>결정 구조 분석, 결함 식별, 가벼운 GUI</td>
+</tr>
+<tr>
+<td><strong>VMD</strong></td>
+<td>분자 시각화의 표준. CHARMM/AMBER와 호환</td>
+</tr>
+<tr>
+<td><strong>Ovito Python / MDAnalysis / MDTraj</strong></td>
+<td>Python에서 trajectory 분석</td>
+</tr>
+<tr>
+<td><strong>PyLammps</strong></td>
+<td>Python 안에서 LAMMPS를 직접 호출</td>
+</tr>
+<tr>
+<td><strong>ParaView</strong></td>
+<td>대용량 mesh/필드 시각화</td>
+</tr>
+</tbody>
+</table>
+<p>대부분의 도구는 <code>dump custom ... id type x y z</code> 또는 <code>xyz</code>/<code>dcd</code> 출력을
+바로 읽을 수 있습니다.</p>
+<h2 id="78">7.8 분석을 위한 좋은 출력 습관</h2>
+<ul>
+<li><strong>dump_modify sort id</strong> 를 켜라. 후처리 도구에서 원자 추적이 단순해집니다.</li>
+<li><strong>element 매핑</strong>을 dump_modify에 넣어라 (<code>element Cu C O H</code> 식).
+  OVITO/VMD가 원자 색을 자동으로 부여합니다.</li>
+<li><strong>thermo와 dump의 주기를 다르게</strong> 두라. thermo는 자주(<code>100</code>),
+  dump는 드물게(<code>1000</code>–<code>10000</code>). 디스크 절약과 진단 두 마리 토끼.</li>
+<li><strong>fix ave/time을 평형화 후로 미루라</strong>. 평형화 단계의 값이 평균에 섞이면
+  결과가 왜곡됩니다. <code>unfix</code> 후 새로 등록하거나 <code>start</code> 옵션을 활용.</li>
+<li><strong>항상 restart를 켜라</strong>. 시뮬레이션 시간이 4시간을 넘으면 거의 필수.</li>
+</ul>
+<h2 id="79">7.9 다음 단계</h2>
+<p>이제 시뮬레이션을 만들고, 돌리고, 결과를 뽑는 한 사이클이 모두 끝났습니다.
+마지막 장에서는 처음 LAMMPS를 돌릴 때 가장 자주 마주치는 오류들과
+운영·성능 팁을 모았습니다.</p>
+      </article>
+<nav class="page-nav"><a class="prev" href="06-fix-run.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">셋업과 실행</div></a><a class="next" href="08-troubleshooting.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">트러블슈팅</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
