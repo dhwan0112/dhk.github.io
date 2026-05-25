@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>4. 정전기 방법: PPPM vs MSM · LAMMPS Cu 표면 흡착 가이드</title>
-  <meta name="description" content="PPPM 과 MSM 의 알고리즘 차이, 슬랩 계에서의 정전기 보정." />
+  <title>정전기 방법: PPPM vs MSM · LAMMPS 가이드</title>
+  <meta name="description" content="PPPM 과 MSM 의 알고리즘 차이, 슬랩 계의 정전기 보정." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -27,45 +28,54 @@
 <aside class="sidebar">
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">LAMMPS</div>
-    <div class="brand-subtitle">Cu 표면 흡착 가이드</div>
+    <div class="brand-subtitle">한국어 입문 가이드</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">시작</div>
+      <div class="nav-section-title">입문 · 시작</div>
       <ul class="nav-list">
         <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-overview.html"><span class="nav-num">01</span>시스템 개요</a></li>
-        <li><a href="02-data-files.html"><span class="nav-num">02</span>데이터 파일</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 스크립트 구조</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">이론과 방법론</div>
+      <div class="nav-section-title">입문 · 시뮬레이션 만들기</div>
       <ul class="nav-list">
-        <li><a href="03-force-fields.html"><span class="nav-num">03</span>힘장 비교</a></li>
-        <li><a href="04-electrostatics.html" class="active" aria-current="page"><span class="nav-num">04</span>정전기 방법</a></li>
+        <li><a href="03-units-atomstyle.html"><span class="nav-num">03</span>단위계와 atom_style</a></li>
+        <li><a href="04-system.html"><span class="nav-num">04</span>시스템 정의</a></li>
+        <li><a href="05-forcefield.html"><span class="nav-num">05</span>상호작용 모델</a></li>
+        <li><a href="06-fix-run.html"><span class="nav-num">06</span>셋업과 실행</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">실전 프로토콜</div>
+      <div class="nav-section-title">입문 · 결과와 운영</div>
       <ul class="nav-list">
-        <li><a href="05-protocol.html"><span class="nav-num">05</span>5단계 프로토콜</a></li>
-        <li><a href="06-frameworks.html"><span class="nav-num">06</span>4가지 프레임워크</a></li>
-      </ul>
-    </div>
-    <div class="nav-section">
-      <div class="nav-section-title">분석과 운영</div>
-      <ul class="nav-list">
-        <li><a href="07-analysis.html"><span class="nav-num">07</span>분석 방법</a></li>
+        <li><a href="07-output.html"><span class="nav-num">07</span>출력과 분석</a></li>
         <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">응용 · Cu 표면 흡착</div>
+      <ul class="nav-list">
+        <li><a href="cu-overview.html"><span class="nav-num">A0</span>개요</a></li>
+        <li><a href="cu-01-system.html"><span class="nav-num">A1</span>시스템 개요</a></li>
+        <li><a href="cu-02-data-files.html"><span class="nav-num">A2</span>데이터 파일</a></li>
+        <li><a href="cu-03-force-fields.html"><span class="nav-num">A3</span>힘장 비교</a></li>
+        <li><a href="cu-04-electrostatics.html" class="active" aria-current="page"><span class="nav-num">A4</span>정전기 방법</a></li>
+        <li><a href="cu-05-protocol.html"><span class="nav-num">A5</span>5단계 프로토콜</a></li>
+        <li><a href="cu-06-frameworks.html"><span class="nav-num">A6</span>4가지 프레임워크</a></li>
+        <li><a href="cu-07-analysis.html"><span class="nav-num">A7</span>분석 방법</a></li>
+        <li><a href="cu-08-troubleshooting.html"><span class="nav-num">A8</span>응용 트러블슈팅</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 04 · 이론</div>
+        <div class="page-eyebrow">APPLIED · CHAPTER 04</div>
         <h1 class="page-title">정전기 방법: PPPM vs MSM</h1>
-        <p class="page-lede">PPPM 과 MSM 의 알고리즘 차이, 슬랩 계에서의 정전기 보정.</p>
+        <p class="page-lede">PPPM 과 MSM 의 알고리즘 차이, 슬랩 계의 정전기 보정.</p>
       </header>
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
@@ -321,7 +331,7 @@ kspace_modify pressure/scalar no
 <hr />
 <p><a href="03-force-fields">← 이전: 3. 힘장 비교</a> ｜ <a href="05-protocol">다음: 5. 5단계 프로토콜 →</a></p>
       </article>
-<nav class="page-nav"><a class="prev" href="03-force-fields.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">힘장 비교</div></a><a class="next" href="05-protocol.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">5단계 프로토콜</div></a></nav>
+<nav class="page-nav"><a class="prev" href="cu-03-force-fields.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">힘장 비교</div></a><a class="next" href="cu-05-protocol.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">5단계 프로토콜</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

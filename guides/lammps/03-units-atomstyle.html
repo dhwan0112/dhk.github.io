@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>단위계와 atom_style · LAMMPS 가이드</title>
+  <meta name="description" content="단위계(lj/real/metal …) 선택과 atom_style 의 의미, 그리고 둘이 함께 결정하는 입력의 톤." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">LAMMPS</div>
+    <div class="brand-subtitle">한국어 입문 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 스크립트 구조</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시뮬레이션 만들기</div>
+      <ul class="nav-list">
+        <li><a href="03-units-atomstyle.html" class="active" aria-current="page"><span class="nav-num">03</span>단위계와 atom_style</a></li>
+        <li><a href="04-system.html"><span class="nav-num">04</span>시스템 정의</a></li>
+        <li><a href="05-forcefield.html"><span class="nav-num">05</span>상호작용 모델</a></li>
+        <li><a href="06-fix-run.html"><span class="nav-num">06</span>셋업과 실행</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 결과와 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-output.html"><span class="nav-num">07</span>출력과 분석</a></li>
+        <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">응용 · Cu 표면 흡착</div>
+      <ul class="nav-list">
+        <li><a href="cu-overview.html"><span class="nav-num">A0</span>개요</a></li>
+        <li><a href="cu-01-system.html"><span class="nav-num">A1</span>시스템 개요</a></li>
+        <li><a href="cu-02-data-files.html"><span class="nav-num">A2</span>데이터 파일</a></li>
+        <li><a href="cu-03-force-fields.html"><span class="nav-num">A3</span>힘장 비교</a></li>
+        <li><a href="cu-04-electrostatics.html"><span class="nav-num">A4</span>정전기 방법</a></li>
+        <li><a href="cu-05-protocol.html"><span class="nav-num">A5</span>5단계 프로토콜</a></li>
+        <li><a href="cu-06-frameworks.html"><span class="nav-num">A6</span>4가지 프레임워크</a></li>
+        <li><a href="cu-07-analysis.html"><span class="nav-num">A7</span>분석 방법</a></li>
+        <li><a href="cu-08-troubleshooting.html"><span class="nav-num">A8</span>응용 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 03 · 시뮬레이션 만들기</div>
+        <h1 class="page-title">단위계와 atom_style</h1>
+        <p class="page-lede">단위계(lj/real/metal …) 선택과 atom_style 의 의미, 그리고 둘이 함께 결정하는 입력의 톤.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#31">3.1 왜 단위계가 중요한가</a></li>
+<li><a href="#32">3.2 자주 쓰는 단위계 한눈에</a></li>
+<li><a href="#33">3.3 단위 선택 기준</a></li>
+<li><a href="#34-atom_style">3.4 atom_style — 원자가 갖는 속성</a><ul>
+<li><a href="#atom_style">자주 쓰는 atom_style</a></li>
+<li><a href="#atom_style_1">잘못 고른 atom_style 의 흔한 증상</a></li>
+</ul>
+</li>
+<li><a href="#35">3.5 짝을 이루는 명령들</a></li>
+<li><a href="#36">3.6 다음 단계</a></li>
+</ul>
+</div>
+<hr />
+<h2 id="31">3.1 왜 단위계가 중요한가</h2>
+<p>LAMMPS는 내부적으로 항상 같은 산술을 수행하지만, 입력값과 출력값이 어떤
+물리 단위로 해석되는지는 <code>units</code> 명령으로 정합니다. 한 번 정한 단위는
+그 시뮬레이션 전체에 적용되며, <strong>박스 정의 이후에는 바꿀 수 없습니다</strong>.
+따라서 입력 스크립트 거의 첫 줄에 두는 것이 관례입니다.</p>
+<pre><code class="language-lammps">units           real      # 또는 lj, metal, electron, si, cgs, micro, nano
+</code></pre>
+<p>기본값은 <code>lj</code> 입니다.</p>
+<h2 id="32">3.2 자주 쓰는 단위계 한눈에</h2>
+<table>
+<thead>
+<tr>
+<th><code>units</code></th>
+<th>길이</th>
+<th>시간</th>
+<th>에너지</th>
+<th>질량</th>
+<th>주된 사용처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lj</code></td>
+<td>σ (환원)</td>
+<td>τ (환원)</td>
+<td>ε (환원)</td>
+<td>m (환원)</td>
+<td>LJ/입자 시뮬레이션</td>
+</tr>
+<tr>
+<td><code>real</code></td>
+<td>Å</td>
+<td>fs</td>
+<td>kcal/mol</td>
+<td>g/mol</td>
+<td>생체·유기 분자 (OPLS, AMBER, CHARMM)</td>
+</tr>
+<tr>
+<td><code>metal</code></td>
+<td>Å</td>
+<td>ps</td>
+<td>eV</td>
+<td>g/mol</td>
+<td>금속·결정 (EAM, MEAM, Tersoff)</td>
+</tr>
+<tr>
+<td><code>electron</code></td>
+<td>Bohr</td>
+<td>fs</td>
+<td>Hartree</td>
+<td>amu</td>
+<td>전자 구조 또는 양자 결합</td>
+</tr>
+<tr>
+<td><code>si</code></td>
+<td>m</td>
+<td>s</td>
+<td>J</td>
+<td>kg</td>
+<td>표준 SI</td>
+</tr>
+<tr>
+<td><code>cgs</code></td>
+<td>cm</td>
+<td>s</td>
+<td>erg</td>
+<td>g</td>
+<td>고전 CGS</td>
+</tr>
+<tr>
+<td><code>micro</code></td>
+<td>µm</td>
+<td>µs</td>
+<td>유도값</td>
+<td>pg</td>
+<td>마이크로 입자 / 콜로이드</td>
+</tr>
+<tr>
+<td><code>nano</code></td>
+<td>nm</td>
+<td>ns</td>
+<td>유도값</td>
+<td>ag</td>
+<td>나노 스케일 MD</td>
+</tr>
+</tbody>
+</table>
+<p>세 가지가 압도적으로 많이 쓰입니다.</p>
+<ul>
+<li><strong><code>real</code></strong> — 생체분자, 폴리머, 일반 유기물. 시간 단위 fs와 에너지 kcal/mol이
+  대부분의 분자역학 교과서와 일치합니다.</li>
+<li><strong><code>metal</code></strong> — 금속, 반도체, 산화물. EAM·Tersoff·MEAM 같은 금속용
+  포텐셜과 짝을 이룹니다.</li>
+<li><strong><code>lj</code></strong> — 환원 단위. 교과서 예제, 모델 입자, 빠른 테스트에 적합합니다.</li>
+</ul>
+<h2 id="33">3.3 단위 선택 기준</h2>
+<p>다음 두 기준이면 거의 모든 경우 결정할 수 있습니다.</p>
+<ol>
+<li>
+<p><strong>어떤 힘장(또는 포텐셜)을 쓰는가?</strong>
+   힘장 파라미터가 보고된 단위와 같게 맞추는 것이 가장 안전합니다.
+   OPLS·AMBER·CHARMM 계열 — <code>real</code>,
+   EAM·MEAM·Tersoff 등 금속 포텐셜 — <code>metal</code>,
+   교과서 LJ 입자 — <code>lj</code>.</p>
+</li>
+<li>
+<p><strong>결과를 어떤 단위로 보고 싶은가?</strong>
+   매뉴얼에 따르면 LAMMPS의 모든 출력은 <code>units</code> 가 정한 단위로 표기됩니다.
+   <code>dump</code> 의 좌표는 길이 단위, <code>thermo</code> 의 에너지는 에너지 단위 그대로 나옵니다.
+   분석 단계의 단위 통일을 위해 결과 보고 단위와 동일하게 맞추는 것이 편합니다.</p>
+</li>
+</ol>
+<div class="warning">
+  <div class="note-title">단위가 바뀌면 모든 수치를 다시 환산해야 합니다</div>
+  <p>
+    같은 시스템을 <code>real</code> 에서 <code>metal</code> 로 바꾸면,
+    온도·시간·에너지 값이 모두 다르게 해석됩니다.
+    예를 들어 <code>timestep 1.0</code> 은 <code>real</code> 에서는 1 fs,
+    <code>metal</code> 에서는 1 ps를 의미합니다.
+    같은 숫자가 천 배 다른 시간을 가리킬 수 있으니, 단위를 바꾼다면 입력 전체를
+    다시 점검해야 합니다.
+  </p>
+</div>
+
+<h2 id="34-atom_style">3.4 atom_style — 원자가 갖는 속성</h2>
+<p><code>atom_style</code> 은 시뮬레이션 안의 한 원자가 어떤 속성을 갖는지 정의합니다.
+이것 역시 박스가 만들어지기 전에 한 번 선언합니다.</p>
+<pre><code class="language-lammps">atom_style      atomic     # 또는 charge, molecular, full, bond, angle, ...
+</code></pre>
+<p>기본값은 <code>atomic</code> 입니다.</p>
+<h3 id="atom_style">자주 쓰는 atom_style</h3>
+<table>
+<thead>
+<tr>
+<th><code>atom_style</code></th>
+<th>갖는 속성</th>
+<th>대표 사용 사례</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>atomic</code></td>
+<td>위치, 속도, type</td>
+<td>LJ 입자, 단순 금속(EAM 등)</td>
+</tr>
+<tr>
+<td><code>charge</code></td>
+<td>atomic + 전하</td>
+<td>이온 결정, 단순 전해질</td>
+</tr>
+<tr>
+<td><code>bond</code></td>
+<td>atomic + 결합 정보</td>
+<td>결합만 있는 단순 폴리머</td>
+</tr>
+<tr>
+<td><code>angle</code></td>
+<td>bond + 각도</td>
+<td>가벼운 분자 (e.g. SPC 물 모델은 angle 또는 full)</td>
+</tr>
+<tr>
+<td><code>molecular</code></td>
+<td>bond + angle + dihedral + improper</td>
+<td>분자 시스템 (전하 X)</td>
+</tr>
+<tr>
+<td><code>full</code></td>
+<td>molecular + 전하</td>
+<td>대부분의 생체분자 시뮬레이션 (CHARMM, AMBER, OPLS)</td>
+</tr>
+<tr>
+<td><code>dipole</code></td>
+<td>atomic + 쌍극자 모멘트</td>
+<td>점쌍극자 모델</td>
+</tr>
+<tr>
+<td><code>sphere</code></td>
+<td>atomic + 회전·반지름</td>
+<td>거대 입자(DEM, granular)</td>
+</tr>
+<tr>
+<td><code>ellipsoid</code></td>
+<td>sphere + 비등방 회전</td>
+<td>Gay-Berne 같은 비대칭 입자</td>
+</tr>
+</tbody>
+</table>
+<p>응용 단계에서 가장 흔히 마주치는 두 선택은 <strong><code>full</code></strong>(분자 + 전하)과
+<strong><code>atomic</code></strong>(단순 입자)입니다. 일단은 이 둘만 기억해 두어도 무난합니다.</p>
+<h3 id="atom_style_1">잘못 고른 atom_style 의 흔한 증상</h3>
+<ul>
+<li>"Bonds defined but no bond_style" 오류 — 데이터 파일이 결합 정보를 갖고 있는데
+  <code>atom_style atomic</code> 으로 선언한 경우.</li>
+<li>전하가 무시되어 에너지 값이 이상한 경우 — 데이터 파일에 전하가 있는데
+  <code>atom_style atomic</code> 또는 <code>bond</code> 로 선언한 경우.</li>
+</ul>
+<p>데이터 파일을 만들거나 받았다면, 그 파일이 어떤 atom_style 을 가정해서
+만들어졌는지 먼저 확인하는 습관이 안전합니다.</p>
+<h2 id="35">3.5 짝을 이루는 명령들</h2>
+<p><code>units</code> 와 <code>atom_style</code> 은 그 다음에 오는 거의 모든 명령의 의미를 결정합니다.
+특히 다음 명령들과 짝을 맞춰 두십시오.</p>
+<ul>
+<li><code>mass</code> — 단위계에 맞는 질량 값을 입력</li>
+<li><code>pair_style</code>, <code>pair_coeff</code> — 힘장 파라미터를 단위계에 맞게</li>
+<li><code>timestep</code> — <code>real</code> 은 보통 1.0 (fs), <code>metal</code> 은 0.001 (ps),
+  <code>lj</code> 는 0.005 정도가 출발점</li>
+<li><code>velocity ... create T</code> — <code>T</code> 는 단위계의 온도 단위</li>
+</ul>
+<h2 id="36">3.6 다음 단계</h2>
+<p>단위계와 원자 표현이 정해졌다면, 그 다음은 실제로 박스를 만들고 원자를
+채우는 단계입니다. 다음 장에서는 매뉴얼이 제시하는 세 가지 시스템 정의
+방법(<code>read_data</code> / <code>read_restart</code> / <code>lattice + create_atoms</code>)을 비교합니다.</p>
+      </article>
+<nav class="page-nav"><a class="prev" href="02-input-structure.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">입력 스크립트 구조</div></a><a class="next" href="04-system.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">시스템 정의</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

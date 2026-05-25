@@ -1,0 +1,128 @@
+---
+layout: default
+title: "LAMMPS 한국어 입문 가이드"
+nav_order: 1
+permalink: /
+---
+
+# LAMMPS 한국어 입문 가이드
+
+LAMMPS(Large-scale Atomic/Molecular Massively Parallel Simulator)는
+미국 Sandia 국립연구소에서 개발하는 고전 분자동역학(MD) 시뮬레이션 패키지입니다.
+원자·분자 수준의 시스템을 수십 개부터 수십억 개 입자까지 다룰 수 있으며,
+학술용으로 무료로 배포됩니다.
+
+본 가이드는 LAMMPS를 처음 접하는 사용자가 매뉴얼의 방대한 분량 앞에서
+길을 잃지 않도록 정리한 한국어 입문서입니다. 가장 단순한 Lennard-Jones 액체
+예제부터 시작해 입력 스크립트의 4단계 구조, 단위계와 원자 표현, 상호작용 모델,
+시뮬레이션 설정, 출력과 분석까지 차근차근 다룹니다.
+
+## 이 가이드에 관하여
+
+본 가이드는 LAMMPS 공식 매뉴얼(2024년 기준)을 토대로 일상 연구에서 가장 자주
+등장하는 명령과 패턴을 추려 정리했습니다. 모든 예제는 LAMMPS 22 Jul 2024 안정
+버전을 기준으로 작성되었으며, 그 이전 버전들과도 대부분 호환됩니다.
+
+각 페이지 좌측 사이드바에서 원하는 주제로 바로 이동할 수 있고, 페이지 하단의
+이전·다음 링크로 순서대로 읽을 수 있습니다. 명령어 이름은 모두 매뉴얼의
+원어 표기를 그대로 사용했으며, 상세 옵션이나 특수 사용 사례는 원문 매뉴얼
+([docs.lammps.org](https://docs.lammps.org/))을 직접 참조하시기를 권합니다.
+
+## 주제별로 들어가기
+
+### 처음 시작한다면
+
+<div class="cards">
+  <a class="card" href="01-getting-started.html">
+    <div class="card-num">01 · GETTING STARTED</div>
+    <div class="card-title">시작하기</div>
+    <div class="card-desc">설치 확인, 첫 명령, LJ 액체 예제, 출력 파일 둘러보기.</div>
+  </a>
+  <a class="card" href="02-input-structure.html">
+    <div class="card-num">02 · INPUT</div>
+    <div class="card-title">입력 스크립트 구조</div>
+    <div class="card-desc">LAMMPS 매뉴얼이 정의하는 4단계 입력 구조.</div>
+  </a>
+</div>
+
+### 시뮬레이션 만들기
+
+<div class="cards">
+  <a class="card" href="03-units-atomstyle.html">
+    <div class="card-num">03 · UNITS</div>
+    <div class="card-title">단위계와 atom_style</div>
+    <div class="card-desc">lj / real / metal 등 단위계 선택, 원자 표현 방식.</div>
+  </a>
+  <a class="card" href="04-system.html">
+    <div class="card-num">04 · SYSTEM</div>
+    <div class="card-title">시스템 정의</div>
+    <div class="card-desc">박스·원자 만들기, read_data 와 lattice/create_atoms.</div>
+  </a>
+  <a class="card" href="05-forcefield.html">
+    <div class="card-num">05 · FORCE FIELD</div>
+    <div class="card-title">상호작용 모델</div>
+    <div class="card-desc">pair_style, bonded styles, kspace_style 개관.</div>
+  </a>
+  <a class="card" href="06-fix-run.html">
+    <div class="card-num">06 · RUN</div>
+    <div class="card-title">셋업과 실행</div>
+    <div class="card-desc">velocity, timestep, fix(NVE/NVT/NPT), minimize, run.</div>
+  </a>
+</div>
+
+### 결과 보기와 운영
+
+<div class="cards">
+  <a class="card" href="07-output.html">
+    <div class="card-num">07 · OUTPUT</div>
+    <div class="card-title">출력과 분석</div>
+    <div class="card-desc">thermo, dump, compute, fix ave/* 그리고 후처리.</div>
+  </a>
+  <a class="card" href="08-troubleshooting.html">
+    <div class="card-num">08 · TIPS</div>
+    <div class="card-title">트러블슈팅과 운영 팁</div>
+    <div class="card-desc">자주 발생하는 오류, 병렬 실행, 성능 점검.</div>
+  </a>
+</div>
+
+### 응용 예제: Cu 표면 흡착
+
+본 입문 가이드를 끝낸 다음, 실제 연구 문제에 LAMMPS를 어떻게 적용했는지
+보여주는 응용 시리즈가 있습니다. Cu(100)/Cu(111) 표면 위 벤젠-에탄올
+경쟁 흡착을 OPLS-AA · TraPPE-UA · PPPM · MSM 네 조합으로 비교하는
+9개 챕터입니다.
+
+<div class="cards">
+  <a class="card" href="cu-overview.html">
+    <div class="card-num">APPLIED · Cu SURFACE</div>
+    <div class="card-title">Cu 표면 흡착 시리즈</div>
+    <div class="card-desc">슬랩 셀, 두 힘장 비교, 5단계 프로토콜, RDF·계면 장력 분석.</div>
+  </a>
+</div>
+
+<div class="divider"></div>
+
+## 인용에 관하여
+
+LAMMPS를 사용한 연구를 발표할 때는 다음 일반 인용을 함께 표기하시기 바랍니다.
+여기에 더해, 실제로 사용한 모델(예: ReaxFF, EAM, COMPASS 등)의 원저 논문도
+함께 인용하는 것이 학계의 관례입니다.
+
+- Thompson, A. P.; Aktulga, H. M.; Berger, R.; Bolintineanu, D. S.; Brown, W. M.;
+  Crozier, P. S.; in 't Veld, P. J.; Kohlmeyer, A.; Moore, S. G.; Nguyen, T. D.;
+  Shan, R.; Stevens, M. J.; Tranchida, J.; Trott, C.; Plimpton, S. J.
+  *Comput. Phys. Commun.* **2022**, *271*, 108171.
+- Plimpton, S. *J. Comput. Phys.* **1995**, *117*, 1–19.
+
+<div class="note">
+  <div class="note-title">참고 자료</div>
+  <p>
+    본 가이드의 모든 내용은 LAMMPS 공식 매뉴얼
+    (<a href="https://docs.lammps.org/">docs.lammps.org</a>)을 기반으로 합니다.
+    매뉴얼은 명령어별로 상세 옵션과 예제를 제공하므로,
+    가이드를 읽다가 더 깊이 알고 싶은 명령이 나오면 매뉴얼의 해당 페이지를
+    함께 보시기를 권합니다. 또한 사용자 포럼
+    (<a href="https://www.lammps.org/forum.html">lammps.org/forum.html</a>)도
+    구체적인 사례 검색에 매우 유용합니다.
+  </p>
+</div>
