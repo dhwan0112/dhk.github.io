@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Transition states · NEB · ORCA User Guide</title>
-  <meta name="description" content="NEB-TS, ScanTS, and other strategies for locating activation barriers." />
+  <meta name="description" content="Finding the energy barrier of a reaction — a guide for when you do not know where to start." />
   <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
@@ -67,30 +67,254 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 07 · COMMON CALCULATIONS</div>
         <h1 class="page-title">Transition states · NEB</h1>
-        <p class="page-lede">NEB-TS, ScanTS, and other strategies for locating activation barriers.</p>
+        <p class="page-lede">Finding the energy barrier of a reaction — a guide for when you do not know where to start.</p>
       </header>
 
       <article class="content">
-        <div class="note">
-          <div class="note-title">Translation in progress</div>
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#overview">Three ways to locate a transition state</a></li>
+            <li><a href="#neb-ts">NEB-TS — the recommended first attempt</a></li>
+            <li><a href="#variants">NEB variants</a></li>
+            <li><a href="#optts">OptTS — when you have a good initial guess</a></li>
+            <li><a href="#scants">ScanTS — automate scan + TS search</a></li>
+            <li><a href="#irc">IRC — validating the transition state</a></li>
+            <li><a href="#workflow">Recommended workflow</a></li>
+          </ul>
+        </div>
+
+        <h2 id="overview">Three ways to locate a transition state</h2>
+        <p>ORCA offers three broad approaches to finding a transition state (TS, saddle point):</p>
+
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Required input</th><th>Strengths / weaknesses</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>NEB-TS</code></td><td>Reactant + product structures</td><td><strong>Most robust</strong>. Works without an initial guess. Somewhat expensive.</td></tr>
+            <tr><td><code>OptTS</code></td><td>TS initial guess + Hessian</td><td>Fast, but needs a good guess and a good Hessian; can diverge.</td></tr>
+            <tr><td><code>ScanTS</code></td><td>A defined reaction coordinate</td><td>Natural for one-dimensional reactions; intuitive.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="neb-ts">NEB-TS — the recommended first attempt</h2>
+        <p>
+          NEB-TS combines the Nudged Elastic Band method with OptTS. Given only the reactant
+          and product geometries it constructs a path between them, identifies the highest
+          point, and then refines it to a true saddle point.
+        </p>
+
+        <p>The example below is the intramolecular proton transfer in acetic acid (manual section 6.3.16):</p>
+
+        <pre data-lang="orca"><code><span class="cmt"># reactant.inp — start from the reactant geometry</span>
+<span class="kw">!</span> <span class="kw2">XTB NEB-TS</span>
+
+<span class="kw">%neb</span>
+   <span class="kw2">neb_end_xyzfile</span> <span class="str">"product.xyz"</span>    <span class="cmt"># the product geometry</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  C    0.416   0.039  -0.014
+  C    0.042   0.012   1.440
+  O    1.524   0.177  -0.454
+  O   -0.654  -0.128  -0.804
+  H   -0.391  -0.126  -1.737
+  H   -0.913   0.507   1.585
+  H   -0.058  -1.026   1.751
+  H    0.820   0.485   2.030
+<span class="kw">*</span></code></pre>
+
+        <p>
+          <code>product.xyz</code> must contain the coordinates of the same molecule in its
+          product state (the proton on the other oxygen). The atom order has to match the
+          reactant.
+        </p>
+
+        <p>NEB-TS summarises its result like this:</p>
+
+        <pre data-lang="output"><code>---------------------------------------------------------------
+                         PATH SUMMARY
+---------------------------------------------------------------
+Image Dist.(Ang.)    E(Eh)        dE(kcal/mol)     max(|Fp|)
+  0     0.000     -14.45993           0.00          0.00011
+  1     0.426     -14.44891           6.91          0.00092
+  2     0.652     -14.42864          19.63          0.00084
+  3     0.805     -14.41132          30.50          0.00075
+  4     0.932     -14.40562          34.08          0.00057   &lt;= CI (transition state)
+  5     1.044     -14.41047          31.03          0.00057
+  ...
+  9     1.869     -14.45988           0.03          0.00013</code></pre>
+
+        <p>
+          The image marked "CI" (Climbing Image) is the converged transition state, and the
+          dE column on that line is a first estimate of the activation energy in kcal/mol.
+          NEB-TS then refines this point with OptTS, so the actual final number is the
+          <code>FINAL SINGLE POINT ENERGY</code> at the end of the output file.
+        </p>
+
+        <h2 id="variants">NEB variants</h2>
+        <p>The variants documented in the manual trade cost against robustness:</p>
+
+        <table>
+          <thead><tr><th>Keyword</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><code>NEB</code></td><td>Plain NEB, no climbing image. Path only.</td></tr>
+            <tr><td><code>NEB-CI</code></td><td>Climbing-image NEB. Pinpoints the highest point but does not run OptTS afterwards.</td></tr>
+            <tr><td><code>NEB-TS</code></td><td>NEB-CI + OptTS. <strong>The default choice</strong>.</td></tr>
+            <tr><td><code>Loose-NEB-TS</code></td><td>Looser NEB-stage thresholds. Faster, slightly less accurate.</td></tr>
+            <tr><td><code>Tight-NEB-TS</code></td><td>Tighter thresholds. More accurate, more expensive.</td></tr>
+            <tr><td><code>Fast-NEB-TS</code></td><td>Initial path built with IDPP only. The fastest variant.</td></tr>
+            <tr><td><code>ZOOM-NEB-TS</code></td><td>"Zooms in" on a portion of the path and refines. Useful for reactions with long tails.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="tip">
+          <div class="note-title">Use GFN-XTB as a fast pre-step</div>
           <p>
-            The English version of this chapter is being written. In the meantime, the
-            corresponding Korean chapter is fully available — please follow the link below
-            or use the <strong>KO</strong> toggle in the top-left of the sidebar.
-          </p>
-          <p>
-            → <a href="../ko/transition-states.html">Read this chapter in Korean (한국어)</a>
+            Running NEB-TS directly at the DFT level can be slow. A two-stage strategy is
+            often recommended: first locate an approximate TS with <code>! XTB NEB-TS</code>,
+            then use that geometry as the starting point for a refined run with
+            <code>! B3LYP D4 def2-TZVP OptTS</code>. XTB is an extremely fast semi-empirical
+            method that is built into ORCA.
           </p>
         </div>
 
+        <h2 id="optts">OptTS — when you have a good initial guess</h2>
         <p>
-          If you would like to be notified when the English translation lands, please open
-          an issue at
-          <a href="https://github.com/dhwan0112/dhk.github.io/issues">dhwan0112/dhk.github.io</a>.
+          If you already have a geometry close to the TS together with an accurate Hessian,
+          OptTS is the most efficient option. The Hessian <strong>must come from a frequency
+          calculation at the same level of theory</strong>.
         </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Step 1: compute the Hessian at the initial guess geometry</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP NumFreq</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> ts_guess.xyz
+
+<span class="kw">$new_job</span>
+
+<span class="cmt"># Step 2: OptTS using the Hessian from step 1</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP OptTS Freq</span>
+<span class="kw">%geom</span>
+   <span class="kw2">InHess</span>     <span class="kw">Read</span>
+   <span class="kw2">InHessName</span> <span class="str">"job1.hess"</span>
+   <span class="kw2">Calc_Hess</span>  <span class="kw">true</span>          <span class="cmt"># recompute Hessian every 5 steps</span>
+   <span class="kw2">Recalc_Hess</span> <span class="num">5</span>
+<span class="kw">end</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span></code></pre>
+
+        <div class="caution">
+          <div class="note-title">OptTS is finicky</div>
+          <p>
+            OptTS only converges if the initial geometry sits in the same "valley" as the true
+            TS. The initial Hessian must have exactly one negative eigenvalue, and the
+            corresponding mode must point along the reaction coordinate. If you are unsure,
+            start from NEB-TS instead — it is much more robust.
+          </p>
+        </div>
+
+        <h2 id="scants">ScanTS — automate scan + TS search</h2>
+        <p>
+          When the reaction coordinate is a single bond length or angle, ScanTS is intuitive.
+          ORCA scans the surface and, after passing the maximum, automatically uses that point
+          as the initial guess for OptTS.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP ScanTS</span>
+
+<span class="kw">%geom</span> <span class="kw2">Scan</span>
+   <span class="kw">B</span> <span class="num">2 5</span> <span class="kw">=</span> <span class="num">2.5, 1.0, 16</span>      <span class="cmt"># scan the 2-5 bond from 2.5 → 1.0 Å</span>
+<span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> reactant.xyz</code></pre>
+
+        <p>
+          The moment the scan crosses its maximum, ORCA switches to OptTS automatically. The
+          manual suggests computing a Hessian once at an intermediate scan point for better
+          accuracy. To make ORCA finish the full scan before switching, add
+          <code>fullScan true</code>.
+        </p>
+
+        <h2 id="irc">IRC — validating the transition state</h2>
+        <p>
+          Once you have a TS, you must verify <strong>that it actually connects the intended
+          reactant and product</strong>. The Intrinsic Reaction Coordinate (IRC) traces the
+          steepest-descent path from the TS in both directions; it should arrive at the
+          reactant on one side and the product on the other.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP IRC</span>
+
+<span class="kw">%irc</span>
+   <span class="kw2">MaxIter</span>   <span class="num">100</span>
+   <span class="kw2">PrintLevel</span> <span class="num">1</span>
+   <span class="kw2">Direction</span>  <span class="kw">both</span>    <span class="cmt"># forward / backward / both</span>
+   <span class="kw2">InitHess</span>   <span class="kw">read</span>
+   <span class="kw2">Hess_Filename</span> <span class="str">"ts.hess"</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> ts.xyz</code></pre>
+
+        <p>
+          IRC can be chained with <code>! OptTS</code>, <code>! ScanTS</code>,
+          <code>! NEB-TS</code>, <code>! AnFreq</code>, <code>! NumFreq</code>, etc., so you
+          can do "TS search → frequencies → IRC" in a single input file:
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># NEB-TS → AnFreq → IRC all in one go</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP NEB-TS AnFreq IRC</span>
+
+<span class="kw">%neb</span>
+   <span class="kw2">neb_end_xyzfile</span> <span class="str">"product.xyz"</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> reactant.xyz</code></pre>
+
+        <h2 id="workflow">Recommended workflow</h2>
+        <p>For a new reaction TS, this flow is recommended:</p>
+
+        <ol>
+          <li><strong>Optimise reactant and product</strong> with a cheap method (e.g. r2SCAN-3c or XTB).</li>
+          <li><strong>XTB-NEB-TS</strong> to obtain a rough TS quickly (usually a few minutes).</li>
+          <li><strong>DFT OptTS</strong> seeded with that geometry; include the Hessian.</li>
+          <li><strong>AnFreq</strong> to confirm exactly one imaginary mode.</li>
+          <li><strong>IRC</strong> in both directions to confirm the connection to reactant and product.</li>
+          <li><strong>Single-point refinement</strong>: if needed, polish the final energy with DLPNO-CCSD(T)/cc-pVTZ or similar.</li>
+        </ol>
+
+        <p>
+          Following this workflow significantly improves the reliability of the result.
+          Skipping IRC in particular risks publishing a "looks-like-a-TS-but-connects-the-wrong-reaction"
+          false positive.
+        </p>
+
+        <div class="note">
+          <div class="note-title">Computing the activation free energy ΔG<sup>‡</sup></div>
+          <p>
+            The activation free energy of a reaction is:
+          </p>
+          <p>
+            ΔG<sup>‡</sup> = G(TS) − G(reactant)
+          </p>
+          <p>
+            where G is the "Final Gibbs free energy" from the frequency calculation. Both
+            states must be evaluated at the same method, basis, and temperature for the
+            comparison to be meaningful.
+          </p>
+        </div>
       </article>
 
-<nav class="page-nav"><a class="prev" href="frequencies.html"><div class="page-nav-label">← previous</div><div class="page-nav-title">Frequencies</div></a><a class="next" href="excited-states.html"><div class="page-nav-label">next →</div><div class="page-nav-title">Excited states · TD-DFT</div></a></nav>
+      <nav class="page-nav">
+        <a class="prev" href="frequencies.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Frequencies</div>
+        </a>
+        <a class="next" href="excited-states.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Excited states · TD-DFT</div>
+        </a>
+      </nav>
     </main>
   </div>
   <script src="../assets/js/main.js"></script>

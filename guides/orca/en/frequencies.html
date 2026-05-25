@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Frequencies · Thermochemistry · ORCA User Guide</title>
-  <meta name="description" content="Analytical vs numerical frequencies, and Gibbs free energy from the output." />
+  <title>Frequencies · ORCA User Guide</title>
+  <meta name="description" content="Verify that an optimised geometry is really a minimum and pick up Gibbs free energy in the same job." />
   <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
@@ -67,30 +67,258 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 06 · COMMON CALCULATIONS</div>
         <h1 class="page-title">Frequencies · Thermochemistry</h1>
-        <p class="page-lede">Analytical vs numerical frequencies, and Gibbs free energy from the output.</p>
+        <p class="page-lede">Verify that the optimised geometry really is a minimum, and pick up Gibbs free energy in the same job.</p>
       </header>
 
       <article class="content">
-        <div class="note">
-          <div class="note-title">Translation in progress</div>
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#why">Why compute frequencies</a></li>
+            <li><a href="#basic">Basic usage — AnFreq vs NumFreq</a></li>
+            <li><a href="#combined">Combined with optimisation</a></li>
+            <li><a href="#interpret">Reading the output</a></li>
+            <li><a href="#imaginary">Handling imaginary frequencies</a></li>
+            <li><a href="#thermo">Thermochemistry — Gibbs free energy</a></li>
+            <li><a href="#ir-raman">IR · Raman spectra</a></li>
+            <li><a href="#options">Useful options</a></li>
+          </ul>
+        </div>
+
+        <h2 id="why">Why compute frequencies</h2>
+        <p>A frequency job after an optimisation serves three purposes:</p>
+
+        <ol>
+          <li><strong>Characterise the stationary point</strong>: all real frequencies → stable minimum; exactly one imaginary frequency → transition state.</li>
+          <li><strong>Provide thermochemical corrections</strong>: zero-point energy (ZPE), thermal corrections, entropy → Gibbs free energy G.</li>
+          <li><strong>Predict IR / Raman spectra</strong>: vibrational spectra directly comparable to experiment.</li>
+        </ol>
+
+        <h2 id="basic">Basic usage — AnFreq vs NumFreq</h2>
+        <p>Two flavours are available:</p>
+
+        <table>
+          <thead>
+            <tr><th>Keyword</th><th>Mode</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Freq</code> or <code>AnFreq</code></td><td>Analytical derivatives</td><td>Fast and accurate. Supported for HF, DFT, MP2, CASSCF.</td></tr>
+            <tr><td><code>NumFreq</code></td><td>Numerical derivatives</td><td>Available for every method. Performs 6 × N<sub>atom</sub> gradient evaluations.</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="orca"><code><span class="cmt"># Analytical frequencies (preferred when available)</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP Freq</span>
+
+<span class="cmt"># Numerical frequencies (when analytical derivatives are unavailable, e.g. CCSD(T))</span>
+<span class="kw">!</span> <span class="kw2">CCSD(T) cc-pVDZ NumFreq</span></code></pre>
+
+        <div class="warning">
+          <div class="note-title">Frequencies are only meaningful at a stationary point</div>
           <p>
-            The English version of this chapter is being written. In the meantime, the
-            corresponding Korean chapter is fully available — please follow the link below
-            or use the <strong>KO</strong> toggle in the top-left of the sidebar.
+            A frequency calculation only makes sense at a <strong>stationary point (zero
+            gradient)</strong>. If you compute frequencies on an un-optimised geometry the
+            translational and rotational modes acquire non-zero values, and every other mode is
+            contaminated as a result. Always optimise first with the same method and basis set.
           </p>
+        </div>
+
+        <h2 id="combined">Combined with optimisation</h2>
+        <p>The most common pattern is to chain <code>Opt</code> and <code>Freq</code> on the same keyword line:</p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightOpt Freq</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <p>
+          Once the optimisation converges, ORCA automatically launches the frequency calculation
+          at the same level. If you find an imaginary frequency, <strong>distorting the
+          geometry along that mode</strong> and re-optimising usually resolves it.
+        </p>
+
+        <h2 id="interpret">Reading the output</h2>
+        <p>After a frequency calculation the output contains a table like this:</p>
+
+        <pre data-lang="output"><code>-----------------------
+VIBRATIONAL FREQUENCIES
+-----------------------
+
+Scaling factor for frequencies =  1.000000000  (already applied!)
+
+   0:         0.00 cm**-1
+   1:         0.00 cm**-1
+   2:         0.00 cm**-1
+   3:         0.00 cm**-1
+   4:         0.00 cm**-1
+   5:         0.00 cm**-1
+   6:      1659.34 cm**-1
+   7:      3805.21 cm**-1
+   8:      3914.47 cm**-1</code></pre>
+
+        <p>
+          The first six entries (five for linear molecules) are the translational and
+          rotational modes — they should always appear near zero. The remaining entries are the
+          true vibrational modes. In the example above water has three modes: the bend (1659),
+          symmetric stretch (3805) and antisymmetric stretch (3914).
+        </p>
+
+        <h3>Visualising modes — normal coordinates</h3>
+        <p>Displacement vectors for each mode appear in the <code>NORMAL MODES</code> section:</p>
+
+        <pre data-lang="output"><code>------------
+NORMAL MODES
+------------
+                  0          1          2          3          4
+      0    0.000000   0.000000  -0.000000   0.000000  -0.000000
+      1    0.000000   0.000000   0.000000  -0.000000   0.000000
+      ...</code></pre>
+
+        <p>
+          To inspect normal coordinates intuitively, use the <code>orca_pltvib</code> utility to
+          generate a trajectory of the vibration:
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt"># Extract a trajectory for mode 6 (writes an XYZ file)</span>
+orca_pltvib mol.hess 6</code></pre>
+
+        <h2 id="imaginary">Handling imaginary frequencies</h2>
+        <p>Imaginary frequencies appear as negative numbers in the output:</p>
+
+        <pre data-lang="output"><code>   6:      -456.78 cm**-1   ***imaginary mode***
+   7:      1234.56 cm**-1
+   8:      ...</code></pre>
+
+        <p>If you did not intend to find a transition state, this is how to resolve it:</p>
+
+        <ol>
+          <li>Displace every atom slightly along the imaginary mode's normal coordinate (say ± 0.1 Å). Extracting the first amplitude frame from <code>orca_pltvib</code> is the easiest way.</li>
+          <li>Re-optimise from this new geometry. Consider tightening to <code>VeryTightOpt</code>.</li>
+          <li>Re-run the frequencies and confirm all modes are real.</li>
+        </ol>
+
+        <div class="tip">
+          <div class="note-title">Very small negative frequencies</div>
           <p>
-            → <a href="../ko/frequencies.html">Read this chapter in Korean (한국어)</a>
+            Frequencies of ± 10 cm⁻¹ or so are usually numerical noise from the integration
+            grid or the SCF threshold. Tightening to <code>DefGrid3 VeryTightSCF</code> and
+            re-running often removes them.
+          </p>
+        </div>
+
+        <h2 id="thermo">Thermochemistry — Gibbs free energy</h2>
+        <p>
+          Once the frequencies are in, ORCA automatically prints the thermochemistry. The
+          default reference conditions are 298.15 K and 1 atm:
+        </p>
+
+        <pre data-lang="output"><code>-------------------------
+THERMOCHEMISTRY AT 298.15K
+-------------------------
+
+Temperature         ... 298.15 K
+Pressure            ... 1.00 atm
+Total Mass          ... 18.01 AMU
+
+Zero point energy                ...     0.02143521 Eh      13.45 kcal/mol
+Thermal vibrational correction   ...     0.00010256 Eh       0.06 kcal/mol
+Thermal rotational correction    ...     0.00141572 Eh       0.89 kcal/mol
+Thermal translational correction ...     0.00141572 Eh       0.89 kcal/mol
+-------------------------------------------------
+Total thermal energy                  -76.39541321 Eh
+Total enthalpy                        -76.39447892 Eh
+Final Gibbs free energy               -76.42157345 Eh
+-------------------------------------------------
+G-E(el)                            ...   0.00219978 Eh       1.38 kcal/mol</code></pre>
+
+        <p>The key entries are:</p>
+
+        <table>
+          <thead><tr><th>Item</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Zero point energy</td><td>The vibrational energy that remains at 0 K.</td></tr>
+            <tr><td>Total thermal energy</td><td>U = E<sub>el</sub> + ZPE + thermal corrections.</td></tr>
+            <tr><td>Total enthalpy</td><td>H = U + pV.</td></tr>
+            <tr><td>Final Gibbs free energy</td><td>G = H − TS. <strong>The number you usually want for reaction free energies</strong>.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Changing T and p</h3>
+        <pre data-lang="orca"><code><span class="kw">%freq</span>
+   <span class="kw2">Temp</span>     <span class="num">373.15</span>   <span class="cmt"># 100 °C</span>
+   <span class="kw2">Pressure</span> <span class="num">1.0</span>      <span class="cmt"># atm</span>
+<span class="kw">end</span></code></pre>
+
+        <div class="note">
+          <div class="note-title">Low-frequency correction and quasi-RRHO</div>
+          <p>
+            The default RRHO (rigid-rotor harmonic oscillator) model over-estimates the entropy
+            of low-frequency modes (&lt; 100 cm⁻¹). Applying Grimme's quasi-RRHO correction
+            gives noticeably better free energies. Enable with
+            <code>%freq QuasiRRHO true CutOffFreq 35 end</code>. The improvement is
+            particularly visible for conformer searches and floppy molecules.
+          </p>
+        </div>
+
+        <h2 id="ir-raman">IR · Raman spectra</h2>
+        <p>
+          IR intensities are always printed alongside the frequencies. Raman intensities require
+          either <code>! NumFreq</code> or a polarisability calculation in the same job.
+        </p>
+
+        <p>To turn the printed table into a spectrum, use the <code>orca_mapspc</code> utility:</p>
+
+        <pre data-lang="bash"><code><span class="cmt"># IR spectrum (.dat file)</span>
+orca_mapspc mol.out ir -w25
+
+<span class="cmt"># Raman spectrum</span>
+orca_mapspc mol.out raman -w50
+
+<span class="cmt"># Open mol.out.ir.dat or mol.out.raman.dat in gnuplot, matplotlib, …</span></code></pre>
+
+        <p>
+          The <code>-w</code> flag sets the Lorentzian / Gaussian line width in cm⁻¹. Running
+          <code>orca_mapspc</code> with no arguments prints the full option list.
+        </p>
+
+        <h2 id="options">Useful options</h2>
+
+        <pre data-lang="orca"><code><span class="kw">%freq</span>
+   <span class="kw2">CentralDiff</span>   <span class="kw">true</span>     <span class="cmt"># central differences in NumFreq (default: forward). More accurate, 2× slower.</span>
+   <span class="kw2">Increment</span>     <span class="num">0.005</span>    <span class="cmt"># displacement size (bohr). Default 0.005.</span>
+   <span class="kw2">Restart</span>       <span class="kw">true</span>     <span class="cmt"># resume an interrupted NumFreq</span>
+   <span class="kw2">ProjectTR</span>     <span class="kw">true</span>     <span class="cmt"># project out translational / rotational modes (default on)</span>
+   <span class="kw2">Mass2016</span>      <span class="kw">true</span>     <span class="cmt"># IUPAC 2016 atomic masses</span>
+   <span class="kw2">QuasiRRHO</span>     <span class="kw">true</span>     <span class="cmt"># quasi-RRHO entropy correction</span>
+   <span class="kw2">CutOffFreq</span>    <span class="num">35.0</span>     <span class="cmt"># quasi-RRHO cutoff (cm^-1), default 35</span>
+<span class="kw">end</span></code></pre>
+
+        <div class="caution">
+          <div class="note-title">Scaling factors</div>
+          <p>
+            Harmonic frequencies from DFT are typically 5–10 % too high compared to
+            experiment. When comparing with literature, multiply by the functional-specific
+            recommended scaling factor — e.g. ~0.961 for B3LYP/6-31G(d) and ~0.965 for
+            B3LYP/def2-TZVP. A comprehensive table lives at NIST CCCBDB
+            (<a href="https://cccbdb.nist.gov">cccbdb.nist.gov</a>).
           </p>
         </div>
 
         <p>
-          If you would like to be notified when the English translation lands, please open
-          an issue at
-          <a href="https://github.com/dhwan0112/dhk.github.io/issues">dhwan0112/dhk.github.io</a>.
+          With frequencies for both minima and transition states in hand, the next step is to
+          connect them.
         </p>
       </article>
 
-<nav class="page-nav"><a class="prev" href="geometry-optimization.html"><div class="page-nav-label">← previous</div><div class="page-nav-title">Geometry optimisation</div></a><a class="next" href="transition-states.html"><div class="page-nav-label">next →</div><div class="page-nav-title">Transition states · NEB</div></a></nav>
+      <nav class="page-nav">
+        <a class="prev" href="geometry-optimization.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Geometry optimisation</div>
+        </a>
+        <a class="next" href="transition-states.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Transition states · NEB</div>
+        </a>
+      </nav>
     </main>
   </div>
   <script src="../assets/js/main.js"></script>
