@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Excited states · TD-DFT · ORCA User Guide</title>
-  <meta name="description" content="UV-Vis absorption spectra and the basics of fluorescence calculations." />
+  <meta name="description" content="UV-Vis absorption spectra and fluorescence — the starting point for photophysics and photochemistry with ORCA." />
   <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
@@ -67,30 +67,260 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 08 · COMMON CALCULATIONS</div>
         <h1 class="page-title">Excited states · TD-DFT</h1>
-        <p class="page-lede">UV-Vis absorption spectra and the basics of fluorescence calculations.</p>
+        <p class="page-lede">UV-Vis absorption spectra and fluorescence — the starting point for photophysics and photochemistry.</p>
       </header>
 
       <article class="content">
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#methods">Excited-state methods — TDA · TD-DFT · CIS</a></li>
+            <li><a href="#basic">Basic usage</a></li>
+            <li><a href="#interpret">Reading the output</a></li>
+            <li><a href="#triplets-sf">Triplets and spin-flip</a></li>
+            <li><a href="#opt-excited">Excited-state optimisation — fluorescence</a></li>
+            <li><a href="#nacme">Non-adiabatic couplings and ETF</a></li>
+            <li><a href="#xray">X-ray absorption spectra</a></li>
+            <li><a href="#tips">Functional choice and pitfalls</a></li>
+          </ul>
+        </div>
+
+        <h2 id="methods">Excited-state methods — TDA · TD-DFT · CIS</h2>
+        <p>
+          ORCA supports several excited-state methods. The single-reference flavours are listed
+          below; for multi-reference methods (CASSCF, NEVPT2, MRCI) please refer to the
+          corresponding chapter of the manual.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Keyword · block</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>TDA (Tamm–Dancoff)</td><td><code>%tddft TDA true</code></td><td>Simplified TD-DFT. Robust and slightly faster.</td></tr>
+            <tr><td>TD-DFT</td><td><code>%tddft</code> (TDA false)</td><td>Full TD-DFT. Better oscillator strengths.</td></tr>
+            <tr><td>CIS</td><td>HF reference + <code>%cis</code></td><td>HF-based single-excitation CI.</td></tr>
+            <tr><td>CIS(D)</td><td><code>%mp2 RI true end</code> + CIS</td><td>CIS with a perturbative correction. Improved accuracy.</td></tr>
+            <tr><td>SF-TDA</td><td><code>%tddft SF true</code></td><td>Spin-flip TDA. For diradicals and crossings.</td></tr>
+            <tr><td>ROCIS</td><td><code>%rocis</code></td><td>Restricted open-shell CIS. Transition-metal absorption.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="basic">Basic usage</h2>
+        <p>
+          At its simplest, only the number of excited states needs to be specified. The example
+          below computes the first 10 excited states of formaldehyde, which includes its
+          well-known n → π* transition.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP RIJCOSX def2/J</span>
+
+<span class="kw">%tddft</span>
+   <span class="kw2">NRoots</span>    <span class="num">10</span>          <span class="cmt"># first 10 excited states</span>
+   <span class="kw2">MaxDim</span>    <span class="num">100</span>         <span class="cmt"># Davidson subspace size</span>
+   <span class="kw2">Triplets</span>  <span class="kw">true</span>        <span class="cmt"># triplets too (closed-shell reference only)</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">int</span> <span class="num">0 1</span>
+  C 0 0 0   0.00     0.0      0.00
+  O 1 0 0   1.20     0.0      0.00
+  H 1 2 0   1.08   120.0      0.00
+  H 1 2 3   1.08   120.0    180.00
+<span class="kw">*</span></code></pre>
+
+        <p>
+          Set <code>NRoots</code> generously so that the experimental region of interest is
+          fully covered. Dark states with small oscillator strengths often sit between bright
+          ones; if you set NRoots too low you may miss the experimentally observed band.
+        </p>
+
+        <h2 id="interpret">Reading the output</h2>
+        <p>A finished TD-DFT job prints a table like:</p>
+
+        <pre data-lang="output"><code>-----------------------------
+TD-DFT/TDA EXCITED STATES (SINGLETS)
+-----------------------------
+
+STATE  1:  E=   0.155436 au      4.230 eV    34121.5 cm**-1 &lt;S**2&gt; =   0.000000
+     8a -&gt;   9a  :     0.984123  (c=  0.99202)
+     ...
+
+STATE  2:  E=   0.305212 au      8.305 eV    66987.2 cm**-1 &lt;S**2&gt; =   0.000000
+     ...
+
+-----------------------------------------------------------------------------
+         ABSORPTION SPECTRUM VIA TRANSITION ELECTRIC DIPOLE MOMENTS
+-----------------------------------------------------------------------------
+States    Energy   Wavelength   fosc     T2         TX        TY        TZ
+        (cm-1)      (nm)                 (au**2)    (au)      (au)      (au)
+-----------------------------------------------------------------------------
+ 0-1A   34121.5   293.1     0.00000123   0.00012   0.00000   0.00000   0.00345
+ 0-2A   66987.2   149.3     0.45612345   2.21345  -1.48732   0.00000   0.00000
+ ...</code></pre>
+
+        <p>Column meanings:</p>
+
+        <ul>
+          <li><strong>STATE n</strong>: energy of the <em>n</em>-th excited state (au, eV, cm⁻¹).</li>
+          <li><strong>x → y</strong>: the dominant single excitation (e.g. HOMO → LUMO). Larger coefficient → more dominant.</li>
+          <li><strong>fosc</strong>: the oscillator strength. Above ~0.01 the absorption is large enough to be visible experimentally.</li>
+          <li><strong>Wavelength</strong>: the corresponding absorption wavelength (nm) — the number to compare with UV-Vis.</li>
+        </ul>
+
+        <p>
+          For formaldehyde, the first state (~290 nm) is the <em>n → π*</em> transition with a
+          very small oscillator strength (symmetry-forbidden); the second state typically
+          corresponds to what is observed experimentally.
+        </p>
+
+        <h2 id="triplets-sf">Triplets and spin-flip</h2>
+        <p>To also compute triplets from a closed-shell reference, add:</p>
+
+        <pre data-lang="orca"><code><span class="kw">%tddft</span>
+   <span class="kw2">NRoots</span>   <span class="num">10</span>
+   <span class="kw2">Triplets</span> <span class="kw">true</span>
+<span class="kw">end</span></code></pre>
+
+        <p>
+          Triplet excitation energies (<em>T<sub>1</sub></em>, <em>T<sub>2</sub></em>, …) are
+          essential for intersystem-crossing and phosphorescence analyses. For genuine
+          singlet-diradicals or surface crossings, use spin-flip TDA (SF-TDA). The reference
+          here must be <strong>high-spin (open-shell)</strong>.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Spin-flip TDA: start from a triplet reference</span>
+<span class="kw">!</span> <span class="kw2">UKS B3LYP D4 def2-SVP</span>
+
+<span class="kw">%tddft</span>
+   <span class="kw2">NRoots</span> <span class="num">5</span>
+   <span class="kw2">SF</span>     <span class="kw">true</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 3</span> mol.xyz</code></pre>
+
+        <h2 id="opt-excited">Excited-state optimisation — fluorescence</h2>
+        <p>
+          To predict a fluorescence wavelength, you must re-optimise the geometry on the excited
+          state. The excited-state energy evaluated at that geometry is close to the 0-0
+          transition energy of fluorescence.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Optimise the first excited state (S1)</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP Opt</span>
+
+<span class="kw">%tddft</span>
+   <span class="kw2">NRoots</span> <span class="num">3</span>
+   <span class="kw2">IRoot</span>  <span class="num">1</span>         <span class="cmt"># which excited state to optimise</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> ground_opt.xyz</code></pre>
+
+        <p>
+          <code>IRoot n</code> means "compute the gradient of the <em>n</em>-th excited state
+          and optimise it". Appending <code>! Freq</code> afterwards gives excited-state
+          frequencies as well. With zero-point correction included, the 0-0 transition energy
+          obtained this way can be compared directly to a measured emission spectrum.
+        </p>
+
+        <h2 id="nacme">Non-adiabatic couplings and ETF</h2>
+        <p>
+          Photochemical dynamics (e.g. surface hopping) require non-adiabatic coupling
+          matrix elements (NACMEs) between excited states. ORCA 6 computes these analytically,
+          and also supports the electronic translational factor (ETF) correction.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%tddft</span>
+   <span class="kw2">NRoots</span>      <span class="num">5</span>
+   <span class="kw2">IRoot</span>       <span class="num">1</span>
+   <span class="kw2">NACME</span>       <span class="kw">true</span>      <span class="cmt"># enable NACME</span>
+   <span class="kw2">ETF</span>         <span class="kw">true</span>      <span class="cmt"># ETF correction</span>
+<span class="kw">end</span></code></pre>
+
+        <h2 id="xray">X-ray absorption spectra</h2>
+        <p>
+          The pre-edge region of a K-edge X-ray absorption spectrum can be modelled, both
+          qualitatively and quantitatively, with TD-DFT. The manual uses the Ti K-edge of
+          TiCl<sub>4</sub> as an illustration:
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">BP86 ZORA ZORA-def2-TZVP(-f) SARC/J TightSCF</span>
+
+<span class="kw">%tddft</span>
+   <span class="kw2">OrbWin[0]</span> <span class="kw">=</span> <span class="num">0, 0, -1, -1</span>   <span class="cmt"># only orbital 0 (Ti 1s) as donor</span>
+   <span class="kw2">NRoots</span>     <span class="num">25</span>
+   <span class="kw2">DoHigherMoments</span>      <span class="kw">true</span>   <span class="cmt"># include quadrupole intensities</span>
+   <span class="kw2">DoFullSemiclassical</span>  <span class="kw">true</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">int</span> <span class="num">0 1</span>
+  Ti 0 0 0   0.00       0.00     0.00
+  Cl 1 2 3   2.15       0.00     0.00
+  Cl 1 2 3   2.15     109.47     0.00
+  Cl 1 2 3   2.15     109.47   120.00
+  Cl 1 2 3   2.15     109.47   240.00
+<span class="kw">*</span></code></pre>
+
+        <p>
+          The key is the <code>OrbWin[0]</code> restriction, which limits donor orbitals to
+          orbital 0 (the Ti 1s). Without that restriction every occupied orbital would
+          contribute, and you would need an impractically large NRoots. This type of restriction
+          is standard for K-edge modelling.
+        </p>
+
+        <h2 id="tips">Functional choice and pitfalls</h2>
+
         <div class="note">
-          <div class="note-title">Translation in progress</div>
+          <div class="note-title">The charge-transfer trap</div>
           <p>
-            The English version of this chapter is being written. In the meantime, the
-            corresponding Korean chapter is fully available — please follow the link below
-            or use the <strong>KO</strong> toggle in the top-left of the sidebar.
-          </p>
-          <p>
-            → <a href="../ko/excited-states.html">Read this chapter in Korean (한국어)</a>
+            Standard hybrid DFT functionals such as B3LYP and PBE0 significantly underestimate
+            the energies of charge-transfer excited states. For systems with charge-transfer
+            character (donor–acceptor molecules, large conjugated systems) use range-separated
+            hybrids like <code>CAM-B3LYP</code> or <code>ωB97X-V</code> instead.
           </p>
         </div>
 
+        <p>Typical recommendations by situation:</p>
+
+        <table>
+          <thead>
+            <tr><th>Situation</th><th>Recommended functional</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Local excitations (local π → π*)</td><td>B3LYP, PBE0, M06-2X</td></tr>
+            <tr><td>Charge transfer, large conjugation</td><td>CAM-B3LYP, ωB97X-V, ωB97M-V</td></tr>
+            <tr><td>Transition-metal d–d transitions</td><td>TPSSh, B3LYP, BP86</td></tr>
+            <tr><td>Rydberg states</td><td>Range-separated + diffuse basis (def2-TZVPD, …)</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Plotting the absorption spectrum</h3>
         <p>
-          If you would like to be notified when the English translation lands, please open
-          an issue at
-          <a href="https://github.com/dhwan0112/dhk.github.io/issues">dhwan0112/dhk.github.io</a>.
+          Use <code>orca_mapspc</code> to turn the printed table into a spectrum. The example
+          below covers 4890–14915 cm⁻¹ (~670–2040 nm) with a Gaussian line width of 1.3:
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt"># Standard absorption spectrum</span>
+orca_mapspc mol.out ABSQ -eV -x04890 -x14915 -w1.3
+
+<span class="cmt"># Extended spectrum including quadrupole and magnetic-dipole contributions</span>
+orca_mapspc mol.out ABSOI -eV -x04890 -x14915 -w1.3</code></pre>
+
+        <p>
+          The resulting <code>.dat</code> file can be visualised in gnuplot, matplotlib, etc.,
+          and overlaid directly with experimental spectra.
         </p>
       </article>
 
-<nav class="page-nav"><a class="prev" href="transition-states.html"><div class="page-nav-label">← previous</div><div class="page-nav-title">Transition states · NEB</div></a><a class="next" href="solvation.html"><div class="page-nav-label">next →</div><div class="page-nav-title">Solvation</div></a></nav>
+      <nav class="page-nav">
+        <a class="prev" href="transition-states.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Transition states · NEB</div>
+        </a>
+        <a class="next" href="solvation.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Solvation</div>
+        </a>
+      </nav>
     </main>
   </div>
   <script src="../assets/js/main.js"></script>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DLPNO-CCSD(T) · ORCA User Guide</title>
-  <meta name="description" content="The gold-standard correlation method, now affordable for large molecules." />
+  <meta name="description" content="The gold-standard correlation method, now affordable for large molecules — chemical accuracy at a reasonable cost." />
   <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
@@ -65,32 +65,235 @@
 
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 10 · METHODS & MODELS</div>
+        <div class="page-eyebrow">CHAPTER 10 · METHODS &amp; MODELS</div>
         <h1 class="page-title">DLPNO-CCSD(T)</h1>
-        <p class="page-lede">The gold-standard correlation method, now affordable for large molecules.</p>
+        <p class="page-lede">The gold-standard correlation method, now affordable for large molecules — chemical accuracy at a reasonable cost.</p>
       </header>
 
       <article class="content">
-        <div class="note">
-          <div class="note-title">Translation in progress</div>
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#why">Why DLPNO-CCSD(T)</a></li>
+            <li><a href="#basic">Basic usage</a></li>
+            <li><a href="#thresholds">Precision tiers — Loose / Normal / Tight</a></li>
+            <li><a href="#cbs">Complete basis-set extrapolation (CBS)</a></li>
+            <li><a href="#f12">F12 — fast approach to the basis-set limit</a></li>
+            <li><a href="#open-shell">Open shell — UHF reference</a></li>
+            <li><a href="#workflow">Recommended workflow</a></li>
+          </ul>
+        </div>
+
+        <h2 id="why">Why DLPNO-CCSD(T)</h2>
+        <p>
+          CCSD(T) is the "gold standard" of single-reference quantum chemistry. For typical
+          closed-shell species it reproduces relative energies to within ±1 kcal/mol — the
+          so-called chemical accuracy. The catch is that canonical CCSD(T) scales as
+          O(N<sup>7</sup>), which makes it prohibitively expensive for systems beyond ~20
+          atoms.
+        </p>
+
+        <p>
+          The DLPNO (Domain-based Local Pair Natural Orbital) approximation dramatically
+          reduces this cost. Using local orbitals and domain-based pair natural orbitals it
+          achieves asymptotically linear scaling while recovering about 99.9 % of the canonical
+          CCSD(T) correlation energy. The manual summarises the situation simply: "if
+          DLPNO-MP2 is feasible, DLPNO-CCSD(T) is feasible too." In practice this puts
+          molecules of several hundred atoms within reach.
+        </p>
+
+        <h2 id="basic">Basic usage</h2>
+        <p>Add <code>DLPNO-CCSD(T)</code> to the keyword line together with an auxiliary basis:</p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Closed-shell single point — a typical precision energy</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) cc-pVTZ cc-pVTZ/C TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <p>
+          The <strong>auxiliary basis (the <code>/C</code> suffix)</strong> follows the same
+          convention as RI-MP2. DLPNO-CCSD(T) calculations require RI integrals, so the
+          auxiliary basis is mandatory.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Main basis</th><th>Recommended auxiliary basis</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>cc-pVDZ</code></td><td><code>cc-pVDZ/C</code></td></tr>
+            <tr><td><code>cc-pVTZ</code></td><td><code>cc-pVTZ/C</code></td></tr>
+            <tr><td><code>cc-pVQZ</code></td><td><code>cc-pVQZ/C</code></td></tr>
+            <tr><td><code>def2-SVP</code></td><td><code>def2-SVP/C</code></td></tr>
+            <tr><td><code>def2-TZVP</code></td><td><code>def2-TZVP/C</code></td></tr>
+            <tr><td><code>def2-TZVPP</code></td><td><code>def2-TZVPP/C</code></td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="thresholds">Precision tiers — Loose / Normal / Tight</h2>
+        <p>DLPNO cutoff thresholds are consolidated into three tiers:</p>
+
+        <table>
+          <thead>
+            <tr><th>Keyword</th><th>Typical cost</th><th>Relative accuracy</th><th>Use case</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>LoosePNO</code></td><td>0.5×</td><td>~95–98 %</td><td>Large-scale screening; quick exploration.</td></tr>
+            <tr><td><code>NormalPNO</code></td><td>1× (default)</td><td>~99.5 %</td><td>General research. <strong>The default recommendation</strong>.</td></tr>
+            <tr><td><code>TightPNO</code></td><td>~2–3×</td><td>~99.9 %</td><td>Benchmarks, precision energies prior to publication.</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="orca"><code><span class="cmt"># Benchmark-level accuracy</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) TightPNO cc-pVTZ cc-pVTZ/C TightSCF</span></code></pre>
+
+        <div class="tip">
+          <div class="note-title">Use the same threshold across compared species</div>
           <p>
-            The English version of this chapter is being written. In the meantime, the
-            corresponding Korean chapter is fully available — please follow the link below
-            or use the <strong>KO</strong> toggle in the top-left of the sidebar.
-          </p>
-          <p>
-            → <a href="../ko/coupled-cluster.html">Read this chapter in Korean (한국어)</a>
+            When comparing reaction energies or bond-dissociation energies, apply the same PNO
+            threshold to every species so that the errors cancel. Mixing NormalPNO on one and
+            TightPNO on another can introduce ~0.5 kcal/mol of inconsistency.
           </p>
         </div>
 
+        <h2 id="cbs">Complete basis-set extrapolation (CBS)</h2>
         <p>
-          If you would like to be notified when the English translation lands, please open
-          an issue at
-          <a href="https://github.com/dhwan0112/dhk.github.io/issues">dhwan0112/dhk.github.io</a>.
+          CCSD(T) is most accurate when extrapolated to the complete basis-set limit. ORCA's
+          <code>Extrapolate</code> keyword automates this:
         </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Auto-extrapolate DLPNO-CCSD(T) from cc-pVTZ and cc-pVQZ</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) Extrapolate(3/4, cc) TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <p>
+          Syntax: <code>Extrapolate(X/Y, basis)</code>. <code>X</code> and <code>Y</code> are
+          cardinal numbers (2 = DZ, 3 = TZ, 4 = QZ, 5 = 5Z); <code>basis</code> is the family
+          name — <code>cc</code> (Dunning), <code>def2</code>, <code>aug-cc</code>, etc.
+        </p>
+
+        <table>
+          <thead><tr><th>Input</th><th>What ORCA actually does</th></tr></thead>
+          <tbody>
+            <tr><td><code>Extrapolate(2/3, cc)</code></td><td>Two calculations (cc-pVDZ and cc-pVTZ), then extrapolate.</td></tr>
+            <tr><td><code>Extrapolate(3/4, cc)</code></td><td>cc-pVTZ + cc-pVQZ extrapolation. The most common choice.</td></tr>
+            <tr><td><code>Extrapolate(2/3, def2)</code></td><td>def2-SVP + def2-TZVPP.</td></tr>
+            <tr><td><code>Extrapolate(3, cc)</code></td><td>Three calculations (cc-pVDZ, cc-pVTZ, cc-pVQZ) + two pairwise extrapolations.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>EP2 · EP3 — efficient extrapolation for larger bases</h3>
+        <p>
+          Running CCSD(T) directly with a large basis (e.g. cc-pV5Z) is often too expensive,
+          but MP2 may be feasible. EP2 / EP3 combine "large-basis MP2 + small-basis
+          (CCSD(T) − MP2) correction" to keep accuracy while controlling cost.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># EP2: small basis for CC, large basis for MP2 extrapolation</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) ExtrapolateEP2(2/3, cc) TightSCF</span></code></pre>
+
+        <h2 id="f12">F12 — fast approach to the basis-set limit</h2>
+        <p>
+          F12 explicit-correlation methods reach near-CBS accuracy with a smaller basis.
+          DLPNO-CCSD(T)-F12 combines the two ideas:
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># DLPNO-CCSD(T)-F12 with approach D — F12 replaces the large-basis effect</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T)-F12D cc-pVDZ-F12 cc-pVDZ-F12-CABS cc-pVDZ-F12/C TightSCF</span></code></pre>
+
+        <p>
+          F12 requires its dedicated basis plus a CABS (Complementary Auxiliary Basis Set);
+          don't forget the <code>-F12</code> and <code>-F12-CABS</code> suffixes. With F12, a
+          single cc-pVDZ-F12 calculation can match the accuracy of a cc-pVQZ / cc-pV5Z CBS
+          extrapolation.
+        </p>
+
+        <h2 id="open-shell">Open shell — UHF reference</h2>
+        <p>For radicals or multiplet systems, use a UHF reference ("UHF-DLPNO-CCSD(T)"):</p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">UHF DLPNO-CCSD(T) cc-pVTZ cc-pVTZ/C TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 2</span>          <span class="cmt"># doublet radical</span>
+  O   0.0   0.0   0.000
+  H   0.0   0.0   0.969
+<span class="kw">*</span></code></pre>
+
+        <div class="warning">
+          <div class="note-title">Check for spin contamination</div>
+          <p>
+            With a UHF reference, always check the SCF ⟨S²⟩ value. The ideal value for a
+            doublet (S = 1/2) is 0.75, but severe spin contamination can push it above 1.0,
+            in which case the subsequent CCSD(T) result is unreliable. If contamination is
+            severe, try an ROHF reference or move to a multi-reference treatment
+            (CASSCF / NEVPT2).
+          </p>
+        </div>
+
+        <h2 id="workflow">Recommended workflow</h2>
+        <p>
+          DLPNO-CCSD(T) is usually used as a single-point method. Analytical gradients are
+          available but expensive, so the standard "composite" workflow is to optimise with a
+          cheap method (DFT) and refine the energy with CCSD(T) on top.
+        </p>
+
+        <ol>
+          <li><strong>Optimise + frequencies</strong>: B3LYP-D4/def2-TZVP or r2SCAN-3c. Obtain the thermal correction ΔG<sub>therm</sub>.</li>
+          <li><strong>DLPNO-CCSD(T) single point</strong>: CBS extrapolation or F12 on the optimised geometry — high-precision electronic energy E<sub>elec</sub><sup>CC</sup>.</li>
+          <li><strong>Solvation correction</strong>: if needed, ΔG<sub>solv</sub> from (DFT/SMD) − (DFT/gas).</li>
+          <li><strong>Final free energy</strong>: G<sub>final</sub> = E<sub>elec</sub><sup>CC</sup> + ΔG<sub>therm</sub><sup>DFT</sup> + ΔG<sub>solv</sub>.</li>
+        </ol>
+
+        <p>An example input file for this flow:</p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Step 1: geometry optimisation + frequencies (DFT)</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightOpt Freq</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz
+
+<span class="kw">$new_job</span>
+
+<span class="cmt"># Step 2: precision DLPNO-CCSD(T) single point (CBS extrapolation)</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) Extrapolate(3/4, cc) TightSCF</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span>
+
+<span class="kw">$new_job</span>
+
+<span class="cmt"># Step 3: solvation (SMD)</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J CPCM(water) TightSCF</span>
+<span class="kw">%cpcm</span>
+   <span class="kw2">SMD</span> <span class="kw">true</span>
+   <span class="kw2">SMDSolvent</span> <span class="str">"water"</span>
+<span class="kw">end</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span></code></pre>
+
+        <p>
+          When reporting reaction equilibria or free-energy barriers, this "DFT geometry +
+          CCSD(T) precision energy + SMD solvation" combination is the most standard recipe in
+          modern quantum chemistry and is routinely accepted by journals.
+        </p>
+
+        <div class="note">
+          <div class="note-title">DLPNO with other methods</div>
+          <p>
+            The DLPNO approximation is not limited to CCSD(T); it is also available for CCSD,
+            MP2, and B2PLYP (double hybrid). For example,
+            <code>! DLPNO-B2PLYP D4 def2-TZVP def2-TZVP/C</code> cuts double-hybrid cost
+            substantially — very useful for precision single points on medium-to-large
+            molecules.
+          </p>
+        </div>
       </article>
 
-<nav class="page-nav"><a class="prev" href="solvation.html"><div class="page-nav-label">← previous</div><div class="page-nav-title">Solvation</div></a><a class="next" href="basis-sets.html"><div class="page-nav-label">next →</div><div class="page-nav-title">Basis sets</div></a></nav>
+      <nav class="page-nav">
+        <a class="prev" href="solvation.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Solvation</div>
+        </a>
+        <a class="next" href="basis-sets.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Basis sets</div>
+        </a>
+      </nav>
     </main>
   </div>
   <script src="../assets/js/main.js"></script>
