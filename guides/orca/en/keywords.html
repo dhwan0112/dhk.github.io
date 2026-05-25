@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Keywords · ORCA User Guide</title>
-  <meta name="description" content="A short dictionary of the most common method, basis, and convergence keywords you will encounter." />
+  <meta name="description" content="A short dictionary of the most common ORCA method, basis, and convergence keywords." />
   <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
@@ -67,30 +67,300 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 03 · GETTING STARTED</div>
         <h1 class="page-title">Keywords</h1>
-        <p class="page-lede">A short dictionary of the most common method, basis, and convergence keywords you will encounter.</p>
+        <p class="page-lede">Methods, basis sets, algorithmic options — the keywords you will meet most often, gathered on a single page.</p>
       </header>
 
       <article class="content">
-        <div class="note">
-          <div class="note-title">Translation in progress</div>
-          <p>
-            The English version of this chapter is being written. In the meantime, the
-            corresponding Korean chapter is fully available — please follow the link below
-            or use the <strong>KO</strong> toggle in the top-left of the sidebar.
-          </p>
-          <p>
-            → <a href="../ko/keywords.html">Read this chapter in Korean (한국어)</a>
-          </p>
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#runtypes">Run types</a></li>
+            <li><a href="#hf-dft">Hartree–Fock · DFT methods</a></li>
+            <li><a href="#correlated">Correlated methods — MP2, CCSD(T), DLPNO</a></li>
+            <li><a href="#scf-options">SCF algorithm options</a></li>
+            <li><a href="#convergence">SCF · optimisation convergence thresholds</a></li>
+            <li><a href="#grids">DFT integration grids</a></li>
+            <li><a href="#relativity">Relativistic options</a></li>
+            <li><a href="#output-control">Output control</a></li>
+            <li><a href="#composite">Composite methods</a></li>
+          </ul>
         </div>
 
         <p>
-          If you would like to be notified when the English translation lands, please open
-          an issue at
-          <a href="https://github.com/dhwan0112/dhk.github.io/issues">dhwan0112/dhk.github.io</a>.
+          This page is a condensed reorganisation of the keyword tables in section 4.2 of the
+          ORCA manual. The complete list runs over a thousand pages, so we focus on the
+          keywords that show up most often in everyday research. For exhaustive coverage,
+          please refer to section 4.2 of the manual itself.
         </p>
+
+        <h2 id="runtypes">Run types</h2>
+        <p>If no run type is specified on the keyword line, the default is <code>Energy</code> (single point).</p>
+
+        <table>
+          <thead>
+            <tr><th>Keyword</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Energy</code> or <code>SP</code></td><td>Single-point energy (default).</td></tr>
+            <tr><td><code>Opt</code></td><td>Geometry optimisation (uses the redundant internal coordinates introduced in 2022).</td></tr>
+            <tr><td><code>COpt</code></td><td>Optimisation in Cartesian coordinates.</td></tr>
+            <tr><td><code>OptTS</code></td><td>Transition-state optimisation.</td></tr>
+            <tr><td><code>ScanTS</code></td><td>Relaxed scan followed by a TS search.</td></tr>
+            <tr><td><code>NEB</code>, <code>NEB-CI</code>, <code>NEB-TS</code></td><td>Nudged Elastic Band methods.</td></tr>
+            <tr><td><code>IRC</code></td><td>Intrinsic Reaction Coordinate tracing.</td></tr>
+            <tr><td><code>Freq</code> or <code>AnFreq</code></td><td>Analytical frequency calculation.</td></tr>
+            <tr><td><code>NumFreq</code></td><td>Numerical frequency calculation.</td></tr>
+            <tr><td><code>EnGrad</code></td><td>Energy + gradient only (writes extra files beyond the GBW).</td></tr>
+            <tr><td><code>NumGrad</code></td><td>Numerical gradient (when analytical derivatives are unavailable).</td></tr>
+            <tr><td><code>MD</code></td><td>Molecular dynamics.</td></tr>
+            <tr><td><code>GOAT</code></td><td>Global geometry optimisation + conformer search (ORCA 6).</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="hf-dft">Hartree–Fock · DFT methods</h2>
+
+        <h3>Hartree–Fock</h3>
+        <p>HF itself is a one-word keyword. You can specify closed- vs open-shell explicitly.</p>
+        <table>
+          <thead><tr><th>Keyword</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>HF</code></td><td>Hartree–Fock.</td></tr>
+            <tr><td><code>RHF</code> / <code>RKS</code></td><td>Restricted (closed-shell) SCF.</td></tr>
+            <tr><td><code>UHF</code> / <code>UKS</code></td><td>Unrestricted SCF.</td></tr>
+            <tr><td><code>ROHF</code> / <code>ROKS</code></td><td>Restricted open-shell SCF.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Representative DFT functionals</h3>
+        <p>The functionals below are the ones you will meet most often. A fuller list is covered in <a href="dft-functionals.html">12. DFT functionals</a>.</p>
+
+        <table>
+          <thead>
+            <tr><th>Family</th><th>Keyword</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td rowspan="3">GGA</td>
+                <td><code>BP86</code> · <code>BP</code></td><td>Becke88 exchange + Perdew86 correlation. Popular for transition metals.</td></tr>
+            <tr><td><code>BLYP</code></td><td>Becke88 + Lee–Yang–Parr.</td></tr>
+            <tr><td><code>PBE</code></td><td>Perdew–Burke–Ernzerhof. Solid general-purpose choice.</td></tr>
+
+            <tr><td rowspan="4">Hybrid GGA</td>
+                <td><code>B3LYP</code></td><td>20 % HF exchange. The most widely used reference.</td></tr>
+            <tr><td><code>B3LYP/G</code></td><td>Gaussian-style variant (VWN3 instead of VWN5).</td></tr>
+            <tr><td><code>PBE0</code></td><td>25 % HF exchange. Strong for NMR and EPR.</td></tr>
+            <tr><td><code>BHANDHLYP</code></td><td>50 % HF exchange.</td></tr>
+
+            <tr><td rowspan="3">meta-GGA</td>
+                <td><code>TPSS</code></td><td>Representative meta-GGA.</td></tr>
+            <tr><td><code>TPSSh</code></td><td>10 % HF-exchange hybrid.</td></tr>
+            <tr><td><code>M06L</code></td><td>Truhlar group's meta-GGA.</td></tr>
+
+            <tr><td rowspan="3">Hybrid meta-GGA</td>
+                <td><code>M06</code></td><td>27 % HF exchange.</td></tr>
+            <tr><td><code>M062X</code></td><td>54 % HF exchange. Good for reaction barriers.</td></tr>
+            <tr><td><code>r2SCANh</code> · <code>r2SCAN0</code></td><td>r²SCAN-based hybrids. Modern recommendation.</td></tr>
+
+            <tr><td rowspan="3">Range-separated</td>
+                <td><code>CAM-B3LYP</code></td><td>Good for excited states and charge transfer.</td></tr>
+            <tr><td><code>wB97X-V</code></td><td>Includes VV10 non-local correlation.</td></tr>
+            <tr><td><code>wB97M-V</code></td><td>meta-GGA + VV10. Among the best overall performers.</td></tr>
+
+            <tr><td rowspan="2">Double hybrid</td>
+                <td><code>B2PLYP</code></td><td>B88 + LYP + MP2 mix. High accuracy.</td></tr>
+            <tr><td><code>DSD-PBEP86</code></td><td>SCS-MP2-coupled double hybrid.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Dispersion corrections</h3>
+        <p>DFT does not capture dispersion well, so it is best to add a dispersion correction in almost every case.</p>
+
+        <table>
+          <thead><tr><th>Keyword</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>D4</code></td><td>Most recent D4 correction. The recommended choice in ORCA 6.</td></tr>
+            <tr><td><code>D3BJ</code></td><td>Grimme's D3 + Becke–Johnson damping. Very robust.</td></tr>
+            <tr><td><code>D3ZERO</code></td><td>D3 + zero damping.</td></tr>
+            <tr><td><code>D2</code></td><td>Older version — not recommended.</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="orca"><code><span class="cmt"># Using B3LYP with a dispersion correction is essentially standard</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP</span></code></pre>
+
+        <h2 id="correlated">Correlated methods — MP2, CCSD(T), DLPNO</h2>
+
+        <table>
+          <thead>
+            <tr><th>Keyword</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>MP2</code></td><td>Standard MP2.</td></tr>
+            <tr><td><code>RI-MP2</code> or <code>MP2RI</code></td><td>MP2 with the RI approximation. Requires an auxiliary basis.</td></tr>
+            <tr><td><code>SCS-MP2</code></td><td>Spin-Component Scaled MP2. Improved accuracy.</td></tr>
+            <tr><td><code>DLPNO-MP2</code></td><td>Local PNO-based MP2. Designed for large molecules.</td></tr>
+            <tr><td><code>CCSD</code></td><td>Coupled Cluster Singles &amp; Doubles.</td></tr>
+            <tr><td><code>CCSD(T)</code></td><td>Adds perturbative triples — the gold standard.</td></tr>
+            <tr><td><code>DLPNO-CCSD</code></td><td>Local PNO-based CCSD (closed-shell).</td></tr>
+            <tr><td><code>DLPNO-CCSD(T)</code></td><td>Local PNO-based CCSD(T). Full discussion in <a href="coupled-cluster.html">Chapter 10</a>.</td></tr>
+            <tr><td><code>F12-CCSD(T)</code> · <code>CCSD(T)-F12</code></td><td>Includes F12 explicit correlation. Approaches the basis-set limit rapidly.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>DLPNO thresholds</h3>
+        <p>The precision of a DLPNO calculation is controlled through three levels:</p>
+        <table>
+          <thead><tr><th>Keyword</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>LoosePNO</code></td><td>Fastest, lowest precision. Useful for exploration.</td></tr>
+            <tr><td><code>NormalPNO</code></td><td>The default. A balanced choice.</td></tr>
+            <tr><td><code>TightPNO</code></td><td>For benchmark / production accuracy. Roughly 2× slower.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="scf-options">SCF algorithm options</h2>
+        <table>
+          <thead><tr><th>Keyword</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>RIJCOSX</code></td><td>RI for Coulomb + Chain-of-Spheres exchange. The standard acceleration option for hybrid DFT.</td></tr>
+            <tr><td><code>RI-JK</code></td><td>Apply RI to both Coulomb and Exchange. Requires a JK auxiliary basis.</td></tr>
+            <tr><td><code>RI</code></td><td>Automatically active for pure GGAs. Uses Split-RI-J.</td></tr>
+            <tr><td><code>NORI</code></td><td>Disable RI.</td></tr>
+            <tr><td><code>DIRECT</code></td><td>Direct calculation of integrals (saves memory).</td></tr>
+            <tr><td><code>CONV</code></td><td>Store integrals on disk (I/O cost; required by some follow-up tasks).</td></tr>
+            <tr><td><code>DIIS</code> · <code>NODIIS</code></td><td>Enable / disable DIIS acceleration.</td></tr>
+            <tr><td><code>SOSCF</code></td><td>Second-order SCF. Often effective for closed-shell organics.</td></tr>
+            <tr><td><code>TRAH</code></td><td>Trust-Region Augmented Hessian SCF. The last resort for hard cases.</td></tr>
+            <tr><td><code>MOREAD</code></td><td>Read molecular orbitals from a previous calculation. Use with <code>%moinp "file.gbw"</code>.</td></tr>
+            <tr><td><code>NOITER</code></td><td>No SCF iterations — stop with the supplied orbitals.</td></tr>
+            <tr><td><code>UNO</code></td><td>Generate UHF natural orbitals. Recommended for unrestricted calculations.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="convergence">SCF · optimisation convergence thresholds</h2>
+        <table>
+          <thead><tr><th>Keyword</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>LooseSCF</code></td><td>Loose SCF convergence — fast but imprecise.</td></tr>
+            <tr><td><code>NormalSCF</code></td><td>Default.</td></tr>
+            <tr><td><code>TightSCF</code></td><td>Recommended for optimisations and frequencies.</td></tr>
+            <tr><td><code>VeryTightSCF</code></td><td>For precision energies, NMR, and other sensitive jobs.</td></tr>
+            <tr><td><code>ExtremeSCF</code></td><td>Benchmark only — very expensive.</td></tr>
+            <tr><td><code>LooseOpt</code></td><td>Loose optimisation convergence.</td></tr>
+            <tr><td><code>NormalOpt</code></td><td>Default optimisation convergence.</td></tr>
+            <tr><td><code>TightOpt</code></td><td>Tight optimisation — needed if you want clean frequencies afterwards.</td></tr>
+            <tr><td><code>VeryTightOpt</code></td><td>Very tight.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>SCF convergence strategy</h3>
+        <table>
+          <thead><tr><th>Keyword</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>EasyConv</code></td><td>Assume convergence will not be a problem — fastest option.</td></tr>
+            <tr><td><code>NormalConv</code></td><td>The general case.</td></tr>
+            <tr><td><code>SlowConv</code></td><td>Recommended for difficult cases such as transition-metal complexes.</td></tr>
+            <tr><td><code>VerySlowConv</code></td><td>For pathological convergence problems.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="grids">DFT integration grids</h2>
+        <p>The size of the DFT numerical-integration grid is set with the <code>DefGridN</code> keyword. The default is <code>DefGrid2</code>.</p>
+
+        <table>
+          <thead><tr><th>Keyword</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>DefGrid1</code></td><td>Coarsest grid — fast but less accurate.</td></tr>
+            <tr><td><code>DefGrid2</code></td><td>Default. Sufficient for everyday work.</td></tr>
+            <tr><td><code>DefGrid3</code></td><td>Large bases or precision work.</td></tr>
+            <tr><td><code>NoFinalGridX</code></td><td>Disable the final grid for COSX. Not recommended.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="relativity">Relativistic options</h2>
+        <p>Used when treating heavy elements — 5d / 6d transition metals, lanthanides, actinides.</p>
+
+        <table>
+          <thead><tr><th>Keyword</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>ZORA</code></td><td>Zero-Order Regular Approximation. Recommended for magnetic properties.</td></tr>
+            <tr><td><code>DKH</code> or <code>DKH2</code></td><td>Second-order Douglas–Kroll–Hess Hamiltonian. Recommended for electric properties.</td></tr>
+            <tr><td><code>X2C</code></td><td>Two-component transformation. The modern option.</td></tr>
+            <tr><td><code>SOMF(1X)</code></td><td>Spin–orbit coupling. Often paired with magnetic-property calculations.</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          Relativistic calculations must use a dedicated basis. For example,
+          <code>! ZORA ZORA-def2-TZVP SARC/J</code> pairs a ZORA-recontracted basis with the
+          SARC auxiliary basis.
+        </p>
+
+        <h2 id="output-control">Output control</h2>
+        <table>
+          <thead><tr><th>Keyword</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>NormalPrint</code></td><td>Standard output (default).</td></tr>
+            <tr><td><code>SmallPrint</code></td><td>Condensed output.</td></tr>
+            <tr><td><code>LargePrint</code></td><td>Verbose output — for debugging.</td></tr>
+            <tr><td><code>MiniPrint</code></td><td>Minimal output.</td></tr>
+            <tr><td><code>PrintMOs</code></td><td>Print molecular-orbital coefficients.</td></tr>
+            <tr><td><code>PrintBasis</code></td><td>Print the basis set actually used.</td></tr>
+            <tr><td><code>PrintGap</code></td><td>Print the HOMO–LUMO gap each SCF iteration.</td></tr>
+            <tr><td><code>XYZFile</code></td><td>Write coordinates as <code>.xyz</code>.</td></tr>
+            <tr><td><code>PDBFile</code></td><td>Write coordinates as <code>.pdb</code>.</td></tr>
+            <tr><td><code>NoPop</code></td><td>Disable all population analyses.</td></tr>
+            <tr><td><code>Mulliken</code>, <code>Loewdin</code>, <code>Mayer</code></td><td>Enable the corresponding population analysis.</td></tr>
+            <tr><td><code>NBO</code></td><td>NBO analysis interface (requires GENNBO).</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="composite">Composite methods</h2>
+        <p>
+          Composite methods bundle "functional + basis + corrections" into a single keyword.
+          ORCA 6 strongly recommends the "3c" family from the Grimme group: a single line is
+          enough — no separate basis line required.
+        </p>
+
+        <table>
+          <thead><tr><th>Keyword</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>HF-3c</code></td><td>HF-based. Extremely fast — useful for structure searches.</td></tr>
+            <tr><td><code>B97-3c</code></td><td>GGA + modified def2-mTZVP. Excellent for everyday optimisations.</td></tr>
+            <tr><td><code>r2SCAN-3c</code></td><td>meta-GGA + modified def2-mTZVPP. <strong>Best price/performance — strongly recommended</strong>.</td></tr>
+            <tr><td><code>PBEh-3c</code></td><td>Hybrid (42 % HF) + modified def2-mSVP.</td></tr>
+            <tr><td><code>wB97X-3c</code></td><td>Range-separated hybrid + valence double-zeta.</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="orca"><code><span class="cmt"># r2SCAN-3c — basis and corrections all applied automatically</span>
+<span class="kw">!</span> <span class="kw2">r2SCAN-3c Opt Freq</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <div class="tip">
+          <div class="note-title">Reach for r²SCAN-3c first</div>
+          <p>
+            For medium-sized molecules (50–200 atoms) — geometry optimisations and frequencies
+            — try <code>r2SCAN-3c</code> first. It reaches B3LYP/def2-TZVP-level accuracy in
+            less than half the time. When you then need a more precise single-point energy on
+            top, a workflow that adds <code>DLPNO-CCSD(T)/cc-pVTZ</code> on top of the
+            r²SCAN-3c geometry works very well.
+          </p>
+        </div>
+
+        <p>The next chapter shows, through worked examples, how these keywords actually combine in practice.</p>
       </article>
 
-<nav class="page-nav"><a class="prev" href="input-structure.html"><div class="page-nav-label">← previous</div><div class="page-nav-title">Input file structure</div></a><a class="next" href="single-point.html"><div class="page-nav-label">next →</div><div class="page-nav-title">Single point energy</div></a></nav>
+      <nav class="page-nav">
+        <a class="prev" href="input-structure.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Input file structure</div>
+        </a>
+        <a class="next" href="single-point.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Single point energy</div>
+        </a>
+      </nav>
     </main>
   </div>
   <script src="../assets/js/main.js"></script>

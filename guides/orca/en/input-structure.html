@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Input file structure · ORCA User Guide</title>
-  <meta name="description" content="Keyword lines, %-blocks and coordinate input — the syntax of an ORCA input file on a single page." />
+  <meta name="description" content="Keyword lines, %-blocks, and coordinate input — the three pieces that cover 90% of every ORCA input file." />
   <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
@@ -67,30 +67,317 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 02 · GETTING STARTED</div>
         <h1 class="page-title">Input file structure</h1>
-        <p class="page-lede">Keyword lines, %-blocks and coordinate input — the syntax of an ORCA input file on a single page.</p>
+        <p class="page-lede">Keyword lines, %-blocks, and coordinate input. Learn these three pieces and 90 % of every ORCA input file is already in hand.</p>
       </header>
 
       <article class="content">
-        <div class="note">
-          <div class="note-title">Translation in progress</div>
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#anatomy">Anatomy of an input file</a></li>
+            <li><a href="#keyword-line">The keyword line <code>!</code></a></li>
+            <li><a href="#blocks">Block input <code>%...end</code></a></li>
+            <li><a href="#coords">Coordinate input styles</a></li>
+            <li><a href="#external">Reading coordinates from an external file</a></li>
+            <li><a href="#special">Special atoms — dummies, point charges, isotopes</a></li>
+            <li><a href="#multi-job">Multiple jobs in one file — <code>$new_job</code></a></li>
+          </ul>
+        </div>
+
+        <h2 id="anatomy">Anatomy of an input file</h2>
+        <p>
+          An ORCA input file is free-format ASCII. Indentation is free, and ORCA is
+          case-insensitive (with the exception of file names). An input file consists, broadly,
+          of three pieces:
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># ① Keyword line — most of the setup fits on a single line</span>
+<span class="kw">!</span> <span class="kw2">B3LYP def2-TZVP TightSCF Opt</span>
+
+<span class="cmt"># ② %-block — for detailed options</span>
+<span class="kw">%scf</span>
+   <span class="kw2">MaxIter</span> <span class="num">200</span>
+<span class="kw">end</span>
+
+<span class="cmt"># ③ Coordinate input</span>
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  O   0.000   0.000   0.119
+  H   0.000   0.763  -0.477
+  H   0.000  -0.763  -0.477
+<span class="kw">*</span></code></pre>
+
+        <p>
+          With just those three pieces you can drive most calculations. Let's go through them in
+          turn.
+        </p>
+
+        <h2 id="keyword-line">The keyword line <code>!</code></h2>
+        <p>
+          Lines that start with an exclamation mark (<code>!</code>) are called <em>simple input</em>:
+          they summarise on a single line settings that would otherwise have to be spread across
+          several blocks. A file may contain several such lines, and several keywords may share
+          one line.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Both formulations below are equivalent</span>
+<span class="kw">!</span> <span class="kw2">B3LYP def2-TZVP TightSCF</span>
+<span class="kw">!</span> <span class="kw2">RIJCOSX def2/J Opt Freq</span>
+
+<span class="cmt"># Same on one line</span>
+<span class="kw">!</span> <span class="kw2">B3LYP def2-TZVP TightSCF RIJCOSX def2/J Opt Freq</span></code></pre>
+
+        <p>Keywords fall into the following broad categories:</p>
+
+        <table>
+          <thead>
+            <tr><th>Category</th><th>Examples</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Method</td><td><code>HF</code>, <code>B3LYP</code>, <code>MP2</code>, <code>CCSD(T)</code>, <code>DLPNO-CCSD(T)</code></td><td>Choice of electronic-structure theory.</td></tr>
+            <tr><td>Basis set</td><td><code>def2-SVP</code>, <code>def2-TZVP</code>, <code>cc-pVTZ</code></td><td>Atomic-orbital basis.</td></tr>
+            <tr><td>Auxiliary basis</td><td><code>def2/J</code>, <code>def2-TZVP/C</code></td><td>Fitting basis required by RI / RIJCOSX.</td></tr>
+            <tr><td>Run type</td><td><code>Opt</code>, <code>Freq</code>, <code>EnGrad</code>, <code>NumFreq</code>, <code>NEB-TS</code></td><td>Single point, optimisation, frequencies, …</td></tr>
+            <tr><td>Algorithm options</td><td><code>RIJCOSX</code>, <code>RI-JK</code>, <code>UKS</code>, <code>UNO</code></td><td>Integral approximation, spin handling, etc.</td></tr>
+            <tr><td>Convergence threshold</td><td><code>NormalSCF</code>, <code>TightSCF</code>, <code>VeryTightSCF</code></td><td>How strict the SCF convergence criteria are.</td></tr>
+            <tr><td>Integration grid</td><td><code>DefGrid1</code>, <code>DefGrid2</code>, <code>DefGrid3</code></td><td>DFT numerical-integration grid (DefGrid2 is the default).</td></tr>
+            <tr><td>Solvation</td><td><code>CPCM(water)</code>, <code>SMD(ethanol)</code></td><td>Implicit-solvent models.</td></tr>
+            <tr><td>Parallel</td><td><code>PAL4</code>, <code>PAL8</code>, …, <code>PAL64</code></td><td>Number of cores.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="tip">
+          <div class="note-title">Keyword order does not matter</div>
           <p>
-            The English version of this chapter is being written. In the meantime, the
-            corresponding Korean chapter is fully available — please follow the link below
-            or use the <strong>KO</strong> toggle in the top-left of the sidebar.
+            <code>! B3LYP def2-TZVP Opt</code> and <code>! Opt def2-TZVP B3LYP</code> are
+            completely equivalent. For readability the conventional order is
+            <strong>method → basis → auxiliary basis → run type → options</strong>.
           </p>
+        </div>
+
+        <h2 id="blocks">Block input <code>%...end</code></h2>
+        <p>
+          When you need finer control, use block input: start the block with <code>%</code> and
+          end it with <code>end</code>; inside, options take the form <em>variable = value</em>.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># SCF convergence details</span>
+<span class="kw">%scf</span>
+   <span class="kw2">MaxIter</span>     <span class="num">300</span>          <span class="cmt"># maximum number of iterations</span>
+   <span class="kw2">ConvForced</span>   <span class="num">1</span>            <span class="cmt"># continue even if not converged</span>
+   <span class="kw2">DIIS</span>         <span class="kw">true</span>         <span class="cmt"># use DIIS acceleration</span>
+   <span class="kw2">SOSCF</span>        <span class="kw">true</span>         <span class="cmt"># use SOSCF</span>
+<span class="kw">end</span>
+
+<span class="cmt"># Method-level details</span>
+<span class="kw">%method</span>
+   <span class="kw2">Functional</span>  <span class="kw">B3LYP</span>
+   <span class="kw2">RunTyp</span>      <span class="kw">Opt</span>
+<span class="kw">end</span>
+
+<span class="cmt"># Optimisation options</span>
+<span class="kw">%geom</span>
+   <span class="kw2">MaxIter</span>     <span class="num">200</span>
+   <span class="kw2">Constraints</span>
+       { <span class="kw">B</span> <span class="num">0 1</span> <span class="num">1.25</span> <span class="kw">C</span> }   <span class="cmt"># freeze 1–2 bond at 1.25 Å</span>
+   <span class="kw2">end</span>
+<span class="kw">end</span></code></pre>
+
+        <p>The blocks you will see most often:</p>
+
+        <table>
+          <thead>
+            <tr><th>Block</th><th>Role</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>%scf</code></td><td>SCF convergence (iterations, DIIS, level shift, …).</td></tr>
+            <tr><td><code>%method</code></td><td>General method settings: functional, run type, …</td></tr>
+            <tr><td><code>%basis</code></td><td>Element-specific basis overrides, ECP specification.</td></tr>
+            <tr><td><code>%geom</code></td><td>Optimisation options, constraints, potential-surface scans.</td></tr>
+            <tr><td><code>%freq</code></td><td>Frequency-calculation options (step size, central vs forward differences, …).</td></tr>
+            <tr><td><code>%cpcm</code></td><td>Implicit-solvent model details.</td></tr>
+            <tr><td><code>%tddft</code> / <code>%cis</code></td><td>TD-DFT / CIS excited-state options.</td></tr>
+            <tr><td><code>%mp2</code></td><td>MP2 settings (e.g. DLPNO thresholds).</td></tr>
+            <tr><td><code>%mdci</code></td><td>Coupled-cluster options.</td></tr>
+            <tr><td><code>%casscf</code></td><td>Multi-reference active-space settings.</td></tr>
+            <tr><td><code>%neb</code></td><td>Nudged-Elastic-Band settings.</td></tr>
+            <tr><td><code>%pal</code></td><td>Parallel-process configuration.</td></tr>
+            <tr><td><code>%maxcore</code></td><td>Memory per core (in MB).</td></tr>
+            <tr><td><code>%output</code></td><td>Control of output verbosity.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="coords">Coordinate input styles</h2>
+        <p>
+          Coordinates are written inside a block delimited by <code>*</code>. Three formats are
+          available.
+        </p>
+
+        <h3>① Cartesian (xyz)</h3>
+        <p>The most common and recommended form. Units are Ångström by default.</p>
+
+        <pre data-lang="orca"><code><span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>            <span class="cmt"># charge 0, multiplicity 1 (singlet)</span>
+  C   0.000000   0.000000   0.000000
+  O   0.000000   0.000000   1.130000
+<span class="kw">*</span></code></pre>
+
+        <p>
+          It pays to get comfortable with the charge / multiplicity notation. For instance, the
+          CO<sup>+</sup> radical cation (one electron removed, doublet) reads:
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">1 2</span>            <span class="cmt"># charge +1, multiplicity 2 (doublet, S = 1/2)</span>
+  C   0.0   0.0   0.0
+  O   0.0   0.0   1.1105
+<span class="kw">*</span></code></pre>
+
+        <div class="note">
+          <div class="note-title">Computing multiplicity</div>
           <p>
-            → <a href="../ko/input-structure.html">Read this chapter in Korean (한국어)</a>
+            Multiplicity is <em>2S + 1</em>, where <em>S</em> is the total spin. Singlet = 1,
+            doublet = 2, triplet = 3, and so on. For odd-electron systems it is generally a good
+            idea to also specify <code>! UKS</code> (or <code>! UHF</code>).
+          </p>
+        </div>
+
+        <h3>② Internal coordinates (Z-matrix)</h3>
+        <p>
+          With the <code>int</code> keyword you can enter coordinates as bond lengths, angles,
+          and dihedrals. Handy for small molecules or whenever you want direct control over
+          specific bond lengths during optimisation.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">*</span> <span class="kw2">int</span> <span class="num">0 1</span>
+  C   0 0 0    0.0     0.0     0.0
+  O   1 0 0    1.2     0.0     0.0       <span class="cmt"># 1.2 Å to C</span>
+  H   1 2 0    1.1   120.0     0.0       <span class="cmt"># C-H 1.1, OCH angle 120°</span>
+  H   1 2 3    1.1   120.0   180.0       <span class="cmt"># dihedral 180°</span>
+<span class="kw">*</span></code></pre>
+
+        <p>The connectivity rule is:</p>
+        <ul>
+          <li><strong>N<sub>A</sub></strong>: atom that defines the distance (R<sub>N</sub>) to the current atom.</li>
+          <li><strong>N<sub>B</sub></strong>: atom that defines the angle (A<sub>N</sub>) involving the current atom, N<sub>A</sub>, and N<sub>B</sub>.</li>
+          <li><strong>N<sub>C</sub></strong>: the fourth atom defining the dihedral (D<sub>N</sub>), measured looking down the N<sub>A</sub>–N<sub>B</sub> axis.</li>
+        </ul>
+        <p>All angles are in degrees, and atom indexing here is <strong>1-based</strong> (one of the exceptions to ORCA's general convention).</p>
+
+        <h3>③ Gaussian Z-matrix (gzmt)</h3>
+        <p>
+          Identical to the Z-matrix format used by Gaussian. GUI tools such as Gabedit,
+          Avogadro and Molden often export coordinates in this format.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">*</span> <span class="kw2">gzmt</span> <span class="num">0 1</span>
+   C
+   O   1   1.200
+   H   1   1.100   2   120.0
+   H   1   1.100   2   120.0   3   180.0
+<span class="kw">*</span></code></pre>
+
+        <h2 id="external">Reading coordinates from an external file</h2>
+        <p>
+          Keeping the coordinates in a separate file makes the input file much cleaner. The most
+          common form is the standard <code>.xyz</code> file.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Read coordinates from mycoords.xyz</span>
+<span class="kw">!</span> <span class="kw2">B3LYP def2-SVP Opt</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mycoords.xyz</code></pre>
+
+        <p>The standard <code>.xyz</code> format is:</p>
+
+        <pre data-lang="output"><code>3
+Water molecule, optimized at B3LYP/def2-TZVP
+O   0.000000   0.000000   0.119262
+H   0.000000   0.763239  -0.477047
+H   0.000000  -0.763239  -0.477047</code></pre>
+
+        <p>
+          Line 1 is the number of atoms, line 2 is a free-form comment, and lines 3+ are
+          coordinates. Gaussian Z-matrix files can be read with
+          <code>* gzmtfile 0 1 file.gzmt</code>.
+        </p>
+
+        <h2 id="special">Special atoms — dummies, point charges, isotopes</h2>
+        <table>
+          <thead>
+            <tr><th>Notation</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>DA</code>, <code>X</code>, <code>Xx</code></td><td>Dummy atom; a virtual atom used only to define geometry.</td></tr>
+            <tr><td><code>O:</code> (colon)</td><td>Ghost atom: only the basis is placed, no nucleus or electrons (BSSE correction).</td></tr>
+            <tr><td><code>Q</code></td><td>Point charge; the charge value follows.</td></tr>
+            <tr><td><code>O&gt;</code> (angle bracket)</td><td>Embedding potential.</td></tr>
+            <tr><td><code>M = 2.014</code></td><td>Non-standard isotope mass.</td></tr>
+            <tr><td><code>Z = 5.5</code></td><td>Modified nuclear charge (fractional values allowed).</td></tr>
+            <tr><td><code>0.5$</code></td><td>A <code>$</code> after a coordinate freezes that component.</td></tr>
+          </tbody>
+        </table>
+
+        <p>Below is a frequency calculation for HD (one hydrogen replaced by deuterium):</p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP def2-TZVP Opt Freq</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  H   0.0   0.0   0.000
+  H   0.0   0.0   0.741   <span class="kw2">M</span> <span class="kw">=</span> <span class="num">2.014</span>
+<span class="kw">*</span></code></pre>
+
+        <h2 id="multi-job">Multiple jobs in one file — <code>$new_job</code></h2>
+        <p>
+          ORCA can perform several jobs in sequence inside a single input. A very common pattern
+          is "optimise with a cheap method, then a single point with a more accurate method".
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Step 1: optimise at BP86/def2-SVP</span>
+<span class="kw">!</span> <span class="kw2">BP86 def2-SVP def2/J Opt</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  O   0.0   0.0   0.119
+  H   0.0   0.763  -0.477
+  H   0.0  -0.763  -0.477
+<span class="kw">*</span>
+
+<span class="kw">$new_job</span>
+
+<span class="cmt"># Step 2: single point on the optimised geometry at B3LYP/def2-TZVPP</span>
+<span class="kw">!</span> <span class="kw2">B3LYP def2-TZVPP RIJCOSX def2/J TightSCF</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span></code></pre>
+
+        <p>
+          After <code>$new_job</code>, if you write <code>xyzfile</code> without a file name,
+          ORCA automatically reuses the optimised geometry from the previous job — a very handy
+          shortcut.
+        </p>
+
+        <div class="tip">
+          <div class="note-title">One step further — the Compound module</div>
+          <p>
+            Complex workflows that need loops or conditional branches can be automated with
+            ORCA 6's new Compound module. Inside a <code>%compound</code> block you control
+            variables, loops, conditionals, and output formatting directly. Section 7.59 of the
+            manual and the official script repository
+            (<a href="https://github.com/ORCAQuantumChemistry/CompoundScripts">ORCAQuantumChemistry/CompoundScripts</a>)
+            contain a generous collection of examples.
           </p>
         </div>
 
         <p>
-          If you would like to be notified when the English translation lands, please open
-          an issue at
-          <a href="https://github.com/dhwan0112/dhk.github.io/issues">dhwan0112/dhk.github.io</a>.
+          With the syntax of the input file in hand, the next chapter compiles the most common
+          keywords in a single dictionary-style reference.
         </p>
       </article>
 
-<nav class="page-nav"><a class="prev" href="getting-started.html"><div class="page-nav-label">← previous</div><div class="page-nav-title">Getting started</div></a><a class="next" href="keywords.html"><div class="page-nav-label">next →</div><div class="page-nav-title">Keywords</div></a></nav>
+      <nav class="page-nav">
+        <a class="prev" href="getting-started.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Getting started</div>
+        </a>
+        <a class="next" href="keywords.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Keywords</div>
+        </a>
+      </nav>
     </main>
   </div>
   <script src="../assets/js/main.js"></script>
