@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tips & troubleshooting · ORCA User Guide</title>
-  <meta name="description" content="SCF convergence failure, out-of-memory errors and other day-to-day traps." />
+  <title>Tips &amp; troubleshooting · ORCA User Guide</title>
+  <meta name="description" content="When a calculation gets stuck or the result looks wrong — section 8 of the manual, retold in plain English." />
   <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
@@ -67,30 +67,283 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 13 · OPERATIONS</div>
         <h1 class="page-title">Tips &amp; troubleshooting</h1>
-        <p class="page-lede">SCF convergence failure, out-of-memory errors and other day-to-day traps.</p>
+        <p class="page-lede">When the calculation gets stuck or the result looks wrong — section 8 of the manual, retold in plain English.</p>
       </header>
 
       <article class="content">
-        <div class="note">
-          <div class="note-title">Translation in progress</div>
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#scf-troubles">When the SCF refuses to converge</a></li>
+            <li><a href="#opt-troubles">When the optimisation diverges</a></li>
+            <li><a href="#freq-troubles">Small negative frequencies</a></li>
+            <li><a href="#memory">Out of memory</a></li>
+            <li><a href="#parallel">When parallelisation feels slow</a></li>
+            <li><a href="#spin-contamination">Spin contamination</a></li>
+            <li><a href="#workflow">Workflow recipes by situation</a></li>
+            <li><a href="#general">General principles the manual emphasises</a></li>
+          </ul>
+        </div>
+
+        <h2 id="scf-troubles">When the SCF refuses to converge</h2>
+        <p>
+          Manual §8.3 emphasises that SCF convergence failures almost always occur in open-shell
+          situations, and that the key to fixing them is "better starting orbitals". Recommended
+          strategies:
+        </p>
+
+        <h3>Strategy ① — converge a smaller basis first</h3>
+        <pre data-lang="orca"><code><span class="cmt"># Step 1: small basis + loose convergence + strong damping</span>
+<span class="kw">!</span> <span class="kw2">BP86 def2-SV def2/J SlowConv LooseSCF</span>
+<span class="kw">%scf</span>
+   <span class="kw2">MaxIter</span> <span class="num">300</span>
+<span class="kw">end</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 3</span> mol.xyz
+
+<span class="kw">$new_job</span>
+
+<span class="cmt"># Step 2: read orbitals from step 1 and grow the basis</span>
+<span class="kw">!</span> <span class="kw2">BP86 def2-TZVP def2/J MOREAD</span>
+<span class="kw">%moinp</span> <span class="str">"step1.gbw"</span>
+<span class="kw">%scf</span>
+   <span class="kw2">GuessMode</span> <span class="kw">CMatrix</span>
+<span class="kw">end</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 3</span>
+
+<span class="kw">$new_job</span>
+
+<span class="cmt"># Step 3: finish with the target functional</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J MOREAD</span>
+<span class="kw">%moinp</span> <span class="str">"step2.gbw"</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 3</span></code></pre>
+
+        <h3>Strategy ② — SOSCF or TRAH</h3>
+        <p>
+          When DIIS stalls near ~0.001, switch on second-order SCF (SOSCF) or the
+          Trust-Region Augmented Hessian (TRAH) SCF.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%scf</span>
+   <span class="kw2">SOSCF</span>      <span class="kw">true</span>     <span class="cmt"># second-order SCF</span>
+   <span class="kw2">SOSCFStart</span> <span class="num">0.001</span>    <span class="cmt"># switch to SOSCF when DIIS error drops below this</span>
+<span class="kw">end</span></code></pre>
+
+        <pre data-lang="orca"><code><span class="cmt"># Last resort for the hardest cases: TRAH</span>
+<span class="kw">!</span> <span class="kw2">B3LYP def2-TZVP TRAH</span></code></pre>
+
+        <h3>Strategy ③ — heavy damping and a level shift</h3>
+        <pre data-lang="orca"><code><span class="kw">%scf</span>
+   <span class="kw2">DampFac</span>    <span class="num">0.90</span>    <span class="cmt"># heavy damping</span>
+   <span class="kw2">DampErr</span>    <span class="num">0.02</span>    <span class="cmt"># damping turns off once DIIS error falls below this</span>
+   <span class="kw2">Shift</span> <span class="kw">shift</span> <span class="num">0.5</span> <span class="kw2">erroff</span> <span class="num">0</span> <span class="kw">end</span>   <span class="cmt"># push virtual orbitals up by 0.5 Eh</span>
+<span class="kw">end</span></code></pre>
+
+        <h3>Strategy ④ — start from the related closed shell</h3>
+        <p>
+          If an odd-electron system refuses to converge, first converge the closed-shell
+          cation or anion and read its orbitals. Closed-shell SCFs generally converge much
+          more easily.
+        </p>
+
+        <div class="tip">
+          <div class="note-title">~80 % of convergence problems are the geometry</div>
           <p>
-            The English version of this chapter is being written. In the meantime, the
-            corresponding Korean chapter is fully available — please follow the link below
-            or use the <strong>KO</strong> toggle in the top-left of the sidebar.
-          </p>
-          <p>
-            → <a href="../ko/tips.html">Read this chapter in Korean (한국어)</a>
+            As the manual itself points out, the most common cause of a failed SCF is an
+            "unreasonable structure" — a 0.5 Å bond length, two atoms occupying the same
+            position, or coordinates accidentally given in bohr rather than Å. Before
+            changing the method, double-check that the geometry is chemically sensible.
           </p>
         </div>
 
+        <h2 id="opt-troubles">When the optimisation diverges</h2>
+        <ol>
+          <li><strong>Shrink the maximum step</strong>: <code>%geom MaxStep 0.1 end</code> (bohr). Damps oscillations.</li>
+          <li><strong>Switch the coordinate system</strong>: try <code>! COpt</code> for Cartesian coordinates.</li>
+          <li><strong>Strengthen the initial Hessian</strong>: compute a Hessian cheaply, then read it with <code>InHess Read</code>. The manual's example is a "Step 1 NumFreq → Step 2 OptTS" pattern.</li>
+          <li><strong>Tighten the SCF</strong>: on flat surfaces SCF noise shakes the gradient. Use <code>TightSCF</code> or better.</li>
+          <li><strong>Tighten the integration grid</strong>: <code>DefGrid3</code> for DFT.</li>
+        </ol>
+
+        <h2 id="freq-troubles">Small negative frequencies</h2>
         <p>
-          If you would like to be notified when the English translation lands, please open
-          an issue at
-          <a href="https://github.com/dhwan0112/dhk.github.io/issues">dhwan0112/dhk.github.io</a>.
+          Imaginary modes of ± 10–30 cm⁻¹ are usually not real negative curvature — they are
+          numerical noise. Work through these in order:
         </p>
+
+        <ol>
+          <li>Re-optimise and re-run frequencies with <code>VeryTightSCF DefGrid3</code>.</li>
+          <li>Use <code>VeryTightOpt</code> for the optimisation thresholds.</li>
+          <li>Re-run with <code>NumFreq CentralDiff true</code> (central differences, 2× cost).</li>
+        </ol>
+
+        <p>
+          Large imaginary frequencies (hundreds of cm⁻¹) are real negative curvature. Displace
+          slightly along the mode and re-optimise. <code>orca_pltvib</code> conveniently builds
+          a displaced geometry.
+        </p>
+
+        <h2 id="memory">Out of memory</h2>
+        <p>If you see "Please increase MaxCore", check these:</p>
+
+        <ul>
+          <li>Increase <code>%maxcore</code> (in MB). Aim for 60–70 % of the available RAM.</li>
+          <li>Reduce the number of parallel processes to allocate more memory per core.</li>
+          <li>Ensure that the scratch directory (<code>$ORCA_SCRDIR</code>) points to a fast disk (preferably an NVMe SSD) with sufficient capacity.</li>
+          <li>Where possible, enable RI (<code>RIJCOSX</code>, <code>RI-JK</code>) to reduce memory pressure.</li>
+        </ul>
+
+        <pre data-lang="bash"><code><span class="cmt"># Cluster submission snippet showing a scratch setup</span>
+<span class="kw">export</span> ORCA_SCRDIR=/scratch/$USER/orca_$$
+mkdir -p $ORCA_SCRDIR
+cd $ORCA_SCRDIR
+orca $SLURM_SUBMIT_DIR/job.inp &gt; $SLURM_SUBMIT_DIR/job.out
+cp -r * $SLURM_SUBMIT_DIR/
+cd / &amp;&amp; rm -rf $ORCA_SCRDIR</code></pre>
+
+        <h2 id="parallel">When parallelisation feels slow</h2>
+        <p>If more cores do not translate into more speed, check the following:</p>
+
+        <ul>
+          <li><strong>I/O bottleneck</strong>: running on a networked disk means every core hammers the same storage. Always use a local fast disk (NVMe SSD) for scratch.</li>
+          <li><strong>Over-parallelisation</strong>: RI-DFT loses efficiency beyond ~16 cores; CCSD(T) is best with 8–16 cores.</li>
+          <li><strong>OpenMPI inter-node communication</strong>: without a fast fabric (InfiniBand or similar), stay within a single node.</li>
+          <li><strong>NumFreq, NEB</strong> and similar tasks with many independent displacements / images benefit from <code>nprocs_group</code>-based parallelisation across displacements.</li>
+        </ul>
+
+        <h2 id="spin-contamination">Spin contamination</h2>
+        <p>
+          In UKS / UHF calculations, deviation of ⟨S²⟩ from its ideal value is called spin
+          contamination. The ideal values are 0.75 for a doublet (S = 1/2) and 2.0 for a
+          triplet (S = 1). Up to ~5 % deviation is usually acceptable; beyond ~10 %, the result
+          becomes unreliable.
+        </p>
+
+        <p>The manual's recommended diagnostic combination is <code>! UNO ! UCO</code>:</p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP UNO UCO TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <p>
+          If the UCO overlap table contains values below ~0.85, those orbitals form
+          "spin-coupled pairs" — characteristic of singlet diradicals or partially broken
+          bonds. Such systems are at the limit of single-reference DFT / HF; for accurate
+          results consider moving to a multi-reference method (CASSCF / NEVPT2).
+        </p>
+
+        <h2 id="workflow">Workflow recipes by situation</h2>
+
+        <h3>Precision free energy for a general organic molecule</h3>
+        <ol>
+          <li><code>r2SCAN-3c Opt Freq</code> for geometry and thermal correction.</li>
+          <li><code>DLPNO-CCSD(T)/cc-pVTZ + Extrapolate(3/4, cc)</code> single point for the electronic energy.</li>
+          <li>Add <code>SMD</code> for solvation if needed.</li>
+        </ol>
+
+        <h3>Transition-metal complex (3d metal)</h3>
+        <ol>
+          <li><code>TPSSh D4 def2-TZVP Opt Freq</code> — meta-GGA hybrid handles spin states well.</li>
+          <li>For ambiguous spin states, run every plausible multiplicity at the same level and compare.</li>
+          <li>UV-Vis with <code>TDDFT</code>; EPR g-tensor with <code>! EPRNMR</code>.</li>
+        </ol>
+
+        <h3>Organic photophysics (UV-Vis, fluorescence)</h3>
+        <ol>
+          <li>Ground state: <code>B3LYP D4 def2-TZVP Opt</code>.</li>
+          <li>Absorption: <code>TDDFT NRoots=20</code> on the optimised geometry.</li>
+          <li>Fluorescence: optimise S<sub>1</sub> with <code>%tddft IRoot 1 end ! Opt</code> then re-run TD-DFT.</li>
+          <li>If charge transfer is suspected, re-run with <code>CAM-B3LYP</code> or <code>wB97X-V</code> and compare.</li>
+        </ol>
+
+        <h3>Reaction mechanism</h3>
+        <ol>
+          <li>Optimise reactant and product with <code>r2SCAN-3c</code>.</li>
+          <li><code>! XTB NEB-TS</code> for a quick first-pass TS.</li>
+          <li>DFT OptTS + AnFreq + IRC. Confirm exactly one imaginary mode.</li>
+          <li>DLPNO-CCSD(T) single points + SMD on every stationary point.</li>
+          <li>Compute ΔG<sup>‡</sup> and ΔG<sub>rxn</sub>.</li>
+        </ol>
+
+        <h2 id="general">General principles the manual emphasises</h2>
+
+        <div class="note">
+          <div class="note-title">Consistency in the basis set</div>
+          <p>
+            As the manual stresses in §8.2, minimal bases (STO-3G) and small split-valence
+            bases such as 3-21G are inappropriate for quantitative work. Use the Karlsruhe
+            def2 series consistently. Reactants, products and transition states must all use
+            the same basis so that errors cancel.
+          </p>
+        </div>
+
+        <div class="note">
+          <div class="note-title">For DFT, the grid is often the accuracy bottleneck</div>
+          <p>
+            When working with a large basis (e.g. def2-QZVPP), leaving the DFT grid at
+            <code>DefGrid2</code> caps the accuracy at the grid noise level. Raise to
+            <code>DefGrid3</code> when you raise the basis. As the manual puts it, "don't
+            spend basis accuracy on grid noise."
+          </p>
+        </div>
+
+        <div class="note">
+          <div class="note-title">Dispersion correction is essentially free</div>
+          <p>
+            D3 / D4 corrections add essentially no runtime while improving accuracy
+            significantly. Unless the functional already includes dispersion (e.g. VV10 built
+            into ωB97M-V), turn them on by default.
+          </p>
+        </div>
+
+        <div class="caution">
+          <div class="note-title">"Terminated normally" is not the same as "correct"</div>
+          <p>
+            An <code>ORCA TERMINATED NORMALLY</code> message does not automatically mean the
+            result is reliable. Always check (1) SCF convergence, (2) optimisation
+            convergence, (3) all real frequencies (or exactly one imaginary mode for a TS),
+            (4) sensible ⟨S²⟩, and (5) any WARNING messages in the output.
+          </p>
+        </div>
+
+        <div class="tip">
+          <div class="note-title">The manual's parting advice</div>
+          <p>
+            There is a striking line near the end of §8.2 of the manual: "the computer does
+            not solve the problem — the human does. Making one or two numbers slightly more
+            accurate does not necessarily help you understand the chemistry and spectroscopy
+            of the molecule you are working on. The risk of getting lost in technical
+            details and losing sight of the original insight is real." Striving for accuracy
+            is good; never forget that it does not substitute for chemical insight.
+          </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <p>
+          This is the final chapter of the guide. I hope it has been of some help in your
+          everyday research. For deeper options or unusual use cases, please consult the
+          official ORCA 6.0.0 manual (PDF) directly. And whenever you get stuck, the official
+          forum (<a href="https://orcaforum.kofo.mpg.de">orcaforum.kofo.mpg.de</a>) is a great
+          place to look for similar cases.
+        </p>
+
+        <footer class="site-footer">
+          <p>
+            ORCA English User Guide · Based on the ORCA 6.0.0 manual · This guide is unofficial.
+          </p>
+        </footer>
       </article>
 
-<nav class="page-nav"><a class="prev" href="dft-functionals.html"><div class="page-nav-label">← previous</div><div class="page-nav-title">DFT functionals</div></a></nav>
+      <nav class="page-nav">
+        <a class="prev" href="dft-functionals.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">DFT functionals</div>
+        </a>
+        <a class="next" href="index.html">
+          <div class="page-nav-label">back to top ↑</div>
+          <div class="page-nav-title">Overview</div>
+        </a>
+      </nav>
     </main>
   </div>
   <script src="../assets/js/main.js"></script>

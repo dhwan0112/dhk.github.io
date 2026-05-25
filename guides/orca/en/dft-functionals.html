@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DFT functionals · ORCA User Guide</title>
-  <meta name="description" content="Beyond B3LYP — r²SCAN, ωB97X-V and other modern choices." />
+  <meta name="description" content="Beyond B3LYP — the functionals the 2020s of quantum chemistry recommends, and how to choose by situation." />
   <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
@@ -65,32 +65,227 @@
 
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 12 · METHODS & MODELS</div>
+        <div class="page-eyebrow">CHAPTER 12 · METHODS &amp; MODELS</div>
         <h1 class="page-title">DFT functionals</h1>
-        <p class="page-lede">Beyond B3LYP — r²SCAN, ωB97X-V and other modern choices.</p>
+        <p class="page-lede">Beyond B3LYP — the functionals the 2020s of quantum chemistry recommends, and how to choose by situation.</p>
       </header>
 
       <article class="content">
-        <div class="note">
-          <div class="note-title">Translation in progress</div>
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#hierarchy">A hierarchy of functionals — Jacob's ladder</a></li>
+            <li><a href="#dispersion">Dispersion corrections are essentially required</a></li>
+            <li><a href="#by-task">Recommendations by task</a></li>
+            <li><a href="#composite">Composite methods (the 3c series)</a></li>
+            <li><a href="#double-hybrid">Double hybrids</a></li>
+            <li><a href="#by-system">Recommendations by system</a></li>
+            <li><a href="#avoid">Functionals to avoid</a></li>
+          </ul>
+        </div>
+
+        <h2 id="hierarchy">A hierarchy of functionals — Jacob's ladder</h2>
+        <p>
+          DFT functionals are often organised along Perdew's "Jacob's ladder". Each rung adds
+          more ingredients and (typically) more accuracy at higher cost.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Rung</th><th>Name</th><th>Depends on</th><th>Representative</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>LDA</td><td>density ρ only</td><td>SVWN — almost never used</td></tr>
+            <tr><td>2</td><td>GGA</td><td>ρ + ∇ρ</td><td>BP86, BLYP, PBE</td></tr>
+            <tr><td>3</td><td>meta-GGA</td><td>+ ∇²ρ or τ</td><td>TPSS, M06-L, r²SCAN</td></tr>
+            <tr><td>4</td><td>Hybrid</td><td>+ some HF exchange</td><td>B3LYP, PBE0, M06-2X</td></tr>
+            <tr><td>5</td><td>Double hybrid</td><td>+ MP2 correlation</td><td>B2PLYP, DSD-PBEP86</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          Higher rungs are typically more accurate, but not always. A well-built meta-GGA
+          (e.g. r²SCAN) can outperform a mediocre hybrid. The latest broad benchmarks
+          (GMTKN55, MGCDB84, …) tend to rank these two functionals at the very top overall:
+        </p>
+
+        <ul>
+          <li><strong>ωB97M-V</strong>: meta-GGA + range-separated hybrid + VV10 non-local correlation. Overall #1.</li>
+          <li><strong>ωB97X-V</strong>: similar idea but GGA-based. Slightly faster.</li>
+        </ul>
+
+        <p>Both are built into ORCA: <code>! wB97M-V def2-TZVP</code> on one line is enough.</p>
+
+        <h2 id="dispersion">Dispersion corrections are essentially required</h2>
+        <p>
+          Pure GGAs and standard hybrids do not describe London dispersion. Without a
+          correction, π–π stacking, hydrogen bonds, vdW complexes, and conformer energetics
+          come out badly. Use one of Grimme's D3 / D4 corrections by default.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Keyword</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>D4</code></td><td>Newest. <strong>Recommended in ORCA 6</strong>. Fit for more functionals.</td></tr>
+            <tr><td><code>D3BJ</code></td><td>Widely validated. Fallback if D4 is unavailable for your functional.</td></tr>
+            <tr><td><code>D3ZERO</code></td><td>Alternative D3 damping. Less accurate than D3BJ.</td></tr>
+            <tr><td>(none)</td><td>ωB97M-V and ωB97X-V already include VV10, so no extra correction is needed.</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="orca"><code><span class="cmt"># Standard usage with dispersion correction</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J</span>
+<span class="kw">!</span> <span class="kw2">PBE0 D4 def2-TZVP RIJCOSX def2/J</span>
+<span class="kw">!</span> <span class="kw2">r2SCAN D4 def2-TZVP def2/J</span>      <span class="cmt"># meta-GGA doesn't need RIJCOSX</span>
+
+<span class="cmt"># VV10 already included — no extra correction</span>
+<span class="kw">!</span> <span class="kw2">wB97M-V def2-TZVP RIJCOSX def2/J</span></code></pre>
+
+        <h2 id="by-task">Recommendations by task</h2>
+
+        <table>
+          <thead>
+            <tr><th>Task</th><th>Recommended functional</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Geometry optimisation (general organic)</td><td><code>r²SCAN-3c</code>, <code>B97-3c</code></td><td>Composite — basis included.</td></tr>
+            <tr><td>Geometry optimisation (TM complexes)</td><td><code>TPSS D4</code>, <code>BP86 D4</code></td><td>Pure GGAs are more forgiving of poor initial geometries.</td></tr>
+            <tr><td>Reaction barriers</td><td><code>M06-2X D4</code>, <code>ωB97X-V</code></td><td>Higher HF percentage gives better barriers.</td></tr>
+            <tr><td>Non-covalent interactions</td><td><code>ωB97M-V</code>, <code>DSD-PBEP86 D4</code></td><td>Double hybrids are the most accurate.</td></tr>
+            <tr><td>NMR chemical shifts</td><td><code>PBE0 D4</code>, <code>ωB97X D4</code></td><td>Use dedicated NMR bases (pcSseg).</td></tr>
+            <tr><td>UV-Vis absorption (local excitations)</td><td><code>B3LYP D4</code>, <code>PBE0 D4</code></td><td>Standard hybrids are usually enough.</td></tr>
+            <tr><td>UV-Vis absorption (charge transfer)</td><td><code>CAM-B3LYP</code>, <code>ωB97X-V</code></td><td>Range-separation is mandatory.</td></tr>
+            <tr><td>EPR (g-tensor, A-tensor)</td><td><code>PBE0</code>, <code>B3LYP</code></td><td>~30 % HF tends to fit well.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="composite">Composite methods (the 3c series)</h2>
+        <p>
+          The Grimme group's "3c" methods bundle "functional + basis + D3/D4 + gCP correction"
+          into a single keyword. The basis is fixed, the usage is therefore extremely simple,
+          and the price/accuracy ratio is hard to beat.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Keyword</th><th>What it really is</th><th>Best for</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>HF-3c</code></td><td>HF + minix (small DZ) + 3 corrections</td><td>Quick screening of very large molecules</td></tr>
+            <tr><td><code>PBEh-3c</code></td><td>PBEh hybrid + def2-mSVP</td><td>Medium-sized opt + frequencies</td></tr>
+            <tr><td><code>B97-3c</code></td><td>Modified B97 GGA + def2-mTZVP</td><td>Medium-to-large molecules, fast optimisation</td></tr>
+            <tr><td><code>r²SCAN-3c</code></td><td>r²SCAN meta-GGA + def2-mTZVPP</td><td><strong>Top recommendation</strong>. Geometries and free energies alike.</td></tr>
+            <tr><td><code>ωB97X-3c</code></td><td>Range-separated hybrid + valence DZ</td><td>Organic / excited states</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="orca"><code><span class="cmt"># r²SCAN-3c — a strong first choice for everyday work</span>
+<span class="kw">!</span> <span class="kw2">r2SCAN-3c Opt Freq</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <div class="tip">
+          <div class="note-title">r²SCAN-3c works well almost everywhere</div>
           <p>
-            The English version of this chapter is being written. In the meantime, the
-            corresponding Korean chapter is fully available — please follow the link below
-            or use the <strong>KO</strong> toggle in the top-left of the sidebar.
-          </p>
-          <p>
-            → <a href="../ko/dft-functionals.html">Read this chapter in Korean (한국어)</a>
+            The manual and many independent benchmarks report that r²SCAN-3c reaches
+            B3LYP-D4/def2-TZVP accuracy in under half the time. Using r²SCAN-3c as the first
+            attempt — and refining with more expensive methods only when needed — is an
+            efficient workflow.
           </p>
         </div>
 
+        <h2 id="double-hybrid">Double hybrids</h2>
         <p>
-          If you would like to be notified when the English translation lands, please open
-          an issue at
-          <a href="https://github.com/dhwan0112/dhk.github.io/issues">dhwan0112/dhk.github.io</a>.
+          Double hybrids include both HF exchange and MP2 correlation. They are one rung
+          above the conventional hybrids in accuracy, but they inherit MP2's N⁵ scaling.
+          Best suited to precision single-point energies.
         </p>
+
+        <table>
+          <thead><tr><th>Keyword</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><code>B2PLYP</code></td><td>The original double hybrid.</td></tr>
+            <tr><td><code>DSD-PBEP86</code></td><td>SCS-MP2-coupled. Excellent overall performance.</td></tr>
+            <tr><td><code>DSD-BLYP</code></td><td>Strong for non-covalent interactions.</td></tr>
+            <tr><td><code>wB97X-2</code></td><td>Range-separated + double hybrid.</td></tr>
+            <tr><td><code>PWPB95</code></td><td>High accuracy, cost-efficient.</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="orca"><code><span class="cmt"># DLPNO-accelerated double hybrid — much cheaper</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-B2PLYP D4 def2-TZVPP def2-TZVPP/C TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <h2 id="by-system">Recommendations by system</h2>
+
+        <h3>Organic chemistry</h3>
+        <ul>
+          <li>Geometry optimisation: <code>r²SCAN-3c</code> or <code>B97-3c</code>.</li>
+          <li>Precision single point: <code>ωB97M-V</code>/def2-TZVPP or <code>DLPNO-CCSD(T)</code>/cc-pVTZ.</li>
+          <li>Non-covalent interactions: <code>ωB97M-V</code> is the overall best.</li>
+        </ul>
+
+        <h3>Transition-metal chemistry</h3>
+        <ul>
+          <li>First try: <code>TPSSh D4</code> or <code>TPSS D4</code> (3d metals).</li>
+          <li>Spin-state energetics: meta-GGAs (<code>TPSS</code>, <code>M06-L</code>) are less sensitive to the HF percentage.</li>
+          <li>Spectroscopy (g-tensor): <code>PBE0 D4</code>.</li>
+        </ul>
+
+        <h3>Very large systems (protein active sites, MOFs)</h3>
+        <ul>
+          <li>Start with <code>r²SCAN-3c</code> or <code>HF-3c</code>.</li>
+          <li>For QM/MM embeddings <code>PBEh-3c</code> tends to be robust.</li>
+        </ul>
+
+        <h3>Excited states (TD-DFT)</h3>
+        <ul>
+          <li>Local π → π*: <code>B3LYP</code>, <code>PBE0</code>.</li>
+          <li>Charge transfer: <code>CAM-B3LYP</code>, <code>ωB97X-V</code> are essential.</li>
+          <li>Rydberg states: range-separated + diffuse functions.</li>
+        </ul>
+
+        <h2 id="avoid">Functionals to avoid</h2>
+        <p>For historical reasons these functionals are still common, but they are not recommended for new work in the 2020s:</p>
+
+        <table>
+          <thead>
+            <tr><th>Functional</th><th>Replacement</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>SVWN</code> / <code>LSDA</code></td><td>Move up to a GGA or higher.</td></tr>
+            <tr><td><code>B3LYP</code> without dispersion</td><td><strong>Always pair with D4</strong> (or D3BJ).</td></tr>
+            <tr><td><code>BLYP</code> without dispersion</td><td>Same — dispersion is mandatory.</td></tr>
+            <tr><td>The <code>D2</code> correction</td><td>Use D4 or D3BJ instead.</td></tr>
+            <tr><td>VWN3 variants</td><td>Little effect today. <code>B3LYP/G</code> is for Gaussian compatibility only.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <div class="note-title">B3LYP is still the "reference"</div>
+          <p>
+            B3LYP D4 is not the most accurate functional available today, but the
+            overwhelming majority of the literature is written with B3LYP, so it still has
+            value as a comparison baseline. For new work, reporting modern functionals
+            (ωB97M-V, r²SCAN-3c, DSD-PBEP86) alongside B3LYP gives both literature consistency
+            and higher accuracy at once.
+          </p>
+        </div>
       </article>
 
-<nav class="page-nav"><a class="prev" href="basis-sets.html"><div class="page-nav-label">← previous</div><div class="page-nav-title">Basis sets</div></a><a class="next" href="tips.html"><div class="page-nav-label">next →</div><div class="page-nav-title">Tips · Troubleshooting</div></a></nav>
+      <nav class="page-nav">
+        <a class="prev" href="basis-sets.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Basis sets</div>
+        </a>
+        <a class="next" href="tips.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Tips · Troubleshooting</div>
+        </a>
+      </nav>
     </main>
   </div>
   <script src="../assets/js/main.js"></script>

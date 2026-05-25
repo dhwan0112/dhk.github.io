@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Basis sets · ORCA User Guide</title>
-  <meta name="description" content="When to reach for def2, cc-pVnZ, SARC, and friends." />
+  <meta name="description" content="Choosing among def2, cc-pVnZ, SARC, and friends — what to use when." />
   <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
@@ -65,32 +65,244 @@
 
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 11 · METHODS & MODELS</div>
+        <div class="page-eyebrow">CHAPTER 11 · METHODS &amp; MODELS</div>
         <h1 class="page-title">Basis sets</h1>
-        <p class="page-lede">When to reach for def2, cc-pVnZ, SARC, and friends.</p>
+        <p class="page-lede">def2, cc-pVnZ, SARC. When should you reach for which?</p>
       </header>
 
       <article class="content">
-        <div class="note">
-          <div class="note-title">Translation in progress</div>
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#concept">What a basis set is</a></li>
+            <li><a href="#families">Main families — def2, cc, ANO</a></li>
+            <li><a href="#size">Sizes — DZ, TZ, QZ</a></li>
+            <li><a href="#diffuse">Diffuse functions</a></li>
+            <li><a href="#aux">Auxiliary basis sets</a></li>
+            <li><a href="#ecp">Effective core potentials (ECPs)</a></li>
+            <li><a href="#sarc">SARC — for heavy elements</a></li>
+            <li><a href="#recommendations">Recommendations by situation</a></li>
+          </ul>
+        </div>
+
+        <h2 id="concept">What a basis set is</h2>
+        <p>
+          A basis set is the collection of functions used to express the molecular orbitals.
+          Quantum-chemistry calculations project the exact Schrödinger equation onto a finite
+          function space, so the choice of basis sets the upper limit on accuracy. Larger
+          bases are more accurate but their cost grows as the 4th–6th power of system size.
+        </p>
+
+        <h2 id="families">Main families — def2, cc, ANO</h2>
+
+        <table>
+          <thead>
+            <tr><th>Family</th><th>Designer</th><th>Notes / use case</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>def2-</code> (Karlsruhe)</td><td>Ahlrichs, Weigend</td><td>Covers elements 1–86 with consistent accuracy. <strong>The de-facto standard for DFT</strong>.</td></tr>
+            <tr><td><code>cc-pVnZ</code> (Dunning)</td><td>Dunning</td><td>Designed for correlated methods. Standard for CCSD(T) and CBS extrapolation.</td></tr>
+            <tr><td><code>aug-cc-pVnZ</code></td><td>Dunning</td><td>cc-pVnZ + diffuse functions. Anions, excited states.</td></tr>
+            <tr><td><code>ANO-RCC</code></td><td>Roos group</td><td>Multi-reference work. Includes core-correlation contractions.</td></tr>
+            <tr><td><code>SARC</code></td><td>Pantazis, Neese</td><td>Segmented all-electron bases for 4d, 5d, 4f, 5f elements. <strong>Transition metals and lanthanides</strong>.</td></tr>
+            <tr><td>Pople-style (6-31G*, 6-311+G**)</td><td>Pople</td><td>Historically widespread; available in ORCA but def2 is preferred.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="size">Sizes — DZ, TZ, QZ</h2>
+        <p>
+          Labels like "double-zeta (DZ)" and "triple-zeta (TZ)" indicate how many functions
+          describe each valence orbital. The presence of polarisation (d, f) and diffuse
+          functions further determines the total size of the basis.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Karlsruhe</th><th>Dunning</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>def2-SVP</code></td><td><code>cc-pVDZ</code></td><td>Light DZ. Fast exploration / optimisation.</td></tr>
+            <tr><td><code>def2-TZVP</code></td><td><code>cc-pVTZ</code></td><td>TZ with polarisation. <strong>Everyday standard</strong>.</td></tr>
+            <tr><td><code>def2-TZVPP</code></td><td><code>cc-pVTZ</code></td><td>TZ with extra polarisation. Precision single points.</td></tr>
+            <tr><td><code>def2-QZVPP</code></td><td><code>cc-pVQZ</code></td><td>QZ. The next step in CBS extrapolation.</td></tr>
+            <tr><td><code>def2-TZVP(-f)</code></td><td>—</td><td>def2-TZVP with f-functions removed from non-metals. Good cost/accuracy compromise for DFT single points.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="tip">
+          <div class="note-title">An everyday golden combination</div>
           <p>
-            The English version of this chapter is being written. In the meantime, the
-            corresponding Korean chapter is fully available — please follow the link below
-            or use the <strong>KO</strong> toggle in the top-left of the sidebar.
-          </p>
-          <p>
-            → <a href="../ko/basis-sets.html">Read this chapter in Korean (한국어)</a>
+            DFT geometry optimisation: <code>def2-SVP</code> or <code>def2-TZVP</code>.<br />
+            DFT precision single point: <code>def2-TZVPP</code> or <code>def2-QZVPP</code>.<br />
+            DLPNO-CCSD(T): <code>cc-pVTZ</code> + <code>cc-pVTZ/C</code>, or <code>cc-pVTZ-F12</code>.<br />
+            Unless there is a specific reason not to, start with the above and adjust from there.
           </p>
         </div>
 
+        <h2 id="diffuse">Diffuse functions</h2>
         <p>
-          If you would like to be notified when the English translation lands, please open
-          an issue at
-          <a href="https://github.com/dhwan0112/dhk.github.io/issues">dhwan0112/dhk.github.io</a>.
+          Diffuse functions (prefix <code>aug-</code> or <code>ma-</code>, or the <code>+</code> /
+          <code>++</code> annotations) add large gaussians that extend far from the nucleus,
+          describing loosely bound electrons. They are essential for:
+        </p>
+
+        <ul>
+          <li><strong>Anions</strong>: the negative charge loosely binds the extra electron.</li>
+          <li><strong>Excited states</strong>: especially Rydberg states (high-energy excitations).</li>
+          <li><strong>Polarisabilities and hyperpolarisabilities</strong>: response to large fields.</li>
+          <li><strong>Weak interactions</strong>: hydrogen bonds, π–π stacking, etc.</li>
+        </ul>
+
+        <table>
+          <thead>
+            <tr><th>Basis</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>aug-cc-pVTZ</code></td><td>cc-pVTZ + full diffuse augmentation. Standard but expensive.</td></tr>
+            <tr><td><code>ma-def2-TZVP</code></td><td>"Minimally augmented" def2. Cost-effective.</td></tr>
+            <tr><td><code>def2-TZVPD</code></td><td>def2-TZVP + one diffuse shell. Recommended for response properties.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="aux">Auxiliary basis sets</h2>
+        <p>
+          RI acceleration, RIJCOSX and MP2 / CC calculations decompose four-index integrals
+          into a "three-index + auxiliary basis" form, so an auxiliary basis must be specified
+          alongside the main basis. A wrong auxiliary basis is a common source of accuracy
+          loss, so this deserves attention.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Suffix</th><th>Used for</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>/J</code> or <code>def2/J</code></td><td>Coulomb-only RI — RIJCOSX, RI-J.</td></tr>
+            <tr><td><code>/JK</code> or <code>def2/JK</code></td><td>Coulomb + Exchange RI — RI-JK.</td></tr>
+            <tr><td><code>/C</code> suffix</td><td>Correlation calculations — MP2, CC.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Pairing the auxiliary basis correctly</h3>
+
+        <pre data-lang="orca"><code><span class="cmt"># RIJCOSX hybrid DFT</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J</span>
+
+<span class="cmt"># RI-JK hybrid DFT</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RI-JK def2/JK</span>
+
+<span class="cmt"># DLPNO-MP2 or DLPNO-CCSD(T)</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-MP2 cc-pVTZ cc-pVTZ/C</span></code></pre>
+
+        <div class="warning">
+          <div class="note-title">def2 /C auxiliary basis</div>
+          <p>
+            For the def2 family, the <code>/C</code> auxiliary basis carries the basis name
+            verbatim (<code>def2-TZVP/C</code>). The cc and def2 <code>/C</code> bases are
+            not interchangeable — keep the main basis and auxiliary basis in the same family.
+          </p>
+        </div>
+
+        <h2 id="ecp">Effective core potentials (ECPs)</h2>
+        <p>
+          For heavy elements (broadly 4d onwards — element 36, Rb, and beyond) it is
+          efficient to replace the explicit core electrons with an effective core potential,
+          which also folds in scalar-relativistic effects. The def2 family automatically uses
+          the def2-ECP from element 37 onwards.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Silver (Ag) atom — def2-ECP is applied automatically</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 2</span>
+  Ag   0.0   0.0   0.0
+<span class="kw">*</span></code></pre>
+
+        <p>
+          For more precise treatment, use a <strong>scalar-relativistic basis</strong> (ZORA,
+          DKH, X2C) instead, which describes all electrons explicitly:
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Ag atom — ZORA scalar relativity with the ZORA-recontracted basis</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 ZORA ZORA-def2-TZVP SARC/J</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 2</span>
+  Ag   0.0   0.0   0.0
+<span class="kw">*</span></code></pre>
+
+        <h2 id="sarc">SARC — for heavy elements</h2>
+        <p>
+          For 4d, 5d, 4f, and 5f elements (roughly elements 37, Rb, through 100, Fm) the SARC
+          (Segmented All-electron Relativistically Contracted) basis is the recommended
+          choice. It is accurate at the DFT level and pairs cleanly with ZORA / DKH scalar
+          relativity.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Gd(III) complex — 4f element</span>
+<span class="kw">!</span> <span class="kw2">BP86 ZORA SARC2-ZORA-QZVP SARC/J</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">3 8</span> Gd_complex.xyz</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>SARC basis</th><th>Applies to</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>SARC-ZORA-TZVP</code> · <code>SARC-DKH-TZVP</code></td><td>4d / 5d transition metals</td></tr>
+            <tr><td><code>SARC2-ZORA-QZVP</code> · <code>SARC2-DKH-QZVP</code></td><td>Lanthanides (4f)</td></tr>
+            <tr><td><code>SARC-ZORA-SARC</code></td><td>Actinides (5f)</td></tr>
+            <tr><td><code>SARC/J</code></td><td>Coulomb auxiliary basis for the SARC family</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="recommendations">Recommendations by situation</h2>
+
+        <table>
+          <thead>
+            <tr><th>Situation</th><th>Main basis</th><th>Auxiliary</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Organic optimisation</td><td><code>def2-SVP</code> or <code>def2-TZVP</code></td><td><code>def2/J</code></td></tr>
+            <tr><td>DFT precision single point</td><td><code>def2-TZVPP</code></td><td><code>def2/J</code></td></tr>
+            <tr><td>3d transition metals (DFT)</td><td><code>def2-TZVP</code> (all-electron — no automatic ECP)</td><td><code>def2/J</code></td></tr>
+            <tr><td>4d / 5d transition metals</td><td><code>def2-TZVP</code> (def2-ECP) or <code>SARC-ZORA-TZVP</code></td><td><code>def2/J</code> or <code>SARC/J</code></td></tr>
+            <tr><td>Lanthanides</td><td><code>SARC2-ZORA-QZVP</code></td><td><code>SARC/J</code></td></tr>
+            <tr><td>DLPNO-CCSD(T) single point</td><td><code>cc-pVTZ</code> + CBS extrapolation</td><td><code>cc-pVTZ/C</code></td></tr>
+            <tr><td>Anions, excited states</td><td><code>aug-cc-pVTZ</code> or <code>ma-def2-TZVP</code></td><td>Same-family /J or /C</td></tr>
+            <tr><td>NMR shielding</td><td><code>pcSseg-1</code>, <code>pcSseg-2</code> (Jensen)</td><td><code>def2/JK</code></td></tr>
+            <tr><td>Response properties (polarisability)</td><td><code>def2-TZVPD</code></td><td><code>def2/J</code></td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <div class="note-title">Composite methods do not need a basis line</div>
+          <p>
+            "3c" composite methods such as <code>r2SCAN-3c</code>, <code>B97-3c</code>, and
+            <code>PBEh-3c</code> have their own bundled basis sets; you do not specify one
+            separately. A single line like <code>! r2SCAN-3c Opt</code> is all you need.
+          </p>
+        </div>
+
+        <h3>The importance of consistency</h3>
+        <p>
+          When comparing reaction energies or bond-dissociation energies, always apply the
+          same basis to every species so the basis-set superposition errors (BSSE) cancel.
+          BSSE partially cancels when the same basis is used, but the cancellation breaks down
+          if bases are mixed. For intermolecular interactions where BSSE is a concern, consider
+          counterpoise correction (ghost atoms, the <code>:</code> suffix).
         </p>
       </article>
 
-<nav class="page-nav"><a class="prev" href="coupled-cluster.html"><div class="page-nav-label">← previous</div><div class="page-nav-title">DLPNO-CCSD(T)</div></a><a class="next" href="dft-functionals.html"><div class="page-nav-label">next →</div><div class="page-nav-title">DFT functionals</div></a></nav>
+      <nav class="page-nav">
+        <a class="prev" href="coupled-cluster.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">DLPNO-CCSD(T)</div>
+        </a>
+        <a class="next" href="dft-functionals.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">DFT functionals</div>
+        </a>
+      </nav>
     </main>
   </div>
   <script src="../assets/js/main.js"></script>
