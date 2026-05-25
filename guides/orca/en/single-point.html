@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Single point energy · ORCA User Guide</title>
-  <meta name="description" content="Energy and wavefunction at a fixed geometry — the most basic ORCA job." />
+  <meta name="description" content="Energy and wavefunction at a fixed geometry — the most basic ORCA job and the starting point for every other calculation." />
   <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
@@ -67,30 +67,300 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 04 · COMMON CALCULATIONS</div>
         <h1 class="page-title">Single point energy</h1>
-        <p class="page-lede">Energy and wavefunction at a fixed geometry — the most basic ORCA job.</p>
+        <p class="page-lede">Energy and wavefunction at a fixed geometry — the most basic ORCA job, and the starting point for every other calculation.</p>
       </header>
 
       <article class="content">
-        <div class="note">
-          <div class="note-title">Translation in progress</div>
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#basic">Basic examples — HF, DFT</a></li>
+            <li><a href="#per-atom-basis">Element-specific basis sets</a></li>
+            <li><a href="#open-shell">Open-shell calculations</a></li>
+            <li><a href="#reading-output">Reading the output — the essentials</a></li>
+            <li><a href="#scf-workflow">What to do after the SCF converges</a></li>
+            <li><a href="#population">Population analysis</a></li>
+            <li><a href="#mo-plot">Visualising molecular orbitals</a></li>
+          </ul>
+        </div>
+
+        <h2 id="basic">Basic examples — HF, DFT</h2>
+        <p>
+          A single-point calculation is the simplest thing you can do in ORCA. You need a method,
+          a basis set, and the coordinates. If no run-type keyword is given, ORCA defaults to a
+          single-point job.
+        </p>
+
+        <h3>HF single point</h3>
+        <pre data-lang="orca"><code><span class="cmt"># HF single point on CO</span>
+<span class="kw">!</span> <span class="kw2">HF def2-SVP</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  C   0.0   0.0   0.0
+  O   0.0   0.0   1.13
+<span class="kw">*</span></code></pre>
+
+        <h3>DFT (B3LYP) single point</h3>
+        <pre data-lang="orca"><code><span class="cmt"># B3LYP/def2-TZVP single point on cyclohexane</span>
+<span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightSCF</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> cyclohexane.xyz</code></pre>
+
+        <p>
+          Combining <code>RIJCOSX</code> with <code>def2/J</code> is the de-facto standard
+          acceleration scheme for hybrid DFT. Enabling both treats the Coulomb term with RI and
+          the exchange term with COSX (Chain-of-Spheres exchange); for medium-sized molecules
+          you typically see an order-of-magnitude speed-up.
+        </p>
+
+        <div class="tip">
+          <div class="note-title">RIJCOSX is essentially free</div>
           <p>
-            The English version of this chapter is being written. In the meantime, the
-            corresponding Korean chapter is fully available — please follow the link below
-            or use the <strong>KO</strong> toggle in the top-left of the sidebar.
-          </p>
-          <p>
-            → <a href="../ko/single-point.html">Read this chapter in Korean (한국어)</a>
+            According to the benchmarks cited in the manual, the energy error introduced by
+            RIJCOSX is at the level of microhartrees (μE<sub>h</sub>) relative to exact
+            integrals — completely negligible for chemical applications. If you are running
+            hybrid DFT, leave RIJCOSX on by default.
           </p>
         </div>
 
+        <h2 id="per-atom-basis">Element-specific basis sets</h2>
         <p>
-          If you would like to be notified when the English translation lands, please open
-          an issue at
-          <a href="https://github.com/dhwan0112/dhk.github.io/issues">dhwan0112/dhk.github.io</a>.
+          For transition-metal complexes a common strategy is to use a large basis on the metal
+          and a smaller one on the ligands. ORCA supports this with a concise syntax.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># CuCl4 anion — TZVPP on Cu, DUNNING-DZP on Cl</span>
+<span class="kw">!</span> <span class="kw2">HF</span>
+
+<span class="kw">%basis</span>
+   <span class="kw2">basis</span> <span class="str">"SV"</span>                          <span class="cmt"># default SV for all atoms</span>
+   <span class="kw2">newGTO</span> Cl <span class="str">"DUNNING-DZP"</span> <span class="kw">end</span>      <span class="cmt"># replace just Cl</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">-2 2</span>
+  Cu   0.00   0.00   0.00   <span class="kw2">newGTO</span> <span class="str">"TZVPP"</span> <span class="kw">end</span>  <span class="cmt"># replace just Cu</span>
+  Cl   2.25   0.00   0.00
+  Cl  -2.25   0.00   0.00
+  Cl   0.00   2.25   0.00
+  Cl   0.00  -2.25   0.00
+<span class="kw">*</span></code></pre>
+
+        <p>
+          You can mix and match bases at the per-atom or per-element level this freely. Effective
+          core potentials (ECPs) are specified in the same way.
+        </p>
+
+        <h2 id="open-shell">Open-shell calculations</h2>
+        <p>
+          For odd-electron molecules or multiplet systems with unpaired electrons, it is best to
+          specify unrestricted spin (UHF / UKS) explicitly.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># OH radical (doublet)</span>
+<span class="kw">!</span> <span class="kw2">UKS B3LYP D4 def2-TZVP TightSCF UNO</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 2</span>
+  O   0.0   0.0   0.000
+  H   0.0   0.0   0.969
+<span class="kw">*</span></code></pre>
+
+        <p>
+          The <code>UNO</code> keyword prints Unrestricted Natural Orbitals (UNOs) and
+          Unrestricted Corresponding Orbitals (UCOs). These are extremely useful for diagnosing
+          spin contamination and bond multiplicity. The output contains a table such as:
+        </p>
+
+        <pre data-lang="output"><code>----------------------
+Orbital    Overlap(*)
+----------------------
+...
+101:      0.99563
+102:      0.74329   &lt;-- well below 1 → spin-coupled pair
+103:      0.00000</code></pre>
+
+        <p>
+          An overlap close to 1 indicates a doubly occupied orbital, 0 indicates a singly
+          occupied one, and values in between (typically below ~0.85) suggest a spin-coupled
+          pair — e.g. a singlet diradical. That single column of numbers is a very fast
+          electronic-structure diagnostic.
+        </p>
+
+        <h2 id="reading-output">Reading the output — the essentials</h2>
+        <p>
+          ORCA's output file is long, but the most important lines fit into a handful of
+          sections. For a DFT single point, look at these in order:
+        </p>
+
+        <h3>① Input echo</h3>
+        <pre data-lang="output"><code>-----------
+INPUT FILE
+-----------
+NAME = water.inp
+...
+&gt; ! B3LYP D4 def2-TZVP RIJCOSX def2/J TightSCF
+&gt; * xyz 0 1
+&gt;   O   0.000000   0.000000   0.119262
+...</code></pre>
+        <p>Confirm that the input was recognised the way you intended.</p>
+
+        <h3>② SCF iterations</h3>
+        <pre data-lang="output"><code>               SCF ITERATIONS
+ITER       Energy         Delta-E        Max-DP      RMS-DP
+  0    -76.3987452578   0.000000000000  0.04123455  0.00234567
+  1    -76.4128931256  -0.014147867    0.01234567  0.00112345
+  ...
+  8    -76.4197732345  -0.000000012    0.00000012  0.00000003
+
+         *****************************************************
+         *                     SUCCESS                       *
+         *           SCF CONVERGED AFTER  8 CYCLES           *
+         *****************************************************</code></pre>
+        <p>
+          Check that the SCF converged, how many iterations it took, and the final energy
+          change. You want to see the "SUCCESS" message.
+        </p>
+
+        <h3>③ Final single-point energy</h3>
+        <pre data-lang="output"><code>----------------
+TOTAL SCF ENERGY
+----------------
+Total Energy       :       -76.41977323 Eh        -2079.49852 eV
+
+Components:
+Nuclear Repulsion  :         9.16871523 Eh           249.49276 eV
+Electronic Energy  :       -85.58848846 Eh         -2328.99128 eV
+One Electron Energy:      -123.07512345 Eh         -3349.06713 eV
+Two Electron Energy:        37.48663499 Eh          1020.07585 eV
+...
+
+FINAL SINGLE POINT ENERGY       -76.419773234567</code></pre>
+
+        <p>
+          The number on the <code>FINAL SINGLE POINT ENERGY</code> line is the final energy in
+          Hartree. Useful conversions: 1 Hartree ≈ 627.5095 kcal/mol ≈ 27.2114 eV.
+        </p>
+
+        <h3>④ Orbital energies and HOMO–LUMO gap</h3>
+        <pre data-lang="output"><code>----------------
+ORBITAL ENERGIES
+----------------
+  NO   OCC          E(Eh)           E(eV)
+   0   2.0000     -19.131245      -520.5879
+   1   2.0000      -1.001234       -27.2451
+   2   2.0000      -0.512345       -13.9416
+   3   2.0000      -0.345678        -9.4067
+   4   2.0000      -0.267890        -7.2898    &lt;- HOMO
+   5   0.0000      -0.012345        -0.3359    &lt;- LUMO
+   6   0.0000       0.123456         3.3601
+   ...</code></pre>
+        <p>
+          The HOMO and LUMO give first-pass estimates for redox propensity and optical
+          properties.
+        </p>
+
+        <h3>⑤ Dipole and higher multipole moments</h3>
+        <pre data-lang="output"><code>-------------
+DIPOLE MOMENT
+-------------
+                                X          Y          Z
+Electronic contribution:   0.00000    0.00000   -0.74021
+Nuclear contribution   :   0.00000    0.00000    1.61234
+                          -----------------------------------------
+Total Dipole Moment    :   0.00000    0.00000    0.87213
+                          -----------------------------------------
+Magnitude (a.u.)       :   0.87213
+Magnitude (Debye)      :   2.21649</code></pre>
+
+        <h2 id="scf-workflow">What to do after the SCF converges</h2>
+        <p>
+          Common follow-up tasks after a single point are population analysis and orbital
+          visualisation. Both are turned on with a couple of keywords.
+        </p>
+
+        <h2 id="population">Population analysis</h2>
+        <p>The manual's recommended combination is:</p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">HF def2-SVP Mulliken Loewdin Mayer ReducedPOP</span></code></pre>
+
+        <p>The population-analysis section of the output then looks like this:</p>
+
+        <pre data-lang="output"><code>-----------------------
+MULLIKEN ATOMIC CHARGES
+-----------------------
+   0 O :   -0.612345
+   1 H :    0.306173
+   2 H :    0.306173
+Sum of atomic charges:   -0.0000000
+
+-----------------------------------------
+LOEWDIN ATOMIC CHARGES
+-----------------------------------------
+   0 O :   -0.487654
+   1 H :    0.243827
+   2 H :    0.243827
+
+-----------------
+MAYER POPULATION ANALYSIS
+-----------------
+   0 O :  Total valence: 2.012  Mean: 1.006  ...
+...
+   ATOM    ATOM     BOND ORDER
+   0 O     1 H        0.987
+   0 O     2 H        0.987</code></pre>
+
+        <div class="note">
+          <div class="note-title">Which analysis to trust</div>
+          <p>
+            Mulliken charges are very sensitive to the basis set and tend to diverge with large
+            bases. Löwdin is more stable, and Mayer bond orders generally agree well with
+            chemical intuition. For serious quantitative work prefer NPA (Natural Population
+            Analysis) or CHELPG.
+          </p>
+        </div>
+
+        <h2 id="mo-plot">Visualising molecular orbitals</h2>
+        <p>
+          To inspect orbitals in 3D, either generate cube files inside the input via a
+          <code>%plots</code> block, or use the standalone <code>orca_plot</code> utility.
+        </p>
+
+        <h3>Option ①: generate cubes inside the input</h3>
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP def2-SVP TightSCF</span>
+
+<span class="kw">%plots</span>
+   <span class="kw2">dim1</span>  <span class="num">45</span>
+   <span class="kw2">dim2</span>  <span class="num">45</span>
+   <span class="kw2">dim3</span>  <span class="num">45</span>
+   <span class="kw2">Format</span> <span class="kw">Gaussian_Cube</span>
+   <span class="kw2">MO</span>(<span class="str">"homo.cube"</span>, <span class="num">4</span>, <span class="num">0</span>)    <span class="cmt"># alpha MO index 4</span>
+   <span class="kw2">MO</span>(<span class="str">"lumo.cube"</span>, <span class="num">5</span>, <span class="num">0</span>)
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> water.xyz</code></pre>
+
+        <h3>Option ②: use <code>orca_plot</code> after the calculation</h3>
+        <pre data-lang="bash"><code><span class="cmt"># interactive mode - follow the menu</span>
+orca_plot water.gbw -i</code></pre>
+
+        <p>The resulting <code>.cube</code> files can be visualised in VMD, Avogadro, ChimeraX, PyMOL, and similar tools.</p>
+
+        <p>
+          The single point is the starting point for every kind of ORCA calculation. The output
+          conventions covered on this page apply unchanged to every other run type. The next
+          chapter moves on to relaxing the structure itself — geometry optimisation.
         </p>
       </article>
 
-<nav class="page-nav"><a class="prev" href="keywords.html"><div class="page-nav-label">← previous</div><div class="page-nav-title">Keywords</div></a><a class="next" href="geometry-optimization.html"><div class="page-nav-label">next →</div><div class="page-nav-title">Geometry optimisation</div></a></nav>
+      <nav class="page-nav">
+        <a class="prev" href="keywords.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Keywords</div>
+        </a>
+        <a class="next" href="geometry-optimization.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Geometry optimisation</div>
+        </a>
+      </nav>
     </main>
   </div>
   <script src="../assets/js/main.js"></script>
