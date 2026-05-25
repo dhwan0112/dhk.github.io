@@ -81,6 +81,7 @@
             <li><a href="#f12">F12 — fast approach to the basis-set limit</a></li>
             <li><a href="#open-shell">Open shell — UHF reference</a></li>
             <li><a href="#workflow">Recommended workflow</a></li>
+            <li><a href="#multiref">One step further — multireference (CASSCF · NEVPT2)</a></li>
           </ul>
         </div>
 
@@ -280,6 +281,123 @@
             <code>! DLPNO-B2PLYP D4 def2-TZVP def2-TZVP/C</code> cuts double-hybrid cost
             substantially — very useful for precision single points on medium-to-large
             molecules.
+          </p>
+        </div>
+
+        <h2 id="multiref">One step further — the multireference regime (CASSCF · NEVPT2)</h2>
+        <p>
+          DLPNO-CCSD(T) is the apex of single-reference theory. For systems that are dominated
+          by a single Slater determinant — closed-shell organics, typical radicals — it is
+          nearly quantitatively accurate. There are, however, systems where the single-reference
+          assumption itself breaks down:
+        </p>
+        <ul>
+          <li><strong>Non-colinear magnetic states</strong> in transition-metal and lanthanide
+              complexes (e.g. the Dy<sub>3</sub> triangular cluster and polynuclear single-molecule
+              magnets).</li>
+          <li><strong>Molecules midway through bond dissociation</strong> (e.g. H<sub>2</sub>
+              dissociation, σ-bond breaking).</li>
+          <li><strong>Singlet diradicals</strong>, certain excited states, and dynamics near
+              conical intersections.</li>
+        </ul>
+        <p>
+          In this regime several Slater determinants have comparable weight, so one explicitly
+          solves for multiple reference states (the <em>active space</em>) at once with
+          <strong>CASSCF</strong>. The standard way to add dynamic correlation on top of CASSCF
+          is then <strong>NEVPT2</strong>.
+        </p>
+
+        <h3>The skeleton of the input — the <code>%casscf</code> block</h3>
+
+        <pre data-lang="orca"><code><span class="cmt"># Single Dy(III) 4f^9 ion — CASSCF(9,7) + NEVPT2 + SOC + anisotropy extraction</span>
+<span class="kw">!</span> <span class="kw2">CASSCF def2-SVP DKH2 RIJCOSX def2/J TightSCF</span>
+
+<span class="kw">%casscf</span>
+   <span class="kw2">nel</span>      <span class="num">9</span>                <span class="cmt"># number of active electrons (Dy 4f^9)</span>
+   <span class="kw2">norb</span>     <span class="num">7</span>                <span class="cmt"># number of active orbitals (7 × 4f)</span>
+   <span class="kw2">mult</span>     <span class="num">6, 4, 2</span>          <span class="cmt"># sextet (S=5/2), quartet (S=3/2), doublet (S=1/2)</span>
+   <span class="kw2">nroots</span>   <span class="num">7, 35, 84</span>        <span class="cmt"># number of Russell-Saunders terms (Weyl)</span>
+   <span class="kw2">PTMethod</span> <span class="kw">sc_nevpt2</span>        <span class="cmt"># dynamic correlation correction</span>
+
+   <span class="kw">rel</span>
+      <span class="kw2">DoSOC</span>    <span class="kw">true</span>          <span class="cmt"># 2nd-order spin-orbit coupling (QDPT)</span>
+      <span class="kw2">SOCType</span>  <span class="num">2</span>             <span class="cmt"># SOMF 1X operator</span>
+   <span class="kw">end</span>
+
+   <span class="kw">SINGLE_ANISO</span> <span class="kw">true</span>        <span class="cmt"># automatically fit a pseudospin Hamiltonian</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">3 6</span>                  <span class="cmt"># Dy^3+ ion (charge +3, multiplicity 6 = ground term)</span>
+   Dy   0.000   0.000   0.000
+<span class="kw">*</span></code></pre>
+
+        <p>A short glossary of the keywords above:</p>
+
+        <table>
+          <thead>
+            <tr><th>Keyword</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>nel · norb</code></td><td>Size of the active space. The (n, m) in CAS(n, m).</td></tr>
+            <tr><td><code>mult · nroots</code></td><td>Number of states solved per multiplicity. Dy<sup>3+</sup> is 4f<sup>9</sup>, so on top of the <sup>6</sup>H ground term you need all higher and lower-spin terms covered.</td></tr>
+            <tr><td><code>PTMethod sc_nevpt2</code></td><td>Strongly-contracted NEVPT2. Perturbatively recovers dynamic correlation outside the active space.</td></tr>
+            <tr><td><code>DoSOC true</code></td><td>Second-order spin-orbit coupling (QDPT) to build SO states. Essential for magnetic properties.</td></tr>
+            <tr><td><code>SINGLE_ANISO true</code></td><td>Fits a pseudospin-1/2 Hamiltonian on the SO states and prints g-tensor + level splittings.</td></tr>
+            <tr><td><code>DKH2 / ZORA</code></td><td>Scalar relativity. Practically required for heavy elements.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="tip">
+          <div class="note-title">The hardest part is choosing the active space</div>
+          <p>
+            CASSCF results are very sensitive to the choice of active space. For magnetic
+            properties, "all metal d (or f) orbitals + the most relevant ligand orbitals" is a
+            reasonable chemically motivated starting point. Too small and the result is wrong;
+            too large and the cost explodes. The pragmatic recipe is to <strong>grow the active
+            space incrementally and watch the result converge</strong>.
+          </p>
+        </div>
+
+        <h3>What to look for in the output</h3>
+        <p>
+          Toward the very end of the output, SINGLE_ANISO prints a table summarising the
+          pseudospin Hamiltonian. The numbers to look at first are typically:
+        </p>
+
+        <pre data-lang="output"><code>--------------------
+PSEUDOSPIN HAMILTONIAN
+--------------------
+Pseudospin S = 1/2
+
+ENERGIES OF DOUBLET STATES (cm**-1):
+   doublet  1:      0.00
+   doublet  2:    156.21
+   doublet  3:    267.54
+   ...
+
+g-FACTORS OF THE LOWEST DOUBLET:
+   gx =   0.04
+   gy =   0.07
+   gz =  19.74     &lt;-- strong anisotropy → Ising limit, potential toroidal arrangement</code></pre>
+
+        <p>
+          A very large <code>gz</code> with <code>gx</code>, <code>gy</code> close to zero is
+          the "Ising-limit" signature, and the first diagnostic for single-molecule-magnet
+          (SMM) behaviour. The next step is typically <strong>POLY_ANISO</strong>, which fits
+          an exchange parameter J between multiple metal centres to reproduce the polynuclear
+          response (see manual §9.27).
+        </p>
+
+        <div class="note">
+          <div class="note-title">Beyond CASSCF — NEVPT2, MRCI, DMRG</div>
+          <p>
+            For tighter treatment of dynamic correlation you can move to
+            <code>PTMethod fic_nevpt2</code> (fully internally contracted) or
+            <code>! MRCI+Q</code> (multireference CI + Davidson correction). Once the active
+            space exceeds ~12 orbitals, canonical CASSCF runs into memory limits and ORCA 6's
+            <strong>DMRG-CASSCF</strong> (<code>%casscf actorbs DMRG</code>) takes over. This
+            guide is introductory so we stop here, but with the keywords above you can jump
+            straight into the relevant sections of the manual (§9 and §10).
           </p>
         </div>
       </article>
