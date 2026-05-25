@@ -113,6 +113,15 @@
 여러 단계를 잇대어 쓰는 것이 정상적인 사용 방식입니다.</p>
 <p>이 4단계 구조는 입력 스크립트를 짤 때 명령어 순서를 결정하는 가장 큰
 원리이므로, 작성할 때마다 머릿속에 떠올려 두시면 좋습니다.</p>
+<figure>
+  <img src="assets/images/input-flow.svg" alt="LAMMPS 입력 스크립트의 4단계 표준 구조 다이어그램" style="width:100%;max-width:880px;height:auto;border:1px solid var(--border-color);border-radius:6px;background:#ffffff;" />
+  <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
+    그림 1. LAMMPS 입력 스크립트의 4단계 표준 구조와 각 단계의 대표 명령어.
+    화살표가 가리키는 정방향은 한 번 실행 시 순서이고, 점선 화살표는 매뉴얼이
+    명시한 "마지막 두 부분(Settings · Run)은 원하는 만큼 반복할 수 있다" 규칙.
+  </figcaption>
+</figure>
+
 <h2 id="22">2.2 단계별 핵심 명령어</h2>
 <h3 id="1">1단계: 초기화</h3>
 <p>원자가 만들어진 후에는 바꿀 수 없는 전역 설정들을 먼저 선언합니다.</p>
