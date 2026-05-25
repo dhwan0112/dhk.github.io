@@ -98,6 +98,7 @@ NAV_SECTIONS = [
 def render_sidebar(current: str) -> str:
     out = [
         '<aside class="sidebar">',
+        '  <a href="../../" class="sidebar-back">← Donghwan KIM</a>',
         '  <a href="index.html" class="sidebar-brand">',
         '    <div class="brand-title">LAMMPS</div>',
         '    <div class="brand-subtitle">한국어 입문 가이드</div>',
