@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Getting started · ORCA User Guide</title>
+  <meta name="description" content="Install check, first run, and a tour of the ORCA output files — the fastest path to feeling comfortable with ORCA." />
+  <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/getting-started.html">KO</a>
+    <a href="getting-started.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">ORCA</div>
+    <div class="brand-subtitle">User Guide · v6.0</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Getting Started</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="keywords.html"><span class="nav-num">03</span>Keywords</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Common Calculations</div>
+      <ul class="nav-list">
+        <li><a href="single-point.html"><span class="nav-num">04</span>Single point energy</a></li>
+        <li><a href="geometry-optimization.html"><span class="nav-num">05</span>Geometry optimisation</a></li>
+        <li><a href="frequencies.html"><span class="nav-num">06</span>Frequencies</a></li>
+        <li><a href="transition-states.html"><span class="nav-num">07</span>Transition states · NEB</a></li>
+        <li><a href="excited-states.html"><span class="nav-num">08</span>Excited states · TD-DFT</a></li>
+        <li><a href="solvation.html"><span class="nav-num">09</span>Solvation</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Methods &amp; Models</div>
+      <ul class="nav-list">
+        <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>Basis sets</a></li>
+        <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT functionals</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Operations</div>
+      <ul class="nav-list">
+        <li><a href="tips.html"><span class="nav-num">13</span>Tips · Troubleshooting</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 01 · GETTING STARTED</div>
+        <h1 class="page-title">Getting started</h1>
+        <p class="page-lede">From install check to first run — the shortest path to feeling at home with ORCA.</p>
+      </header>
+
+      <article class="content">
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#about">What is ORCA?</a></li>
+            <li><a href="#install">Install check</a></li>
+            <li><a href="#first-run">First run — single point on H<sub>2</sub>O</a></li>
+            <li><a href="#files">Output and scratch files</a></li>
+            <li><a href="#parallel">Running in parallel</a></li>
+            <li><a href="#memory">Setting memory</a></li>
+          </ul>
+        </div>
+
+        <h2 id="about">What is ORCA?</h2>
+        <p>
+          ORCA grew out of a small semi-empirical program that Frank Neese wrote around 1995 in
+          Turbo Pascal, to compute spectroscopic properties of transition-metal complexes.
+          Roughly thirty years of development later it has become a large package used by
+          some seventy thousand academic users worldwide. Version 6.0 (2024) is a landmark
+          release that effectively redesigned the whole codebase around the SHARK integration
+          engine and the COSX approximation, with large performance gains as a result.
+        </p>
+
+        <p>
+          ORCA distinguishes itself from other quantum chemistry packages in three ways. First,
+          methods that are central to transition-metal chemistry and spectroscopy (CASSCF,
+          NEVPT2, DLPNO-CCSD(T), …) are well implemented. Second, it is free for academic use.
+          Third, it has an active user community running an official forum.
+        </p>
+
+        <h2 id="install">Install check</h2>
+        <p>
+          ORCA is downloaded from the official forum
+          (<a href="https://orcaforum.kofo.mpg.de">orcaforum.kofo.mpg.de</a>) after registering
+          an academic account. Linux, macOS, and Windows binaries are provided. Every example in
+          this guide runs on 5.0.2, 5.0.4, and 6.0.0.
+        </p>
+
+        <p>
+          The first thing to check after installation is whether the <code>orca</code> executable
+          is on your <code>PATH</code>. In a terminal:
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt"># locate the binary</span>
+which orca</code></pre>
+
+        <div class="warning">
+          <div class="note-title">Absolute path is required for parallel runs</div>
+          <p>
+            For parallel calculations ORCA needs the <strong>absolute path</strong> of its binary
+            on <code>PATH</code>. Look it up with <code>which orca</code> and add it explicitly,
+            e.g. <code>export PATH=/path/to/orca:$PATH</code>. Relative paths or shell aliases
+            cause OpenMPI to fail to locate the parallel executable. While you are at it, set
+            <code>LD_LIBRARY_PATH</code> for the OpenMPI shared libraries as well.
+          </p>
+        </div>
+
+        <h2 id="first-run">First run — single point on H<sub>2</sub>O</h2>
+        <p>
+          An ORCA input file is plain ASCII; the conventional extension is <code>.inp</code>.
+          Let's compute the single-point energy of one water molecule at the B3LYP / def2-SVP
+          level.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># my_first.inp — single-point energy of water</span>
+<span class="kw">!</span> <span class="kw2">B3LYP def2-SVP</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  O   0.000000   0.000000   0.119262
+  H   0.000000   0.763239  -0.477047
+  H   0.000000  -0.763239  -0.477047
+<span class="kw">*</span></code></pre>
+
+        <p>
+          Briefly, the input has three parts (covered in detail in
+          <a href="input-structure.html">02 · Input file structure</a>):
+        </p>
+
+        <ul>
+          <li>Lines starting with <code>!</code> are the <strong>keyword line</strong>. Here we
+              picked the method (<code>B3LYP</code>) and the basis set (<code>def2-SVP</code>).</li>
+          <li>Lines surrounded by <code>*</code> form the <strong>coordinate block</strong>;
+              <code>xyz</code> requests Cartesian coordinates and <code>0 1</code> means total
+              charge 0 and multiplicity 1 (closed shell).</li>
+          <li>Lines starting with <code>#</code> are treated as comments.</li>
+        </ul>
+
+        <p>Run it as:</p>
+
+        <pre data-lang="bash"><code><span class="cmt"># Linux / macOS</span>
+orca my_first.inp &gt; my_first.out
+
+<span class="cmt"># Windows (Command Prompt)</span>
+orca my_first.inp &gt; my_first.out</code></pre>
+
+        <div class="tip">
+          <div class="note-title">Always redirect the output</div>
+          <p>
+            ORCA writes all results to <strong>standard output</strong>. You must redirect with
+            <code>&gt; output_file</code>; otherwise the result scrolls past on screen and is
+            lost.
+          </p>
+        </div>
+
+        <p>
+          A successful run ends with a message like this near the bottom of the output file:
+        </p>
+
+        <pre data-lang="output"><code>FINAL SINGLE POINT ENERGY       -76.419773234567
+
+                            ****ORCA TERMINATED NORMALLY****</code></pre>
+
+        <p>
+          The number on the <code>FINAL SINGLE POINT ENERGY</code> line is the energy in
+          Hartree. Seeing the message above means the calculation itself completed.
+        </p>
+
+        <div class="warning">
+          <div class="note-title">"Terminated normally" ≠ result is trustworthy</div>
+          <p>
+            As the manual emphasises, an <code>ORCA TERMINATED NORMALLY</code> message does not
+            guarantee a meaningful result. For example, a geometry optimisation that hits its
+            maximum number of iterations without converging will also print this message.
+            Whether the job actually did what you wanted always has to be confirmed by reading
+            the rest of the output file.
+          </p>
+        </div>
+
+        <h2 id="files">Output and scratch files</h2>
+        <p>
+          Running ORCA produces a handful of additional files in the same directory as the input.
+          The most important ones are:
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>File</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>basename.out</code></td><td>The standard-output file. The main human-readable result.</td></tr>
+            <tr><td><code>basename.gbw</code></td><td>Binary molecular-orbital file (Geometry-Basis-Wavefunction). Used as input for restarts or follow-up calculations.</td></tr>
+            <tr><td><code>basename.xyz</code></td><td>Cartesian coordinates of the optimised geometry.</td></tr>
+            <tr><td><code>basename_trj.xyz</code></td><td>Trajectory of all intermediate geometries from the optimisation.</td></tr>
+            <tr><td><code>basename.engrad</code></td><td>Text file with energy and gradient.</td></tr>
+            <tr><td><code>basename.hess</code></td><td>Hessian file generated during a frequency calculation.</td></tr>
+            <tr><td><code>basename.property.txt</code></td><td>Various molecular properties (dipole, polarisability, …).</td></tr>
+            <tr><td><code>basename.*.tmp</code></td><td>Scratch files; cleaned automatically on a normal termination.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <div class="note-title">Cleanup after an abnormal termination</div>
+          <p>
+            If ORCA does not terminate normally, the <code>.tmp</code> files are left behind.
+            Best to remove them before the next run:
+          </p>
+          <pre data-lang="bash"><code>rm basename*.tmp     <span class="cmt"># Linux / macOS</span>
+del basename*.tmp    <span class="cmt"># Windows</span></code></pre>
+        </div>
+
+        <h2 id="parallel">Running in parallel</h2>
+        <p>
+          ORCA uses OpenMPI (Linux / macOS) or MS-MPI (Windows) for parallel calculations. The
+          number of processes can be set in two ways:
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Option 1: simple keyword (PAL2 – PAL64 are supported)</span>
+<span class="kw">!</span> <span class="kw2">B3LYP def2-SVP PAL8</span>
+
+<span class="cmt"># Option 2: %pal block (any positive integer)</span>
+<span class="kw">%pal</span>
+   <span class="kw2">nprocs</span> <span class="num">12</span>
+<span class="kw">end</span></code></pre>
+
+        <p>The manual's practical guidance is roughly:</p>
+
+        <ul>
+          <li><strong>RI-DFT</strong>: scales well up to ~16 cores; overhead dominates beyond that.</li>
+          <li><strong>Hybrid DFT, HF</strong>: usable up to 16–24 cores.</li>
+          <li><strong>Coupled cluster</strong>: typically 8–16 cores.</li>
+          <li><strong>Numerical derivatives</strong> (NumFreq, NumGrad): many independent displacements, so many cores can be used effectively — up to roughly 6 × atoms × (4–8).</li>
+        </ul>
+
+        <p>
+          ORCA 6 adds another layer: parallelism can be split <em>across</em> displacements. For
+          example, 32 total processes can be arranged as "4 processes × 8 groups" to handle
+          eight displacements simultaneously:
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%pal</span>
+   <span class="kw2">nprocs</span>       <span class="num">32</span>  <span class="cmt"># total processes</span>
+   <span class="kw2">nprocs_group</span>  <span class="num">4</span>  <span class="cmt"># processes per displacement</span>
+<span class="kw">end</span></code></pre>
+
+        <h2 id="memory">Setting memory</h2>
+        <p>
+          Correlated modules (MP2, CCSD, MRCI, …) need large scratch arrays. Memory per core is
+          set with <code>%maxcore</code>, in megabytes:
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># 4 GB per core (total usage ≈ nprocs × maxcore)</span>
+<span class="kw">%maxcore</span> <span class="num">4000</span></code></pre>
+
+        <div class="caution">
+          <div class="note-title">Out-of-memory errors</div>
+          <p>
+            If an SCF aborts with a message like "Please increase MaxCore", raise
+            <code>%maxcore</code> within the limits of your physical memory. The value refers
+            only to the <em>main working buffer</em>; total ORCA memory use is somewhat larger.
+            A safe practice is to budget 60–70 % of the available RAM. For a 64 GB machine
+            running 8 cores in parallel, starting at <code>%maxcore 5000</code> is reasonable.
+          </p>
+        </div>
+
+        <p>
+          That covers the basics of a first ORCA run. The next chapter dives into the syntax of
+          the input file itself.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="index.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Overview</div>
+        </a>
+        <a class="next" href="input-structure.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Input file structure</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
