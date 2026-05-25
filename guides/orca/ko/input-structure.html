@@ -80,6 +80,7 @@
             <li><a href="#external">외부 파일에서 좌표 읽기</a></li>
             <li><a href="#special">특수 원자 — 가짜 원자, 점전하, 동위원소</a></li>
             <li><a href="#multi-job">하나의 파일에 여러 작업 — <code>$new_job</code></a></li>
+            <li><a href="#compound">자동화 — Compound 모듈</a></li>
           </ul>
         </div>
 
@@ -350,6 +351,110 @@ H   0.000000  -0.763239  -0.477047</code></pre>
             반복 계산이나 조건 분기가 필요한 복잡한 워크플로우는 ORCA 6의 새로운 Compound 모듈로 자동화할 수 있습니다.
             <code>%compound</code> 블록 안에서 변수, 반복문, 조건문, 출력 포맷을 직접 제어합니다.
             매뉴얼 7.59절과 GitHub의 공식 스크립트 저장소(<a href="https://github.com/ORCAQuantumChemistry/CompoundScripts">ORCAQuantumChemistry/CompoundScripts</a>)에 풍부한 예제가 있습니다.
+          </p>
+        </div>
+
+        <h2 id="compound">자동화 한 발 더 — Compound 모듈로 결합 해리 곡선</h2>
+        <p>
+          <code>$new_job</code> 만으로도 여러 단계 계산을 한 입력에 묶을 수 있지만,
+          “같은 계산을 좌표 하나만 바꿔 가며 20 번” 같은 패턴은 손으로 풀어 쓰면 입력 파일이
+          금방 수백 줄이 됩니다. ORCA 6 의 Compound 모듈은 이런 반복을 변수와 for-loop 로
+          표현하게 해 줍니다.
+        </p>
+
+        <h3>예제 ① — H<sub>2</sub> 결합 해리 곡선</h3>
+        <p>
+          수소 분자의 H-H 결합 길이를 0.5 Å 부터 3.0 Å 까지 26 점 스캔하여
+          B3LYP/def2-TZVP 단일점 에너지를 한 입력으로 얻는 예입니다. 결과는
+          <code>scan.dat</code> 파일에 깔끔한 표로 떨어집니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%compound</span>
+   <span class="kw2">Variable</span> R, E, step;
+   <span class="kw2">Variable</span> Rmin <span class="kw">=</span> <span class="num">0.5</span>;
+   <span class="kw2">Variable</span> Rmax <span class="kw">=</span> <span class="num">3.0</span>;
+   <span class="kw2">Variable</span> N    <span class="kw">=</span> <span class="num">26</span>;
+
+   <span class="kw2">Variable</span> outFile <span class="kw">=</span> <span class="str">"scan.dat"</span>;
+   <span class="kw2">Write_File</span>(outFile, <span class="str">"# R/A    E/Eh\n"</span>);
+
+   <span class="kw2">For</span> step <span class="kw2">From</span> <span class="num">0</span> <span class="kw2">To</span> N <span class="kw2">Do</span>
+       R <span class="kw">=</span> Rmin <span class="kw">+</span> step <span class="kw">*</span> (Rmax <span class="kw">-</span> Rmin) <span class="kw">/</span> N;
+
+       <span class="kw2">New_Step</span>
+       <span class="kw">!</span> <span class="kw2">UKS B3LYP D4 def2-TZVP TightSCF</span>
+       <span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+          H   0.0   0.0   0.0
+          H   0.0   0.0   <span class="kw">&amp;</span>{R}
+       <span class="kw">*</span>
+       <span class="kw2">Step_End</span>
+
+       E <span class="kw">=</span> <span class="kw2">SCF_Energy</span>;
+       <span class="kw2">Write_File</span>(outFile, <span class="str">"%6.3f  %16.10f\n"</span>, R, E);
+   <span class="kw2">EndFor</span>
+<span class="kw">end</span></code></pre>
+
+        <p>
+          핵심 문법을 짚으면 다음과 같습니다.
+        </p>
+
+        <table>
+          <thead><tr><th>요소</th><th>역할</th></tr></thead>
+          <tbody>
+            <tr><td><code>Variable X;</code></td><td>스칼라 변수 선언. 초기값을 같은 줄에 줄 수도 있음 (<code>Variable R = 0.5;</code>).</td></tr>
+            <tr><td><code>&amp;{R}</code></td><td>좌표·키워드 내부에서 변수를 “인라인”으로 펼치는 placeholder.</td></tr>
+            <tr><td><code>New_Step ... Step_End</code></td><td>일반 ORCA 입력 블록을 그대로 감쌈. 그 안에서는 평소처럼 <code>!</code> 키워드 라인과 <code>*</code> 좌표 블록을 씁니다.</td></tr>
+            <tr><td><code>SCF_Energy</code></td><td>직전 step 의 최종 SCF 에너지. <code>OPT_Energy</code>, <code>MP2_Energy</code>, <code>CCSD_T_Energy</code> 등 메소드별 변수 다수.</td></tr>
+            <tr><td><code>Write_File(name, fmt, …)</code></td><td>C-style printf 포맷으로 결과 파일에 한 줄씩 누적. 첫 호출에서 파일이 생성되고 이후 호출에서는 append 됩니다.</td></tr>
+            <tr><td><code>For X From a To b Do … EndFor</code></td><td>이산 카운터 루프. <code>If … EndIf</code> 와 <code>While … EndWhile</code> 도 지원.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>예제 ② — 반응물 + 전이 상태 + 생성물 자동 계산</h3>
+        <p>
+          분자 3 개의 깁스 자유에너지를 같은 레벨로 모두 한 번에 얻고 ΔG, ΔG<sup>‡</sup>
+          까지 계산해 출력하는 더 실용적인 예입니다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%compound</span>
+   <span class="kw2">Variable</span> Gr, Gts, Gp;
+   <span class="kw2">Variable</span> dG, dGdag;
+
+   <span class="kw2">Read_File</span>(<span class="str">"reactant.xyz"</span>) <span class="kw2">As</span> <span class="kw">XYZ_File</span>;
+   <span class="kw2">New_Step</span>
+   <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightOpt Freq</span>
+   <span class="kw2">Step_End</span>
+   Gr <span class="kw">=</span> <span class="kw2">Final_Gibbs_Free_Energy</span>;
+
+   <span class="kw2">Read_File</span>(<span class="str">"ts.xyz"</span>) <span class="kw2">As</span> <span class="kw">XYZ_File</span>;
+   <span class="kw2">New_Step</span>
+   <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J OptTS Freq</span>
+   <span class="kw2">Step_End</span>
+   Gts <span class="kw">=</span> <span class="kw2">Final_Gibbs_Free_Energy</span>;
+
+   <span class="kw2">Read_File</span>(<span class="str">"product.xyz"</span>) <span class="kw2">As</span> <span class="kw">XYZ_File</span>;
+   <span class="kw2">New_Step</span>
+   <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightOpt Freq</span>
+   <span class="kw2">Step_End</span>
+   Gp <span class="kw">=</span> <span class="kw2">Final_Gibbs_Free_Energy</span>;
+
+   dG    <span class="kw">=</span> (Gp  <span class="kw">-</span> Gr) <span class="kw">*</span> <span class="num">627.5095</span>;   <span class="cmt"># Hartree → kcal/mol</span>
+   dGdag <span class="kw">=</span> (Gts <span class="kw">-</span> Gr) <span class="kw">*</span> <span class="num">627.5095</span>;
+
+   <span class="kw2">Print</span>(<span class="str">"Reaction free energy:     %8.2f kcal/mol\n"</span>, dG);
+   <span class="kw2">Print</span>(<span class="str">"Activation free energy:   %8.2f kcal/mol\n"</span>, dGdag);
+<span class="kw">end</span></code></pre>
+
+        <div class="tip">
+          <div class="note-title">매뉴얼과 함께 보기</div>
+          <p>
+            본 가이드에 적은 키워드 (<code>Variable</code>, <code>For</code>, <code>If</code>,
+            <code>New_Step</code>, <code>Write_File</code>, <code>Final_Gibbs_Free_Energy</code>
+            등) 는 ORCA 6.0.0 Compound 모듈의 표기를 따르지만, 세부 syntax (변수 명시 방법,
+            print format 등) 는 minor release 마다 약간 다를 수 있습니다. 처음 사용하실 때는
+            매뉴얼 §7.59 와 공식 예제
+            (<a href="https://github.com/ORCAQuantumChemistry/CompoundScripts">ORCAQuantumChemistry/CompoundScripts</a>)
+            를 함께 펴 놓고 단순한 예제부터 따라가시기를 권합니다.
           </p>
         </div>
 

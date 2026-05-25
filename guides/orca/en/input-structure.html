@@ -81,6 +81,7 @@
             <li><a href="#external">Reading coordinates from an external file</a></li>
             <li><a href="#special">Special atoms — dummies, point charges, isotopes</a></li>
             <li><a href="#multi-job">Multiple jobs in one file — <code>$new_job</code></a></li>
+            <li><a href="#compound">Automation — Compound module</a></li>
           </ul>
         </div>
 
@@ -359,6 +360,108 @@ H   0.000000  -0.763239  -0.477047</code></pre>
             manual and the official script repository
             (<a href="https://github.com/ORCAQuantumChemistry/CompoundScripts">ORCAQuantumChemistry/CompoundScripts</a>)
             contain a generous collection of examples.
+          </p>
+        </div>
+
+        <h2 id="compound">Automation one step further — Compound module for a dissociation curve</h2>
+        <p>
+          <code>$new_job</code> lets you chain several jobs in one input, but a pattern like
+          "the same calculation 20 times, varying one coordinate" quickly grows to hundreds of
+          lines if written out by hand. ORCA 6's Compound module lets you express such
+          repetition with variables and for-loops.
+        </p>
+
+        <h3>Example ① — H<sub>2</sub> bond dissociation curve</h3>
+        <p>
+          Scan the H–H bond length of H<sub>2</sub> from 0.5 Å to 3.0 Å in 26 points and
+          evaluate the B3LYP/def2-TZVP single-point energy at each — all in a single input. The
+          result is written cleanly to <code>scan.dat</code>:
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%compound</span>
+   <span class="kw2">Variable</span> R, E, step;
+   <span class="kw2">Variable</span> Rmin <span class="kw">=</span> <span class="num">0.5</span>;
+   <span class="kw2">Variable</span> Rmax <span class="kw">=</span> <span class="num">3.0</span>;
+   <span class="kw2">Variable</span> N    <span class="kw">=</span> <span class="num">26</span>;
+
+   <span class="kw2">Variable</span> outFile <span class="kw">=</span> <span class="str">"scan.dat"</span>;
+   <span class="kw2">Write_File</span>(outFile, <span class="str">"# R/A    E/Eh\n"</span>);
+
+   <span class="kw2">For</span> step <span class="kw2">From</span> <span class="num">0</span> <span class="kw2">To</span> N <span class="kw2">Do</span>
+       R <span class="kw">=</span> Rmin <span class="kw">+</span> step <span class="kw">*</span> (Rmax <span class="kw">-</span> Rmin) <span class="kw">/</span> N;
+
+       <span class="kw2">New_Step</span>
+       <span class="kw">!</span> <span class="kw2">UKS B3LYP D4 def2-TZVP TightSCF</span>
+       <span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+          H   0.0   0.0   0.0
+          H   0.0   0.0   <span class="kw">&amp;</span>{R}
+       <span class="kw">*</span>
+       <span class="kw2">Step_End</span>
+
+       E <span class="kw">=</span> <span class="kw2">SCF_Energy</span>;
+       <span class="kw2">Write_File</span>(outFile, <span class="str">"%6.3f  %16.10f\n"</span>, R, E);
+   <span class="kw2">EndFor</span>
+<span class="kw">end</span></code></pre>
+
+        <p>The key syntactic elements:</p>
+
+        <table>
+          <thead><tr><th>Element</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td><code>Variable X;</code></td><td>Declare a scalar. An initial value can be given on the same line (<code>Variable R = 0.5;</code>).</td></tr>
+            <tr><td><code>&amp;{R}</code></td><td>Placeholder for inline variable expansion inside coordinates or keyword lines.</td></tr>
+            <tr><td><code>New_Step ... Step_End</code></td><td>Wraps a regular ORCA input block. Inside, the usual <code>!</code> keyword lines and <code>*</code> coordinate blocks apply.</td></tr>
+            <tr><td><code>SCF_Energy</code></td><td>Final SCF energy of the previous step. Method-specific variables also exist: <code>OPT_Energy</code>, <code>MP2_Energy</code>, <code>CCSD_T_Energy</code>, …</td></tr>
+            <tr><td><code>Write_File(name, fmt, …)</code></td><td>Append a line to a file using a C-style printf format. The file is created on the first call and appended to on subsequent calls.</td></tr>
+            <tr><td><code>For X From a To b Do … EndFor</code></td><td>Discrete counter loop. <code>If … EndIf</code> and <code>While … EndWhile</code> are also available.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Example ② — Reactant + TS + product in one go</h3>
+        <p>
+          A more practical recipe: compute the Gibbs free energies of three species at the same
+          level of theory and immediately print ΔG and ΔG<sup>‡</sup>.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%compound</span>
+   <span class="kw2">Variable</span> Gr, Gts, Gp;
+   <span class="kw2">Variable</span> dG, dGdag;
+
+   <span class="kw2">Read_File</span>(<span class="str">"reactant.xyz"</span>) <span class="kw2">As</span> <span class="kw">XYZ_File</span>;
+   <span class="kw2">New_Step</span>
+   <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightOpt Freq</span>
+   <span class="kw2">Step_End</span>
+   Gr <span class="kw">=</span> <span class="kw2">Final_Gibbs_Free_Energy</span>;
+
+   <span class="kw2">Read_File</span>(<span class="str">"ts.xyz"</span>) <span class="kw2">As</span> <span class="kw">XYZ_File</span>;
+   <span class="kw2">New_Step</span>
+   <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J OptTS Freq</span>
+   <span class="kw2">Step_End</span>
+   Gts <span class="kw">=</span> <span class="kw2">Final_Gibbs_Free_Energy</span>;
+
+   <span class="kw2">Read_File</span>(<span class="str">"product.xyz"</span>) <span class="kw2">As</span> <span class="kw">XYZ_File</span>;
+   <span class="kw2">New_Step</span>
+   <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightOpt Freq</span>
+   <span class="kw2">Step_End</span>
+   Gp <span class="kw">=</span> <span class="kw2">Final_Gibbs_Free_Energy</span>;
+
+   dG    <span class="kw">=</span> (Gp  <span class="kw">-</span> Gr) <span class="kw">*</span> <span class="num">627.5095</span>;   <span class="cmt"># Hartree → kcal/mol</span>
+   dGdag <span class="kw">=</span> (Gts <span class="kw">-</span> Gr) <span class="kw">*</span> <span class="num">627.5095</span>;
+
+   <span class="kw2">Print</span>(<span class="str">"Reaction free energy:     %8.2f kcal/mol\n"</span>, dG);
+   <span class="kw2">Print</span>(<span class="str">"Activation free energy:   %8.2f kcal/mol\n"</span>, dGdag);
+<span class="kw">end</span></code></pre>
+
+        <div class="tip">
+          <div class="note-title">Read the manual alongside</div>
+          <p>
+            The keywords used here (<code>Variable</code>, <code>For</code>, <code>If</code>,
+            <code>New_Step</code>, <code>Write_File</code>, <code>Final_Gibbs_Free_Energy</code>,
+            …) follow the ORCA 6.0.0 Compound notation, but minor releases occasionally adjust
+            syntactic details (variable declaration style, print format, …). The first time
+            around, keep manual §7.59 and the official examples
+            (<a href="https://github.com/ORCAQuantumChemistry/CompoundScripts">ORCAQuantumChemistry/CompoundScripts</a>)
+            open and start from a very small example.
           </p>
         </div>
 
