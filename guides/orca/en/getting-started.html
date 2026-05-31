@@ -67,7 +67,7 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 01 · GETTING STARTED</div>
         <h1 class="page-title">Getting started</h1>
-        <p class="page-lede">From install check to first run — the shortest path to feeling at home with ORCA.</p>
+        <p class="page-lede">From an install check to your first single point on a water molecule.</p>
       </header>
 
       <article class="content">
@@ -94,10 +94,10 @@
         </p>
 
         <p>
-          ORCA distinguishes itself from other quantum chemistry packages in three ways. First,
-          methods that are central to transition-metal chemistry and spectroscopy (CASSCF,
-          NEVPT2, DLPNO-CCSD(T), …) are well implemented. Second, it is free for academic use.
-          Third, it has an active user community running an official forum.
+          A few things set ORCA apart from other quantum chemistry packages: methods central to
+          transition-metal chemistry and spectroscopy (CASSCF, NEVPT2, DLPNO-CCSD(T), …) are
+          implemented in real depth, it is free for academic use, and it has an active official
+          forum where questions actually get answered.
         </p>
 
         <h2 id="install">Install check</h2>
@@ -129,9 +129,9 @@ which orca</code></pre>
 
         <h2 id="first-run">First run — single point on H<sub>2</sub>O</h2>
         <p>
-          An ORCA input file is plain ASCII; the conventional extension is <code>.inp</code>.
-          Let's compute the single-point energy of one water molecule at the B3LYP / def2-SVP
-          level.
+          An ORCA input file is plain ASCII, and the conventional extension is <code>.inp</code>.
+          The example below takes the single-point energy of one water molecule at the
+          B3LYP / def2-SVP level.
         </p>
 
         <pre data-lang="orca"><code><span class="cmt"># my_first.inp — single-point energy of water</span>
@@ -144,13 +144,13 @@ which orca</code></pre>
 <span class="kw">*</span></code></pre>
 
         <p>
-          Briefly, the input has three parts (covered in detail in
-          <a href="input-structure.html">02 · Input file structure</a>):
+          What each line does, in short — the full syntax comes in
+          <a href="input-structure.html">02 · Input file structure</a>:
         </p>
 
         <ul>
-          <li>Lines starting with <code>!</code> are the <strong>keyword line</strong>. Here we
-              picked the method (<code>B3LYP</code>) and the basis set (<code>def2-SVP</code>).</li>
+          <li>Lines starting with <code>!</code> are the <strong>keyword line</strong>; this one
+              sets the method (<code>B3LYP</code>) and the basis set (<code>def2-SVP</code>).</li>
           <li>Lines surrounded by <code>*</code> form the <strong>coordinate block</strong>;
               <code>xyz</code> requests Cartesian coordinates and <code>0 1</code> means total
               charge 0 and multiplicity 1 (closed shell).</li>
@@ -184,7 +184,7 @@ orca my_first.inp &gt; my_first.out</code></pre>
 
         <p>
           The number on the <code>FINAL SINGLE POINT ENERGY</code> line is the energy in
-          Hartree. Seeing the message above means the calculation itself completed.
+          Hartree. Seeing that message means the run reached the end — nothing more.
         </p>
 
         <div class="warning">
@@ -285,8 +285,8 @@ del basename*.tmp    <span class="cmt"># Windows</span></code></pre>
         </div>
 
         <p>
-          That covers the basics of a first ORCA run. The next chapter dives into the syntax of
-          the input file itself.
+          Once a first run goes through cleanly you are halfway there. What is left is writing
+          input files the way you want — which is exactly what the next chapter is for.
         </p>
       </article>
 
