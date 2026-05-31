@@ -86,22 +86,22 @@
 
         <h2 id="why">왜 DLPNO-CCSD(T)인가</h2>
         <p>
-          CCSD(T)는 단일참조 양자화학의 “황금 표준”입니다. 일반적인 닫힌 껍질 화학종에서
-          상대 에너지를 ±1 kcal/mol(이른바 화학 정확도) 이내로 재현합니다.
-          그러나 표준 CCSD(T)는 시스템 크기에 대해 O(N<sup>7</sup>)로 증가하므로,
-          원자 20개를 넘는 시스템에서는 비현실적으로 비싸집니다.
+          CCSD(T)는 단일참조 양자화학의 “황금 표준”이다. 웬만한 닫힌 껍질 화학종에서
+          상대 에너지를 ±1 kcal/mol(이른바 화학 정확도) 안으로 재현한다.
+          다만 표준 CCSD(T)는 비용이 시스템 크기에 대해 O(N<sup>7</sup>)로 늘어서,
+          원자 20개를 넘어가면 비현실적으로 비싸진다.
         </p>
 
         <p>
-          DLPNO(Domain-based Local Pair Natural Orbital) 근사는 이 비용을 획기적으로 줄여 줍니다.
-          국소 궤도와 도메인 기반 페어 자연 궤도를 사용해 점근적으로 선형 확장(linear scaling)을 달성하면서도,
-          기준 CCSD(T) 에너지의 약 99.9%를 재현합니다. 매뉴얼은 DLPNO-CCSD(T)를
-          “DLPNO-MP2가 가능하면 DLPNO-CCSD(T)도 가능하다”고 설명합니다.
-          실제로 원자 수백 개 규모의 분자에도 적용 가능합니다.
+          DLPNO(Domain-based Local Pair Natural Orbital) 근사가 이 비용을 확 줄여 준다.
+          국소 궤도와 도메인 기반 페어 자연 궤도를 써서 점근적으로 선형 확장(linear scaling)에 가까워지면서도,
+          기준 CCSD(T) 에너지의 약 99.9%를 재현한다. 매뉴얼은 DLPNO-CCSD(T)를 두고
+          “DLPNO-MP2가 되면 DLPNO-CCSD(T)도 된다”고 적어 뒀다.
+          실제로 원자 수백 개짜리 분자에도 쓸 수 있다.
         </p>
 
         <h2 id="basic">기본 사용법</h2>
-        <p>키워드 라인에 <code>DLPNO-CCSD(T)</code>와 함께 보조 베이시스를 지정하면 됩니다.</p>
+        <p>키워드 라인에 <code>DLPNO-CCSD(T)</code>와 보조 베이시스를 같이 적으면 된다.</p>
 
         <pre data-lang="orca"><code><span class="cmt"># 닫힌 껍질 단일점 — 일반적인 정밀 에너지</span>
 <span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) cc-pVTZ cc-pVTZ/C TightSCF</span>
@@ -109,8 +109,8 @@
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
 
         <p>
-          <strong>보조 베이시스(<code>/C</code> 접미사)</strong>는 RI-MP2와 동일한 형식입니다.
-          DLPNO-CCSD(T) 계산은 RI 적분이 필수이므로 반드시 함께 지정해야 합니다.
+          <strong>보조 베이시스(<code>/C</code> 접미사)</strong>는 RI-MP2와 같은 형식이다.
+          DLPNO-CCSD(T)는 RI 적분이 필수라 보조 베이시스를 반드시 같이 지정해야 한다.
         </p>
 
         <table>
@@ -128,7 +128,7 @@
         </table>
 
         <h2 id="thresholds">정밀도 단계 — Loose / Normal / Tight</h2>
-        <p>DLPNO의 컷오프 임계값은 세 단계로 단순화되어 있습니다.</p>
+        <p>DLPNO의 컷오프 임계값은 세 단계로 묶여 있다.</p>
 
         <table>
           <thead>
@@ -147,15 +147,15 @@
         <div class="tip">
           <div class="note-title">상대 에너지 비교에서는 동일한 임계값을</div>
           <p>
-            반응 에너지나 결합 해리 에너지를 비교할 때는 모든 종에 같은 PNO 임계값을 적용해야 오류가 상쇄됩니다.
-            한 종은 NormalPNO로, 다른 종은 TightPNO로 계산하면 차이가 0.5 kcal/mol 정도 어긋날 수 있습니다.
+            반응 에너지나 결합 해리 에너지를 비교할 때는 모든 종에 같은 PNO 임계값을 써야 오차가 상쇄된다.
+            한 종은 NormalPNO로, 다른 종은 TightPNO로 계산하면 그 차이만 0.5 kcal/mol쯤 어긋날 수 있다.
           </p>
         </div>
 
         <h2 id="cbs">완전 베이시스 외삽 (CBS)</h2>
         <p>
-          CCSD(T)는 완전 베이시스 한계(CBS, Complete Basis Set limit)로 외삽할 때 가장 정확합니다.
-          ORCA의 <code>Extrapolate</code> 키워드는 이를 자동화합니다.
+          CCSD(T)는 완전 베이시스 한계(CBS, Complete Basis Set limit)로 외삽할 때 가장 정확하다.
+          ORCA의 <code>Extrapolate</code> 키워드가 이걸 자동으로 해 준다.
         </p>
 
         <pre data-lang="orca"><code><span class="cmt"># cc-pVTZ와 cc-pVQZ로 CCSD(T) 단일점을 자동 외삽</span>
@@ -164,8 +164,8 @@
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
 
         <p>
-          <code>Extrapolate(X/Y, basis)</code> 형식입니다. <code>X</code>, <code>Y</code>는 베이시스의 카디널 수(2 = DZ, 3 = TZ, 4 = QZ, 5 = 5Z)이고,
-          <code>basis</code>는 <code>cc</code>(Dunning), <code>def2</code>, <code>aug-cc</code> 등 베이시스 패밀리입니다.
+          <code>Extrapolate(X/Y, basis)</code> 형식이다. <code>X</code>, <code>Y</code>는 베이시스의 카디널 수(2 = DZ, 3 = TZ, 4 = QZ, 5 = 5Z)이고,
+          <code>basis</code>는 <code>cc</code>(Dunning), <code>def2</code>, <code>aug-cc</code> 같은 베이시스 패밀리다.
         </p>
 
         <table>
@@ -180,8 +180,8 @@
 
         <h3>EP2 · EP3 — 더 큰 베이시스를 위한 효율적 외삽</h3>
         <p>
-          큰 베이시스(예: cc-pV5Z)에서 CCSD(T)를 직접 계산하기는 비싸지만,
-          MP2 수준에서는 가능할 때가 많습니다. EP2/EP3 외삽은 “큰 베이시스의 MP2 + 작은 베이시스의 CCSD(T) − MP2 보정”을 결합해 효율을 높입니다.
+          큰 베이시스(예: cc-pV5Z)에서 CCSD(T)를 직접 돌리기는 비싸도,
+          MP2 수준에서는 되는 경우가 많다. EP2/EP3 외삽은 “큰 베이시스의 MP2 + 작은 베이시스의 CCSD(T) − MP2 보정”을 묶어 효율을 끌어올린다.
         </p>
 
         <pre data-lang="orca"><code><span class="cmt"># EP2: 작은 기저에서 CC, 큰 기저에서 MP2 외삽</span>
@@ -189,22 +189,22 @@
 
         <h2 id="f12">F12 — 베이시스 한계에 빠르게 접근</h2>
         <p>
-          F12 명시적 상관 방법은 더 작은 베이시스로도 CBS 한계 근처의 정확도를 얻게 해 줍니다.
-          DLPNO-CCSD(T)-F12는 이 두 기법의 결합입니다.
+          F12 명시적 상관 방법은 더 작은 베이시스로도 CBS 한계 근처 정확도를 내게 해 준다.
+          DLPNO-CCSD(T)-F12는 이 둘을 합친 것이다.
         </p>
 
         <pre data-lang="orca"><code><span class="cmt"># DLPNO-CCSD(T)-F12 with approach D — F12로 큰 베이시스 효과 대체</span>
 <span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T)-F12D cc-pVDZ-F12 cc-pVDZ-F12-CABS cc-pVDZ-F12/C TightSCF</span></code></pre>
 
         <p>
-          F12에는 전용 베이시스와 CABS(Complementary Auxiliary Basis Set)가 필요합니다.
-          베이시스 이름 끝의 <code>-F12</code>, <code>-F12-CABS</code>를 잊지 마시기 바랍니다.
-          F12 방법을 사용하면 cc-pVDZ-F12 한 번의 계산이 cc-pVQZ 또는 cc-pV5Z CBS 외삽과 비슷한 정확도를 보입니다.
+          F12에는 전용 베이시스와 CABS(Complementary Auxiliary Basis Set)가 필요하다.
+          베이시스 이름 끝의 <code>-F12</code>, <code>-F12-CABS</code>를 빠뜨리지 않도록 한다.
+          F12를 쓰면 cc-pVDZ-F12 한 번 계산이 cc-pVQZ나 cc-pV5Z CBS 외삽과 비슷한 정확도를 낸다.
         </p>
 
         <h2 id="open-shell">열린 껍질 — UHF 레퍼런스</h2>
         <p>
-          라디칼이나 다중항 시스템에서는 UHF 레퍼런스를 사용한 “UHF-DLPNO-CCSD(T)”를 씁니다.
+          라디칼이나 다중항 시스템에서는 UHF 레퍼런스를 쓰는 “UHF-DLPNO-CCSD(T)”를 쓴다.
         </p>
 
         <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">UHF DLPNO-CCSD(T) cc-pVTZ cc-pVTZ/C TightSCF</span>
@@ -217,17 +217,17 @@
         <div class="warning">
           <div class="note-title">스핀 오염 확인 필수</div>
           <p>
-            UHF 레퍼런스를 사용할 때는 SCF 결과의 ⟨S²⟩ 값을 반드시 확인하시기 바랍니다.
-            도플렛(S = 1/2)의 이상 ⟨S²⟩는 0.75이지만, 스핀 오염이 심하면 1.0 이상이 나오기도 합니다.
-            그러면 후속 CCSD(T) 결과도 신뢰하기 어렵습니다.
-            오염이 심하면 ROHF 레퍼런스를 시도하거나, 다중참조 방법(CASSCF/NEVPT2)을 고려하셔야 합니다.
+            UHF 레퍼런스를 쓸 때는 SCF 결과의 ⟨S²⟩ 값을 꼭 확인한다.
+            도플렛(S = 1/2)의 이상적인 ⟨S²⟩는 0.75인데, 스핀 오염이 심하면 1.0을 넘기기도 한다.
+            그러면 뒤따르는 CCSD(T) 결과도 믿기 어렵다.
+            오염이 심하면 ROHF 레퍼런스를 시도하거나, 다중참조 방법(CASSCF/NEVPT2)을 고려해야 한다.
           </p>
         </div>
 
         <h2 id="workflow">권장 워크플로우</h2>
         <p>
-          DLPNO-CCSD(T)는 대개 단일점 에너지로만 쓰입니다. 그래디언트도 구현되어 있지만 비싸기 때문에,
-          구조 최적화는 가벼운 방법(DFT)으로 하고 그 위에 정밀 에너지를 얹는 “composite” 워크플로우가 표준입니다.
+          DLPNO-CCSD(T)는 보통 단일점 에너지로만 쓴다. 그래디언트도 구현돼 있지만 비싸서,
+          구조 최적화는 가벼운 방법(DFT)으로 하고 그 위에 정밀 에너지를 얹는 “composite” 워크플로우가 표준이다.
         </p>
 
         <ol>
@@ -237,7 +237,7 @@
           <li><strong>최종 자유에너지</strong>: G<sub>final</sub> = E<sub>elec</sub><sup>CC</sup> + ΔG<sub>therm</sub><sup>DFT</sup> + ΔG<sub>solv</sub>.</li>
         </ol>
 
-        <p>이 흐름의 입력 예시는 다음과 같습니다.</p>
+        <p>이 흐름을 입력으로 쓰면 이렇다.</p>
 
         <pre data-lang="orca"><code><span class="cmt"># Step 1: 구조 최적화 + 진동수 (DFT)</span>
 <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightOpt Freq</span>
@@ -260,24 +260,24 @@
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span></code></pre>
 
         <p>
-          반응 평형이나 자유에너지 장벽을 보고할 때 이 같은 “DFT 최적화 + CCSD(T) 정밀점 + SMD 용매” 조합은
-          오늘날 양자화학에서 가장 표준적인 절차이며, 학술지에서도 통상적으로 받아들여집니다.
+          반응 평형이나 자유에너지 장벽을 보고할 때 쓰는 “DFT 최적화 + CCSD(T) 정밀점 + SMD 용매” 조합은
+          요즘 양자화학에서 가장 표준적인 절차이고, 학술지에서도 무난히 받아들여진다.
         </p>
 
         <div class="note">
           <div class="note-title">DLPNO를 다른 메소드와 결합</div>
           <p>
-            DLPNO 근사는 CCSD(T) 외에도 CCSD, MP2, B2PLYP(이중 하이브리드)와 결합 가능합니다.
-            예컨대 <code>! DLPNO-B2PLYP D4 def2-TZVP def2-TZVP/C</code>로 이중 하이브리드의 비용을 크게 낮출 수 있어,
-            중대형 분자의 정밀 단일점에 매우 유용합니다.
+            DLPNO 근사는 CCSD(T) 말고도 CCSD, MP2, B2PLYP(이중 하이브리드)와도 결합된다.
+            예를 들어 <code>! DLPNO-B2PLYP D4 def2-TZVP def2-TZVP/C</code>로 이중 하이브리드 비용을 크게 낮출 수 있어,
+            중대형 분자의 정밀 단일점에 아주 쓸모 있다.
           </p>
         </div>
 
         <h2 id="multiref">한 걸음 더 — 다중참조의 영역 (CASSCF · NEVPT2)</h2>
         <p>
-          DLPNO-CCSD(T)는 단일참조(single-reference) 이론의 정점입니다. 한 개의 슬레이터
-          행렬식이 지배적인 시스템 — 닫힌 껍질 유기 분자, 일반적인 라디칼 — 에서는 거의
-          정량적으로 정확합니다. 그러나 다음과 같은 시스템에서는 단일참조 가정 자체가 깨집니다.
+          DLPNO-CCSD(T)는 단일참조(single-reference) 이론의 정점이다. 슬레이터 행렬식
+          하나가 지배적인 시스템 — 닫힌 껍질 유기 분자, 평범한 라디칼 — 에서는 거의
+          정량적으로 정확하다. 그런데 아래 같은 시스템에서는 단일참조 가정 자체가 깨진다.
         </p>
         <ul>
           <li><strong>전이금속·란타나이드 착물의 비공선 자기 상태</strong> (예: Dy<sub>3</sub>
@@ -286,9 +286,9 @@
           <li><strong>단일항 디라디칼</strong>, 일부 들뜬 상태, 교차점 부근의 동역학</li>
         </ul>
         <p>
-          이 영역에서는 두 개 이상의 슬레이터 행렬식이 비슷한 가중치를 가지므로 명시적으로
-          여러 참조 상태(active space)를 동시에 풀어 주는 <strong>CASSCF</strong>가 시작점이
-          됩니다. 그리고 그 위에 동적 상관(dynamic correlation)을 얹는 표준 처리가 <strong>NEVPT2</strong>입니다.
+          이 영역에서는 슬레이터 행렬식 두 개 이상이 비슷한 가중치를 가져서, 여러 참조
+          상태(active space)를 명시적으로 한꺼번에 풀어 주는 <strong>CASSCF</strong>가 출발점이
+          된다. 그 위에 동적 상관(dynamic correlation)을 얹는 표준 처리가 <strong>NEVPT2</strong>다.
         </p>
 
         <h3>입력의 뼈대 — <code>%casscf</code> 블록</h3>
@@ -315,7 +315,7 @@
    Dy   0.000   0.000   0.000
 <span class="kw">*</span></code></pre>
 
-        <p>주요 키워드를 짧게 짚으면 다음과 같습니다.</p>
+        <p>주요 키워드만 짧게 짚어 보자.</p>
 
         <table>
           <thead>
@@ -323,7 +323,7 @@
           </thead>
           <tbody>
             <tr><td><code>nel · norb</code></td><td>활성 공간(active space) 크기. CAS(n, m)에서 n과 m.</td></tr>
-            <tr><td><code>mult · nroots</code></td><td>각 다중도에서 풀 상태 수. Dy<sup>3+</sup>는 4f<sup>9</sup>이므로 ⁶H 17/2 바닥 항 외에 다수의 중·고에너지 항을 모두 포함해야 합니다.</td></tr>
+            <tr><td><code>mult · nroots</code></td><td>각 다중도에서 풀 상태 수. Dy<sup>3+</sup>는 4f<sup>9</sup>이므로 ⁶H 17/2 바닥 항 외에 중·고에너지 항도 모두 포함해야 한다.</td></tr>
             <tr><td><code>PTMethod sc_nevpt2</code></td><td>strongly-contracted NEVPT2. 활성 공간 밖의 동적 상관을 섭동론으로 보정.</td></tr>
             <tr><td><code>DoSOC true</code></td><td>2차 spin-orbit coupling(QDPT)으로 SO-상태들을 얻음. 자기 특성에 필수.</td></tr>
             <tr><td><code>SINGLE_ANISO true</code></td><td>SO-상태에서 자동으로 의사스핀(pseudospin) 1/2 Hamiltonian을 fit해 g-tensor와 에너지 갈라짐을 출력.</td></tr>
@@ -334,18 +334,18 @@
         <div class="tip">
           <div class="note-title">활성 공간 선택이 가장 어려운 부분</div>
           <p>
-            CASSCF의 결과는 활성 공간의 선택에 결정적으로 의존합니다. 자기특성 계산에서는
+            CASSCF 결과는 활성 공간을 어떻게 잡느냐에 결정적으로 좌우된다. 자기특성 계산이라면
             “해당 금속의 d 또는 f 궤도 전부 + 중요한 ligand 궤도”라는 화학적 직관에서
-            출발합니다. 너무 작으면 결과가 부정확하고, 너무 크면 비용이 폭증합니다.
-            처음 시도라면 <strong>활성 전자·궤도를 점진적으로 늘려 가며 결과의 수렴성</strong>을
-            보는 것이 정석입니다.
+            출발한다. 너무 작으면 결과가 부정확하고, 너무 크면 비용이 폭발한다.
+            처음이라면 <strong>활성 전자·궤도를 조금씩 늘려 가며 결과가 수렴하는지</strong>
+            보는 게 정석이다.
           </p>
         </div>
 
         <h3>출력에서 무엇을 보는가</h3>
         <p>
-          위 입력을 실행하면 출력의 거의 끝부분에 SINGLE_ANISO 의 결과가 표 형태로
-          나타납니다. 일반적으로 다음과 같은 정보를 우선 확인합니다.
+          위 입력을 돌리면 출력 거의 끝에 SINGLE_ANISO 결과가 표로 나온다.
+          보통 아래 정보를 먼저 확인한다.
         </p>
 
         <pre data-lang="output"><code>--------------------
@@ -365,21 +365,21 @@ g-FACTORS OF THE LOWEST DOUBLET:
    gz =  19.74     &lt;-- 큰 비등방성 → Ising-limit, 토로이드 가능성</code></pre>
 
         <p>
-          <code>gz</code>가 매우 크고 <code>gx</code>, <code>gy</code>가 0에 가까우면
-          “Ising-limit 비등방성” 상태로, 단일분자 자석(SMM)의 가장 중요한 1차 진단입니다.
-          그 다음 단계는 <strong>POLY_ANISO</strong>로 여러 금속 중심 사이의 교환 상호작용
-          파라미터 J를 fit해 다핵 거동을 모사하는 것입니다 (매뉴얼 §9.27).
+          <code>gz</code>가 아주 크고 <code>gx</code>, <code>gy</code>가 0에 가까우면
+          “Ising-limit 비등방성” 상태로, 단일분자 자석(SMM)을 판별하는 가장 중요한 1차 진단이다.
+          그 다음은 <strong>POLY_ANISO</strong>로 여러 금속 중심 사이의 교환 상호작용
+          파라미터 J를 fit해 다핵 거동을 모사하는 단계다 (매뉴얼 §9.27).
         </p>
 
         <div class="note">
           <div class="note-title">CASSCF 다음 가지들 — NEVPT2, MRCI, DMRG</div>
           <p>
-            동적 상관을 더 정확히 다루려면 <code>PTMethod fic_nevpt2</code>(fully internally
-            contracted) 또는 <code>! MRCI+Q</code>(다중참조 CI + Davidson 보정)로 옮겨갈 수
-            있습니다. 활성 공간이 12 궤도를 넘어가면 정통 CASSCF가 메모리 한계에 부딪히며,
+            동적 상관을 더 정밀하게 다루려면 <code>PTMethod fic_nevpt2</code>(fully internally
+            contracted)나 <code>! MRCI+Q</code>(다중참조 CI + Davidson 보정)로 넘어갈 수
+            있다. 활성 공간이 12 궤도를 넘으면 정통 CASSCF가 메모리 한계에 부딪히고,
             그때부터는 ORCA 6의 <strong>DMRG-CASSCF</strong>(<code>%casscf actorbs DMRG</code>)
-            가 표준입니다. 본 가이드는 입문 분량이라 여기까지로 멈추지만, 키워드만 알아
-            두시면 매뉴얼 §9 와 §10 의 해당 절을 곧장 펼쳐 보실 수 있습니다.
+            가 표준이다. 이 가이드는 입문용이라 여기까지만 다루지만, 키워드만 알아
+            둬도 매뉴얼 §9 와 §10 의 해당 절을 바로 펼쳐 볼 수 있다.
           </p>
         </div>
       </article>

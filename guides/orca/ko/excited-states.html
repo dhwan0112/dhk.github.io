@@ -66,7 +66,7 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 08 · 자주 쓰는 계산</div>
         <h1 class="page-title">들뜬 상태 · TD-DFT</h1>
-        <p class="page-lede">UV-Vis 흡수 스펙트럼과 형광. 광물리·광화학의 출발점입니다.</p>
+        <p class="page-lede">UV-Vis 흡수 스펙트럼과 형광. 광물리·광화학이 여기서 시작된다.</p>
       </header>
 
       <article class="content">
@@ -86,8 +86,8 @@
 
         <h2 id="methods">들뜬 상태 방법 — TDA · TD-DFT · CIS</h2>
         <p>
-          ORCA는 여러 들뜬 상태 방법을 지원합니다. 단일참조(single-reference) 방법은 다음과 같습니다.
-          다중참조(CASSCF, NEVPT2, MRCI) 방법은 매뉴얼의 별도 장을 참조하시기 바랍니다.
+          ORCA는 들뜬 상태 방법을 여럿 지원한다. 아래는 단일참조(single-reference) 계열이다.
+          다중참조(CASSCF, NEVPT2, MRCI)는 매뉴얼의 별도 장을 참고하면 된다.
         </p>
 
         <table>
@@ -106,7 +106,7 @@
 
         <h2 id="basic">기본 사용법</h2>
         <p>
-          가장 간단한 형태로는 “몇 개의 들뜬 상태를 구할지”만 지정하면 됩니다. 포름알데히드의 n → π* 전이를 포함한 첫 10개 들뜸 상태를 계산하는 예입니다.
+          가장 간단하게는 “들뜬 상태를 몇 개 구할지”만 지정하면 된다. 아래는 포름알데히드의 n → π* 전이를 포함해 첫 10개 들뜸 상태를 계산하는 예다.
         </p>
 
         <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP RIJCOSX def2/J</span>
@@ -125,13 +125,13 @@
 <span class="kw">*</span></code></pre>
 
         <p>
-          <code>NRoots</code>는 실험에서 관심 있는 영역까지 포함하도록 넉넉히 잡으시기를 권합니다.
-          진동자 강도가 작은 어두운 상태가 사이에 끼어 있을 수 있어, 실험 흡수대에 맞는 상태를 놓치지 않으려면 여유가 필요합니다.
+          <code>NRoots</code>는 실험에서 관심 있는 영역까지 들어오도록 넉넉히 잡는 게 좋다.
+          진동자 강도가 작은 어두운 상태가 중간에 끼어 있을 수 있어서, 실험 흡수대에 맞는 상태를 놓치지 않으려면 여유가 필요하다.
         </p>
 
         <h2 id="interpret">출력 해석</h2>
         <p>
-          TD-DFT 계산이 끝나면 다음과 같은 표가 출력됩니다.
+          TD-DFT 계산이 끝나면 이런 표가 나온다.
         </p>
 
         <pre data-lang="output"><code>-----------------------------
@@ -155,19 +155,19 @@ States    Energy   Wavelength   fosc     T2         TX        TY        TZ
  0-2A   66987.2   149.3     0.45612345   2.21345  -1.48732   0.00000   0.00000
  ...</code></pre>
 
-        <p>각 열의 의미는 다음과 같습니다.</p>
+        <p>각 열의 뜻은 이렇다.</p>
 
         <ul>
           <li><strong>STATE n</strong>: <em>n</em>번째 들뜬 상태의 에너지(au, eV, cm⁻¹).</li>
           <li><strong>x → y</strong>: 주요 단일 들뜸 (예: HOMO → LUMO). 계수가 클수록 그 들뜸이 지배적.</li>
-          <li><strong>fosc</strong>: 진동자 강도(oscillator strength). 0.01 이상이면 흡수가 “보일” 만큼 큽니다.</li>
+          <li><strong>fosc</strong>: 진동자 강도(oscillator strength). 0.01 이상이면 흡수가 “보일” 만큼 크다.</li>
           <li><strong>Wavelength</strong>: 대응하는 흡수 파장(nm). UV-Vis 비교의 핵심.</li>
         </ul>
 
-        <p>포름알데히드의 경우, 첫 번째 상태(약 290 nm)는 <em>n → π*</em> 전이로 진동자 강도가 매우 작고(대칭 금지), 두 번째 상태가 보통 실험에서 관측되는 흡수에 해당합니다.</p>
+        <p>포름알데히드라면 첫 번째 상태(약 290 nm)는 <em>n → π*</em> 전이라 진동자 강도가 매우 작고(대칭 금지), 보통 실험에서 관측되는 흡수는 두 번째 상태다.</p>
 
         <h2 id="triplets-sf">삼중항과 스핀-플립</h2>
-        <p>닫힌 껍질 레퍼런스에서 삼중항을 함께 계산하려면 다음을 추가합니다.</p>
+        <p>닫힌 껍질 레퍼런스에서 삼중항도 같이 계산하려면 아래를 더한다.</p>
 
         <pre data-lang="orca"><code><span class="kw">%tddft</span>
    <span class="kw2">NRoots</span>   <span class="num">10</span>
@@ -175,9 +175,9 @@ States    Energy   Wavelength   fosc     T2         TX        TY        TZ
 <span class="kw">end</span></code></pre>
 
         <p>
-          삼중항 들뜸 에너지(<em>T<sub>1</sub></em>, <em>T<sub>2</sub></em>, ...)는 항간교차(intersystem crossing)·인광 분석에 필수입니다.
-          한편, 정확한 단일항 디라디칼이나 교차점을 다루려면 “스핀-플립” TDA(SF-TDA)를 씁니다.
-          이때 레퍼런스는 반드시 <strong>열린 껍질(High-spin)</strong>이어야 합니다.
+          삼중항 들뜸 에너지(<em>T<sub>1</sub></em>, <em>T<sub>2</sub></em>, ...)는 항간교차(intersystem crossing)·인광 분석에 꼭 필요하다.
+          한편 단일항 디라디칼이나 교차점을 제대로 다루려면 “스핀-플립” TDA(SF-TDA)를 쓴다.
+          이때 레퍼런스는 반드시 <strong>열린 껍질(High-spin)</strong>이어야 한다.
         </p>
 
         <pre data-lang="orca"><code><span class="cmt"># 스핀-플립 TDA: 트리플렛 레퍼런스에서 시작</span>
@@ -192,8 +192,8 @@ States    Energy   Wavelength   fosc     T2         TX        TY        TZ
 
         <h2 id="opt-excited">들뜬 상태 최적화 — 형광 계산</h2>
         <p>
-          형광(emission) 파장을 얻으려면 들뜬 상태에서 구조를 다시 최적화해야 합니다.
-          그 구조에서 다시 들뜬 상태의 에너지를 계산하면, 그 값이 형광의 0-0 전이 에너지에 가깝습니다.
+          형광(emission) 파장을 얻으려면 들뜬 상태에서 구조를 다시 최적화해야 한다.
+          그 구조에서 들뜬 상태 에너지를 다시 계산하면, 그 값이 형광의 0-0 전이 에너지에 가깝다.
         </p>
 
         <pre data-lang="orca"><code><span class="cmt"># 1번 들뜬 상태(S1)의 구조 최적화</span>
@@ -207,15 +207,15 @@ States    Energy   Wavelength   fosc     T2         TX        TY        TZ
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> ground_opt.xyz</code></pre>
 
         <p>
-          <code>IRoot n</code>은 “<em>n</em>번째 들뜬 상태의 그래디언트를 계산하여 그 상태를 최적화한다”는 의미입니다.
-          최적화 후 다시 <code>!Freq</code>를 붙이면 들뜬 상태의 진동수도 얻을 수 있습니다.
-          이때 영점 보정을 포함해 산출한 0-0 전이 에너지가 발광 스펙트럼과 직접 비교 가능한 값입니다.
+          <code>IRoot n</code>은 “<em>n</em>번째 들뜬 상태의 그래디언트를 계산해 그 상태를 최적화한다”는 뜻이다.
+          최적화 뒤에 <code>!Freq</code>를 붙이면 들뜬 상태의 진동수도 얻는다.
+          여기에 영점 보정까지 넣어 구한 0-0 전이 에너지가 발광 스펙트럼과 바로 비교되는 값이다.
         </p>
 
         <h2 id="nacme">비단열 결합과 ETF</h2>
         <p>
-          광화학 동역학(surface hopping)에서는 두 들뜬 상태 사이의 비단열 결합(NACME, non-adiabatic coupling matrix element)이 필요합니다.
-          ORCA 6에서는 이를 해석적으로 계산할 수 있으며, 전자 병진 인자(ETF, Electronic Translational Factor) 보정도 지원합니다.
+          광화학 동역학(surface hopping)에서는 두 들뜬 상태 사이의 비단열 결합(NACME, non-adiabatic coupling matrix element)이 필요하다.
+          ORCA 6은 이걸 해석적으로 계산하고, 전자 병진 인자(ETF, Electronic Translational Factor) 보정도 지원한다.
         </p>
 
         <pre data-lang="orca"><code><span class="kw">%tddft</span>
@@ -227,8 +227,8 @@ States    Energy   Wavelength   fosc     T2         TX        TY        TZ
 
         <h2 id="xray">X-선 흡수 스펙트럼</h2>
         <p>
-          K-edge X-선 흡수 스펙트럼의 pre-edge 영역은 TD-DFT로 정성적·정량적으로 모사할 수 있습니다.
-          매뉴얼은 TiCl<sub>4</sub>의 Ti K-edge를 예로 들고 있습니다.
+          K-edge X-선 흡수 스펙트럼의 pre-edge 영역은 TD-DFT로 정성적으로도, 정량적으로도 모사할 수 있다.
+          매뉴얼은 TiCl<sub>4</sub>의 Ti K-edge를 예로 든다.
         </p>
 
         <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">BP86 ZORA ZORA-def2-TZVP(-f) SARC/J TightSCF</span>
@@ -249,9 +249,9 @@ States    Energy   Wavelength   fosc     T2         TX        TY        TZ
 <span class="kw">*</span></code></pre>
 
         <p>
-          핵심은 <code>OrbWin[0]</code>으로 “이 분자에서 0번 궤도(Ti의 1s)만 도너로 사용”하는 제한을 거는 점입니다.
-          그렇지 않으면 모든 occupied 궤도에서의 들뜸을 다 포함해야 해서 비현실적으로 큰 NRoots가 필요해집니다.
-          이런 제한은 K-edge 모사에서 일반적입니다.
+          핵심은 <code>OrbWin[0]</code>으로 “이 분자에서는 0번 궤도(Ti의 1s)만 도너로 쓴다”는 제한을 거는 부분이다.
+          안 그러면 모든 occupied 궤도에서의 들뜸을 다 포함해야 해서 NRoots가 비현실적으로 커진다.
+          K-edge 모사에서는 이런 제한이 일반적이다.
         </p>
 
         <h2 id="tips">함수 선택과 주의 사항</h2>
@@ -259,13 +259,13 @@ States    Energy   Wavelength   fosc     T2         TX        TY        TZ
         <div class="note">
           <div class="note-title">전하 이동 들뜸 상태의 함정</div>
           <p>
-            B3LYP, PBE0 같은 표준 하이브리드 DFT는 전하 이동(charge-transfer) 들뜸 상태의 에너지를 크게 과소 평가합니다.
-            전하 이동 특성이 있는 시스템(도너-억셉터 분자, 큰 컨주게이션계)에서는
-            <code>CAM-B3LYP</code>, <code>ωB97X-V</code> 같은 장범위 분리(range-separated) 하이브리드를 사용하시기를 권합니다.
+            B3LYP, PBE0 같은 표준 하이브리드 DFT는 전하 이동(charge-transfer) 들뜸 상태의 에너지를 크게 과소평가한다.
+            전하 이동 성격이 있는 시스템(도너-억셉터 분자, 큰 컨주게이션계)에서는
+            <code>CAM-B3LYP</code>, <code>ωB97X-V</code> 같은 장범위 분리(range-separated) 하이브리드를 쓰는 게 좋다.
           </p>
         </div>
 
-        <p>일반적인 함수 추천은 다음과 같습니다.</p>
+        <p>대략적인 함수 추천은 이렇다.</p>
 
         <table>
           <thead>
@@ -281,8 +281,8 @@ States    Energy   Wavelength   fosc     T2         TX        TY        TZ
 
         <h3>흡수 스펙트럼 플롯하기</h3>
         <p>
-          <code>orca_mapspc</code>로 흡수 스펙트럼을 그릴 수 있습니다.
-          예를 들어 4890–14915 cm⁻¹(약 670–2040 nm) 범위, 가우스 라인폭 1.3을 적용하는 명령은 다음과 같습니다.
+          <code>orca_mapspc</code>로 흡수 스펙트럼을 그린다.
+          예를 들어 4890–14915 cm⁻¹(약 670–2040 nm) 범위에 가우스 라인폭 1.3을 적용하는 명령은 이렇다.
         </p>
 
         <pre data-lang="bash"><code><span class="cmt"># 표준 흡수 스펙트럼</span>
@@ -292,7 +292,7 @@ orca_mapspc mol.out ABSQ -eV -x04890 -x14915 -w1.3
 orca_mapspc mol.out ABSOI -eV -x04890 -x14915 -w1.3</code></pre>
 
         <p>
-          출력된 <code>.dat</code> 파일을 gnuplot, matplotlib 등으로 시각화하면 실험 스펙트럼과 직접 겹쳐 비교할 수 있습니다.
+          나온 <code>.dat</code> 파일을 gnuplot, matplotlib 같은 걸로 그리면 실험 스펙트럼과 바로 겹쳐 비교할 수 있다.
         </p>
       </article>
 

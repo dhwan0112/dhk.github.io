@@ -86,13 +86,13 @@
 
         <h2 id="why">왜 용매 효과를 고려해야 하는가</h2>
         <p>
-          기체상 계산은 진공 환경의 분자를 가정합니다. 그러나 실제 화학 반응은 대부분 용액에서 일어나며,
-          극성 용매는 이온이나 쌍극자가 큰 종에서 에너지를 수 kcal/mol에서 수십 kcal/mol까지 안정화시킵니다.
-          용매 효과를 고려하지 않으면 반응 평형, 산-염기 평형, 자유에너지 장벽 등이 실험과 크게 어긋날 수 있습니다.
+          기체상 계산은 분자가 진공에 떠 있다고 가정한다. 하지만 실제 반응은 대부분 용액에서 일어나고,
+          극성 용매는 이온이나 쌍극자가 큰 종을 수 kcal/mol에서 수십 kcal/mol까지 안정화한다.
+          용매 효과를 빼놓으면 반응 평형, 산-염기 평형, 자유에너지 장벽이 실험과 크게 어긋날 수 있다.
         </p>
 
         <h2 id="models">사용 가능한 모델 — CPCM · SMD · ALPB</h2>
-        <p>ORCA가 지원하는 음폐 용매 모델은 다음과 같습니다.</p>
+        <p>ORCA가 지원하는 음폐 용매 모델은 이렇다.</p>
 
         <table>
           <thead>
@@ -107,12 +107,12 @@
         </table>
 
         <p>
-          본 가이드에서는 가장 자주 쓰이는 <strong>CPCM</strong>과 <strong>SMD</strong>를 중심으로 다룹니다.
-          매뉴얼에서는 두 모델을 같은 키워드로 활성화하지만, SMD는 비정전 기여(공동 형성, 분산, 표면 효과)를 함께 추가해 자유에너지 비교에 더 적합합니다.
+          이 가이드는 가장 자주 쓰는 <strong>CPCM</strong>과 <strong>SMD</strong>를 중심으로 다룬다.
+          둘 다 같은 키워드로 켜지지만, SMD는 비정전 기여(공동 형성, 분산, 표면 효과)까지 얹어 줘서 자유에너지 비교에 더 잘 맞는다.
         </p>
 
         <h2 id="basic">기본 사용법 — 한 줄로 끝내기</h2>
-        <p>CPCM은 키워드 라인에 한 단어를 추가하는 것으로 활성화됩니다.</p>
+        <p>CPCM은 키워드 라인에 단어 하나만 붙이면 켜진다.</p>
 
         <pre data-lang="orca"><code><span class="cmt"># 물 환경에서 벤젠 최적화 (CPCM)</span>
 <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J Opt</span> <span class="kw2">CPCM(water)</span>
@@ -120,14 +120,14 @@
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> benzene.xyz</code></pre>
 
         <p>
-          매뉴얼의 포름알데히드 예에서, 진공의 n → π* 전이 에너지가 4.633 eV였던 것이 물 환경(CPCM)에서는 4.857 eV로 증가합니다.
-          n 궤도가 수소결합 환경에서 더 안정화되어 전이 에너지가 0.224 eV(약 5 kcal/mol) 증가한 결과입니다.
+          매뉴얼의 포름알데히드 예를 보면, 진공에서 4.633 eV였던 n → π* 전이 에너지가 물 환경(CPCM)에서는 4.857 eV로 올라간다.
+          n 궤도가 수소결합 환경에서 더 안정화돼 전이 에너지가 0.224 eV(약 5 kcal/mol)만큼 커진 것이다.
         </p>
 
         <h2 id="smd">SMD — 자유에너지 보정까지 포함</h2>
         <p>
-          순수 CPCM은 정전 자유에너지만 다룹니다. 용매화 자유에너지 ΔG<sub>solv</sub>를 산출하거나
-          반응 평형을 정량적으로 다룰 때는 비정전 보정을 포함하는 <strong>SMD</strong>가 더 적합합니다.
+          순수 CPCM은 정전 자유에너지만 다룬다. 용매화 자유에너지 ΔG<sub>solv</sub>를 뽑거나
+          반응 평형을 정량적으로 따질 때는 비정전 보정까지 들어가는 <strong>SMD</strong>가 더 맞다.
         </p>
 
         <pre data-lang="orca"><code><span class="cmt"># SMD 활성화 — CPCM 키워드 + SMD true</span>
@@ -141,7 +141,7 @@
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
 
         <p>
-          SMD를 활성화하면 출력에 다음과 같은 추가 항목이 나타납니다.
+          SMD를 켜면 출력에 이런 항목이 추가로 뜬다.
         </p>
 
         <pre data-lang="output"><code>--------------------
@@ -161,14 +161,14 @@ SMD ΔG_solv            :     -7.221 kcal/mol</code></pre>
         <div class="tip">
           <div class="note-title">SMD는 “원래의 SMD 함수/베이시스”와 함께 사용</div>
           <p>
-            SMD 모델의 파라미터는 본래 M05-2X/6-31G(d)에서 보정되었습니다. 그러나 실제 사용에서는
-            B3LYP, M06-2X, ωB97X-D 같은 일반적인 DFT 함수와 def2-TZVP 정도의 베이시스에서 잘 작동합니다.
-            가스상 계산과 동일한 메소드·베이시스를 사용해 ΔG<sub>solv</sub> = G(soln) − G(gas) 식으로 일관되게 비교하시면 됩니다.
+            SMD 파라미터는 원래 M05-2X/6-31G(d)에서 보정됐다. 그래도 실제로는
+            B3LYP, M06-2X, ωB97X-D 같은 흔한 DFT 함수에 def2-TZVP 정도 베이시스면 잘 돌아간다.
+            가스상 계산과 같은 메소드·베이시스를 써서 ΔG<sub>solv</sub> = G(soln) − G(gas)로 일관되게 비교하면 된다.
           </p>
         </div>
 
         <h2 id="advanced">세부 옵션 — <code>%cpcm</code> 블록</h2>
-        <p>유전 상수, 굴절률, 공동 형태 등을 정밀하게 제어하려면 <code>%cpcm</code> 블록을 사용합니다.</p>
+        <p>유전 상수, 굴절률, 공동 형태 같은 걸 세밀하게 만지려면 <code>%cpcm</code> 블록을 쓴다.</p>
 
         <pre data-lang="orca"><code><span class="kw">%cpcm</span>
    <span class="kw2">Epsilon</span>      <span class="num">80.4</span>          <span class="cmt"># 정적 유전 상수 (물)</span>
@@ -178,7 +178,7 @@ SMD ΔG_solv            :     -7.221 kcal/mol</code></pre>
 <span class="kw">end</span></code></pre>
 
         <p>
-          <code>SurfaceType</code>에는 두 가지 선택지가 있습니다.
+          <code>SurfaceType</code>에는 두 가지 선택지가 있다.
         </p>
 
         <table>
@@ -189,14 +189,14 @@ SMD ΔG_solv            :     -7.221 kcal/mol</code></pre>
           </tbody>
         </table>
 
-        <p>표준 용매 키워드(<code>CPCM(water)</code>, <code>CPCM(ethanol)</code> 등)를 쓰면 위 값들이 자동으로 세팅되므로,
-          대부분의 경우 따로 건드릴 필요는 없습니다.
+        <p>표준 용매 키워드(<code>CPCM(water)</code>, <code>CPCM(ethanol)</code> 등)를 쓰면 위 값들이 알아서 세팅되니,
+          웬만하면 따로 건드릴 일은 없다.
         </p>
 
         <h2 id="solvents">지원 용매 목록</h2>
         <p>
-          CPCM 표준 용매로 지원되는 주요 용매는 다음과 같습니다. 약 30개 이상이 내장되어 있으며,
-          SMD는 더 많은 용매를 지원합니다. 완전한 목록은 매뉴얼 7.53절에 정리되어 있습니다.
+          CPCM 표준 용매로 지원되는 주요 용매만 추리면 아래와 같다. 내장된 것만 30개가 넘고,
+          SMD는 더 많은 용매를 지원한다. 전체 목록은 매뉴얼 7.53절에 있다.
         </p>
 
         <table>
@@ -224,9 +224,9 @@ SMD ΔG_solv            :     -7.221 kcal/mol</code></pre>
 
         <h2 id="explicit">SOLVATOR — 명시적 용매 분자 자동 배치</h2>
         <p>
-          음폐 모델은 수소결합처럼 방향성이 있는 상호작용을 잘 묘사하지 못합니다.
-          중요한 1~2개의 수소결합을 명시적으로 포함하면서 나머지는 CPCM으로 처리하는 “미세-용매화(microsolvation)” 접근이 유용한 경우가 많습니다.
-          ORCA 6에는 이를 자동화하는 SOLVATOR 도구가 들어 있습니다.
+          음폐 모델은 수소결합처럼 방향성 있는 상호작용을 잘 못 잡는다.
+          그래서 중요한 수소결합 1~2개만 명시적으로 넣고 나머지는 CPCM으로 처리하는 “미세-용매화(microsolvation)” 접근이 쓸모 있을 때가 많다.
+          ORCA 6에는 이걸 자동화하는 SOLVATOR 도구가 들어 있다.
         </p>
 
         <pre data-lang="orca"><code><span class="cmt"># 솔벤트 분자 5개를 자동 배치한 뒤 계산</span>
@@ -240,14 +240,14 @@ SMD ΔG_solv            :     -7.221 kcal/mol</code></pre>
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> solute.xyz</code></pre>
 
         <p>
-          SOLVATOR는 사전 정의된 force field로 용매 분자를 용질 주변에 합리적으로 배치합니다.
-          배치된 구조는 별도 파일로 저장되고, 이어지는 양자화학 계산에 사용됩니다.
-          매뉴얼 6.10절에 자세한 옵션이 정리되어 있습니다.
+          SOLVATOR는 미리 정의된 force field로 용매 분자를 용질 주변에 그럴듯하게 배치한다.
+          배치된 구조는 따로 파일로 저장돼 이어지는 양자화학 계산에 쓰인다.
+          자세한 옵션은 매뉴얼 6.10절에 있다.
         </p>
 
         <h2 id="tddft">들뜬 상태와 용매 효과</h2>
         <p>
-          TD-DFT 계산에 CPCM을 함께 켜면 “용매 평형 효과”와 “비평형 응답”이 모두 자동으로 처리됩니다.
+          TD-DFT 계산에 CPCM을 같이 켜면 “용매 평형 효과”와 “비평형 응답”이 모두 알아서 처리된다.
         </p>
 
         <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP CPCM(water)</span>
@@ -259,17 +259,17 @@ SMD ΔG_solv            :     -7.221 kcal/mol</code></pre>
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
 
         <p>
-          ORCA는 빠른 응답(굴절률을 통한 광학적 응답)과 느린 응답(정적 유전 상수)을 자동으로 분리해 처리합니다.
-          이는 흡수(빠른 응답)와 발광·평형(느린 응답)을 일관되게 다루는 표준 절차입니다.
+          ORCA는 빠른 응답(굴절률을 통한 광학적 응답)과 느린 응답(정적 유전 상수)을 알아서 나눠 처리한다.
+          흡수(빠른 응답)와 발광·평형(느린 응답)을 일관되게 다루는 표준 절차다.
         </p>
 
         <div class="caution">
           <div class="note-title">평형 / 비평형 솔베이션의 함정</div>
           <p>
-            흡수와 발광의 용매 이동(solvatochromic shift)을 동시에 다룰 때는
-            평형(equilibrium)과 비평형(non-equilibrium) 솔베이션 옵션을 적절히 설정해야 합니다.
-            기본값은 흡수에 대해 비평형(굴절률 기반), 발광에 대해 평형(유전 상수 기반)을 사용합니다.
-            매뉴얼 7.53절에 명시적 제어 방법이 설명되어 있습니다.
+            흡수와 발광의 용매 이동(solvatochromic shift)을 한꺼번에 다룰 때는
+            평형(equilibrium)과 비평형(non-equilibrium) 솔베이션 옵션을 상황에 맞게 잡아 줘야 한다.
+            기본값은 흡수에는 비평형(굴절률 기반), 발광에는 평형(유전 상수 기반)이다.
+            명시적으로 제어하는 방법은 매뉴얼 7.53절에 있다.
           </p>
         </div>
       </article>

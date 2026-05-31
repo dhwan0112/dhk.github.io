@@ -85,16 +85,16 @@
         </div>
 
         <h2 id="why">왜 진동수를 계산하는가</h2>
-        <p>최적화 후 진동수를 계산하는 데에는 세 가지 목적이 있습니다.</p>
+        <p>최적화 뒤에 진동수를 계산하는 이유는 크게 셋이다.</p>
 
         <ol>
-          <li><strong>임계점의 성격을 확인</strong>: 모든 진동수가 양수이면 안정한 최소, 한 개의 허수 진동수가 있으면 전이 상태입니다.</li>
+          <li><strong>임계점의 성격 확인</strong>: 모든 진동수가 양수이면 안정한 최소, 허수 진동수가 하나 있으면 전이 상태다.</li>
           <li><strong>열역학 보정량 산출</strong>: 영점 진동에너지(ZPE), 열용량 보정, 엔트로피 → 깁스 자유에너지 G.</li>
           <li><strong>IR·Raman 스펙트럼 예측</strong>: 실험과 직접 비교 가능한 진동 스펙트럼.</li>
         </ol>
 
         <h2 id="basic">기본 사용법 — AnFreq vs NumFreq</h2>
-        <p>두 가지 방식이 있습니다.</p>
+        <p>방식은 두 가지다.</p>
 
         <table>
           <thead>
@@ -115,26 +115,26 @@
         <div class="warning">
           <div class="note-title">진동수는 반드시 최적화 구조에서</div>
           <p>
-            진동수 계산은 <strong>그래디언트가 0인 점(stationary point)</strong>에서만 의미가 있습니다.
-            최적화하지 않은 구조에서 진동수를 계산하면 회전·병진 모드가 0이 아닌 값을 가지게 되고,
-            모든 진동수에 오류가 섞입니다. 반드시 동일한 메소드/베이시스로 먼저 최적화하시기 바랍니다.
+            진동수 계산은 <strong>그래디언트가 0인 점(stationary point)</strong>에서만 의미가 있다.
+            최적화 안 한 구조에서 돌리면 회전·병진 모드가 0이 아닌 값으로 새어 나오고,
+            그게 모든 진동수에 오차로 섞인다. 반드시 같은 메소드/베이시스로 먼저 최적화해 둬야 한다.
           </p>
         </div>
 
         <h2 id="combined">최적화와 동시에</h2>
-        <p>가장 흔한 패턴은 최적화와 진동수를 한 줄에 묶는 것입니다.</p>
+        <p>가장 흔한 패턴은 최적화와 진동수를 한 줄에 묶는 것이다.</p>
 
         <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightOpt Freq</span>
 
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
 
         <p>
-          최적화가 끝나면 ORCA는 자동으로 같은 레벨에서 진동수 계산을 이어 갑니다.
-          허수 진동수가 발견되면 <strong>그 모드를 따라 구조를 약간 비틀어</strong> 다시 최적화하면 보통 해결됩니다.
+          최적화가 끝나면 ORCA가 같은 레벨로 진동수 계산을 자동으로 이어 간다.
+          허수 진동수가 나오면 <strong>그 모드를 따라 구조를 살짝 비틀어</strong> 다시 최적화하면 대개 풀린다.
         </p>
 
         <h2 id="interpret">출력 해석</h2>
-        <p>진동수 계산이 끝나면 출력에 다음과 같은 표가 나타납니다.</p>
+        <p>진동수 계산이 끝나면 출력에 이런 표가 뜬다.</p>
 
         <pre data-lang="output"><code>-----------------------
 VIBRATIONAL FREQUENCIES
@@ -153,13 +153,13 @@ Scaling factor for frequencies =  1.000000000  (already applied!)
    8:      3914.47 cm**-1</code></pre>
 
         <p>
-          처음 6개(선형 분자는 5개)는 병진·회전 모드로 항상 0에 가까운 값이 출력됩니다.
-          그 다음부터가 실제 진동 모드입니다. 위 예에서 물 분자는 굽힘(1659), 대칭 신축(3805), 반대칭 신축(3914)
-          세 가지 모드를 가집니다.
+          처음 6개(선형 분자는 5개)는 병진·회전 모드라 늘 0에 가까운 값이 찍힌다.
+          그 다음부터가 진짜 진동 모드다. 위 예에서 물 분자는 굽힘(1659), 대칭 신축(3805), 반대칭 신축(3914)
+          세 모드를 가진다.
         </p>
 
         <h3>모드의 시각화 — 정규 좌표</h3>
-        <p>각 모드의 변위 벡터는 “NORMAL MODES” 섹션에 출력됩니다.</p>
+        <p>각 모드의 변위 벡터는 “NORMAL MODES” 섹션에 찍힌다.</p>
 
         <pre data-lang="output"><code>------------
 NORMAL MODES
@@ -170,38 +170,38 @@ NORMAL MODES
       ...</code></pre>
 
         <p>
-          정규 좌표를 직관적으로 보고 싶다면 ORCA의 <code>orca_pltvib</code> 유틸리티로 진동 trajectory를 만들 수 있습니다.
+          정규 좌표를 눈으로 보고 싶으면 ORCA의 <code>orca_pltvib</code> 유틸리티로 진동 trajectory를 만들면 된다.
         </p>
 
         <pre data-lang="bash"><code><span class="cmt"># 6번 모드의 trajectory 추출 (XYZ로 저장)</span>
 orca_pltvib mol.hess 6</code></pre>
 
         <h2 id="imaginary">허수 진동수 처리</h2>
-        <p>출력에서 허수 진동수는 음수로 표기됩니다.</p>
+        <p>출력에서 허수 진동수는 음수로 표기된다.</p>
 
         <pre data-lang="output"><code>   6:      -456.78 cm**-1   ***imaginary mode***
    7:      1234.56 cm**-1
    8:      ...</code></pre>
 
-        <p>전이 상태가 아닌데 허수 진동수가 나왔다면, 다음과 같이 해결합니다.</p>
+        <p>전이 상태도 아닌데 허수 진동수가 나왔다면, 이렇게 푼다.</p>
 
         <ol>
-          <li>허수 모드의 정규 좌표 방향으로 모든 원자를 약간(예: ± 0.1 Å) 이동시킨 새 좌표를 만듭니다. <code>orca_pltvib</code>로 첫 진폭의 구조를 추출하면 편합니다.</li>
-          <li>이 구조에서 다시 최적화합니다. 임계값을 <code>VeryTightOpt</code>로 올려도 좋습니다.</li>
-          <li>다시 진동수를 계산하여 모두 양수임을 확인합니다.</li>
+          <li>허수 모드의 정규 좌표 방향으로 모든 원자를 약간(예: ± 0.1 Å) 밀어낸 새 좌표를 만든다. <code>orca_pltvib</code>로 첫 진폭의 구조를 뽑으면 편하다.</li>
+          <li>이 구조에서 다시 최적화한다. 임계값을 <code>VeryTightOpt</code>로 올려도 좋다.</li>
+          <li>다시 진동수를 계산해 전부 양수인지 확인한다.</li>
         </ol>
 
         <div class="tip">
           <div class="note-title">매우 작은 음의 진동수</div>
           <p>
-            ±10 cm⁻¹ 정도의 매우 작은 음의 진동수는 종종 적분 격자나 SCF 임계값에서 비롯되는 수치 잡음입니다.
-            <code>DefGrid3 VeryTightSCF</code>로 격자와 SCF 정밀도를 올린 뒤 다시 시도하시면 보통 사라집니다.
+            ±10 cm⁻¹ 정도의 아주 작은 음의 진동수는 적분 격자나 SCF 임계값에서 오는 수치 잡음인 경우가 많다.
+            <code>DefGrid3 VeryTightSCF</code>로 격자와 SCF 정밀도를 올려 다시 돌리면 대개 사라진다.
           </p>
         </div>
 
         <h2 id="thermo">열역학량 — 깁스 자유에너지</h2>
         <p>
-          진동수 계산이 끝나면 ORCA는 자동으로 열역학량을 계산하여 출력합니다. 기본 조건은 298.15 K, 1 atm입니다.
+          진동수 계산이 끝나면 ORCA가 열역학량을 자동으로 계산해 출력한다. 기본 조건은 298.15 K, 1 atm이다.
         </p>
 
         <pre data-lang="output"><code>-------------------------
@@ -223,7 +223,7 @@ Final Gibbs free energy               -76.42157345 Eh
 -------------------------------------------------
 G-E(el)                            ...   0.00219978 Eh       1.38 kcal/mol</code></pre>
 
-        <p>주요 항목의 정의는 다음과 같습니다.</p>
+        <p>주요 항목의 뜻은 이렇다.</p>
 
         <table>
           <thead><tr><th>항목</th><th>의미</th></tr></thead>
@@ -244,19 +244,19 @@ G-E(el)                            ...   0.00219978 Eh       1.38 kcal/mol</code
         <div class="note">
           <div class="note-title">저진동 보정과 quasi-RRHO</div>
           <p>
-            기본 RRHO(rigid-rotor harmonic oscillator) 모델은 저주파수(&lt; 100 cm⁻¹) 모드에서 엔트로피를 과대평가합니다.
-            Grimme의 quasi-RRHO 보정을 적용하면 한층 정확한 자유에너지를 얻을 수 있습니다.
-            <code>%freq QuasiRRHO true CutOffFreq 35 end</code>으로 활성화합니다.
-            특히 컨포머 탐색이나 회전 가능한 분자에서 효과가 큽니다.
+            기본 RRHO(rigid-rotor harmonic oscillator) 모델은 저주파수(&lt; 100 cm⁻¹) 모드에서 엔트로피를 과대평가한다.
+            Grimme의 quasi-RRHO 보정을 켜면 자유에너지가 한결 정확해진다.
+            <code>%freq QuasiRRHO true CutOffFreq 35 end</code>으로 켠다.
+            특히 컨포머 탐색이나 회전 자유도가 큰 분자에서 차이가 크다.
           </p>
         </div>
 
         <h2 id="ir-raman">IR · Raman 스펙트럼 그리기</h2>
         <p>
-          진동수 계산은 자동으로 IR 강도를 함께 출력합니다. 라만 강도는 <code>!NumFreq</code> 또는 polarizability 계산이 함께 켜져 있어야 얻을 수 있습니다.
+          진동수 계산은 IR 강도를 자동으로 같이 출력한다. 라만 강도는 <code>!NumFreq</code>나 polarizability 계산이 같이 켜져 있어야 나온다.
         </p>
 
-        <p>스펙트럼을 그리기 위해서는 <code>orca_mapspc</code> 유틸리티를 사용합니다.</p>
+        <p>스펙트럼을 그리려면 <code>orca_mapspc</code> 유틸리티를 쓴다.</p>
 
         <pre data-lang="bash"><code><span class="cmt"># IR 스펙트럼 (.dat 파일 생성)</span>
 orca_mapspc mol.out ir -w25
@@ -267,8 +267,8 @@ orca_mapspc mol.out raman -w50
 <span class="cmt"># 출력 파일 mol.out.ir.dat 또는 mol.out.raman.dat을 gnuplot, matplotlib 등으로 시각화</span></code></pre>
 
         <p>
-          <code>-w</code> 옵션은 로렌츠 / 가우스 라인폭(cm⁻¹)을 지정합니다.
-          <code>orca_mapspc</code>를 인수 없이 실행하면 전체 옵션 목록을 볼 수 있습니다.
+          <code>-w</code> 옵션은 로렌츠 / 가우스 라인폭(cm⁻¹)을 정한다.
+          <code>orca_mapspc</code>를 인수 없이 실행하면 전체 옵션 목록이 나온다.
         </p>
 
         <h2 id="options">자주 쓰는 옵션</h2>
@@ -286,15 +286,15 @@ orca_mapspc mol.out raman -w50
         <div class="caution">
           <div class="note-title">스케일링 인자</div>
           <p>
-            DFT가 계산하는 조화 진동수는 실험치보다 보통 5~10% 높게 나옵니다.
-            문헌과 비교할 때는 함수별 권장 스케일링 인자를 곱해 보정하시기를 권합니다.
-            예컨대 B3LYP/6-31G(d)는 약 0.961, B3LYP/def2-TZVP는 약 0.965입니다.
-            NIST CCCBDB(<a href="https://cccbdb.nist.gov">cccbdb.nist.gov</a>)에 종합 표가 있습니다.
+            DFT가 내놓는 조화 진동수는 실험치보다 보통 5~10% 높게 나온다.
+            문헌과 비교할 때는 함수별 권장 스케일링 인자를 곱해 보정하는 게 좋다.
+            예를 들어 B3LYP/6-31G(d)는 약 0.961, B3LYP/def2-TZVP는 약 0.965다.
+            NIST CCCBDB(<a href="https://cccbdb.nist.gov">cccbdb.nist.gov</a>)에 종합 표가 있다.
           </p>
         </div>
 
         <p>
-          최소 구조와 전이 상태의 진동수를 모두 얻었다면, 이제 그것들을 연결하는 작업으로 넘어갑니다.
+          최소 구조와 전이 상태의 진동수를 다 얻었으면, 이제 그 둘을 잇는 작업 차례다.
         </p>
       </article>
 

@@ -66,7 +66,7 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 13 · 실전 운영</div>
         <h1 class="page-title">팁과 트러블슈팅</h1>
-        <p class="page-lede">계산이 멈췄을 때, 결과가 이상할 때. 매뉴얼 §8을 한국어로 풀어 정리했습니다.</p>
+        <p class="page-lede">계산이 멈췄을 때, 결과가 이상할 때. 매뉴얼 §8을 한국어로 풀어 정리했다.</p>
       </header>
 
       <article class="content">
@@ -86,8 +86,8 @@
 
         <h2 id="scf-troubles">SCF가 수렴하지 않을 때</h2>
         <p>
-          매뉴얼 §8.3은 SCF 수렴 실패가 거의 항상 열린 껍질 상황에서 발생하며,
-          해결책의 핵심은 “더 나은 초기 궤도(better starting orbitals)”라고 강조합니다. 권장 전략은 다음과 같습니다.
+          매뉴얼 §8.3은 SCF 수렴 실패가 거의 항상 열린 껍질 상황에서 나오고,
+          해결책의 핵심은 “더 나은 초기 궤도(better starting orbitals)”라고 못 박는다. 권장 전략은 이렇다.
         </p>
 
         <h3>전략 ① — 작은 베이시스로 먼저 수렴</h3>
@@ -117,7 +117,7 @@
 
         <h3>전략 ② — SOSCF 또는 TRAH 활용</h3>
         <p>
-          DIIS가 0.001 정도에서 정체될 때는 2차 SCF(SOSCF) 또는 TRAH(Trust-Region Augmented Hessian)를 활성화합니다.
+          DIIS가 0.001 언저리에서 정체되면 2차 SCF(SOSCF)나 TRAH(Trust-Region Augmented Hessian)를 켠다.
         </p>
 
         <pre data-lang="orca"><code><span class="kw">%scf</span>
@@ -137,54 +137,54 @@
 
         <h3>전략 ④ — 연관된 닫힌 껍질에서 시작</h3>
         <p>
-          홀수 전자 시스템이 잘 수렴하지 않을 때, 양이온이나 음이온의 닫힌 껍질 계산을 먼저 한 뒤 그 궤도를 읽어 오는 방법이 있습니다.
-          닫힌 껍질은 일반적으로 더 잘 수렴합니다.
+          홀수 전자 시스템이 잘 수렴하지 않으면, 양이온이나 음이온의 닫힌 껍질 계산을 먼저 하고 그 궤도를 읽어 오는 방법이 있다.
+          닫힌 껍질이 대체로 더 잘 수렴한다.
         </p>
 
         <div class="tip">
           <div class="note-title">수렴 문제의 8할은 좌표</div>
           <p>
-            매뉴얼이 직접 언급하듯이, 수렴 실패의 가장 흔한 원인은 “비합리적인 구조”입니다.
-            결합 길이가 0.5 Å로 짧거나, 두 원자가 같은 위치에 있거나, 단위가 Å이 아닌 bohr인 채로 입력되었거나 하는 경우입니다.
-            방법을 바꾸기 전에 좌표가 화학적으로 합리적인지 먼저 확인하시기 바랍니다.
+            매뉴얼도 대놓고 말하듯, 수렴 실패의 가장 흔한 원인은 “말도 안 되는 구조”다.
+            결합 길이가 0.5 Å로 짧거나, 두 원자가 같은 자리에 있거나, 단위가 Å이 아니라 bohr인 채로 들어갔거나 하는 경우다.
+            방법을 바꾸기 전에 좌표가 화학적으로 말이 되는지부터 확인한다.
           </p>
         </div>
 
         <h2 id="opt-troubles">최적화가 발산할 때</h2>
         <ol>
-          <li><strong>최대 step 줄이기</strong>: <code>%geom MaxStep 0.1 end</code> (단위 bohr). 진동을 잠재웁니다.</li>
-          <li><strong>좌표계 전환</strong>: <code>!COpt</code>로 데카르트 좌표를 시도합니다.</li>
-          <li><strong>초기 헤시안 강화</strong>: 저렴한 방법으로 헤시안 계산 후 <code>InHess Read</code>로 읽어 옵니다.
-            매뉴얼이 보여 주는 예는 “1단계 NumFreq → 2단계 OptTS” 패턴입니다.</li>
-          <li><strong>SCF 임계값 강화</strong>: 평탄한 표면에서는 SCF 잡음이 그래디언트를 흔듭니다. <code>TightSCF</code> 이상을 권장합니다.</li>
-          <li><strong>적분 격자 강화</strong>: <code>DefGrid3</code>으로 DFT 격자 정밀도를 올립니다.</li>
+          <li><strong>최대 step 줄이기</strong>: <code>%geom MaxStep 0.1 end</code> (단위 bohr). 진동을 잠재운다.</li>
+          <li><strong>좌표계 전환</strong>: <code>!COpt</code>로 데카르트 좌표를 시도한다.</li>
+          <li><strong>초기 헤시안 강화</strong>: 싼 방법으로 헤시안을 계산한 뒤 <code>InHess Read</code>로 읽어 온다.
+            매뉴얼이 드는 예가 “1단계 NumFreq → 2단계 OptTS” 패턴이다.</li>
+          <li><strong>SCF 임계값 강화</strong>: 평탄한 표면에서는 SCF 잡음이 그래디언트를 흔든다. <code>TightSCF</code> 이상을 권한다.</li>
+          <li><strong>적분 격자 강화</strong>: <code>DefGrid3</code>으로 DFT 격자 정밀도를 올린다.</li>
         </ol>
 
         <h2 id="freq-troubles">진동수에 작은 음수가 섞일 때</h2>
         <p>
-          허수가 ±10~30 cm⁻¹ 정도의 작은 값이라면 대개 “진짜 음의 곡률”이 아니라 수치 잡음입니다.
-          다음 순서로 시도해 보시기 바랍니다.
+          허수가 ±10~30 cm⁻¹ 정도로 작으면 대개 “진짜 음의 곡률”이 아니라 수치 잡음이다.
+          아래 순서로 시도해 본다.
         </p>
 
         <ol>
           <li><code>VeryTightSCF DefGrid3</code>로 SCF와 격자 정밀도를 올린 뒤 재최적화 + 재계산.</li>
           <li><code>VeryTightOpt</code>로 최적화 임계값을 강화.</li>
-          <li><code>NumFreq CentralDiff true</code>로 양측 차분(시간은 2배가 됩니다).</li>
+          <li><code>NumFreq CentralDiff true</code>로 양측 차분(시간은 2배가 된다).</li>
         </ol>
 
         <p>
-          반대로 큰 허수(수백 cm⁻¹)는 진짜 음의 곡률입니다. 해당 모드의 방향으로 약간 변위를 주어 재최적화하시면 됩니다.
-          <code>orca_pltvib</code>를 활용하면 변위된 좌표를 쉽게 만들 수 있습니다.
+          반대로 큰 허수(수백 cm⁻¹)는 진짜 음의 곡률이다. 그 모드 방향으로 약간 변위를 줘서 재최적화하면 된다.
+          <code>orca_pltvib</code>를 쓰면 변위된 좌표를 쉽게 만들 수 있다.
         </p>
 
         <h2 id="memory">메모리 부족</h2>
-        <p>“Please increase MaxCore” 메시지를 마주쳤다면 다음 점들을 점검하시기 바랍니다.</p>
+        <p>“Please increase MaxCore” 메시지를 만났다면 아래를 점검한다.</p>
 
         <ul>
-          <li><code>%maxcore</code> 값을 늘립니다 (단위 MB). 가용 메모리의 60~70%까지 분배합니다.</li>
-          <li>병렬 프로세스 수를 줄여 코어당 메모리를 늘립니다.</li>
-          <li>스크래치 디렉토리(<code>$ORCA_SCRDIR</code>)가 충분한 디스크 용량의 빠른 SSD를 가리키는지 확인합니다.</li>
-          <li>가능하다면 RI 근사(<code>RIJCOSX</code>, <code>RI-JK</code>)를 활성화해 메모리를 절약합니다.</li>
+          <li><code>%maxcore</code> 값을 늘린다 (단위 MB). 가용 메모리의 60~70%까지 배정한다.</li>
+          <li>병렬 프로세스 수를 줄여 코어당 메모리를 늘린다.</li>
+          <li>스크래치 디렉토리(<code>$ORCA_SCRDIR</code>)가 용량이 넉넉한 빠른 SSD를 가리키는지 확인한다.</li>
+          <li>가능하면 RI 근사(<code>RIJCOSX</code>, <code>RI-JK</code>)를 켜 메모리를 아낀다.</li>
         </ul>
 
         <pre data-lang="bash"><code><span class="cmt"># 클러스터 작업 스크립트에서 스크래치 설정 예</span>
@@ -196,49 +196,49 @@ cp -r * $SLURM_SUBMIT_DIR/
 cd / &amp;&amp; rm -rf $ORCA_SCRDIR</code></pre>
 
         <h2 id="parallel">병렬이 느릴 때</h2>
-        <p>코어 수를 늘렸는데 속도 향상이 미미하다면 다음을 점검합니다.</p>
+        <p>코어 수를 늘렸는데 속도가 별로 안 빨라지면 아래를 점검한다.</p>
 
         <ul>
-          <li><strong>I/O 병목</strong>: 네트워크 디스크에서 실행하면 모든 코어가 같은 디스크를 두드려 느려집니다.
-            반드시 로컬 디스크(NVMe SSD 이상)를 스크래치로 사용하시기 바랍니다.</li>
-          <li><strong>과도한 병렬화</strong>: RI-DFT는 16코어 이상에서 효율이 떨어집니다. CCSD(T)는 8~16코어가 무난합니다.</li>
-          <li><strong>OpenMPI 통신</strong>: 노드 간 통신(infiniband 등)이 없는 경우, 한 노드 안에서만 병렬화하시기를 권합니다.</li>
-          <li><strong>NumFreq, NEB</strong> 등 “독립적인 변위·이미지”가 많은 작업은 <code>nprocs_group</code>으로 변위 단위 병렬화를 활용하면 좋습니다.</li>
+          <li><strong>I/O 병목</strong>: 네트워크 디스크에서 실행하면 모든 코어가 같은 디스크를 두드려 느려진다.
+            반드시 로컬 디스크(NVMe SSD 이상)를 스크래치로 쓴다.</li>
+          <li><strong>과도한 병렬화</strong>: RI-DFT는 16코어 이상에서 효율이 떨어진다. CCSD(T)는 8~16코어가 무난하다.</li>
+          <li><strong>OpenMPI 통신</strong>: 노드 간 통신(infiniband 등)이 없으면, 한 노드 안에서만 병렬화하는 게 좋다.</li>
+          <li><strong>NumFreq, NEB</strong>처럼 “독립적인 변위·이미지”가 많은 작업은 <code>nprocs_group</code>으로 변위 단위 병렬화를 쓰면 좋다.</li>
         </ul>
 
         <h2 id="spin-contamination">스핀 오염</h2>
         <p>
-          UKS/UHF 계산에서 ⟨S²⟩이 이상값에서 벗어나면 “스핀 오염”이 있다고 합니다.
-          도플렛(S = 1/2)의 이상 ⟨S²⟩는 0.75, 트리플렛(S = 1)은 2.0입니다.
-          벗어남이 5% 이내라면 무시할 만하지만, 10% 이상이면 결과의 신뢰성이 떨어집니다.
+          UKS/UHF 계산에서 ⟨S²⟩이 이상값에서 벗어나면 “스핀 오염”이 있다고 한다.
+          도플렛(S = 1/2)의 이상값은 0.75, 트리플렛(S = 1)은 2.0이다.
+          벗어남이 5% 이내면 무시할 만하지만, 10%를 넘으면 결과를 믿기 어려워진다.
         </p>
 
-        <p>매뉴얼이 권장하는 진단 도구는 <code>!UNO !UCO</code> 조합입니다.</p>
+        <p>매뉴얼이 권하는 진단 도구는 <code>!UNO !UCO</code> 조합이다.</p>
 
         <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP UNO UCO TightSCF</span>
 
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
 
-        <p>출력의 UCO Overlap 테이블에서 0.85 이하의 오버랩이 보이면 “스핀-커플드 페어”로 해석합니다.
-          단일항 디라디칼이나 결합이 끊어지는 과정 등에서 자주 나타납니다.
-          이런 시스템은 일반적으로 단일참조 DFT/HF의 한계 영역으로,
-          정확한 결과를 원하면 다중참조(CASSCF/NEVPT2) 방법으로 넘어가시는 것이 좋습니다.
+        <p>출력의 UCO Overlap 테이블에서 0.85 이하 오버랩이 보이면 “스핀-커플드 페어”로 읽는다.
+          단일항 디라디칼이나 결합이 끊어지는 과정에서 자주 나온다.
+          이런 시스템은 대체로 단일참조 DFT/HF의 한계 영역이라,
+          정확한 결과를 원하면 다중참조(CASSCF/NEVPT2)로 넘어가는 게 좋다.
         </p>
 
         <h2 id="workflow">상황별 권장 워크플로우</h2>
 
         <h3>일반 유기 분자의 정밀 자유에너지</h3>
         <ol>
-          <li><code>r2SCAN-3c Opt Freq</code>로 구조와 깁스 보정을 얻습니다.</li>
-          <li><code>DLPNO-CCSD(T)/cc-pVTZ + Extrapolate(3/4,cc)</code> 단일점으로 전자 에너지를 정밀화합니다.</li>
-          <li>필요시 <code>SMD</code>로 용매 효과를 더합니다.</li>
+          <li><code>r2SCAN-3c Opt Freq</code>로 구조와 깁스 보정을 얻는다.</li>
+          <li><code>DLPNO-CCSD(T)/cc-pVTZ + Extrapolate(3/4,cc)</code> 단일점으로 전자 에너지를 정밀화한다.</li>
+          <li>필요하면 <code>SMD</code>로 용매 효과를 더한다.</li>
         </ol>
 
         <h3>전이금속 착물 (3d 금속)</h3>
         <ol>
           <li><code>TPSSh D4 def2-TZVP Opt Freq</code> — 메타-GGA 하이브리드가 스핀 상태를 잘 묘사.</li>
-          <li>스핀 상태가 미묘하면 같은 방법으로 다른 다중도를 모두 계산해 비교합니다.</li>
-          <li>UV-Vis는 <code>TDDFT</code>, EPR g-tensor는 <code>!EPRNMR</code>로 추가 계산합니다.</li>
+          <li>스핀 상태가 미묘하면 같은 방법으로 다른 다중도를 모두 계산해 비교한다.</li>
+          <li>UV-Vis는 <code>TDDFT</code>, EPR g-tensor는 <code>!EPRNMR</code>로 추가 계산한다.</li>
         </ol>
 
         <h3>유기 광물리 (UV-Vis, 형광)</h3>
@@ -264,60 +264,60 @@ cd / &amp;&amp; rm -rf $ORCA_SCRDIR</code></pre>
           <div class="note-title">베이시스의 일관성</div>
           <p>
             매뉴얼 §8.2가 강조하듯, 최소 베이시스(STO-3G)나 3-21G 같은 작은 split-valence 기저는
-            정량적 결과에 부적합합니다. Karlsruhe def2 시리즈를 일관되게 사용하시기를 권합니다.
-            반응물·생성물·전이 상태 모두 같은 베이시스를 써야 오차가 상쇄됩니다.
+            정량적 결과엔 부적합하다. Karlsruhe def2 시리즈를 일관되게 쓰는 게 좋다.
+            반응물·생성물·전이 상태 모두 같은 베이시스를 써야 오차가 상쇄된다.
           </p>
         </div>
 
         <div class="note">
           <div class="note-title">DFT는 격자가 정확도의 한계</div>
           <p>
-            큰 베이시스(예: def2-QZVPP)로 작업할 때, DFT 적분 격자가 <code>DefGrid2</code>에 머물러 있으면
-            정확도가 격자 잡음에 묶이게 됩니다. 큰 베이시스를 쓸 때는 <code>DefGrid3</code>으로 격자도 함께 올리시기 바랍니다.
-            메뉴얼의 표현을 빌리면 “격자로 인한 수치 잡음으로 정확도를 깎아 먹지는 마십시오”.
+            큰 베이시스(예: def2-QZVPP)로 작업할 때 DFT 적분 격자가 <code>DefGrid2</code>에 머물러 있으면,
+            정확도가 격자 잡음에 묶인다. 큰 베이시스를 쓸 때는 <code>DefGrid3</code>으로 격자도 같이 올린다.
+            매뉴얼의 표현을 빌리면 “격자에서 온 수치 잡음으로 애써 얻은 정확도를 깎아 먹지 말 것”.
           </p>
         </div>
 
         <div class="note">
           <div class="note-title">분산 보정은 거의 무료</div>
           <p>
-            D3·D4 보정은 계산 시간을 거의 늘리지 않으면서 정확도를 크게 향상시킵니다.
-            함수가 분산력을 자체 처리(VV10 내장)하는 경우가 아니라면 거의 항상 활성화하시기를 권합니다.
+            D3·D4 보정은 계산 시간을 거의 늘리지 않으면서 정확도를 크게 끌어올린다.
+            함수가 분산력을 자체 처리(VV10 내장)하는 경우가 아니면 거의 항상 켜는 게 좋다.
           </p>
         </div>
 
         <div class="caution">
-          <div class="note-title">정상 종료가 곧 정확한 결과는 아닙니다</div>
+          <div class="note-title">정상 종료가 곧 정확한 결과는 아니다</div>
           <p>
-            <code>ORCA TERMINATED NORMALLY</code> 메시지가 보여도 결과가 자동으로 신뢰할 수 있는 것은 아닙니다.
-            (1) SCF 수렴 여부, (2) 최적화 수렴 여부, (3) 진동수가 모두 양수인지(또는 TS는 하나의 허수인지),
-            (4) ⟨S²⟩가 합리적인지, (5) 출력의 WARNING 메시지 등을 반드시 직접 확인하시기 바랍니다.
+            <code>ORCA TERMINATED NORMALLY</code>가 떠도 결과가 저절로 믿을 만해지는 건 아니다.
+            (1) SCF 수렴 여부, (2) 최적화 수렴 여부, (3) 진동수가 모두 양수인지(TS는 허수 하나인지),
+            (4) ⟨S²⟩가 합리적인지, (5) 출력의 WARNING 메시지를 반드시 직접 확인한다.
           </p>
         </div>
 
         <div class="tip">
           <div class="note-title">매뉴얼의 마지막 조언</div>
           <p>
-            매뉴얼 §8.2의 끝에 인상적인 한 마디가 있습니다.
-            “컴퓨터가 문제를 푸는 것이 아니라, 사람이 푸는 것입니다.
-            한두 숫자를 더 정확하게 만들 수 있다고 해서 그것이 우리가 다루는 분자의 화학·분광학을 이해하는 데 곧바로 도움이 되는 것은 아닙니다.
-            기술적 디테일에 갇혀 본래의 통찰을 놓치는 위험은 실재합니다.”
-            계산의 정확도를 추구하는 것은 좋지만, 그것이 화학적 통찰을 대체하지는 않는다는 점을 잊지 마시기 바랍니다.
+            매뉴얼 §8.2 끝에 인상적인 한마디가 있다.
+            “문제를 푸는 건 컴퓨터가 아니라 사람이다.
+            숫자 한두 개를 더 정확하게 만든다고 해서, 그게 우리가 다루는 분자의 화학·분광학을 이해하는 데 곧장 도움이 되는 건 아니다.
+            기술적 디테일에 갇혀 본래의 통찰을 놓치는 위험은 실제로 있다.”
+            계산의 정확도를 좇는 건 좋지만, 그게 화학적 통찰을 대신해 주지는 않는다는 걸 잊지 말자.
           </p>
         </div>
 
         <div class="divider"></div>
 
         <p>
-          여기까지가 본 가이드의 마지막 장입니다. 이 가이드가 일상 연구에 작은 도움이 되시기를 바랍니다.
-          더 깊은 옵션이나 특수한 사용 사례는 ORCA 매뉴얼 6.0.0판(공식 PDF)을 직접 참조하시기를 권합니다.
-          그리고 막히는 부분이 있다면 공식 포럼(<a href="https://orcaforum.kofo.mpg.de">orcaforum.kofo.mpg.de</a>)에서
-          비슷한 사례를 찾아보시면 큰 도움이 됩니다.
+          여기까지가 이 가이드의 마지막 장이다. 일상 연구에 조금이라도 도움이 됐으면 한다.
+          더 깊은 옵션이나 특수한 사용 사례는 ORCA 매뉴얼 6.0.0판(공식 PDF)을 직접 펴 보면 된다.
+          그리고 막히는 데가 있으면 공식 포럼(<a href="https://orcaforum.kofo.mpg.de">orcaforum.kofo.mpg.de</a>)에서
+          비슷한 사례를 찾아보는 게 큰 도움이 된다.
         </p>
 
         <footer class="site-footer">
           <p>
-            ORCA 한국어 사용자 가이드 · ORCA Manual 6.0.0 기반 · 본 가이드는 비공식 정리물입니다.
+            ORCA 한국어 사용자 가이드 · ORCA Manual 6.0.0 기반 · 비공식 정리물이다.
           </p>
         </footer>
       </article>
