@@ -66,7 +66,7 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 03 · 시작</div>
         <h1 class="page-title">키워드 모음</h1>
-        <p class="page-lede">방법, 베이시스, 알고리즘 옵션. 자주 마주치는 키워드를 한 자리에 모았습니다.</p>
+        <p class="page-lede">방법, 베이시스, 알고리즘 옵션. 자주 마주치는 키워드를 한 자리에 모았다.</p>
       </header>
 
       <article class="content">
@@ -86,13 +86,13 @@
         </div>
 
         <p>
-          이 페이지는 ORCA 매뉴얼 4.2절의 키워드 표를 한국어로 다시 정리한 것입니다.
-          전체 키워드 목록은 1300페이지에 달하므로, 여기서는 일상 연구에서 자주 마주치는 것들에 집중했습니다.
-          전체 목록은 매뉴얼 4.2절을 참고하시면 됩니다.
+          이 페이지는 ORCA 매뉴얼 4.2절의 키워드 표를 한국어로 다시 추린 것이다.
+          전체 키워드는 1300페이지에 달하니, 여기서는 일상 연구에서 자주 마주치는 것에만 집중했다.
+          빠진 게 있으면 매뉴얼 4.2절을 펴 보면 된다.
         </p>
 
         <h2 id="runtypes">작업 유형 (Runtype)</h2>
-        <p>키워드 라인에 작업 유형이 지정되지 않으면 기본값은 <code>Energy</code>(단일점 에너지)입니다.</p>
+        <p>키워드 라인에 작업 유형을 안 적으면 기본값은 <code>Energy</code>(단일점 에너지)다.</p>
 
         <table>
           <thead>
@@ -118,7 +118,7 @@
         <h2 id="hf-dft">Hartree-Fock · DFT 방법</h2>
 
         <h3>Hartree-Fock</h3>
-        <p>HF 자체는 키워드 한 단어로 끝납니다. 닫힌 껍질 / 열린 껍질을 명시할 수 있습니다.</p>
+        <p>HF 자체는 키워드 한 단어로 끝난다. 닫힌 껍질 / 열린 껍질은 따로 명시할 수 있다.</p>
         <table>
           <thead><tr><th>키워드</th><th>의미</th></tr></thead>
           <tbody>
@@ -130,7 +130,7 @@
         </table>
 
         <h3>대표적인 DFT 함수</h3>
-        <p>아래는 자주 쓰이는 함수들입니다. 전체 목록은 <a href="dft-functionals.html">12. DFT 함수 선택</a>에서 다룹니다.</p>
+        <p>아래는 자주 쓰는 함수만 추린 것이다. 전체 목록은 <a href="dft-functionals.html">12. DFT 함수 선택</a>에서 다룬다.</p>
 
         <table>
           <thead>
@@ -170,7 +170,7 @@
         </table>
 
         <h3>분산력 보정</h3>
-        <p>DFT는 분산력을 제대로 묘사하지 못하므로, 거의 모든 경우 분산력 보정을 함께 사용하시기를 권합니다.</p>
+        <p>DFT는 분산력을 제대로 못 잡으니, 사실상 모든 경우에 분산력 보정을 같이 켜는 게 맞다.</p>
 
         <table>
           <thead><tr><th>키워드</th><th>의미</th></tr></thead>
@@ -182,7 +182,7 @@
           </tbody>
         </table>
 
-        <pre data-lang="orca"><code><span class="cmt"># B3LYP는 분산력 보정과 함께 쓰는 것이 거의 표준입니다</span>
+        <pre data-lang="orca"><code><span class="cmt"># B3LYP는 분산력 보정과 함께 쓰는 게 거의 표준</span>
 <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP</span></code></pre>
 
         <h2 id="correlated">상관 방법 — MP2, CCSD(T), DLPNO</h2>
@@ -205,7 +205,7 @@
         </table>
 
         <h3>DLPNO 임계값</h3>
-        <p>DLPNO 계산의 정밀도는 다음 세 단계로 단순화되어 있습니다.</p>
+        <p>DLPNO 계산의 정밀도는 세 단계로 묶여 있다.</p>
         <table>
           <thead><tr><th>키워드</th><th>설명</th></tr></thead>
           <tbody>
@@ -262,7 +262,7 @@
         </table>
 
         <h2 id="grids">DFT 적분 격자</h2>
-        <p>DFT 수치 적분 격자의 크기는 <code>DefGridN</code> 키워드로 지정합니다. 기본값은 <code>DefGrid2</code>입니다.</p>
+        <p>DFT 수치 적분 격자의 크기는 <code>DefGridN</code> 키워드로 정한다. 기본값은 <code>DefGrid2</code>다.</p>
 
         <table>
           <thead><tr><th>키워드</th><th>설명</th></tr></thead>
@@ -275,7 +275,7 @@
         </table>
 
         <h2 id="relativity">상대론적 옵션</h2>
-        <p>전이금속의 5d·6d, 란타나이드, 악티나이드 등 무거운 원소를 다룰 때 사용합니다.</p>
+        <p>전이금속의 5d·6d, 란타나이드, 악티나이드처럼 무거운 원소를 다룰 때 쓴다.</p>
 
         <table>
           <thead><tr><th>키워드</th><th>설명</th></tr></thead>
@@ -288,8 +288,8 @@
         </table>
 
         <p>
-          상대론적 계산은 전용 베이시스를 사용해야 합니다. 예를 들어
-          <code>! ZORA ZORA-def2-TZVP SARC/J</code>처럼 ZORA-재계약 베이시스와 SARC 보조 기저를 함께 지정합니다.
+          상대론적 계산은 전용 베이시스를 써야 한다. 예를 들어
+          <code>! ZORA ZORA-def2-TZVP SARC/J</code>처럼 ZORA에 맞춰 recontract된 베이시스와 SARC 보조 기저를 함께 지정한다.
         </p>
 
         <h2 id="output-control">출력 제어</h2>
@@ -313,8 +313,8 @@
 
         <h2 id="composite">합성 방법 (Composite Methods)</h2>
         <p>
-          합성 방법은 “함수 + 베이시스 + 보정”을 하나의 키워드로 묶은 것입니다.
-          ORCA 6에서는 Grimme 그룹의 “3c” 합성 방법이 강력하게 권장됩니다. 별도의 베이시스 지정 없이 한 줄로 끝납니다.
+          합성 방법은 “함수 + 베이시스 + 보정”을 키워드 하나로 묶은 것이다.
+          ORCA 6에서는 Grimme 그룹의 “3c” 합성 방법이 특히 쓸 만하다. 베이시스를 따로 지정할 필요 없이 한 줄로 끝난다.
         </p>
 
         <table>
@@ -336,13 +336,13 @@
         <div class="tip">
           <div class="note-title">r2SCAN-3c를 첫 시도로</div>
           <p>
-            중간 크기 분자(원자 50~200개)의 구조 최적화·진동수에는 <code>r2SCAN-3c</code>를 첫 시도로 사용하시는 것을 추천합니다.
-            B3LYP/def2-TZVP 수준의 정확도를 절반 미만의 시간으로 달성합니다.
-            보다 정밀한 단일점 에너지가 필요하면 그 위에 <code>DLPNO-CCSD(T)/cc-pVTZ</code> 등을 얹는 식의 워크플로우가 잘 작동합니다.
+            중간 크기 분자(원자 50~200개)의 구조 최적화·진동수라면 <code>r2SCAN-3c</code>를 일단 첫 카드로 꺼내 볼 만하다.
+            B3LYP/def2-TZVP 수준의 정확도를 절반도 안 되는 시간에 낸다.
+            더 정밀한 단일점 에너지가 필요하면 그 위에 <code>DLPNO-CCSD(T)/cc-pVTZ</code> 같은 걸 얹는 워크플로우가 잘 먹힌다.
           </p>
         </div>
 
-        <p>다음 장부터는 실제 계산 예제를 통해 이 키워드들이 어떻게 조합되는지 살펴봅니다.</p>
+        <p>키워드 사전은 이쯤 해 두고, 다음 장부터는 이것들이 실제 계산에서 어떻게 조합되는지 예제로 본다.</p>
       </article>
 
       <nav class="page-nav">

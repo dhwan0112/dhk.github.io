@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ORCA 사용자 가이드 · 한국어</title>
-  <meta name="description" content="양자화학 계산 프로그램 ORCA의 한국어 사용자 가이드. 입력 파일 구조, 자주 쓰는 계산 예제, 방법론 선택을 포함합니다." />
+  <meta name="description" content="양자화학 계산 프로그램 ORCA의 한국어 사용자 가이드. 입력 파일 구조, 자주 쓰는 계산 예제, 방법론 선택까지 다룬다." />
   <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
@@ -70,8 +70,8 @@
           <span class="hero-title-accent">사용자 가이드</span>
         </h1>
         <p class="hero-tagline">
-          양자화학 계산 프로그램 ORCA를 한국어로 익히기 위한 실전 안내서.
-          매뉴얼 6.0.0판을 기준으로 자주 쓰이는 입력과 결과 해석을 정리했습니다.
+          양자화학 계산 프로그램 ORCA를 한국어로 익히려는 사람을 위한 실전 안내서.
+          매뉴얼 6.0.0판을 기준으로, 자주 쓰는 입력과 결과 해석을 추렸다.
         </p>
         <div class="hero-meta">
           <span>버전</span> 6.0.0 · <span>지원</span> 5.0.2 / 5.0.4 / 6.0.0 · <span>기준</span> Manual 2024.07
@@ -81,16 +81,16 @@
       <article class="content">
         <h2>이 가이드에 관하여</h2>
         <p>
-          ORCA는 막스 플랑크 석탄연구소(Max-Planck-Institut für Kohlenforschung)에서
-          개발하는 범용 양자화학 계산 패키지입니다. Hartree-Fock, DFT, MP2, Coupled Cluster, CASSCF 등
-          다양한 방법을 지원하며, 학술용으로 무료로 배포됩니다. 본 가이드는 1300페이지가 넘는 공식 매뉴얼에서
-          일상 연구에 가장 자주 등장하는 작업을 추려 정리한 것입니다.
+          ORCA는 막스 플랑크 석탄연구소(Max-Planck-Institut für Kohlenforschung)가
+          개발하는 범용 양자화학 계산 패키지다. Hartree-Fock, DFT, MP2, Coupled Cluster, CASSCF 등
+          웬만한 방법을 다 지원하고, 학술용으로는 무료로 풀린다. 이 가이드는 1300페이지가 넘는 공식 매뉴얼에서
+          일상 연구에 가장 자주 나오는 작업만 골라 추린 것이다.
         </p>
 
         <p>
-          왼쪽 사이드바를 통해 원하는 주제로 바로 이동할 수 있고, 각 페이지 하단에는
-          다음·이전 페이지로 이어지는 링크가 있습니다. 예제 입력은 모두 ORCA 6.0.0을 기준으로 작성되었으며,
-          5.0.x 계열에서도 대부분 그대로 사용할 수 있습니다. 하위 호환성에 영향을 주는 변경 사항은 별도로 표시해 두었습니다.
+          왼쪽 사이드바에서 원하는 주제로 바로 건너뛸 수 있고, 각 페이지 맨 아래에
+          다음·이전 페이지 링크가 있다. 예제 입력은 전부 ORCA 6.0.0 기준으로 썼지만,
+          5.0.x 계열에서도 대부분 그대로 돌아간다. 하위 호환성에 걸리는 변경점은 그때그때 따로 표시해 뒀다.
         </p>
 
         <h2>주제별로 들어가기</h2>
@@ -105,7 +105,7 @@
           <a class="card" href="input-structure.html">
             <div class="card-num">02 · INPUT</div>
             <div class="card-title">입력 파일 구조</div>
-            <div class="card-desc">키워드 라인, 블록, 좌표 입력 방식을 한눈에 정리했습니다.</div>
+            <div class="card-desc">키워드 라인, 블록, 좌표 입력 방식을 한눈에.</div>
           </a>
           <a class="card" href="keywords.html">
             <div class="card-num">03 · KEYWORDS</div>
@@ -176,9 +176,9 @@
 
         <h2>인용에 관하여</h2>
         <p>
-          ORCA를 사용한 연구를 발표할 때는 다음 세 편의 일반 인용을 함께 표기하시기 바랍니다.
-          여기에 더해, 실제로 사용한 방법론(예: DLPNO-CCSD(T), NEB-TS, CASSCF 등)의 원저 논문도
-          함께 인용하시는 것이 학계의 관례입니다.
+          ORCA로 한 연구를 발표할 때는 아래 일반 인용 세 편을 함께 단다.
+          거기에 더해, 실제로 쓴 방법론(예: DLPNO-CCSD(T), NEB-TS, CASSCF 등)의 원저 논문까지
+          인용하는 것이 학계의 관례다.
         </p>
         <ul>
           <li>Neese, F. <em>WIREs Comput. Mol. Sci.</em> <strong>2012</strong>, <em>2</em>, 73–78.</li>
@@ -189,17 +189,17 @@
         <div class="note">
           <div class="note-title">참고 자료</div>
           <p>
-            본 가이드의 모든 내용은 <code>orca_manual_6_0_0.pdf</code>(2024-07-24판)를 기반으로 합니다.
-            깊이 있는 옵션이나 특수한 사용 사례는 원문 매뉴얼을 직접 참조하시기를 권합니다.
-            공식 ORCA 포럼(<a href="https://orcaforum.kofo.mpg.de">orcaforum.kofo.mpg.de</a>)도
-            구체적인 사례 검색에 유용합니다.
+            이 가이드의 내용은 모두 <code>orca_manual_6_0_0.pdf</code>(2024-07-24판)에 기반한다.
+            더 깊은 옵션이나 특수한 사용 사례는 원문 매뉴얼을 직접 펴 보는 편이 빠르다.
+            구체적인 사례를 찾을 때는 공식 ORCA 포럼(<a href="https://orcaforum.kofo.mpg.de">orcaforum.kofo.mpg.de</a>)도
+            쓸 만하다.
           </p>
         </div>
 
         <footer class="site-footer">
           <p>
-            ORCA 한국어 사용자 가이드 · ORCA Manual 6.0.0 기반 · 본 가이드는 비공식 정리물입니다.<br />
-            ORCA는 Max-Planck-Institut für Kohlenforschung의 등록 상표이며, 학술용으로 무료 배포됩니다.
+            ORCA 한국어 사용자 가이드 · ORCA Manual 6.0.0 기반 · 비공식 정리물이다.<br />
+            ORCA는 Max-Planck-Institut für Kohlenforschung의 등록 상표이며, 학술용으로 무료 배포된다.
           </p>
         </footer>
       </article>
