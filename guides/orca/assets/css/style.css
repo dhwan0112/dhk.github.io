@@ -433,6 +433,37 @@ a:hover {
 .content pre .num { color: var(--syntax-number); }
 .content pre .str { color: var(--syntax-string); }
 
+/* === Copy button on code blocks === */
+.content pre .copy-btn {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.4rem;
+  z-index: 2;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  line-height: 1;
+  padding: 0.3em 0.55em;
+  color: var(--text-muted);
+  background-color: var(--bg-white);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.content pre:hover .copy-btn,
+.content pre .copy-btn:focus-visible { opacity: 1; }
+.content pre .copy-btn:hover { color: var(--accent-color); border-color: var(--accent-color); }
+.content pre .copy-btn.copied { color: var(--syntax-string); border-color: var(--syntax-string); opacity: 1; }
+/* Fade the language label on hover so it does not sit under the button */
+.content pre[data-lang]::before { transition: opacity 0.15s ease; }
+.content pre[data-lang]:hover::before { opacity: 0; }
+/* Touch devices (no hover): keep the button visible, hide the label */
+@media (hover: none) {
+  .content pre .copy-btn { opacity: 0.7; }
+  .content pre[data-lang]::before { opacity: 0; }
+}
+
 /* === Tables === */
 .content table {
   width: 100%;
