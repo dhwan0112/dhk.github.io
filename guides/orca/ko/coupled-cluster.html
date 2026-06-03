@@ -48,7 +48,7 @@
       <div class="nav-section-title">방법론 선택</div>
       <ul class="nav-list">
         <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
-        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>기저집합</a></li>
         <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
       </ul>
     </div>
@@ -76,8 +76,8 @@
             <li><a href="#why">왜 DLPNO-CCSD(T)인가</a></li>
             <li><a href="#basic">기본 사용법</a></li>
             <li><a href="#thresholds">정밀도 단계 — Loose / Normal / Tight</a></li>
-            <li><a href="#cbs">완전 베이시스 외삽 (CBS)</a></li>
-            <li><a href="#f12">F12 — 베이시스 한계에 빠르게 접근</a></li>
+            <li><a href="#cbs">완전 기저집합 외삽 (CBS)</a></li>
+            <li><a href="#f12">F12 — 기저집합 한계에 빠르게 접근</a></li>
             <li><a href="#open-shell">열린 껍질 — UHF 레퍼런스</a></li>
             <li><a href="#workflow">권장 워크플로우</a></li>
             <li><a href="#multiref">한 걸음 더 — 다중참조 (CASSCF · NEVPT2)</a></li>
@@ -101,7 +101,7 @@
         </p>
 
         <h2 id="basic">기본 사용법</h2>
-        <p>키워드 라인에 <code>DLPNO-CCSD(T)</code>와 보조 베이시스를 같이 적으면 된다.</p>
+        <p>키워드 라인에 <code>DLPNO-CCSD(T)</code>와 보조 기저집합을 같이 적으면 된다.</p>
 
         <pre data-lang="orca"><code><span class="cmt"># 닫힌 껍질 단일점 — 일반적인 정밀 에너지</span>
 <span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) cc-pVTZ cc-pVTZ/C TightSCF</span>
@@ -109,13 +109,13 @@
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
 
         <p>
-          <strong>보조 베이시스(<code>/C</code> 접미사)</strong>는 RI-MP2와 같은 형식이다.
-          DLPNO-CCSD(T)는 RI 적분이 필수라 보조 베이시스를 반드시 같이 지정해야 한다.
+          <strong>보조 기저집합(<code>/C</code> 접미사)</strong>는 RI-MP2와 같은 형식이다.
+          DLPNO-CCSD(T)는 RI 적분이 필수라 보조 기저집합을 반드시 같이 지정해야 한다.
         </p>
 
         <table>
           <thead>
-            <tr><th>주 베이시스</th><th>권장 보조 베이시스</th></tr>
+            <tr><th>주 기저집합</th><th>권장 보조 기저집합</th></tr>
           </thead>
           <tbody>
             <tr><td><code>cc-pVDZ</code></td><td><code>cc-pVDZ/C</code></td></tr>
@@ -152,9 +152,9 @@
           </p>
         </div>
 
-        <h2 id="cbs">완전 베이시스 외삽 (CBS)</h2>
+        <h2 id="cbs">완전 기저집합 외삽 (CBS)</h2>
         <p>
-          CCSD(T)는 완전 베이시스 한계(CBS, Complete Basis Set limit)로 외삽할 때 가장 정확하다.
+          CCSD(T)는 완전 기저집합 한계(CBS, Complete Basis Set limit)로 외삽할 때 가장 정확하다.
           ORCA의 <code>Extrapolate</code> 키워드가 이걸 자동으로 해 준다.
         </p>
 
@@ -164,8 +164,8 @@
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
 
         <p>
-          <code>Extrapolate(X/Y, basis)</code> 형식이다. <code>X</code>, <code>Y</code>는 베이시스의 카디널 수(2 = DZ, 3 = TZ, 4 = QZ, 5 = 5Z)이고,
-          <code>basis</code>는 <code>cc</code>(Dunning), <code>def2</code>, <code>aug-cc</code> 같은 베이시스 패밀리다.
+          <code>Extrapolate(X/Y, basis)</code> 형식이다. <code>X</code>, <code>Y</code>는 기저집합의 카디널 수(2 = DZ, 3 = TZ, 4 = QZ, 5 = 5Z)이고,
+          <code>basis</code>는 <code>cc</code>(Dunning), <code>def2</code>, <code>aug-cc</code> 같은 기저집합 패밀리다.
         </p>
 
         <table>
@@ -178,27 +178,27 @@
           </tbody>
         </table>
 
-        <h3>EP2 · EP3 — 더 큰 베이시스를 위한 효율적 외삽</h3>
+        <h3>EP2 · EP3 — 더 큰 기저집합을 위한 효율적 외삽</h3>
         <p>
-          큰 베이시스(예: cc-pV5Z)에서 CCSD(T)를 직접 돌리기는 비싸도,
-          MP2 수준에서는 되는 경우가 많다. EP2/EP3 외삽은 “큰 베이시스의 MP2 + 작은 베이시스의 CCSD(T) − MP2 보정”을 묶어 효율을 끌어올린다.
+          큰 기저집합(예: cc-pV5Z)에서 CCSD(T)를 직접 돌리기는 비싸도,
+          MP2 수준에서는 되는 경우가 많다. EP2/EP3 외삽은 “큰 기저집합의 MP2 + 작은 기저집합의 CCSD(T) − MP2 보정”을 묶어 효율을 끌어올린다.
         </p>
 
-        <pre data-lang="orca"><code><span class="cmt"># EP2: 작은 기저에서 CC, 큰 기저에서 MP2 외삽</span>
+        <pre data-lang="orca"><code><span class="cmt"># EP2: 작은 기저집합에서 CC, 큰 기저집합에서 MP2 외삽</span>
 <span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) ExtrapolateEP2(2/3, cc) TightSCF</span></code></pre>
 
-        <h2 id="f12">F12 — 베이시스 한계에 빠르게 접근</h2>
+        <h2 id="f12">F12 — 기저집합 한계에 빠르게 접근</h2>
         <p>
-          F12 명시적 상관 방법은 더 작은 베이시스로도 CBS 한계 근처 정확도를 내게 해 준다.
+          F12 명시적 상관 방법은 더 작은 기저집합으로도 CBS 한계 근처 정확도를 내게 해 준다.
           DLPNO-CCSD(T)-F12는 이 둘을 합친 것이다.
         </p>
 
-        <pre data-lang="orca"><code><span class="cmt"># DLPNO-CCSD(T)-F12 with approach D — F12로 큰 베이시스 효과 대체</span>
+        <pre data-lang="orca"><code><span class="cmt"># DLPNO-CCSD(T)-F12 with approach D — F12로 큰 기저집합 효과 대체</span>
 <span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T)-F12D cc-pVDZ-F12 cc-pVDZ-F12-CABS cc-pVDZ-F12/C TightSCF</span></code></pre>
 
         <p>
-          F12에는 전용 베이시스와 CABS(Complementary Auxiliary Basis Set)가 필요하다.
-          베이시스 이름 끝의 <code>-F12</code>, <code>-F12-CABS</code>를 빠뜨리지 않도록 한다.
+          F12에는 전용 기저집합과 CABS(Complementary Auxiliary Basis Set)가 필요하다.
+          기저집합 이름 끝의 <code>-F12</code>, <code>-F12-CABS</code>를 빠뜨리지 않도록 한다.
           F12를 쓰면 cc-pVDZ-F12 한 번 계산이 cc-pVQZ나 cc-pV5Z CBS 외삽과 비슷한 정확도를 낸다.
         </p>
 
@@ -391,7 +391,7 @@ g-FACTORS OF THE LOWEST DOUBLET:
         </a>
         <a class="next" href="basis-sets.html">
           <div class="page-nav-label">다음 →</div>
-          <div class="page-nav-title">베이시스 세트</div>
+          <div class="page-nav-title">기저집합</div>
         </a>
       </nav>
     </main>

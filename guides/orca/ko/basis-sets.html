@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>베이시스 세트 · ORCA 사용자 가이드</title>
+  <title>기저집합 · ORCA 사용자 가이드</title>
   <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
@@ -48,7 +48,7 @@
       <div class="nav-section-title">방법론 선택</div>
       <ul class="nav-list">
         <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
-        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>기저집합</a></li>
         <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
       </ul>
     </div>
@@ -65,31 +65,31 @@
     <main class="main">
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 11 · 방법론 선택</div>
-        <h1 class="page-title">베이시스 세트 가이드</h1>
-        <p class="page-lede">def2, cc-pVnZ, SARC. 어떤 상황에서 어느 베이시스를 골라야 할까요.</p>
+        <h1 class="page-title">기저집합 가이드</h1>
+        <p class="page-lede">def2, cc-pVnZ, SARC. 어떤 상황에서 어느 기저집합을 골라야 할까요.</p>
       </header>
 
       <article class="content">
         <div class="toc">
           <div class="toc-title">이 페이지에서 다룹니다</div>
           <ul>
-            <li><a href="#concept">베이시스 세트란</a></li>
+            <li><a href="#concept">기저집합이란</a></li>
             <li><a href="#families">주요 패밀리 — def2, cc, ANO</a></li>
             <li><a href="#size">크기 — DZ, TZ, QZ</a></li>
             <li><a href="#diffuse">확산 함수(diffuse functions)</a></li>
-            <li><a href="#aux">보조 베이시스</a></li>
+            <li><a href="#aux">보조 기저집합</a></li>
             <li><a href="#ecp">유효 핵 포텐셜(ECP)</a></li>
-            <li><a href="#sarc">SARC — 무거운 원소를 위한 베이시스</a></li>
+            <li><a href="#sarc">SARC — 무거운 원소를 위한 기저집합</a></li>
             <li><a href="#recommendations">상황별 권장</a></li>
             <li><a href="#bsse">BSSE와 counterpoise 보정</a></li>
           </ul>
         </div>
 
-        <h2 id="concept">베이시스 세트란</h2>
+        <h2 id="concept">기저집합이란</h2>
         <p>
-          베이시스 세트는 분자 궤도를 표현하는 함수 집합이다. 양자화학 계산은 본질적으로
-          “정확한 슈뢰딩거 방정식의 해를 유한 함수 공간에 투영하는 작업”이라, 어떤 베이시스를 쓰느냐가 결과의 한계를 정한다.
-          베이시스를 키울수록 정확도는 좋아지지만, 비용은 4차~6차 멱승으로 늘어난다.
+          기저집합은 분자 궤도를 표현하는 함수 집합이다. 양자화학 계산은 본질적으로
+          “정확한 슈뢰딩거 방정식의 해를 유한 함수 공간에 투영하는 작업”이라, 어떤 기저집합을 쓰느냐가 결과의 한계를 정한다.
+          기저집합을 키울수록 정확도는 좋아지지만, 비용은 4차~6차 멱승으로 늘어난다.
         </p>
 
         <h2 id="families">주요 패밀리 — def2, cc, ANO</h2>
@@ -103,7 +103,7 @@
             <tr><td><code>cc-pVnZ</code> (Dunning)</td><td>Dunning</td><td>상관 계산에 최적화. CCSD(T)·CBS 외삽에 표준.</td></tr>
             <tr><td><code>aug-cc-pVnZ</code></td><td>Dunning</td><td>cc-pVnZ + 확산 함수. 음이온, 들뜸 상태.</td></tr>
             <tr><td><code>ANO-RCC</code></td><td>Roos 그룹</td><td>다중참조 계산용. 핵 상관까지 다룸.</td></tr>
-            <tr><td><code>SARC</code></td><td>Pantazis, Neese</td><td>4d, 5d, 4f, 5f 원소용 “이가성(segmented)” 베이시스. <strong>전이금속·란타나이드</strong>.</td></tr>
+            <tr><td><code>SARC</code></td><td>Pantazis, Neese</td><td>4d, 5d, 4f, 5f 원소용 “이가성(segmented)” 기저집합. <strong>전이금속·란타나이드</strong>.</td></tr>
             <tr><td><code>Pople 형</code> (6-31G*, 6-311+G**)</td><td>Pople</td><td>역사적으로 널리 쓰임. ORCA에서도 지원하지만 def2 권장.</td></tr>
           </tbody>
         </table>
@@ -111,7 +111,7 @@
         <h2 id="size">크기 — DZ, TZ, QZ</h2>
         <p>
           “Double-zeta(DZ)”, “Triple-zeta(TZ)” 같은 표기는 valence 궤도 하나를 함수 몇 개로 표현하는지를 뜻한다.
-          거기에 분극 함수(d, f)와 확산 함수의 유무가 베이시스 크기를 더 정한다.
+          거기에 분극 함수(d, f)와 확산 함수의 유무가 기저집합 크기를 더 정한다.
         </p>
 
         <table>
@@ -152,7 +152,7 @@
 
         <table>
           <thead>
-            <tr><th>베이시스</th><th>의미</th></tr>
+            <tr><th>기저집합</th><th>의미</th></tr>
           </thead>
           <tbody>
             <tr><td><code>aug-cc-pVTZ</code></td><td>cc-pVTZ + full 확산. 표준이지만 비쌈.</td></tr>
@@ -161,11 +161,11 @@
           </tbody>
         </table>
 
-        <h2 id="aux">보조 베이시스</h2>
+        <h2 id="aux">보조 기저집합</h2>
         <p>
-          RI 가속, RIJCOSX, MP2/CC 계산은 4-인덱스 적분을 “3-인덱스 + 보조 기저”로 쪼개서 처리한다.
-          그래서 보조 베이시스(auxiliary basis)를 같이 지정해야 한다.
-          보조 베이시스를 잘못 고르면 정확도가 새니 주의해야 한다.
+          RI 가속, RIJCOSX, MP2/CC 계산은 4-인덱스 적분을 “3-인덱스 + 보조 기저집합”로 쪼개서 처리한다.
+          그래서 보조 기저집합(auxiliary basis)를 같이 지정해야 한다.
+          보조 기저집합을 잘못 고르면 정확도가 새니 주의해야 한다.
         </p>
 
         <table>
@@ -179,7 +179,7 @@
           </tbody>
         </table>
 
-        <h3>올바른 보조 베이시스 짝짓기</h3>
+        <h3>올바른 보조 기저집합 짝짓기</h3>
 
         <pre data-lang="orca"><code><span class="cmt"># RIJCOSX 하이브리드 DFT</span>
 <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J</span>
@@ -191,10 +191,10 @@
 <span class="kw">!</span> <span class="kw2">DLPNO-MP2 cc-pVTZ cc-pVTZ/C</span></code></pre>
 
         <div class="warning">
-          <div class="note-title">def2-TZVP의 /C 보조 기저 주의</div>
+          <div class="note-title">def2-TZVP의 /C 보조 기저집합 주의</div>
           <p>
-            def2 패밀리의 <code>/C</code> 보조 기저는 베이시스 이름 그대로 쓰면 된다(<code>def2-TZVP/C</code>).
-            cc 패밀리와 def2 패밀리의 /C 보조 기저는 서로 호환되지 않으니, 주 베이시스와 같은 패밀리로 맞춘다.
+            def2 패밀리의 <code>/C</code> 보조 기저집합은 기저집합 이름 그대로 쓰면 된다(<code>def2-TZVP/C</code>).
+            cc 패밀리와 def2 패밀리의 /C 보조 기저집합은 서로 호환되지 않으니, 주 기저집합과 같은 패밀리로 맞춘다.
           </p>
         </div>
 
@@ -213,20 +213,20 @@
 <span class="kw">*</span></code></pre>
 
         <p>
-          더 정밀하게 가야 한다면 <strong>스칼라 상대론적 베이시스</strong>(ZORA, DKH, X2C)를 써야 한다.
-          이 경우 ECP 대신 모든 전자를 명시적으로 다루는 “all-electron” 베이시스를 쓴다.
+          더 정밀하게 가야 한다면 <strong>스칼라 상대론적 기저집합</strong>(ZORA, DKH, X2C)를 써야 한다.
+          이 경우 ECP 대신 모든 전자를 명시적으로 다루는 “all-electron” 기저집합을 쓴다.
         </p>
 
-        <pre data-lang="orca"><code><span class="cmt"># Ag 원자 — ZORA 상대론 + ZORA용 베이시스</span>
+        <pre data-lang="orca"><code><span class="cmt"># Ag 원자 — ZORA 상대론 + ZORA용 기저집합</span>
 <span class="kw">!</span> <span class="kw2">B3LYP D4 ZORA ZORA-def2-TZVP SARC/J</span>
 
 <span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 2</span>
   Ag   0.0   0.0   0.0
 <span class="kw">*</span></code></pre>
 
-        <h2 id="sarc">SARC — 무거운 원소를 위한 베이시스</h2>
+        <h2 id="sarc">SARC — 무거운 원소를 위한 기저집합</h2>
         <p>
-          4d, 5d, 4f, 5f 원소(대략 37번 Rb부터 100번 Fm까지)에는 SARC(Segmented All-electron Relativistically Contracted) 베이시스가 좋다.
+          4d, 5d, 4f, 5f 원소(대략 37번 Rb부터 100번 Fm까지)에는 SARC(Segmented All-electron Relativistically Contracted) 기저집합이 좋다.
           DFT 수준에서 정밀하고, 상대론 처리(ZORA, DKH)와 잘 맞물린다.
         </p>
 
@@ -237,13 +237,13 @@
 
         <table>
           <thead>
-            <tr><th>SARC 베이시스</th><th>적용 범위</th></tr>
+            <tr><th>SARC 기저집합</th><th>적용 범위</th></tr>
           </thead>
           <tbody>
             <tr><td><code>SARC-ZORA-TZVP</code> · <code>SARC-DKH-TZVP</code></td><td>4d, 5d 전이금속</td></tr>
             <tr><td><code>SARC2-ZORA-QZVP</code> · <code>SARC2-DKH-QZVP</code></td><td>란타나이드 (4f)</td></tr>
             <tr><td><code>SARC-ZORA-SARC</code></td><td>액티나이드 (5f)</td></tr>
-            <tr><td><code>SARC/J</code></td><td>SARC 패밀리의 Coulomb 보조 기저</td></tr>
+            <tr><td><code>SARC/J</code></td><td>SARC 패밀리의 Coulomb 보조 기저집합</td></tr>
           </tbody>
         </table>
 
@@ -251,7 +251,7 @@
 
         <table>
           <thead>
-            <tr><th>상황</th><th>주 베이시스</th><th>보조</th></tr>
+            <tr><th>상황</th><th>주 기저집합</th><th>보조</th></tr>
           </thead>
           <tbody>
             <tr><td>유기 분자 구조 최적화</td><td><code>def2-SVP</code> 또는 <code>def2-TZVP</code></td><td><code>def2/J</code></td></tr>
@@ -267,25 +267,25 @@
         </table>
 
         <div class="note">
-          <div class="note-title">합성 방법은 베이시스를 신경 쓸 필요 없다</div>
+          <div class="note-title">합성 방법은 기저집합을 신경 쓸 필요 없다</div>
           <p>
-            <code>r2SCAN-3c</code>, <code>B97-3c</code>, <code>PBEh-3c</code> 같은 “3c” 합성 방법은 베이시스 세트가 이미 정해져 있어
-            따로 지정할 필요가 없다. 베이시스 이름 없이 합성 방법 이름만 적으면 된다.
+            <code>r2SCAN-3c</code>, <code>B97-3c</code>, <code>PBEh-3c</code> 같은 “3c” 합성 방법은 기저집합이 이미 정해져 있어
+            따로 지정할 필요가 없다. 기저집합 이름 없이 합성 방법 이름만 적으면 된다.
             <code>! r2SCAN-3c Opt</code> 한 줄로 다 끝난다.
           </p>
         </div>
 
         <h3>일관성의 중요성</h3>
         <p>
-          반응 에너지나 결합 해리 에너지를 비교할 때는 반드시 모든 종에 같은 베이시스를 써야 한다.
-          베이시스 슈퍼포지션 오차(BSSE)는 같은 베이시스에서 일부 상쇄되는데, 베이시스가 섞이면 그 상쇄가 깨진다.
+          반응 에너지나 결합 해리 에너지를 비교할 때는 반드시 모든 종에 같은 기저집합을 써야 한다.
+          기저집합 슈퍼포지션 오차(BSSE)는 같은 기저집합에서 일부 상쇄되는데, 기저집합이 섞이면 그 상쇄가 깨진다.
         </p>
 
         <h2 id="bsse">BSSE와 counterpoise 보정 — 분자 간 상호작용 정량화</h2>
         <p>
-          두 분자가 가까이 있으면 각자의 베이시스가 상대 분자 영역까지 “빌려” 쓰게 돼,
+          두 분자가 가까이 있으면 각자의 기저집합이 상대 분자 영역까지 “빌려” 쓰게 돼,
           dimer 에너지가 monomer 에너지 합보다 인위적으로 낮아진다. 이게
-          베이시스 슈퍼포지션 오차(BSSE, Basis-Set Superposition Error)이고, 수소결합·
+          기저집합 슈퍼포지션 오차(BSSE, Basis-Set Superposition Error)이고, 수소결합·
           π-π 적층·vdW 복합체 같은 약한 상호작용에서 결합 에너지를 1–3 kcal/mol쯤 과대평가
           하는 주범이다.
         </p>
@@ -293,7 +293,7 @@
         <p>
           가장 정석적인 해결책은 Boys-Bernardi <strong>counterpoise (CP) 보정</strong>이다.
           ORCA 에서는 <strong>고스트 원자(ghost atom)</strong>를 원소 기호 뒤에 콜론
-          <code>:</code> 을 붙여 정의한다. 고스트 원자는 베이시스만 두고 핵·전자는 없는 “가상의 원자”다.
+          <code>:</code> 을 붙여 정의한다. 고스트 원자는 기저집합만 두고 핵·전자는 없는 “가상의 원자”다.
         </p>
 
         <h3>CP 보정의 4-step 계산</h3>
@@ -383,11 +383,11 @@
           <div class="note-title">CP 보정의 “반쪽 진리”</div>
           <p>
             CP 보정이 진짜 결합 에너지(complete basis-set limit, ΔE<sub>CBS</sub>)를
-            정확히 되살려 주는 건 아니다. 작은 베이시스에서는 BSSE 가 결합을 키우는
-            동시에 베이시스의 불완전성(BSIE, basis-set incompleteness error)이 결합을
+            정확히 되살려 주는 건 아니다. 작은 기저집합에서는 BSSE 가 결합을 키우는
+            동시에 기저집합의 불완전성(BSIE, basis-set incompleteness error)이 결합을
             줄여서, 두 오차가 일부 상쇄되기도 한다. 표준 권장은
             <code>ΔE<sub>best</sub> ≈ (ΔE<sub>raw</sub> + ΔE<sub>CP</sub>) / 2</code>
-            (Halfway estimate)거나, def2-QZVPP 이상의 큰 베이시스를 쓰는 것이다.
+            (Halfway estimate)거나, def2-QZVPP 이상의 큰 기저집합을 쓰는 것이다.
           </p>
         </div>
 
@@ -396,11 +396,11 @@
           고스트 원자 (<code>:</code>) 는 CP 보정 말고도 이런 데 쓰인다.
         </p>
         <ul>
-          <li><strong>인근 fragment 의 베이시스만 확장</strong>: 활성자리 주변 원자를 고스트로
-              두면, 명시적으로 다루지 않으면서도 베이시스 함수가 활성자리로 “스며들어” 자유도
+          <li><strong>인근 fragment 의 기저집합만 확장</strong>: 활성자리 주변 원자를 고스트로
+              두면, 명시적으로 다루지 않으면서도 기저집합 함수가 활성자리로 “스며들어” 자유도
               증가.</li>
           <li><strong>편극도(polarizability)에 대한 floating orbital</strong>: 분자 외부의
-              특정 위치에 고스트 원자를 두고 베이시스만 부여하여 응답 함수의 자유도를 높임.</li>
+              특정 위치에 고스트 원자를 두고 기저집합만 부여하여 응답 함수의 자유도를 높임.</li>
           <li><strong>EPR / NMR 의 reference center</strong>: 자기 특성 계산에서 origin 을
               명시할 때.</li>
         </ul>

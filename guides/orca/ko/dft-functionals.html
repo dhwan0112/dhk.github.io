@@ -48,7 +48,7 @@
       <div class="nav-section-title">방법론 선택</div>
       <ul class="nav-list">
         <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
-        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>기저집합</a></li>
         <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
       </ul>
     </div>
@@ -148,11 +148,11 @@
             <tr><th>작업</th><th>추천 함수</th><th>비고</th></tr>
           </thead>
           <tbody>
-            <tr><td>구조 최적화 (유기, 일반)</td><td><code>r²SCAN-3c</code>, <code>B97-3c</code></td><td>합성 방법 — 베이시스 자동.</td></tr>
+            <tr><td>구조 최적화 (유기, 일반)</td><td><code>r²SCAN-3c</code>, <code>B97-3c</code></td><td>합성 방법 — 기저집합 자동.</td></tr>
             <tr><td>구조 최적화 (전이금속 착물)</td><td><code>TPSS D4</code>, <code>BP86 D4</code></td><td>순수 GGA가 발산을 잘 견딤.</td></tr>
             <tr><td>반응 장벽</td><td><code>M06-2X D4</code>, <code>ωB97X-V</code></td><td>높은 HF 비율이 장벽을 잘 묘사.</td></tr>
             <tr><td>비공유 결합 (수소결합·π-π)</td><td><code>ωB97M-V</code>, <code>DSD-PBEP86 D4</code></td><td>이중 하이브리드가 가장 정확.</td></tr>
-            <tr><td>NMR 화학 이동</td><td><code>PBE0 D4</code>, <code>ωB97X D4</code></td><td>전용 베이시스 권장(pcSseg).</td></tr>
+            <tr><td>NMR 화학 이동</td><td><code>PBE0 D4</code>, <code>ωB97X D4</code></td><td>전용 기저집합 권장(pcSseg).</td></tr>
             <tr><td>UV-Vis 흡수 (국소 들뜸)</td><td><code>B3LYP D4</code>, <code>PBE0 D4</code></td><td>표준 하이브리드로 충분.</td></tr>
             <tr><td>UV-Vis 흡수 (전하 이동)</td><td><code>CAM-B3LYP</code>, <code>ωB97X-V</code></td><td>장범위 분리가 필수.</td></tr>
             <tr><td>EPR (g-tensor, A-tensor)</td><td><code>PBE0</code>, <code>B3LYP</code></td><td>30% HF 정도가 잘 맞음.</td></tr>
@@ -161,8 +161,8 @@
 
         <h2 id="composite">합성 방법 (3c 시리즈)</h2>
         <p>
-          Grimme 그룹의 “3c” 시리즈는 “함수 + 베이시스 + D3·D4 + gCP 보정”을 하나로 묶은 합성 방법이다.
-          베이시스가 자동으로 정해져 쓰기가 아주 간단하고, 비용 대비 정확도가 뛰어나다.
+          Grimme 그룹의 “3c” 시리즈는 “함수 + 기저집합 + D3·D4 + gCP 보정”을 하나로 묶은 합성 방법이다.
+          기저집합이 자동으로 정해져 쓰기가 아주 간단하고, 비용 대비 정확도가 뛰어나다.
         </p>
 
         <table>
@@ -274,7 +274,7 @@
       <nav class="page-nav">
         <a class="prev" href="basis-sets.html">
           <div class="page-nav-label">← 이전</div>
-          <div class="page-nav-title">베이시스 세트</div>
+          <div class="page-nav-title">기저집합</div>
         </a>
         <a class="next" href="tips.html">
           <div class="page-nav-label">다음 →</div>

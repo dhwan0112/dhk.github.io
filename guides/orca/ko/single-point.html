@@ -48,7 +48,7 @@
       <div class="nav-section-title">방법론 선택</div>
       <ul class="nav-list">
         <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
-        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>기저집합</a></li>
         <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
       </ul>
     </div>
@@ -74,7 +74,7 @@
           <div class="toc-title">이 페이지에서 다룹니다</div>
           <ul>
             <li><a href="#basic">기본 예제 — HF, DFT</a></li>
-            <li><a href="#per-atom-basis">원자별 베이시스 변경</a></li>
+            <li><a href="#per-atom-basis">원자별 기저집합 변경</a></li>
             <li><a href="#open-shell">열린 껍질 계산</a></li>
             <li><a href="#reading-output">출력 해석 — 주요 항목</a></li>
             <li><a href="#scf-workflow">SCF 수렴 후 후속 작업</a></li>
@@ -86,7 +86,7 @@
 
         <h2 id="basic">기본 예제 — HF, DFT</h2>
         <p>
-          단일점 계산은 ORCA에서 가장 단순한 작업이다. 메소드, 베이시스 세트, 좌표만 있으면 된다.
+          단일점 계산은 ORCA에서 가장 단순한 작업이다. 메소드, 기저집합, 좌표만 있으면 된다.
           작업 유형 키워드를 따로 안 적으면 기본이 단일점이다.
         </p>
 
@@ -121,9 +121,9 @@
           </p>
         </div>
 
-        <h2 id="per-atom-basis">원자별 베이시스 변경</h2>
+        <h2 id="per-atom-basis">원자별 기저집합 변경</h2>
         <p>
-          전이금속 착물에서는 “금속엔 큰 베이시스, 리간드엔 작은 베이시스” 식의 혼합 전략이 자주 먹힌다.
+          전이금속 착물에서는 “금속엔 큰 기저집합, 리간드엔 작은 기저집합” 식의 혼합 전략이 자주 먹힌다.
           ORCA는 이걸 간결한 문법으로 지원한다.
         </p>
 
@@ -144,7 +144,7 @@
 <span class="kw">*</span></code></pre>
 
         <p>
-          이런 식으로 원자 단위·원소 단위로 베이시스를 자유롭게 섞을 수 있다.
+          이런 식으로 원자 단위·원소 단위로 기저집합을 자유롭게 섞을 수 있다.
           유효 핵 포텐셜(ECP)도 같은 방식으로 지정한다.
         </p>
 
@@ -306,7 +306,7 @@ MAYER POPULATION ANALYSIS
         <div class="note">
           <div class="note-title">어떤 분석을 신뢰할 것인가</div>
           <p>
-            Mulliken 전하는 베이시스 세트에 워낙 민감해서 큰 베이시스에서는 값이 발산하는 경향이 있다.
+            Mulliken 전하는 기저집합에 워낙 민감해서 큰 기저집합에서는 값이 발산하는 경향이 있다.
             Loewdin이 그보다 안정적이고, Mayer 결합 차수(bond order)는 화학적 직관과 잘 맞는다.
             제대로 정량 분석을 하려면 NPA(Natural Population Analysis)나 CHELPG를 쓰는 게 낫다.
           </p>
@@ -348,7 +348,7 @@ orca_plot water.gbw -i</code></pre>
         <h3>① NMR 차폐 상수와 화학 이동</h3>
         <p>
           NMR 계산은 차폐 상수 σ(ppm)를 내놓는다. 화학 이동 δ는 기준 분자(¹H/¹³C는 TMS 등)의
-          σ_ref와의 차이로 환산한다. 베이시스는 NMR용으로 맞춰진 Jensen의
+          σ_ref와의 차이로 환산한다. 기저집합은 NMR용으로 맞춰진 Jensen의
           <code>pcSseg-1</code>·<code>pcSseg-2</code>가 표준이다.
         </p>
 
@@ -377,7 +377,7 @@ Nucleus            Element   Isotropic Value         Anisotropy
         <p>
           기준 화합물(TMS at PBE0/pcSseg-2 ≈ ¹H 31.5 ppm, ¹³C 188.1 ppm)의 차폐
           상수에서 빼면 실험과 바로 비교할 수 있는 δ가 나온다. NIST CCCBDB
-          (<a href="https://cccbdb.nist.gov">cccbdb.nist.gov</a>)에 함수별·베이시스별 기준값
+          (<a href="https://cccbdb.nist.gov">cccbdb.nist.gov</a>)에 함수별·기저집합별 기준값
           표가 잘 정리돼 있다.
         </p>
 
@@ -425,7 +425,7 @@ A(dip) =  -28.13,  +14.21,  +13.92  MHz
           <p>
             3d 라디칼만 다룬다면 비상대론적 계산으로도 1차 근사는 되지만, 4d 이상
             전이금속이나 란타나이드에서는 스칼라 상대론(<code>ZORA</code> 또는
-            <code>DKH2</code>) + 전용 베이시스(<code>ZORA-def2-TZVP</code> / <code>SARC-DKH-TZVP</code>)
+            <code>DKH2</code>) + 전용 기저집합(<code>ZORA-def2-TZVP</code> / <code>SARC-DKH-TZVP</code>)
             가 사실상 필수다. 그리고 g-tensor는 EPR 매개변수가 fit된 함수
             (<code>PBE0</code>, <code>B3LYP</code>)가 보통 더 잘 맞는다.
           </p>

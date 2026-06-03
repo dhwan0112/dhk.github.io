@@ -48,7 +48,7 @@
       <div class="nav-section-title">방법론 선택</div>
       <ul class="nav-list">
         <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
-        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>기저집합</a></li>
         <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
       </ul>
     </div>
@@ -90,8 +90,8 @@
           해결책의 핵심은 “더 나은 초기 궤도(better starting orbitals)”라고 못 박는다. 권장 전략은 이렇다.
         </p>
 
-        <h3>전략 ① — 작은 베이시스로 먼저 수렴</h3>
-        <pre data-lang="orca"><code><span class="cmt"># 1단계: 작은 베이시스 + 느슨한 수렴 + 강한 감쇠</span>
+        <h3>전략 ① — 작은 기저집합으로 먼저 수렴</h3>
+        <pre data-lang="orca"><code><span class="cmt"># 1단계: 작은 기저집합 + 느슨한 수렴 + 강한 감쇠</span>
 <span class="kw">!</span> <span class="kw2">BP86 def2-SV def2/J SlowConv LooseSCF</span>
 <span class="kw">%scf</span>
    <span class="kw2">MaxIter</span> <span class="num">300</span>
@@ -100,7 +100,7 @@
 
 <span class="kw">$new_job</span>
 
-<span class="cmt"># 2단계: 1단계의 궤도를 읽고 큰 베이시스로 확장</span>
+<span class="cmt"># 2단계: 1단계의 궤도를 읽고 큰 기저집합으로 확장</span>
 <span class="kw">!</span> <span class="kw2">BP86 def2-TZVP def2/J MOREAD</span>
 <span class="kw">%moinp</span> <span class="str">"step1.gbw"</span>
 <span class="kw">%scf</span>
@@ -261,19 +261,19 @@ cd / &amp;&amp; rm -rf $ORCA_SCRDIR</code></pre>
         <h2 id="general">매뉴얼이 강조하는 일반 원칙</h2>
 
         <div class="note">
-          <div class="note-title">베이시스의 일관성</div>
+          <div class="note-title">기저집합의 일관성</div>
           <p>
-            매뉴얼 §8.2가 강조하듯, 최소 베이시스(STO-3G)나 3-21G 같은 작은 split-valence 기저는
+            매뉴얼 §8.2가 강조하듯, 최소 기저집합(STO-3G)나 3-21G 같은 작은 split-valence 기저집합은
             정량적 결과엔 부적합하다. Karlsruhe def2 시리즈를 일관되게 쓰는 게 좋다.
-            반응물·생성물·전이 상태 모두 같은 베이시스를 써야 오차가 상쇄된다.
+            반응물·생성물·전이 상태 모두 같은 기저집합을 써야 오차가 상쇄된다.
           </p>
         </div>
 
         <div class="note">
           <div class="note-title">DFT는 격자가 정확도의 한계</div>
           <p>
-            큰 베이시스(예: def2-QZVPP)로 작업할 때 DFT 적분 격자가 <code>DefGrid2</code>에 머물러 있으면,
-            정확도가 격자 잡음에 묶인다. 큰 베이시스를 쓸 때는 <code>DefGrid3</code>으로 격자도 같이 올린다.
+            큰 기저집합(예: def2-QZVPP)로 작업할 때 DFT 적분 격자가 <code>DefGrid2</code>에 머물러 있으면,
+            정확도가 격자 잡음에 묶인다. 큰 기저집합을 쓸 때는 <code>DefGrid3</code>으로 격자도 같이 올린다.
             매뉴얼의 표현을 빌리면 “격자에서 온 수치 잡음으로 애써 얻은 정확도를 깎아 먹지 말 것”.
           </p>
         </div>
