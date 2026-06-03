@@ -48,7 +48,7 @@
       <div class="nav-section-title">방법론 선택</div>
       <ul class="nav-list">
         <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
-        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>기저집합</a></li>
         <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
       </ul>
     </div>
@@ -66,7 +66,7 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 03 · 시작</div>
         <h1 class="page-title">키워드 모음</h1>
-        <p class="page-lede">방법, 베이시스, 알고리즘 옵션. 자주 마주치는 키워드를 한 자리에 모았다.</p>
+        <p class="page-lede">방법, 기저집합, 알고리즘 옵션. 자주 마주치는 키워드를 한 자리에 모았다.</p>
       </header>
 
       <article class="content">
@@ -193,14 +193,14 @@
           </thead>
           <tbody>
             <tr><td><code>MP2</code></td><td>표준 MP2.</td></tr>
-            <tr><td><code>RI-MP2</code> 또는 <code>MP2RI</code></td><td>RI 근사를 적용한 MP2. 보조 기저 필요.</td></tr>
+            <tr><td><code>RI-MP2</code> 또는 <code>MP2RI</code></td><td>RI 근사를 적용한 MP2. 보조 기저집합 필요.</td></tr>
             <tr><td><code>SCS-MP2</code></td><td>Spin-Component Scaled MP2. 정확도 향상.</td></tr>
             <tr><td><code>DLPNO-MP2</code></td><td>국소 PNO 기반 MP2. 대규모 분자에 적합.</td></tr>
             <tr><td><code>CCSD</code></td><td>Coupled Cluster Singles & Doubles.</td></tr>
             <tr><td><code>CCSD(T)</code></td><td>섭동 삼중 들뜸 추가. 황금 표준.</td></tr>
             <tr><td><code>DLPNO-CCSD</code></td><td>국소 PNO 기반 CCSD (닫힌 껍질).</td></tr>
             <tr><td><code>DLPNO-CCSD(T)</code></td><td>국소 PNO 기반 CCSD(T). 자세한 내용은 <a href="coupled-cluster.html">10장</a>.</td></tr>
-            <tr><td><code>F12-CCSD(T)</code> · <code>CCSD(T)-F12</code></td><td>F12 명시적 상관 포함. 기저 한계에 빠르게 접근.</td></tr>
+            <tr><td><code>F12-CCSD(T)</code> · <code>CCSD(T)-F12</code></td><td>F12 명시적 상관 포함. 기저집합 한계에 빠르게 접근.</td></tr>
           </tbody>
         </table>
 
@@ -220,7 +220,7 @@
           <thead><tr><th>키워드</th><th>의미</th></tr></thead>
           <tbody>
             <tr><td><code>RIJCOSX</code></td><td>RI for Coulomb + Chain-of-Spheres exchange. 하이브리드 DFT의 표준 가속 옵션.</td></tr>
-            <tr><td><code>RI-JK</code></td><td>RI를 Coulomb과 Exchange 양쪽에 적용. 보조 JK 기저 필요.</td></tr>
+            <tr><td><code>RI-JK</code></td><td>RI를 Coulomb과 Exchange 양쪽에 적용. 보조 JK 기저집합 필요.</td></tr>
             <tr><td><code>RI</code></td><td>순수 GGA에서 자동 활성. Split-RI-J 사용.</td></tr>
             <tr><td><code>NORI</code></td><td>RI 비활성.</td></tr>
             <tr><td><code>DIRECT</code></td><td>적분 직접 계산(메모리 절약).</td></tr>
@@ -269,7 +269,7 @@
           <tbody>
             <tr><td><code>DefGrid1</code></td><td>가장 거친 격자 — 빠르지만 정밀도 낮음.</td></tr>
             <tr><td><code>DefGrid2</code></td><td>기본값. 일상 작업에 충분.</td></tr>
-            <tr><td><code>DefGrid3</code></td><td>큰 베이시스 또는 정밀 작업.</td></tr>
+            <tr><td><code>DefGrid3</code></td><td>큰 기저집합 또는 정밀 작업.</td></tr>
             <tr><td><code>NoFinalGridX</code></td><td>COSX의 최종 격자 비활성. 비권장.</td></tr>
           </tbody>
         </table>
@@ -288,8 +288,8 @@
         </table>
 
         <p>
-          상대론적 계산은 전용 베이시스를 써야 한다. 예를 들어
-          <code>! ZORA ZORA-def2-TZVP SARC/J</code>처럼 ZORA에 맞춰 recontract된 베이시스와 SARC 보조 기저를 함께 지정한다.
+          상대론적 계산은 전용 기저집합을 써야 한다. 예를 들어
+          <code>! ZORA ZORA-def2-TZVP SARC/J</code>처럼 ZORA에 맞춰 recontract된 기저집합과 SARC 보조 기저집합을 함께 지정한다.
         </p>
 
         <h2 id="output-control">출력 제어</h2>
@@ -301,7 +301,7 @@
             <tr><td><code>LargePrint</code></td><td>자세한 출력 — 디버깅용.</td></tr>
             <tr><td><code>MiniPrint</code></td><td>최소 출력.</td></tr>
             <tr><td><code>PrintMOs</code></td><td>분자 궤도 계수 인쇄.</td></tr>
-            <tr><td><code>PrintBasis</code></td><td>사용된 기저 인쇄.</td></tr>
+            <tr><td><code>PrintBasis</code></td><td>사용된 기저집합 인쇄.</td></tr>
             <tr><td><code>PrintGap</code></td><td>매 SCF 반복마다 HOMO-LUMO 간극 표시.</td></tr>
             <tr><td><code>XYZFile</code></td><td>좌표를 <code>.xyz</code>로 출력.</td></tr>
             <tr><td><code>PDBFile</code></td><td>좌표를 <code>.pdb</code>로 출력.</td></tr>
@@ -313,8 +313,8 @@
 
         <h2 id="composite">합성 방법 (Composite Methods)</h2>
         <p>
-          합성 방법은 “함수 + 베이시스 + 보정”을 키워드 하나로 묶은 것이다.
-          ORCA 6에서는 Grimme 그룹의 “3c” 합성 방법이 특히 쓸 만하다. 베이시스를 따로 지정할 필요 없이 한 줄로 끝난다.
+          합성 방법은 “함수 + 기저집합 + 보정”을 키워드 하나로 묶은 것이다.
+          ORCA 6에서는 Grimme 그룹의 “3c” 합성 방법이 특히 쓸 만하다. 기저집합을 따로 지정할 필요 없이 한 줄로 끝난다.
         </p>
 
         <table>
@@ -328,7 +328,7 @@
           </tbody>
         </table>
 
-        <pre data-lang="orca"><code><span class="cmt"># r2SCAN-3c — 베이시스, 보정 모두 자동 적용</span>
+        <pre data-lang="orca"><code><span class="cmt"># r2SCAN-3c — 기저집합, 보정 모두 자동 적용</span>
 <span class="kw">!</span> <span class="kw2">r2SCAN-3c Opt Freq</span>
 
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>

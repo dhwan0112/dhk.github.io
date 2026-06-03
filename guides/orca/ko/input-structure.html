@@ -48,7 +48,7 @@
       <div class="nav-section-title">방법론 선택</div>
       <ul class="nav-list">
         <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
-        <li><a href="basis-sets.html"><span class="nav-num">11</span>베이시스 세트</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>기저집합</a></li>
         <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
       </ul>
     </div>
@@ -131,8 +131,8 @@
           </thead>
           <tbody>
             <tr><td>방법(메소드)</td><td><code>HF</code>, <code>B3LYP</code>, <code>MP2</code>, <code>CCSD(T)</code>, <code>DLPNO-CCSD(T)</code></td><td>전자 구조 이론의 선택.</td></tr>
-            <tr><td>베이시스 세트</td><td><code>def2-SVP</code>, <code>def2-TZVP</code>, <code>cc-pVTZ</code></td><td>원자 궤도 기저 집합.</td></tr>
-            <tr><td>보조 베이시스</td><td><code>def2/J</code>, <code>def2-TZVP/C</code></td><td>RI/RIJCOSX에 필요한 피팅 기저.</td></tr>
+            <tr><td>기저집합</td><td><code>def2-SVP</code>, <code>def2-TZVP</code>, <code>cc-pVTZ</code></td><td>원자 궤도 기저집합.</td></tr>
+            <tr><td>보조 기저집합</td><td><code>def2/J</code>, <code>def2-TZVP/C</code></td><td>RI/RIJCOSX에 필요한 피팅 기저집합.</td></tr>
             <tr><td>작업 유형(Runtype)</td><td><code>Opt</code>, <code>Freq</code>, <code>EnGrad</code>, <code>NumFreq</code>, <code>NEB-TS</code></td><td>단일점, 최적화, 진동수 등.</td></tr>
             <tr><td>알고리즘 옵션</td><td><code>RIJCOSX</code>, <code>RI-JK</code>, <code>UKS</code>, <code>UNO</code></td><td>적분 근사, 스핀 처리 등.</td></tr>
             <tr><td>수렴 임계값</td><td><code>NormalSCF</code>, <code>TightSCF</code>, <code>VeryTightSCF</code></td><td>SCF 수렴 기준의 엄격함.</td></tr>
@@ -146,7 +146,7 @@
           <div class="note-title">키워드 순서는 상관없다</div>
           <p>
             <code>! B3LYP def2-TZVP Opt</code>와 <code>! Opt def2-TZVP B3LYP</code>는 완전히 같다.
-            다만 읽기 좋으라고 보통 <strong>방법 → 베이시스 → 보조 베이시스 → 작업 유형 → 옵션</strong> 순서로 적는다.
+            다만 읽기 좋으라고 보통 <strong>방법 → 기저집합 → 보조 기저집합 → 작업 유형 → 옵션</strong> 순서로 적는다.
           </p>
         </div>
 
@@ -189,7 +189,7 @@
           <tbody>
             <tr><td><code>%scf</code></td><td>SCF 수렴 관련 옵션(반복 횟수, DIIS, level shift 등).</td></tr>
             <tr><td><code>%method</code></td><td>함수, 작업 유형 등 메소드 일반.</td></tr>
-            <tr><td><code>%basis</code></td><td>원자별 베이시스 변경, ECP 지정.</td></tr>
+            <tr><td><code>%basis</code></td><td>원자별 기저집합 변경, ECP 지정.</td></tr>
             <tr><td><code>%geom</code></td><td>최적화 옵션, 제약 조건, 표면 스캔.</td></tr>
             <tr><td><code>%freq</code></td><td>진동수 계산 옵션(증분, 양측 차분 등).</td></tr>
             <tr><td><code>%cpcm</code></td><td>음폐 용매 모델 세부 설정.</td></tr>
@@ -302,7 +302,7 @@ H   0.000000  -0.763239  -0.477047</code></pre>
           </thead>
           <tbody>
             <tr><td><code>DA</code>, <code>X</code>, <code>Xx</code></td><td>더미 원자(dummy atom). 좌표 정의용 가상 원자.</td></tr>
-            <tr><td><code>O:</code> (콜론)</td><td>고스트 원자. 베이시스만 두고 원자는 없음(BSSE 보정용).</td></tr>
+            <tr><td><code>O:</code> (콜론)</td><td>고스트 원자. 기저집합만 두고 원자는 없음(BSSE 보정용).</td></tr>
             <tr><td><code>Q</code></td><td>점전하. 뒤에 전하값을 적는다.</td></tr>
             <tr><td><code>O&gt;</code> (꺾쇠)</td><td>매장 포텐셜(embedding potential).</td></tr>
             <tr><td><code>M = 2.014</code></td><td>비표준 동위원소 질량 지정.</td></tr>
