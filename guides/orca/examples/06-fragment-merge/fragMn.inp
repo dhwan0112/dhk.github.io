@@ -1,0 +1,6 @@
+# Fragment A — metal site: Mn(2+), high-spin d5 (sextet)
+# Same basis as the supermolecule; atom sits at its supermolecule position.
+! UHF def2-SVP
+* xyz 2 6
+  Mn  0.0  0.0  0.0
+*

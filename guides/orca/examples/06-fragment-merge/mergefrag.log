@@ -1,0 +1,15 @@
+orca_mergefrag fragMn.gbw fragH2O.gbw superMn.gbw
+
+=== real output (ORCA 6.1.1) ===
+NAtoms(A)    =  1   NAtoms(B)    =  3   NAtoms(C)    =  4
+Dimension(A) = 31   Dimension(B) = 24   Dimension(C) = 55     <- 31+24 = 55
+NEl(A)       = 23   NEl(B)       = 10   NEl(C)       = 33     <- 23+10 = 33
+HOMO-0(A)    = 13   HOMO-0(B)    =  4
+Merging orbitals                             ... done
+Merging geometries                           ... done
+Merging basis sets                           ... done
+Writing output                               ... done
+
+# Run orca_mergefrag with no arguments to see its usage:
+#   orca_mergefrag FragmentA.gbw FragmentB.gbw SupermoleculeName.gbw
+#   then run: orca_scf SupermoleculeName b

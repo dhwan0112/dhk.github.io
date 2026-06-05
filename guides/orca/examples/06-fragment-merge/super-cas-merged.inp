@@ -1,0 +1,23 @@
+# Step 4 — supermolecule reads the MERGED fragment orbitals as its CASSCF guess.
+# Build the guess first:
+#   orca fragMn.inp  > fragMn.out      # -> fragMn.gbw
+#   orca fragH2O.inp > fragH2O.out     # -> fragH2O.gbw
+#   orca_mergefrag fragMn.gbw fragH2O.gbw superMn.gbw
+# Fragment A (Mn) atoms come FIRST in the coordinates, matching the merge order.
+! CASSCF def2-SVP MOREAD
+%moinp "superMn.gbw"
+%casscf
+   nel  5      # 5 active electrons (Mn 3d^5)
+   norb 5      # 5 active orbitals  (the five Mn 3d)
+   mult 6      # sextet, high spin
+end
+* xyz 2 6
+  Mn  0.0  0.0  0.0
+  O   2.10  0.0  0.0
+  H   2.65  0.76 0.0
+  H   2.65 -0.76 0.0
+*
+# Verified: the merge places all five Mn 3d into the active space
+#   (CASSCF N(occ) = 1.00 x 5; UHF <S^2> = 8.751, sextet ideal 8.75).
+# Raw merged orbitals are not energy-sorted -- if the orbital rotation diverges,
+# run one SCF on superMn.gbw first to sort them, then add: ! SlowConv  +  SuperCI_PT.

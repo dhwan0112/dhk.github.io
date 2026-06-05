@@ -58,6 +58,7 @@
       <div class="nav-section-title">Operations</div>
       <ul class="nav-list">
         <li><a href="tips.html"><span class="nav-num">14</span>Tips · Troubleshooting</a></li>
+        <li><a href="examples.html"><span class="nav-num">15</span>Examples</a></li>
       </ul>
     </div>
   </nav>
@@ -276,31 +277,97 @@ Final CASSCF energy       : -1.056125382 Eh</code></pre>
         <h2 id="fragment">Large systems — metal / ligand fragment merge</h2>
         <p>
           Throwing a large transition-metal complex into CASSCF whole tends to give a stubborn SCF
-          and a hard-to-choose active space. A common practical strategy is to <strong>split into
-          fragments and merge</strong>.
+          and a hard-to-choose active space. A common strategy is to <strong>split into fragments and
+          merge</strong>: compute the metal centre and the ligand shell separately to get each
+          fragment's orbitals, then merge the two orbital sets into the starting guess for the full
+          system. CASSCF then begins with the metal d/f orbitals already cleanly separated.
         </p>
-        <ul>
-          <li><strong>Compute the metal centre and the ligand shell separately</strong> to get each
-              fragment's molecular orbitals first. Merging the two orbital sets into the
-              <strong>starting guess</strong> for the full system lets CASSCF begin with the active
-              orbitals (metal d/f) already cleanly separated.</li>
-          <li><strong>Replace symmetry-equivalent metal sites with closed-shell analogues.</strong>
-              In a Dy<sub>3</sub> triangular cluster, for instance, swapping two of the three Dy for
-              closed-shell Lu(III) exploits the <em>C</em><sub>3</sub> symmetry so only one site is
-              treated explicitly.</li>
-        </ul>
+        <p>
+          ORCA ships a dedicated utility for this, <code>orca_mergefrag</code>. Run it with no
+          arguments and it prints its own usage.
+        </p>
+        <pre data-lang="text"><code>orca_mergefrag FragmentA.gbw FragmentB.gbw Supermolecule.gbw</code></pre>
+
+        <h3>Procedure — high-spin [Mn(H<sub>2</sub>O)]<sup>2+</sup></h3>
+        <p>
+          Mn<sup>2+</sup> is high-spin d<sup>5</sup> (sextet), so all five d orbitals are singly
+          occupied — the textbook case for a fragment merge. Compute the metal site and the water as
+          separate fragments.
+        </p>
+
+        <p><strong>① Metal fragment</strong> <code>fragMn.inp</code></p>
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">UHF def2-SVP</span>
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">2 6</span>
+  Mn  0.0  0.0  0.0
+<span class="kw">*</span></code></pre>
+
+        <p><strong>② Ligand fragment</strong> <code>fragH2O.inp</code> — at its supermolecule position, same basis</p>
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">UHF def2-SVP</span>      <span class="cmt"># metal is UHF, so the ligand must be UHF too (HFTyp must match)</span>
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  O   2.10  0.0  0.0
+  H   2.65  0.76 0.0
+  H   2.65 -0.76 0.0
+<span class="kw">*</span></code></pre>
+
+        <p><strong>③ Merge</strong> — run each fragment to get its <code>.gbw</code>, then</p>
+        <pre data-lang="text"><code>orca_mergefrag fragMn.gbw fragH2O.gbw superMn.gbw</code></pre>
+        <p>Check the merge output (real run): atom counts, basis dimensions, and electron counts must all add up.</p>
+        <pre data-lang="output"><code>NAtoms(A)    =  1   NAtoms(B)    =  3   NAtoms(C)    =  4
+Dimension(A) = 31   Dimension(B) = 24   Dimension(C) = 55     &lt;- 31+24=55
+NEl(A)       = 23   NEl(B)       = 10   NEl(C)       = 33     &lt;- 23+10=33
+Merging orbitals   ... done
+Merging geometries ... done
+Merging basis sets ... done</code></pre>
+
+        <p><strong>④ Supermolecule reads the merged guess for CASSCF</strong> — fragment A (Mn) comes first in the coordinates</p>
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">CASSCF def2-SVP MOREAD</span>
+<span class="kw">%moinp</span> <span class="str">"superMn.gbw"</span>
+<span class="kw">%casscf</span>
+   <span class="kw2">nel</span>  <span class="num">5</span>
+   <span class="kw2">norb</span> <span class="num">5</span>
+   <span class="kw2">mult</span> <span class="num">6</span>
+<span class="kw">end</span>
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">2 6</span>
+  Mn  0.0  0.0  0.0
+  O   2.10  0.0  0.0
+  H   2.65  0.76 0.0
+  H   2.65 -0.76 0.0
+<span class="kw">*</span></code></pre>
+        <p>
+          The merged guess drops the five Mn 3d orbitals straight into the active space. In the actual
+          run the UHF step gave <em>⟨S²⟩ = 8.751</em> (sextet ideal 8.75, no spin contamination) and the
+          CASSCF natural occupations came out <em>N(occ) = 1.00 × 5</em> — a clean d<sup>5</sup>.
+        </p>
 
         <div class="note">
-          <div class="note-title">Confirm the exact merge keyword before relying on it</div>
-          <p>
-            The above is the <em>strategy</em>. The exact ORCA procedure for merging fragment
-            orbitals (a dedicated utility, or reading fragment <code>.gbw</code> files into the guess
-            via <code>%moinp</code>) varies with version and setup, so
-            <strong>check the manual's fragment / guess-orbital section and the official forum
-            before relying on it</strong> (this part was not run here). The concept — solve the
-            fragments to build good active orbitals, then merge — is the same whichever route you take.
-          </p>
+          <div class="note-title">What actually tripped us up (verified by running it)</div>
+          <ul>
+            <li><strong>Both fragments need the same HF type.</strong> If the metal is UHF, the
+                closed-shell ligand must be UHF too, or the merge stops with
+                <code>HFTyp(A) must be HFTyp(B)</code>.</li>
+            <li><strong>Fragment A's atoms come first in the supermolecule.</strong> The merge
+                concatenates orbitals, geometry, and basis in A→B order, so list fragment A's atoms
+                first and fragment B's after, in the same order.</li>
+            <li><strong>Same basis, same positions.</strong> Compute both fragments with the
+                supermolecule basis, each at its position in the supermolecule geometry.</li>
+            <li><strong>The merged guess is not always better.</strong> Raw merged orbitals are not
+                energy-sorted, so the orbital rotation can diverge. As the tool suggests, run one SCF
+                on the merged guess to sort the orbitals before handing them to CASSCF, and if it still
+                thrashes use a robust optimiser such as <code>SuperCI_PT</code>. For a simple system
+                ORCA's default guess may already converge to the right d-occupation — this very example
+                converges straight to <code>N(occ)=1.0×5</code>, <code>E=−1225.0207 Eh</code> from the
+                default guess, making the merge unnecessary. <strong>Always check that the merge
+                actually helps by comparing N(occ) and the energy against the default guess.</strong>
+                It earns its keep on large, low-symmetry complexes where the default guess lands on the
+                wrong d-occupation or spin state.</li>
+          </ul>
         </div>
+
+        <p>
+          Replacing symmetry-equivalent metal sites with closed-shell analogues is a companion trick.
+          In a Dy<sub>3</sub> triangular cluster, swapping two of the three Dy for closed-shell Lu(III)
+          exploits the <em>C</em><sub>3</sub> symmetry so only one site is treated explicitly.
+        </p>
 
         <h2 id="limits">Limits and what's next — DMRG</h2>
         <p>

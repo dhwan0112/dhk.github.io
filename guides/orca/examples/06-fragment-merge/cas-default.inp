@@ -1,0 +1,18 @@
+# Reference — the SAME CASSCF from ORCA's DEFAULT guess (no fragment merge).
+# For this simple, near-degenerate bare ion the default guess converges cleanly,
+# so compare the merge against this before trusting it.
+! CASSCF def2-SVP
+%casscf
+   nel  5
+   norb 5
+   mult 6
+   maxiter 200
+end
+* xyz 2 6
+  Mn  0.0  0.0  0.0
+  O   2.10  0.0  0.0
+  H   2.65  0.76 0.0
+  H   2.65 -0.76 0.0
+*
+# Result (cas-default.out): CONVERGED, FINAL SPE = -1225.020664994659 Eh,
+#   N(occ) = 1.00000 x 5  -> a clean high-spin d5 active space.
