@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Examples · ORCA User Guide</title>
+  <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/examples.html">KO</a>
+    <a href="examples.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">ORCA</div>
+    <div class="brand-subtitle">User Guide · v6.0</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Getting Started</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="keywords.html"><span class="nav-num">03</span>Keywords</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Common Calculations</div>
+      <ul class="nav-list">
+        <li><a href="single-point.html"><span class="nav-num">04</span>Single point energy</a></li>
+        <li><a href="geometry-optimization.html"><span class="nav-num">05</span>Geometry optimisation</a></li>
+        <li><a href="frequencies.html"><span class="nav-num">06</span>Frequencies</a></li>
+        <li><a href="transition-states.html"><span class="nav-num">07</span>Transition states · NEB</a></li>
+        <li><a href="excited-states.html"><span class="nav-num">08</span>Excited states · TD-DFT</a></li>
+        <li><a href="solvation.html"><span class="nav-num">09</span>Solvation</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Methods &amp; Models</div>
+      <ul class="nav-list">
+        <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>Basis sets</a></li>
+        <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT functionals</a></li>
+        <li><a href="casscf.html"><span class="nav-num">13</span>CASSCF · Multireference</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Operations</div>
+      <ul class="nav-list">
+        <li><a href="tips.html"><span class="nav-num">14</span>Tips · Troubleshooting</a></li>
+        <li><a href="examples.html"><span class="nav-num">15</span>Examples</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 15 · OPERATIONS</div>
+        <h1 class="page-title">Examples</h1>
+        <p class="page-lede">
+          Inputs and their real outputs in one place. Every <code>.out</code> below is an actual
+          ORCA 6.1.1 run — take the input and adapt it to your own molecule.
+        </p>
+      </header>
+
+      <article class="content">
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#worked">Worked examples — input + real output</a></li>
+            <li><a href="#fragment">Fragment-merge example</a></li>
+            <li><a href="#templates">Templates — ready-to-edit skeletons</a></li>
+          </ul>
+        </div>
+
+        <div class="note">
+          <div class="note-title">All real runs</div>
+          <p>
+            The outputs below are not illustrative — they come straight from ORCA 6.1.1. Running one
+            is a single line, <code>orca water.inp &gt; water.out</code>. Clicking a file opens it as
+            text or downloads it.
+          </p>
+        </div>
+
+        <h2 id="worked">Worked examples — input + real output</h2>
+        <table>
+          <thead>
+            <tr><th>Calculation</th><th>Key result</th><th>Files</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Single point energy</strong><br />water · B3LYP/def2-SVP</td>
+              <td>FINAL SPE −76.321274 Eh</td>
+              <td><a href="../examples/01-single-point/water.inp">input</a> · <a href="../examples/01-single-point/water.out">output</a></td>
+            </tr>
+            <tr>
+              <td><strong>Opt + frequencies</strong><br />water · with thermochemistry</td>
+              <td>Gibbs −76.422869 Eh · 0 imaginary modes</td>
+              <td><a href="../examples/02-opt-freq/water.inp">input</a> · <a href="../examples/02-opt-freq/water.out">output</a></td>
+            </tr>
+            <tr>
+              <td><strong>DLPNO-CCSD(T)</strong><br />water · cc-pVTZ</td>
+              <td>−76.331959 Eh</td>
+              <td><a href="../examples/03-dlpno-ccsdt/water.inp">input</a> · <a href="../examples/03-dlpno-ccsdt/water.out">output</a></td>
+            </tr>
+            <tr>
+              <td><strong>Solvation</strong><br />water · SMD(water) single point</td>
+              <td>−76.332972 Eh</td>
+              <td><a href="../examples/04-solvation-smd/water.inp">input</a> · <a href="../examples/04-solvation-smd/water.out">output</a></td>
+            </tr>
+            <tr>
+              <td><strong>CASSCF(2,2)</strong><br />H<sub>2</sub> · stretched bond (multireference)</td>
+              <td>E(CAS) −1.056125 Eh · N(occ) 1.81/0.19</td>
+              <td><a href="../examples/05-casscf-h2/h2_casscf.inp">input</a> · <a href="../examples/05-casscf-h2/h2_casscf.out">output</a></td>
+            </tr>
+            <tr>
+              <td><strong>Fragment merge → CASSCF(5,5)</strong><br />[Mn(H<sub>2</sub>O)]<sup>2+</sup> · high-spin d<sup>5</sup></td>
+              <td>N(occ) 1.00×5 · E(CAS) −1225.0207 Eh</td>
+              <td><a href="../examples/06-fragment-merge/">folder</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          The <code>dissociation_{rhf,cas}.dat</code> files under <code>05-casscf-h2/</code> are the
+          real RHF and CASSCF curves scanned over H–H = 0.4–3.0 Å (the source for
+          <a href="../assets/img/h2-dissociation.png">h2-dissociation.png</a>). RHF diverges at
+          dissociation, CASSCF stays well-behaved — the classic single-reference breakdown.
+        </p>
+
+        <h2 id="fragment">Fragment-merge example — <code>06-fragment-merge/</code></h2>
+        <p>
+          A real run of the split-and-merge procedure: solve the metal and the ligand separately,
+          then merge their orbitals with <code>orca_mergefrag</code>. The full walkthrough and the
+          gotchas are in <a href="casscf.html#fragment">Chapter 13, the “fragment merge” section</a>.
+        </p>
+        <table>
+          <thead><tr><th>File</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td><a href="../examples/06-fragment-merge/fragMn.inp">fragMn.inp</a></td><td>Metal fragment — Mn<sup>2+</sup> high-spin (sextet)</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/fragH2O.inp">fragH2O.inp</a></td><td>Ligand fragment — H<sub>2</sub>O (UHF, to match HFTyp)</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/mergefrag.log">mergefrag.log</a></td><td>Real merge output — Dim 31+24=55, NEl 23+10=33</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/super-cas-merged.inp">super-cas-merged.inp</a></td><td>CASSCF(5,5) reading the merged guess</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/cas-default.inp">cas-default.inp</a></td><td>Reference — CASSCF from the default guess</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/cas-default.out">cas-default.out</a></td><td>Converged result — E −1225.0207 Eh, N(occ) 1.0×5</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="templates">Templates — ready-to-edit skeletons</h2>
+        <p>All verified to run on ORCA 6.1.1. Swap <code>mol.xyz</code> for your own coordinate file.</p>
+        <table>
+          <thead><tr><th>File</th><th>Use</th></tr></thead>
+          <tbody>
+            <tr><td><a href="../examples/templates/single-point.inp">single-point.inp</a></td><td>Single point energy</td></tr>
+            <tr><td><a href="../examples/templates/opt-freq.inp">opt-freq.inp</a></td><td>Optimisation + frequencies + thermochemistry</td></tr>
+            <tr><td><a href="../examples/templates/solvation-smd.inp">solvation-smd.inp</a></td><td>SMD solvation single point</td></tr>
+            <tr><td><a href="../examples/templates/dlpno-composite-step1.inp">dlpno-composite-step1.inp</a></td><td>DFT opt+freq (D4) → writes <code>step1.xyz</code></td></tr>
+            <tr><td><a href="../examples/templates/dlpno-composite-step2.inp">dlpno-composite-step2.inp</a></td><td>DLPNO-CCSD(T)/CBS single point (<code>AutoAux</code>, reads step1.xyz)</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <div class="note-title">Two traps found while testing (folded into the templates)</div>
+          <ul>
+            <li><code>DLPNO-CCSD(T) Extrapolate(...)</code> dies with an “auxiliary basis required” error <strong>unless you add <code>AutoAux</code></strong>.</li>
+            <li>Bundling a DFT opt (D4) and CCSD(T) in one input via <code>$new_job</code> lets <strong>D4 carry into the CC step</strong> and trips a “dispersion + correlated method” abort → <strong>split the steps into separate files</strong>.</li>
+          </ul>
+        </div>
+
+        <footer class="site-footer">
+          <p>
+            ORCA English User Guide · Based on the ORCA 6.0.0 manual · This guide is unofficial.
+          </p>
+        </footer>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="tips.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Tips · Troubleshooting</div>
+        </a>
+        <a class="next" href="index.html">
+          <div class="page-nav-label">back to top ↑</div>
+          <div class="page-nav-title">Overview</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
