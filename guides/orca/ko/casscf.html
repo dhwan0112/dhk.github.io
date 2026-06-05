@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CASSCF · 다중참조 · ORCA 사용자 가이드</title>
+  <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="casscf.html" class="active">KO</a>
+    <a href="../en/casscf.html">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">ORCA</div>
+    <div class="brand-subtitle">사용자 가이드 · v6.0</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="keywords.html"><span class="nav-num">03</span>키워드 모음</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">자주 쓰는 계산</div>
+      <ul class="nav-list">
+        <li><a href="single-point.html"><span class="nav-num">04</span>단일점 에너지</a></li>
+        <li><a href="geometry-optimization.html"><span class="nav-num">05</span>구조 최적화</a></li>
+        <li><a href="frequencies.html"><span class="nav-num">06</span>진동수 계산</a></li>
+        <li><a href="transition-states.html"><span class="nav-num">07</span>전이 상태 · NEB</a></li>
+        <li><a href="excited-states.html"><span class="nav-num">08</span>들뜬 상태 · TD-DFT</a></li>
+        <li><a href="solvation.html"><span class="nav-num">09</span>용매 효과</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">방법론 선택</div>
+      <ul class="nav-list">
+        <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>기저집합</a></li>
+        <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
+        <li><a href="casscf.html"><span class="nav-num">13</span>CASSCF · 다중참조</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">실전 운영</div>
+      <ul class="nav-list">
+        <li><a href="tips.html"><span class="nav-num">14</span>팁 · 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 13 · 방법론 선택</div>
+        <h1 class="page-title">CASSCF · 다중참조</h1>
+        <p class="page-lede">단일참조가 깨지는 영역 — 결합 해리, 전이금속 자성, 디라디칼. 활성 공간을 직접 푸는 CASSCF의 입문.</p>
+      </header>
+
+      <article class="content">
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <ul>
+            <li><a href="#why">왜 다중참조인가 — 단일참조의 한계</a></li>
+            <li><a href="#active-space">활성 공간 CAS(n, m)</a></li>
+            <li><a href="#first">첫 CASSCF — H<sub>2</sub>(2,2)</a></li>
+            <li><a href="#output">출력 읽기 — CI 벡터와 점유수</a></li>
+            <li><a href="#state-average">여러 상태 동시에 — state-averaging</a></li>
+            <li><a href="#nevpt2">동적 상관 — NEVPT2</a></li>
+            <li><a href="#soc">스핀-궤도 결합과 자기 특성</a></li>
+            <li><a href="#fragment">큰 계의 요령 — 금속·리간드 조각 병합</a></li>
+            <li><a href="#limits">한계와 다음 — DMRG</a></li>
+          </ul>
+        </div>
+
+        <h2 id="why">왜 다중참조인가 — 단일참조의 한계</h2>
+        <p>
+          HF, DFT, CCSD(T)는 모두 <strong>하나의 슬레이터 행렬식이 지배적</strong>이라는 가정 위에 서 있다.
+          닫힌 껍질 유기 분자나 평범한 라디칼에서는 이 가정이 잘 맞는다. 그런데 두 개 이상의 행렬식이
+          비슷한 가중치를 가지는 순간 가정 자체가 깨지고, 단일참조 결과는 정성적으로도 틀리기 시작한다.
+          대표적인 영역이 결합이 끊어지는 도중의 분자, 전이금속·란타나이드의 비공선 자기 상태,
+          단일항 디라디칼, 원뿔 교차점 부근이다.
+        </p>
+        <p>
+          가장 깨끗한 예가 H<sub>2</sub>의 결합 해리다. 아래는 H–H 거리를 0.4 Å에서 3.0 Å까지 훑으며
+          RHF와 CASSCF(2,2)로 실제 계산한 곡선이다(ORCA 6.1.1, cc-pVDZ).
+        </p>
+
+        <img src="../assets/img/h2-dissociation.png" alt="H2 결합 해리 곡선 — RHF는 해리에서 발산, CASSCF는 정상" style="max-width:100%;height:auto;margin:1rem 0;" />
+
+        <p>
+          평형 부근에서는 둘 다 멀쩡하지만, 결합을 끊어 가면 <strong>RHF가 위로 발산</strong>한다
+          (3.0 Å에서 −0.826 E<sub>h</sub>). 닫힌 껍질 RHF는 두 전자를 σ 결합 궤도에 함께 묶어 두기 때문에,
+          중성 H 원자 둘로 균일하게 갈라서지 못하고 이온항이 강제로 섞인다. CASSCF는 σ*<sup>2</sup> 배치를
+          파동함수에 함께 넣어, 해리 극한에서 H 원자 둘(−1.0 E<sub>h</sub>)로 올바르게 떨어진다.
+          이 σ<sup>2</sup>와 σ*<sup>2</sup> 두 배치를 <em>동시에</em> 다루는 것이 다중참조의 핵심이다.
+        </p>
+
+        <h2 id="active-space">활성 공간 CAS(n, m)</h2>
+        <p>
+          CASSCF는 <strong>활성 공간(active space)</strong> 안에서 가능한 모든 전자 배치를 풀어 준다.
+          <code>CAS(n, m)</code>은 전자 <em>n</em>개를 궤도 <em>m</em>개에 가능한 모든 방식으로 채운
+          full-CI를 뜻한다. 활성 궤도는 “화학적으로 중요한”, 즉 다중참조 성격이 사는 프론티어 근처 궤도를 고른다.
+          H<sub>2</sub>면 σ·σ* 한 쌍 → CAS(2,2), 전이금속이면 금속 d(또는 f) 궤도 전부 + 핵심 ligand 궤도가 출발점이다.
+        </p>
+
+        <img src="../assets/img/casscf-active-space.png" alt="활성 공간 도식 — 비활성(이중점유) / 활성(부분점유) / 가상 궤도" style="max-width:100%;height:auto;margin:1rem 0;" />
+
+        <div class="warning">
+          <div class="note-title">활성 공간 선택이 CASSCF의 전부</div>
+          <p>
+            결과는 활성 공간을 어떻게 잡느냐에 결정적으로 좌우된다. 너무 작으면 부정확하고, 너무 크면 비용이 폭발한다
+            (CAS의 차원은 (n, m)에 대해 거의 계승적으로 커져, 정통 CASSCF는 활성 궤도 ~14개가 현실적 상한이다).
+            처음이라면 <strong>화학적 직관으로 잡은 뒤, 활성 전자·궤도를 조금씩 늘려 결과가 수렴하는지</strong>
+            보는 것이 정석이다. 자연궤도 점유수(<a href="#output">아래</a>)가 좋은 길잡이가 된다.
+          </p>
+        </div>
+
+        <h2 id="first">첫 CASSCF — H<sub>2</sub>(2,2)</h2>
+        <p>
+          위 곡선에 쓴 CASSCF 입력이다. 다중참조 성격이 또렷하도록 결합을 1.5 Å로 늘린 지점을 쓴다.
+          실제 실행 파일은 <code>examples/05-casscf-h2/</code>에 있다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">CASSCF cc-pVDZ TightSCF</span>
+
+<span class="kw">%casscf</span>
+   <span class="kw2">nel</span>    <span class="num">2</span>          <span class="cmt"># 활성 전자 수</span>
+   <span class="kw2">norb</span>   <span class="num">2</span>          <span class="cmt"># 활성 궤도 수 (σ, σ*)</span>
+   <span class="kw2">mult</span>   <span class="num">1</span>          <span class="cmt"># 다중도 (싱글릿)</span>
+   <span class="kw2">nroots</span> <span class="num">1</span>          <span class="cmt"># 풀 상태 수</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  H   0.0   0.0   0.0
+  H   0.0   0.0   1.50      <span class="cmt"># 늘어난 결합 → 다중참조 성격</span>
+<span class="kw">*</span></code></pre>
+
+        <h2 id="output">출력 읽기 — CI 벡터와 점유수</h2>
+        <p>
+          위 입력의 실제 출력에서 두 줄만 보면 된다. (ORCA 6.1.1 실측)
+        </p>
+
+        <pre data-lang="output"><code>ROOT   0:  E=      -1.0561253815 Eh
+      0.90503 [     0]: 20
+      0.09497 [     2]: 02
+
+N(occ)=  1.81007 0.18993
+
+Final CASSCF energy       : -1.056125382 Eh</code></pre>
+
+        <p>
+          <strong>CI 벡터</strong>는 파동함수를 배치들의 합으로 적은 것이다. <code>[0]: 20</code>은
+          σ에 전자 2개·σ*에 0개인 배치(가중치 0.905), <code>[2]: 02</code>는 둘 다 σ*로 올라간 배치(가중치 0.095)다.
+          단일참조라면 첫 배치가 ~100%여야 하는데, 두 번째 배치가 <strong>9.5%</strong>나 끼어 있는 것 —
+          이게 다중참조 성격이다. 결합을 더 늘리면 두 가중치는 50:50(완전한 디라디칼)로 다가간다.
+        </p>
+        <p>
+          <strong>N(occ)</strong>는 자연궤도 점유수다. σ는 1.81, σ*는 0.19 — 단일참조의 2.00 / 0.00에서
+          벗어나 있다. 이 정수에서의 이탈이 활성 공간 진단의 핵심이다. 경험칙으로
+          <strong>점유수가 대략 0.1~1.9 사이</strong>인 궤도는 활성 공간에 넣어야 할 후보다.
+        </p>
+
+        <h2 id="state-average">여러 상태 동시에 — state-averaging</h2>
+        <p>
+          들뜬 상태를 보거나, 전이금속·란타나이드처럼 여러 상태가 거의 겹쳐 있을 때는 한 상태에만
+          궤도를 맞추면 편향이 생긴다. <strong>state-averaged CASSCF</strong>는 여러 root에 대해 궤도를
+          평균해, 어느 한 상태도 특별 대우하지 않는 공통 궤도 집합을 만든다. <code>nroots</code>를 늘리고
+          필요하면 다중도별로 블록을 나눈다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%casscf</span>
+   <span class="kw2">nel</span>    <span class="num">6</span>
+   <span class="kw2">norb</span>   <span class="num">5</span>
+   <span class="kw2">mult</span>   <span class="num">3, 1</span>      <span class="cmt"># 삼중항·싱글릿 블록</span>
+   <span class="kw2">nroots</span> <span class="num">5, 5</span>      <span class="cmt"># 각 블록에서 5개 root를 평균</span>
+<span class="kw">end</span></code></pre>
+
+        <h2 id="nevpt2">동적 상관 — NEVPT2</h2>
+        <p>
+          CASSCF는 <strong>정적 상관</strong>(near-degeneracy)은 잡지만 나머지 <strong>동적 상관</strong>은 놓친다.
+          그 위에 섭동론으로 동적 상관을 얹는 표준이 <strong>NEVPT2</strong>다. CASPT2와 달리
+          intruder-state 문제가 없어 견고하다. <code>%casscf</code> 블록에 <code>PTMethod</code> 한 줄을 더한다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%casscf</span>
+   <span class="kw2">nel</span>    <span class="num">2</span>
+   <span class="kw2">norb</span>   <span class="num">2</span>
+   <span class="kw2">mult</span>   <span class="num">1</span>
+   <span class="kw2">nroots</span> <span class="num">1</span>
+   <span class="kw2">PTMethod</span> <span class="kw">sc_nevpt2</span>    <span class="cmt"># strongly-contracted NEVPT2</span>
+<span class="kw">end</span></code></pre>
+
+        <p>
+          <code>sc_nevpt2</code>(strongly contracted)가 빠르고 견고하다. 더 정확히 가려면
+          <code>fic_nevpt2</code>(fully internally contracted)로 옮긴다.
+        </p>
+
+        <h2 id="soc">스핀-궤도 결합과 자기 특성</h2>
+        <p>
+          무거운 원소(4d·5d 전이금속, 4f 란타나이드)에서는 스핀-궤도 결합(SOC)이 상태를 갈라
+          자기 비등방성을 결정한다. <code>rel</code> 블록의 <code>DoSOC true</code>가 2차 SOC를 QDPT로 처리하고,
+          <code>SINGLE_ANISO</code>가 의사스핀 Hamiltonian(g-tensor, 영자기장 갈라짐)을 자동으로 fit한다 —
+          단일분자 자석(SMM) 분석의 표준 도구다. 아래는 Dy(III) 단일 이온을 CAS(9,7)로 다루는 입력이다.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># Dy(III) 4f9 단일 이온 — CASSCF(9,7) + NEVPT2 + SOC + 비등방성</span>
+<span class="kw">!</span> <span class="kw2">CASSCF def2-SVP DKH2 RIJCOSX def2/J TightSCF</span>
+
+<span class="kw">%casscf</span>
+   <span class="kw2">nel</span>      <span class="num">9</span>                <span class="cmt"># Dy 4f9</span>
+   <span class="kw2">norb</span>     <span class="num">7</span>                <span class="cmt"># 7개 4f 궤도</span>
+   <span class="kw2">mult</span>     <span class="num">6, 4, 2</span>          <span class="cmt"># 6·4·2중항</span>
+   <span class="kw2">nroots</span>   <span class="num">21, 224, 490</span>     <span class="cmt"># Russell-Saunders 항</span>
+   <span class="kw2">PTMethod</span> <span class="kw">sc_nevpt2</span>
+
+   <span class="kw">rel</span>
+      <span class="kw2">DoSOC</span>   <span class="kw">true</span>           <span class="cmt"># 2차 SOC (QDPT)</span>
+   <span class="kw">end</span>
+
+   <span class="kw2">SINGLE_ANISO</span> <span class="kw">true</span>        <span class="cmt"># 의사스핀 Hamiltonian fit</span>
+<span class="kw">end</span>
+
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">3 6</span>
+   Dy   0.000   0.000   0.000
+<span class="kw">*</span></code></pre>
+
+        <div class="caution">
+          <div class="note-title">아래 수치는 예시(illustrative)다</div>
+          <p>
+            이 페이지의 H<sub>2</sub> 예제는 실제 실행 결과지만, <strong>Dy(III) 같은 무거운 계는
+            제대로 된 SARC 기저집합·큰 활성 공간·긴 계산이 필요</strong>해 여기서 직접 돌리지 않았다.
+            아래 <code>SINGLE_ANISO</code> 출력의 값(g<sub>z</sub> 등)은 일반적인 Ising-limit Dy(III)
+            범위에서 가져온 <strong>예시값</strong>이며, 실제 착물에서는 다른 숫자가 나온다.
+          </p>
+        </div>
+
+        <pre data-lang="output"><code>g-FACTORS OF THE LOWEST DOUBLET:
+   gx =   0.03
+   gy =   0.05
+   gz =  19.6        &lt;-- 큰 비등방성 → Ising-limit, SMM 후보</code></pre>
+
+        <p>
+          <code>gz</code>가 매우 크고 <code>gx</code>, <code>gy</code>가 0에 가까우면 “Ising-limit 비등방성”으로,
+          SMM의 1차 진단이다. 그 다음은 <strong>POLY_ANISO</strong>로 여러 금속 중심 사이의 교환 파라미터
+          <em>J</em>를 fit해 다핵 거동을 모사한다(매뉴얼 §9.27).
+        </p>
+
+        <h2 id="fragment">큰 계의 요령 — 금속·리간드 조각 병합</h2>
+        <p>
+          큰 전이금속 착물을 통째로 CASSCF에 넣으면 SCF가 잘 수렴하지 않고 활성 공간 고르기도 어렵다.
+          실전에서 자주 쓰는 전략이 <strong>조각(fragment) 분리 후 병합</strong>이다.
+        </p>
+        <ul>
+          <li><strong>금속 중심과 ligand 껍질을 따로</strong> 계산해 각자의 분자 궤도를 먼저 얻는다.
+              두 조각의 궤도를 합쳐 전체 계의 <strong>초기 추정(guess)</strong>으로 쓰면, 활성 궤도(금속 d/f)가
+              깨끗하게 분리된 상태에서 CASSCF를 시작할 수 있다.</li>
+          <li><strong>대칭 등가인 금속 자리를 닫힌 껍질로 치환</strong>한다. 예컨대 Dy<sub>3</sub> 삼각 클러스터에서
+              세 Dy 중 둘을 닫힌 껍질 Lu(III)로 바꾸면 <em>C</em><sub>3</sub> 대칭을 활용해 한 자리만 명시적으로
+              다룰 수 있다.</li>
+        </ul>
+
+        <div class="note">
+          <div class="note-title">병합 절차의 정확한 키워드는 확인 후 쓸 것</div>
+          <p>
+            위는 <em>전략</em>이다. ORCA에서 조각 궤도를 실제로 합치는 정확한 절차(별도 유틸리티를 쓸지,
+            <code>%moinp</code>로 조각 <code>.gbw</code>를 읽어 guess로 넣을지)는 버전·셋업에 따라 다르므로,
+            <strong>매뉴얼의 fragment/guess-orbital 절과 공식 포럼을 확인하고 쓰기를 권한다</strong>
+            (이 부분은 실행 검증을 하지 않았다). 개념 — “조각을 따로 풀어 좋은 활성 궤도를 만든 뒤 전체로 합친다” —
+            만큼은 어느 경로로 하든 동일하다.
+          </p>
+        </div>
+
+        <h2 id="limits">한계와 다음 — DMRG</h2>
+        <p>
+          정통 CASSCF는 활성 궤도가 12~14개를 넘어가면 CI 차원이 메모리를 넘어선다. 그때부터는
+          ORCA 6의 <strong>DMRG-CASSCF</strong>(<code>%casscf actorbs DMRG</code>)가 표준으로,
+          활성 궤도 30~40개까지 다룬다. 동적 상관을 NEVPT2보다 더 정밀하게 가려면 <code>! MRCI+Q</code>
+          (다중참조 CI + Davidson 보정)로 옮겨간다.
+        </p>
+        <p>
+          이 장은 입문 분량이라 여기까지다. 키워드만 손에 익혀 두면 매뉴얼 §9(CASSCF·NEVPT2)와
+          §10(MRCI)의 해당 절을 바로 펼쳐 볼 수 있다. CCSD(T) 같은 단일참조 방법으로 돌아가려면
+          <a href="coupled-cluster.html">10. DLPNO-CCSD(T)</a>를 참고한다.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="dft-functionals.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">DFT 함수 선택</div>
+        </a>
+        <a class="next" href="tips.html">
+          <div class="page-nav-label">다음 →</div>
+          <div class="page-nav-title">팁 · 트러블슈팅</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

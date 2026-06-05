@@ -50,13 +50,14 @@
         <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
         <li><a href="basis-sets.html"><span class="nav-num">11</span>기저집합</a></li>
         <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
+        <li><a href="casscf.html"><span class="nav-num">13</span>CASSCF · 다중참조</a></li>
       </ul>
     </div>
 
     <div class="nav-section">
       <div class="nav-section-title">실전 운영</div>
       <ul class="nav-list">
-        <li><a href="tips.html"><span class="nav-num">13</span>팁 · 트러블슈팅</a></li>
+        <li><a href="tips.html"><span class="nav-num">14</span>팁 · 트러블슈팅</a></li>
       </ul>
     </div>
   </nav>
@@ -280,115 +281,18 @@
           </p>
         </div>
 
-        <h2 id="multiref">한 걸음 더 — 다중참조의 영역 (CASSCF · NEVPT2)</h2>
+        <h2 id="multiref">한 걸음 더 — 다중참조 (CASSCF · NEVPT2)</h2>
         <p>
-          DLPNO-CCSD(T)는 단일참조(single-reference) 이론의 정점이다. 슬레이터 행렬식
-          하나가 지배적인 시스템 — 닫힌 껍질 유기 분자, 평범한 라디칼 — 에서는 거의
-          정량적으로 정확하다. 그런데 아래 같은 시스템에서는 단일참조 가정 자체가 깨진다.
+          DLPNO-CCSD(T)는 단일참조 이론의 정점이다. 그런데 결합이 끊어지는 도중의 분자,
+          전이금속·란타나이드의 비공선 자기 상태, 단일항 디라디칼처럼 슬레이터 행렬식이 둘 이상
+          비슷한 가중치를 가지는 영역에서는 단일참조 가정 자체가 깨진다. 거기서부터는 활성 공간을
+          직접 푸는 CASSCF가 출발점이고, 그 위에 NEVPT2로 동적 상관을 얹는다.
         </p>
-        <ul>
-          <li><strong>전이금속·란타나이드 착물의 비공선 자기 상태</strong> (예: Dy<sub>3</sub>
-              삼각자기 클러스터, 다핵 SMM)</li>
-          <li><strong>결합이 끊어지는 도중의 분자</strong> (예: H<sub>2</sub> 해리, σ-결합 해리)</li>
-          <li><strong>단일항 디라디칼</strong>, 일부 들뜬 상태, 교차점 부근의 동역학</li>
-        </ul>
         <p>
-          이 영역에서는 슬레이터 행렬식 두 개 이상이 비슷한 가중치를 가져서, 여러 참조
-          상태(active space)를 명시적으로 한꺼번에 풀어 주는 <strong>CASSCF</strong>가 출발점이
-          된다. 그 위에 동적 상관(dynamic correlation)을 얹는 표준 처리가 <strong>NEVPT2</strong>다.
+          활성 공간 잡는 법, state-averaging, NEVPT2, 스핀-궤도 결합·SINGLE_ANISO, 금속·리간드 조각
+          병합까지는 전용 챕터로 옮겼다 → <a href="casscf.html"><strong>13. CASSCF · 다중참조</strong></a>.
         </p>
 
-        <h3>입력의 뼈대 — <code>%casscf</code> 블록</h3>
-
-        <pre data-lang="orca"><code><span class="cmt"># Dy(III) 4f9 단일 이온 — CASSCF(9,7) + NEVPT2 + SOC + 비등방성 추출</span>
-<span class="kw">!</span> <span class="kw2">CASSCF def2-SVP DKH2 RIJCOSX def2/J TightSCF</span>
-
-<span class="kw">%casscf</span>
-   <span class="kw2">nel</span>      <span class="num">9</span>                <span class="cmt"># 활성 전자 수 (Dy 4f9)</span>
-   <span class="kw2">norb</span>     <span class="num">7</span>                <span class="cmt"># 활성 궤도 수 (7개 4f 궤도)</span>
-   <span class="kw2">mult</span>     <span class="num">6, 4, 2</span>          <span class="cmt"># 6중항(S=5/2) · 4중항(S=3/2) · 2중항(S=1/2)</span>
-   <span class="kw2">nroots</span>   <span class="num">7, 35, 84</span>        <span class="cmt"># Russell-Saunders 항 수 (Weyl 공식)</span>
-   <span class="kw2">PTMethod</span> <span class="kw">sc_nevpt2</span>        <span class="cmt"># 동적 상관 보정</span>
-
-   <span class="kw">rel</span>
-      <span class="kw2">DoSOC</span>    <span class="kw">true</span>          <span class="cmt"># 2차 spin-orbit coupling (QDPT)</span>
-      <span class="kw2">SOCType</span>  <span class="num">2</span>             <span class="cmt"># SOMF 1X 연산자</span>
-   <span class="kw">end</span>
-
-   <span class="kw">SINGLE_ANISO</span> <span class="kw">true</span>        <span class="cmt"># Pseudospin Hamiltonian 자동 fit</span>
-<span class="kw">end</span>
-
-<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">3 6</span>                  <span class="cmt"># Dy3+ 단일 이온 (전하 +3, 다중도 6은 GS 항)</span>
-   Dy   0.000   0.000   0.000
-<span class="kw">*</span></code></pre>
-
-        <p>주요 키워드만 짧게 짚어 보자.</p>
-
-        <table>
-          <thead>
-            <tr><th>키워드</th><th>의미</th></tr>
-          </thead>
-          <tbody>
-            <tr><td><code>nel · norb</code></td><td>활성 공간(active space) 크기. CAS(n, m)에서 n과 m.</td></tr>
-            <tr><td><code>mult · nroots</code></td><td>각 다중도에서 풀 상태 수. Dy<sup>3+</sup>는 4f<sup>9</sup>이므로 ⁶H 17/2 바닥 항 외에 중·고에너지 항도 모두 포함해야 한다.</td></tr>
-            <tr><td><code>PTMethod sc_nevpt2</code></td><td>strongly-contracted NEVPT2. 활성 공간 밖의 동적 상관을 섭동론으로 보정.</td></tr>
-            <tr><td><code>DoSOC true</code></td><td>2차 spin-orbit coupling(QDPT)으로 SO-상태들을 얻음. 자기 특성에 필수.</td></tr>
-            <tr><td><code>SINGLE_ANISO true</code></td><td>SO-상태에서 자동으로 의사스핀(pseudospin) 1/2 Hamiltonian을 fit해 g-tensor와 에너지 갈라짐을 출력.</td></tr>
-            <tr><td><code>DKH2 / ZORA</code></td><td>스칼라 상대론. 무거운 원소에서 거의 필수.</td></tr>
-          </tbody>
-        </table>
-
-        <div class="tip">
-          <div class="note-title">활성 공간 선택이 가장 어려운 부분</div>
-          <p>
-            CASSCF 결과는 활성 공간을 어떻게 잡느냐에 결정적으로 좌우된다. 자기특성 계산이라면
-            “해당 금속의 d 또는 f 궤도 전부 + 중요한 ligand 궤도”라는 화학적 직관에서
-            출발한다. 너무 작으면 결과가 부정확하고, 너무 크면 비용이 폭발한다.
-            처음이라면 <strong>활성 전자·궤도를 조금씩 늘려 가며 결과가 수렴하는지</strong>
-            보는 게 정석이다.
-          </p>
-        </div>
-
-        <h3>출력에서 무엇을 보는가</h3>
-        <p>
-          위 입력을 돌리면 출력 거의 끝에 SINGLE_ANISO 결과가 표로 나온다.
-          보통 아래 정보를 먼저 확인한다.
-        </p>
-
-        <pre data-lang="output"><code>--------------------
-PSEUDOSPIN HAMILTONIAN
---------------------
-Pseudospin S = 1/2
-
-ENERGIES OF DOUBLET STATES (cm**-1):
-   doublet  1:      0.00
-   doublet  2:    156.21
-   doublet  3:    267.54
-   ...
-
-g-FACTORS OF THE LOWEST DOUBLET:
-   gx =   0.04
-   gy =   0.07
-   gz =  19.74     &lt;-- 큰 비등방성 → Ising-limit, 토로이드 가능성</code></pre>
-
-        <p>
-          <code>gz</code>가 아주 크고 <code>gx</code>, <code>gy</code>가 0에 가까우면
-          “Ising-limit 비등방성” 상태로, 단일분자 자석(SMM)을 판별하는 가장 중요한 1차 진단이다.
-          그 다음은 <strong>POLY_ANISO</strong>로 여러 금속 중심 사이의 교환 상호작용
-          파라미터 J를 fit해 다핵 거동을 모사하는 단계다 (매뉴얼 §9.27).
-        </p>
-
-        <div class="note">
-          <div class="note-title">CASSCF 다음 가지들 — NEVPT2, MRCI, DMRG</div>
-          <p>
-            동적 상관을 더 정밀하게 다루려면 <code>PTMethod fic_nevpt2</code>(fully internally
-            contracted)나 <code>! MRCI+Q</code>(다중참조 CI + Davidson 보정)로 넘어갈 수
-            있다. 활성 공간이 12 궤도를 넘으면 정통 CASSCF가 메모리 한계에 부딪히고,
-            그때부터는 ORCA 6의 <strong>DMRG-CASSCF</strong>(<code>%casscf actorbs DMRG</code>)
-            가 표준이다. 이 가이드는 입문용이라 여기까지만 다루지만, 키워드만 알아
-            둬도 매뉴얼 §9 와 §10 의 해당 절을 바로 펼쳐 볼 수 있다.
-          </p>
-        </div>
       </article>
 
       <nav class="page-nav">
