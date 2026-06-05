@@ -164,23 +164,25 @@
         </p>
 
         <pre data-lang="orca"><code><span class="cmt"># Auto-extrapolate DLPNO-CCSD(T) from cc-pVTZ and cc-pVQZ</span>
-<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) Extrapolate(3/4, cc) TightSCF</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) Extrapolate(3/4,cc) AutoAux TightSCF</span>
 
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
 
         <p>
-          Syntax: <code>Extrapolate(X/Y, basis)</code>. <code>X</code> and <code>Y</code> are
-          cardinal numbers (2 = DZ, 3 = TZ, 4 = QZ, 5 = 5Z); <code>basis</code> is the family
-          name — <code>cc</code> (Dunning), <code>def2</code>, <code>aug-cc</code>, etc.
+          Syntax: <code>Extrapolate(X/Y,basis)</code> — no space after the comma, or it fails to
+          parse. <code>X</code> and <code>Y</code> are cardinal numbers (2 = DZ, 3 = TZ, 4 = QZ,
+          5 = 5Z); <code>basis</code> is the family name — <code>cc</code> (Dunning),
+          <code>def2</code>, <code>aug-cc</code>, etc. With DLPNO you must also add
+          <code>AutoAux</code> (it builds the auxiliary basis on the fly).
         </p>
 
         <table>
           <thead><tr><th>Input</th><th>What ORCA actually does</th></tr></thead>
           <tbody>
-            <tr><td><code>Extrapolate(2/3, cc)</code></td><td>Two calculations (cc-pVDZ and cc-pVTZ), then extrapolate.</td></tr>
-            <tr><td><code>Extrapolate(3/4, cc)</code></td><td>cc-pVTZ + cc-pVQZ extrapolation. The most common choice.</td></tr>
-            <tr><td><code>Extrapolate(2/3, def2)</code></td><td>def2-SVP + def2-TZVPP.</td></tr>
-            <tr><td><code>Extrapolate(3, cc)</code></td><td>Three calculations (cc-pVDZ, cc-pVTZ, cc-pVQZ) + two pairwise extrapolations.</td></tr>
+            <tr><td><code>Extrapolate(2/3,cc)</code></td><td>Two calculations (cc-pVDZ and cc-pVTZ), then extrapolate.</td></tr>
+            <tr><td><code>Extrapolate(3/4,cc)</code></td><td>cc-pVTZ + cc-pVQZ extrapolation. The most common choice.</td></tr>
+            <tr><td><code>Extrapolate(2/3,def2)</code></td><td>def2-SVP + def2-TZVPP.</td></tr>
+            <tr><td><code>Extrapolate(3,cc)</code></td><td>Three calculations (cc-pVDZ, cc-pVTZ, cc-pVQZ) + two pairwise extrapolations.</td></tr>
           </tbody>
         </table>
 
@@ -192,7 +194,7 @@
         </p>
 
         <pre data-lang="orca"><code><span class="cmt"># EP2: small basis for CC, large basis for MP2 extrapolation</span>
-<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) ExtrapolateEP2(2/3, cc) TightSCF</span></code></pre>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) ExtrapolateEP2(2/3,cc) AutoAux TightSCF</span></code></pre>
 
         <h2 id="f12">F12 — fast approach to the basis-set limit</h2>
         <p>
@@ -245,27 +247,36 @@
           <li><strong>Final free energy</strong>: G<sub>final</sub> = E<sub>elec</sub><sup>CC</sup> + ΔG<sub>therm</sub><sup>DFT</sup> + ΔG<sub>solv</sub>.</li>
         </ol>
 
-        <p>An example input file for this flow:</p>
+        <p>Run this flow as <strong>three separate files</strong> (not one <code>$new_job</code> input — see the warning below):</p>
 
-        <pre data-lang="orca"><code><span class="cmt"># Step 1: geometry optimisation + frequencies (DFT)</span>
+        <pre data-lang="orca"><code><span class="cmt"># -- step1.inp -- DFT geometry + frequencies (D4 dispersion ON) -> step1.xyz</span>
 <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightOpt Freq</span>
-<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
 
-<span class="kw">$new_job</span>
+        <pre data-lang="orca"><code><span class="cmt"># -- step2.inp -- DLPNO-CCSD(T)/CBS single point (no dispersion: CC already has it)</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) Extrapolate(3/4,cc) AutoAux TightSCF</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> step1.xyz</code></pre>
 
-<span class="cmt"># Step 2: precision DLPNO-CCSD(T) single point (CBS extrapolation)</span>
-<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) Extrapolate(3/4, cc) TightSCF</span>
-<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span>
-
-<span class="kw">$new_job</span>
-
-<span class="cmt"># Step 3: solvation (SMD)</span>
+        <pre data-lang="orca"><code><span class="cmt"># -- step3.inp -- solvation (SMD), on the same optimized geometry</span>
 <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J CPCM(water) TightSCF</span>
 <span class="kw">%cpcm</span>
    <span class="kw2">SMD</span> <span class="kw">true</span>
    <span class="kw2">SMDSolvent</span> <span class="str">"water"</span>
 <span class="kw">end</span>
-<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span></code></pre>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> step1.xyz</code></pre>
+
+        <div class="warning">
+          <div class="note-title">Two places this composite dies (checked on ORCA 6.1.1)</div>
+          <p>
+            <strong>① Do not chain the three steps with <code>$new_job</code> in one input.</strong>
+            The D4 dispersion from the DFT optimisation carries into the CC step and triggers a
+            “dispersion + correlated method” error (CCSD(T) already includes dispersion, so ORCA
+            blocks it). Split the steps into files and keep D4 out of the CC step.<br />
+            <strong>② DLPNO + Extrapolate requires <code>AutoAux</code></strong> (otherwise an
+            “auxiliary basis needed” error), and <code>Extrapolate(3/4,cc)</code> must have
+            <strong>no space after the comma</strong> or it fails to parse.
+          </p>
+        </div>
 
         <p>
           When reporting reaction equilibria or free-energy barriers, this "DFT geometry +

@@ -159,22 +159,22 @@
         </p>
 
         <pre data-lang="orca"><code><span class="cmt"># cc-pVTZ와 cc-pVQZ로 CCSD(T) 단일점을 자동 외삽</span>
-<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) Extrapolate(3/4, cc) TightSCF</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) Extrapolate(3/4,cc) AutoAux TightSCF</span>
 
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
 
         <p>
-          <code>Extrapolate(X/Y, basis)</code> 형식이다. <code>X</code>, <code>Y</code>는 기저집합의 카디널 수(2 = DZ, 3 = TZ, 4 = QZ, 5 = 5Z)이고,
-          <code>basis</code>는 <code>cc</code>(Dunning), <code>def2</code>, <code>aug-cc</code> 같은 기저집합 패밀리다.
+          <code>Extrapolate(X/Y,basis)</code> 형식이다(콤마 뒤에 공백을 넣으면 파싱 오류로 죽는다). <code>X</code>, <code>Y</code>는 기저집합의 카디널 수(2 = DZ, 3 = TZ, 4 = QZ, 5 = 5Z)이고,
+          <code>basis</code>는 <code>cc</code>(Dunning), <code>def2</code>, <code>aug-cc</code> 같은 기저집합 패밀리다. DLPNO와 함께 쓸 때는 <code>AutoAux</code>(보조 기저집합 자동 생성)를 반드시 붙여야 한다.
         </p>
 
         <table>
           <thead><tr><th>입력</th><th>실제 수행 작업</th></tr></thead>
           <tbody>
-            <tr><td><code>Extrapolate(2/3, cc)</code></td><td>cc-pVDZ와 cc-pVTZ의 두 계산을 자동 외삽.</td></tr>
-            <tr><td><code>Extrapolate(3/4, cc)</code></td><td>cc-pVTZ와 cc-pVQZ로 외삽. 가장 일반적.</td></tr>
-            <tr><td><code>Extrapolate(2/3, def2)</code></td><td>def2-SVP와 def2-TZVPP로 외삽.</td></tr>
-            <tr><td><code>Extrapolate(3, cc)</code></td><td>cc-pVDZ, cc-pVTZ, cc-pVQZ의 세 계산 + 두 쌍의 외삽.</td></tr>
+            <tr><td><code>Extrapolate(2/3,cc)</code></td><td>cc-pVDZ와 cc-pVTZ의 두 계산을 자동 외삽.</td></tr>
+            <tr><td><code>Extrapolate(3/4,cc)</code></td><td>cc-pVTZ와 cc-pVQZ로 외삽. 가장 일반적.</td></tr>
+            <tr><td><code>Extrapolate(2/3,def2)</code></td><td>def2-SVP와 def2-TZVPP로 외삽.</td></tr>
+            <tr><td><code>Extrapolate(3,cc)</code></td><td>cc-pVDZ, cc-pVTZ, cc-pVQZ의 세 계산 + 두 쌍의 외삽.</td></tr>
           </tbody>
         </table>
 
@@ -185,7 +185,7 @@
         </p>
 
         <pre data-lang="orca"><code><span class="cmt"># EP2: 작은 기저집합에서 CC, 큰 기저집합에서 MP2 외삽</span>
-<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) ExtrapolateEP2(2/3, cc) TightSCF</span></code></pre>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) ExtrapolateEP2(2/3,cc) AutoAux TightSCF</span></code></pre>
 
         <h2 id="f12">F12 — 기저집합 한계에 빠르게 접근</h2>
         <p>
@@ -237,27 +237,34 @@
           <li><strong>최종 자유에너지</strong>: G<sub>final</sub> = E<sub>elec</sub><sup>CC</sup> + ΔG<sub>therm</sub><sup>DFT</sup> + ΔG<sub>solv</sub>.</li>
         </ol>
 
-        <p>이 흐름을 입력으로 쓰면 이렇다.</p>
+        <p>이 흐름은 입력 파일 <strong>세 개로 나눠</strong> 돌린다(한 입력의 <code>$new_job</code>으로 묶으면 안 되는 이유는 코드 아래 경고에).</p>
 
-        <pre data-lang="orca"><code><span class="cmt"># Step 1: 구조 최적화 + 진동수 (DFT)</span>
+        <pre data-lang="orca"><code><span class="cmt"># ── step1.inp ── DFT 최적화 + 진동수 (D4 분산 켬) → step1.xyz 생성</span>
 <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightOpt Freq</span>
-<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
 
-<span class="kw">$new_job</span>
+        <pre data-lang="orca"><code><span class="cmt"># ── step2.inp ── DLPNO-CCSD(T)/CBS 정밀 단일점 (분산 빼기 — CC가 이미 포함)</span>
+<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) Extrapolate(3/4,cc) AutoAux TightSCF</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> step1.xyz</code></pre>
 
-<span class="cmt"># Step 2: DLPNO-CCSD(T) 정밀 단일점 (CBS 외삽)</span>
-<span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) Extrapolate(3/4, cc) TightSCF</span>
-<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span>
-
-<span class="kw">$new_job</span>
-
-<span class="cmt"># Step 3: 용매 효과 (SMD)</span>
+        <pre data-lang="orca"><code><span class="cmt"># ── step3.inp ── 용매 보정 (SMD), 같은 최적화 구조에서</span>
 <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J CPCM(water) TightSCF</span>
 <span class="kw">%cpcm</span>
    <span class="kw2">SMD</span> <span class="kw">true</span>
    <span class="kw2">SMDSolvent</span> <span class="str">"water"</span>
 <span class="kw">end</span>
-<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span></code></pre>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> step1.xyz</code></pre>
+
+        <div class="warning">
+          <div class="note-title">컴포지트에서 자주 죽는 두 지점 (ORCA 6.1.1 실측)</div>
+          <p>
+            <strong>① 세 단계를 한 입력의 <code>$new_job</code>으로 묶지 말 것.</strong>
+            DFT 최적화의 D4 분산 설정이 CC 단계로 넘어가 “dispersion + correlated method” 오류로 죽는다
+            (CCSD(T)는 분산을 이미 포함해 ORCA가 막는다). 그래서 파일을 나누고 CC 단계엔 D4를 넣지 않는다.<br />
+            <strong>② DLPNO + Extrapolate에는 <code>AutoAux</code>가 필수</strong>이고(없으면 “보조 기저집합 필요” 오류),
+            <code>Extrapolate(3/4,cc)</code>는 콤마 뒤 <strong>공백이 있으면 파싱 실패</strong>한다.
+          </p>
+        </div>
 
         <p>
           반응 평형이나 자유에너지 장벽을 보고할 때 쓰는 “DFT 최적화 + CCSD(T) 정밀점 + SMD 용매” 조합은
