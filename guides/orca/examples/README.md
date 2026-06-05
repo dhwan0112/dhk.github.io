@@ -12,7 +12,7 @@
 | `03-dlpno-ccsdt/` | water, DLPNO-CCSD(T)/cc-pVTZ | −76.331959 Eh |
 | `04-solvation-smd/` | water, SMD(water) 단일점 | −76.332972 Eh |
 | `05-casscf-h2/` | H₂ CASSCF(2,2), 늘어난 결합 (다중참조) | E(CAS) −1.056125 Eh, N(occ) 1.81/0.19 |
-| `06-fragment-merge/` | [Mn(H₂O)]²⁺ 금속·리간드 조각 병합 → CASSCF(5,5) | N(occ) 1.00×5 (Mn 3d⁵), E(CAS) −1225.0207 Eh |
+| `06-fragment-merge/` | [Mn(H₂O)]²⁺ 금속·리간드 조각 병합 → CASSCF(5,5) | 병합이 Mn 3d⁵를 활성공간에 배치(N(occ) 1.00×5); 수렴 에너지 −1225.0207 Eh는 기본 guess 기준 |
 
 `05-casscf-h2/`의 `dissociation_{rhf,cas}.dat`은 H–H 거리 0.4–3.0 Å를 RHF·CASSCF로 훑은 실제 곡선 데이터다(`assets/img/h2-dissociation.png`의 출처). RHF는 해리에서 −0.826 Eh로 발산, CASSCF는 −1.0 Eh로 정상 — 단일참조가 깨지는 고전적 사례.
 
