@@ -11,6 +11,9 @@
 | `02-opt-freq/` | water, 최적화+진동수+열화학 | Gibbs −76.422869 Eh, 허수진동수 0 |
 | `03-dlpno-ccsdt/` | water, DLPNO-CCSD(T)/cc-pVTZ | −76.331959 Eh |
 | `04-solvation-smd/` | water, SMD(water) 단일점 | −76.332972 Eh |
+| `05-casscf-h2/` | H₂ CASSCF(2,2), 늘어난 결합 (다중참조) | E(CAS) −1.056125 Eh, N(occ) 1.81/0.19 |
+
+`05-casscf-h2/`의 `dissociation_{rhf,cas}.dat`은 H–H 거리 0.4–3.0 Å를 RHF·CASSCF로 훑은 실제 곡선 데이터다(`assets/img/h2-dissociation.png`의 출처). RHF는 해리에서 −0.826 Eh로 발산, CASSCF는 −1.0 Eh로 정상 — 단일참조가 깨지는 고전적 사례.
 
 ## 템플릿 — 바로 고쳐 쓰는 스켈레톤 (전부 ORCA 6.1.1에서 실행 검증)
 
