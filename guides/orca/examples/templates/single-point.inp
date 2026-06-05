@@ -1,0 +1,10 @@
+# ============================================================
+#  Single-point energy (+ dispersion, RIJCOSX acceleration)
+#  Good default for a quick energy on a fixed geometry.
+#  Verified runnable on ORCA 6.1.1.
+# ============================================================
+! B3LYP D4 def2-TZVP RIJCOSX def2/J TightSCF
+
+%maxcore 3000
+
+* xyzfile 0 1 mol.xyz   # charge, multiplicity, geometry file
