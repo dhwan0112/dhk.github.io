@@ -1,0 +1,17 @@
+# ============================================================
+#  Implicit solvation (SMD) single point
+#  For a solvation free energy: run this and a gas-phase job
+#  at the same level, then dG_solv = G(soln) - G(gas).
+#  Change SMDSolvent: water / methanol / acetonitrile / dmso / ...
+#  Verified runnable on ORCA 6.1.1.
+# ============================================================
+! B3LYP D4 def2-TZVP RIJCOSX def2/J CPCM(water) TightSCF
+
+%cpcm
+   SMD        true
+   SMDSolvent "water"
+end
+
+%maxcore 3000
+
+* xyzfile 0 1 mol.xyz

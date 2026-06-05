@@ -1,0 +1,15 @@
+# ============================================================
+#  Composite free energy  --  STEP 2 of 2
+#  DLPNO-CCSD(T)/CBS accurate electronic energy on the
+#  geometry optimized in step 1. No dispersion here: CCSD(T)
+#  already describes it.
+#  Verified runnable on ORCA 6.1.1.
+#
+#  Reads step1.xyz (rename to your step-1 .xyz output).
+#  Report  G = E_elec(this job) + dG_therm(step 1)
+# ============================================================
+! DLPNO-CCSD(T) Extrapolate(3/4,cc) AutoAux TightSCF
+
+%maxcore 3000
+
+* xyzfile 0 1 step1.xyz

@@ -1,0 +1,18 @@
+# ============================================================
+#  Composite free energy  --  STEP 1 of 2
+#  DFT geometry + Gibbs thermal correction (dispersion ON).
+#  Produces <basename>.xyz with the optimized geometry, which
+#  step 2 reads. Run this first.
+#  Verified runnable on ORCA 6.1.1.
+#
+#  Why two files (not one $new_job input):
+#  a D4 dispersion flag carries across $new_job into the
+#  coupled-cluster step, and ORCA forbids dispersion + CCSD(T)
+#  together (CC already contains dispersion). Splitting the
+#  jobs keeps the CC step clean.
+# ============================================================
+! B3LYP D4 def2-TZVP RIJCOSX def2/J TightOpt Freq
+
+%maxcore 3000
+
+* xyzfile 0 1 mol.xyz
