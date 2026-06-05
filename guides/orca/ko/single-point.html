@@ -206,7 +206,7 @@ ITER       Energy         Delta-E        Max-DP      RMS-DP
   0    -76.3987452578   0.000000000000  0.04123455  0.00234567
   1    -76.4128931256  -0.014147867    0.01234567  0.00112345
   ...
-  8    -76.4197732345  -0.000000012    0.00000012  0.00000003
+  8    -76.4259743074  -0.000000012    0.00000012  0.00000003
 
          *****************************************************
          *                     SUCCESS                       *
@@ -221,16 +221,16 @@ ITER       Energy         Delta-E        Max-DP      RMS-DP
         <pre data-lang="output"><code>----------------
 TOTAL SCF ENERGY
 ----------------
-Total Energy       :       -76.41977323 Eh        -2079.49852 eV
+Total Energy       :       -76.42597431 Eh        -2079.65649 eV
 
 Components:
-Nuclear Repulsion  :         9.16871523 Eh           249.49276 eV
-Electronic Energy  :       -85.58848846 Eh         -2328.99128 eV
-One Electron Energy:      -123.07512345 Eh         -3349.06713 eV
-Two Electron Energy:        37.48663499 Eh          1020.07585 eV
+Nuclear Repulsion  :         9.08829372 Eh           247.30504 eV
+Electronic Energy  :       -85.51429074 Eh         -2326.96215 eV
+One Electron Energy:      -122.91588773 Eh         -3344.71135 eV
+Two Electron Energy:        37.40159699 Eh          1017.74920 eV
 ...
 
-FINAL SINGLE POINT ENERGY       -76.419773234567</code></pre>
+FINAL SINGLE POINT ENERGY       -76.426286364763</code></pre>
 
         <p>
           <code>FINAL SINGLE POINT ENERGY</code> 줄의 값이 최종 에너지(Hartree)다.
@@ -242,13 +242,13 @@ FINAL SINGLE POINT ENERGY       -76.419773234567</code></pre>
 ORBITAL ENERGIES
 ----------------
   NO   OCC          E(Eh)           E(eV)
-   0   2.0000     -19.131245      -520.5879
-   1   2.0000      -1.001234       -27.2451
-   2   2.0000      -0.512345       -13.9416
-   3   2.0000      -0.345678        -9.4067
-   4   2.0000      -0.267890        -7.2898    <- HOMO
-   5   0.0000      -0.012345        -0.3359    <- LUMO
-   6   0.0000       0.123456         3.3601
+   0   2.0000     -19.125255      -520.4246
+   1   2.0000      -1.009023       -27.4569
+   2   2.0000      -0.527546       -14.3553
+   3   2.0000      -0.388987       -10.5849
+   4   2.0000      -0.312749        -8.5103    <- HOMO
+   5   0.0000       0.015311         0.4166    <- LUMO
+   6   0.0000       0.090386         2.4595
    ...</code></pre>
         <p>
           HOMO와 LUMO만 봐도 분자의 산화·환원 경향이나 광학적 특성을 1차로 어림할 수 있다.
@@ -259,13 +259,13 @@ ORBITAL ENERGIES
 DIPOLE MOMENT
 -------------
                                 X          Y          Z
-Electronic contribution:   0.00000    0.00000   -0.74021
-Nuclear contribution   :   0.00000    0.00000    1.61234
+Electronic contribution:   0.00000    0.00000    0.17251
+Nuclear contribution   :   0.00000    0.00000   -0.99269
                           -----------------------------------------
-Total Dipole Moment    :   0.00000    0.00000    0.87213
+Total Dipole Moment    :   0.00000    0.00000   -0.82018
                           -----------------------------------------
-Magnitude (a.u.)       :   0.87213
-Magnitude (Debye)      :   2.21649</code></pre>
+Magnitude (a.u.)       :   0.82018
+Magnitude (Debye)      :   2.08473</code></pre>
 
         <h2 id="scf-workflow">SCF 수렴 후 후속 작업</h2>
         <p>

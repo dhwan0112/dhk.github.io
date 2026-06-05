@@ -74,6 +74,7 @@
         <div class="toc">
           <div class="toc-title">이 페이지에서 다룹니다</div>
           <ul>
+            <li><a href="#mistakes">흔한 입력 실수</a></li>
             <li><a href="#scf-troubles">SCF가 수렴하지 않을 때</a></li>
             <li><a href="#opt-troubles">최적화가 발산할 때</a></li>
             <li><a href="#freq-troubles">진동수에 작은 음수가 섞일 때</a></li>
@@ -84,6 +85,28 @@
             <li><a href="#general">매뉴얼이 강조하는 일반 원칙</a></li>
           </ul>
         </div>
+
+        <h2 id="mistakes">흔한 입력 실수</h2>
+        <p>
+          처음 ORCA를 쓰며 가장 자주 깨지는 지점들을 모았다. 대부분 입력 한 줄 차이다.
+          <strong>★</strong> 표시는 이 가이드를 만들며 ORCA 6.1.1로 직접 돌려 보다 실제로 부딪힌 것이다.
+        </p>
+        <table>
+          <thead><tr><th>실수</th><th>증상 · 고치는 법</th></tr></thead>
+          <tbody>
+            <tr><td>출력을 리디렉션 안 함</td><td><code>orca a.inp</code>만 치면 결과가 화면을 스쳐 사라진다. 항상 <code>orca a.inp &gt; a.out</code>.</td></tr>
+            <tr><td>최적화 안 한 구조에서 진동수</td><td>그래디언트가 0이 아닌 점에서 <code>Freq</code>를 돌리면 허수 진동수가 엉뚱하게 뜬다. 같은 레벨로 먼저 <code>Opt</code>.</td></tr>
+            <tr><td>종마다 다른 기저집합</td><td>반응 에너지를 비교하는데 종마다 기저집합이 다르면 오차가 상쇄되지 않는다. 모든 종을 같은 기저집합으로.</td></tr>
+            <tr><td>DFT에 분산 보정 빠짐</td><td>B3LYP 같은 표준 DFT는 분산력을 못 잡는다. 거의 항상 <code>D4</code>를 같이 켠다.</td></tr>
+            <tr><td>다중도 오입력</td><td><code>* xyz 0 1</code>의 둘째 수가 다중도(2S+1)다. 홀수 전자인데 1을 쓰면 SCF가 깨진다. 라디칼이면 <code>UKS</code>도 함께.</td></tr>
+            <tr><td>RIJCOSX인데 보조 기저집합 없음</td><td><code>RIJCOSX</code>에는 <code>def2/J</code>가 짝이다. 빠뜨리면 느려지거나 오류가 난다.</td></tr>
+            <tr><td>정상 종료를 성공으로 착각</td><td><code>TERMINATED NORMALLY</code>는 “끝까지 돌았다”일 뿐이다. 수렴 · 허수진동수 · ⟨S²⟩를 직접 확인한다.</td></tr>
+            <tr><td><strong>★</strong> DLPNO + Extrapolate에 AutoAux 누락</td><td><code>! DLPNO-CCSD(T) Extrapolate(3/4,cc)</code>만 쓰면 “보조 기저집합 필요”로 죽는다. <code>AutoAux</code>를 붙인다.</td></tr>
+            <tr><td><strong>★</strong> Extrapolate 콤마 뒤 공백</td><td><code>Extrapolate(3/4, cc)</code>(공백)는 파싱 실패. <code>Extrapolate(3/4,cc)</code>로 붙여 쓴다.</td></tr>
+            <tr><td><strong>★</strong> DFT(D4) → CCSD(T)를 한 <code>$new_job</code>에</td><td>D4 분산이 CC 단계로 넘어가 “dispersion + correlated method” 오류로 죽는다. CC는 입력 파일을 분리하고 D4를 뺀다.</td></tr>
+            <tr><td>CCSD(T)에 분산 보정 추가</td><td>CCSD(T)는 분산을 내재한다. D4를 또 넣으면 이중 계산이다. CC 단계엔 분산 보정 없이.</td></tr>
+          </tbody>
+        </table>
 
         <h2 id="scf-troubles">SCF가 수렴하지 않을 때</h2>
         <p>

@@ -75,6 +75,7 @@
         <div class="toc">
           <div class="toc-title">On this page</div>
           <ul>
+            <li><a href="#mistakes">Common input mistakes</a></li>
             <li><a href="#scf-troubles">When the SCF refuses to converge</a></li>
             <li><a href="#opt-troubles">When the optimisation diverges</a></li>
             <li><a href="#freq-troubles">Small negative frequencies</a></li>
@@ -85,6 +86,28 @@
             <li><a href="#general">General principles the manual emphasises</a></li>
           </ul>
         </div>
+
+        <h2 id="mistakes">Common input mistakes</h2>
+        <p>
+          The things that trip people up most when starting out — usually a one-line difference.
+          <strong>★</strong> marks the ones actually hit while building this guide on ORCA 6.1.1.
+        </p>
+        <table>
+          <thead><tr><th>Mistake</th><th>Symptom · fix</th></tr></thead>
+          <tbody>
+            <tr><td>Not redirecting the output</td><td><code>orca a.inp</code> alone scrolls the result past and loses it. Always <code>orca a.inp &gt; a.out</code>.</td></tr>
+            <tr><td>Frequencies on a non-optimised geometry</td><td><code>Freq</code> at a non-stationary point gives spurious imaginary modes. Run <code>Opt</code> first, at the same level.</td></tr>
+            <tr><td>A different basis per species</td><td>Comparing reaction energies with a different basis per species breaks error cancellation. Use the same basis for all of them.</td></tr>
+            <tr><td>No dispersion correction with DFT</td><td>Standard DFT (B3LYP, …) misses dispersion. Add <code>D4</code> almost every time.</td></tr>
+            <tr><td>Wrong multiplicity</td><td>The second number in <code>* xyz 0 1</code> is the multiplicity (2S+1). An odd-electron system with 1 breaks the SCF; add <code>UKS</code> for radicals.</td></tr>
+            <tr><td>RIJCOSX without an auxiliary basis</td><td><code>RIJCOSX</code> pairs with <code>def2/J</code>. Omit it and you get a slowdown or an error.</td></tr>
+            <tr><td>Mistaking normal termination for success</td><td><code>TERMINATED NORMALLY</code> only means "ran to the end". Check convergence, imaginary frequencies, and ⟨S²⟩ yourself.</td></tr>
+            <tr><td><strong>★</strong> DLPNO + Extrapolate without AutoAux</td><td><code>! DLPNO-CCSD(T) Extrapolate(3/4,cc)</code> alone dies with "auxiliary basis needed". Add <code>AutoAux</code>.</td></tr>
+            <tr><td><strong>★</strong> A space after the comma in Extrapolate</td><td><code>Extrapolate(3/4, cc)</code> (with a space) fails to parse. Write <code>Extrapolate(3/4,cc)</code>.</td></tr>
+            <tr><td><strong>★</strong> DFT(D4) → CCSD(T) in one <code>$new_job</code></td><td>D4 dispersion carries into the CC step and dies with "dispersion + correlated method". Split the CC into its own file and drop D4.</td></tr>
+            <tr><td>Adding dispersion to CCSD(T)</td><td>CCSD(T) already contains dispersion; adding D4 double-counts it. Run the CC step without a dispersion correction.</td></tr>
+          </tbody>
+        </table>
 
         <h2 id="scf-troubles">When the SCF refuses to converge</h2>
         <p>
