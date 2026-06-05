@@ -1,0 +1,9 @@
+# Fragment B — ligand: H2O, closed shell.
+# Computed as UHF so its HFTyp matches the UHF metal fragment
+# (orca_mergefrag requires HFTyp(A) == HFTyp(B)).
+! UHF def2-SVP
+* xyz 0 1
+  O   2.10  0.0  0.0
+  H   2.65  0.76 0.0
+  H   2.65 -0.76 0.0
+*

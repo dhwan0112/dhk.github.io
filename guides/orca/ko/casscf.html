@@ -58,6 +58,7 @@
       <div class="nav-section-title">실전 운영</div>
       <ul class="nav-list">
         <li><a href="tips.html"><span class="nav-num">14</span>팁 · 트러블슈팅</a></li>
+        <li><a href="examples.html"><span class="nav-num">15</span>예제 모음</a></li>
       </ul>
     </div>
   </nav>
@@ -262,27 +263,91 @@ Final CASSCF energy       : -1.056125382 Eh</code></pre>
         <h2 id="fragment">큰 계의 요령 — 금속·리간드 조각 병합</h2>
         <p>
           큰 전이금속 착물을 통째로 CASSCF에 넣으면 SCF가 잘 수렴하지 않고 활성 공간 고르기도 어렵다.
-          실전에서 자주 쓰는 전략이 <strong>조각(fragment) 분리 후 병합</strong>이다.
+          이때 쓰는 전략이 <strong>조각(fragment) 분리 후 병합</strong>이다. 금속 중심과 리간드 껍질을
+          따로 계산해 각자의 분자 궤도를 먼저 얻고, 두 조각의 궤도를 합쳐 전체 계의 초기 추정(guess)으로
+          넣는다. 그러면 금속 d/f 궤도가 깨끗하게 분리된 상태에서 활성 공간을 잡을 수 있다.
         </p>
-        <ul>
-          <li><strong>금속 중심과 ligand 껍질을 따로</strong> 계산해 각자의 분자 궤도를 먼저 얻는다.
-              두 조각의 궤도를 합쳐 전체 계의 <strong>초기 추정(guess)</strong>으로 쓰면, 활성 궤도(금속 d/f)가
-              깨끗하게 분리된 상태에서 CASSCF를 시작할 수 있다.</li>
-          <li><strong>대칭 등가인 금속 자리를 닫힌 껍질로 치환</strong>한다. 예컨대 Dy<sub>3</sub> 삼각 클러스터에서
-              세 Dy 중 둘을 닫힌 껍질 Lu(III)로 바꾸면 <em>C</em><sub>3</sub> 대칭을 활용해 한 자리만 명시적으로
-              다룰 수 있다.</li>
-        </ul>
+        <p>
+          ORCA에는 이 병합을 전담하는 유틸리티 <code>orca_mergefrag</code>가 들어 있다. 인자 없이
+          실행하면 사용법을 직접 알려 준다.
+        </p>
+        <pre data-lang="text"><code>orca_mergefrag FragmentA.gbw FragmentB.gbw Supermolecule.gbw</code></pre>
+
+        <h3>절차 — 고스핀 [Mn(H<sub>2</sub>O)]<sup>2+</sup></h3>
+        <p>
+          Mn<sup>2+</sup>는 d<sup>5</sup> 고스핀(육중항)이라 다섯 d 궤도가 모두 홑전자로 차는, 조각 병합의
+          교과서적 사례다. 금속 자리와 물 분자를 각각 조각으로 계산한다.
+        </p>
+
+        <p><strong>① 금속 조각</strong> <code>fragMn.inp</code></p>
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">UHF def2-SVP</span>
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">2 6</span>
+  Mn  0.0  0.0  0.0
+<span class="kw">*</span></code></pre>
+
+        <p><strong>② 리간드 조각</strong> <code>fragH2O.inp</code> — 초분자에서의 제 위치 그대로, 같은 기저로</p>
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">UHF def2-SVP</span>      <span class="cmt"># 금속을 UHF로 풀면 리간드도 UHF로 (HFTyp 일치)</span>
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
+  O   2.10  0.0  0.0
+  H   2.65  0.76 0.0
+  H   2.65 -0.76 0.0
+<span class="kw">*</span></code></pre>
+
+        <p><strong>③ 병합</strong> — 각 조각을 돌려 <code>.gbw</code>를 얻은 뒤</p>
+        <pre data-lang="text"><code>orca_mergefrag fragMn.gbw fragH2O.gbw superMn.gbw</code></pre>
+        <p>병합 출력(실제 실행)에서 원자 수·기저 차원·전자 수가 모두 더해 맞는지 확인한다.</p>
+        <pre data-lang="output"><code>NAtoms(A)    =  1   NAtoms(B)    =  3   NAtoms(C)    =  4
+Dimension(A) = 31   Dimension(B) = 24   Dimension(C) = 55     <- 31+24=55
+NEl(A)       = 23   NEl(B)       = 10   NEl(C)       = 33     <- 23+10=33
+Merging orbitals   ... done
+Merging geometries ... done
+Merging basis sets ... done</code></pre>
+
+        <p><strong>④ 초분자가 병합 guess를 읽어 CASSCF</strong> — 조각 A(Mn)를 좌표 맨 앞에 둔다</p>
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">CASSCF def2-SVP MOREAD</span>
+<span class="kw">%moinp</span> <span class="str">"superMn.gbw"</span>
+<span class="kw">%casscf</span>
+   <span class="kw2">nel</span>  <span class="num">5</span>
+   <span class="kw2">norb</span> <span class="num">5</span>
+   <span class="kw2">mult</span> <span class="num">6</span>
+<span class="kw">end</span>
+<span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">2 6</span>
+  Mn  0.0  0.0  0.0
+  O   2.10  0.0  0.0
+  H   2.65  0.76 0.0
+  H   2.65 -0.76 0.0
+<span class="kw">*</span></code></pre>
+        <p>
+          병합 guess는 다섯 Mn 3d 궤도를 그대로 활성 공간에 넣어 준다. 실제로 UHF 단계에서
+          <em>⟨S²⟩ = 8.751</em>(육중항 이론값 8.75, 스핀오염 없음), CASSCF 자연 점유수
+          <em>N(occ) = 1.00 × 5</em>로 d<sup>5</sup>가 깔끔히 들어온 것을 확인했다.
+        </p>
 
         <div class="note">
-          <div class="note-title">병합 절차의 정확한 키워드는 확인 후 쓸 것</div>
-          <p>
-            위는 <em>전략</em>이다. ORCA에서 조각 궤도를 실제로 합치는 정확한 절차(별도 유틸리티를 쓸지,
-            <code>%moinp</code>로 조각 <code>.gbw</code>를 읽어 guess로 넣을지)는 버전·셋업에 따라 다르므로,
-            <strong>매뉴얼의 fragment/guess-orbital 절과 공식 포럼을 확인하고 쓰기를 권한다</strong>
-            (이 부분은 실행 검증을 하지 않았다). 개념 — “조각을 따로 풀어 좋은 활성 궤도를 만든 뒤 전체로 합친다” —
-            만큼은 어느 경로로 하든 동일하다.
-          </p>
+          <div class="note-title">실측에서 걸린 것들 (직접 실행해 확인)</div>
+          <ul>
+            <li><strong>두 조각의 HF 타입이 같아야 한다.</strong> 금속을 UHF로 풀면 닫힌 껍질 리간드도
+                UHF로 풀어야 병합된다. 안 그러면 <code>HFTyp(A) must be HFTyp(B)</code> 오류로 멈춘다.</li>
+            <li><strong>조각 A 원자를 초분자 좌표 맨 앞에.</strong> 병합이 A→B 순으로 궤도·좌표·기저를
+                이어 붙이므로, 초분자 좌표도 조각 A 원자들을 먼저, 조각 B를 뒤에 같은 순서로 둔다.</li>
+            <li><strong>같은 기저·같은 위치.</strong> 두 조각 모두 초분자와 동일한 기저집합으로,
+                초분자에서의 제 위치에 두고 계산한다.</li>
+            <li><strong>병합 guess가 항상 더 낫지는 않다.</strong> raw 병합 궤도는 에너지 정렬이 안 돼 있어
+                궤도 회전이 발산할 수 있다. 도구가 안내하는 대로 병합 guess로 SCF를 한 번 돌려 궤도를
+                정렬한 뒤 CASSCF에 넘기고, 그래도 흔들리면 <code>SuperCI_PT</code> 같은 강건한 궤도
+                최적화기를 쓴다. 단순한 계라면 ORCA 기본 guess가 이미 옳은 d-점유로 수렴하므로
+                (이 예제도 기본 guess로는 <code>N(occ)=1.0×5</code>, <code>E=−1225.0207 Eh</code>에 바로 수렴)
+                병합이 불필요할 수 있다. <strong>병합이 실제로 도움이 되는지는 N(occ)와 에너지를 기본
+                guess와 비교해 확인한다.</strong> 진가를 내는 곳은 기본 guess가 엉뚱한 d-점유나 잘못된
+                스핀 상태로 빠지는, 크고 비대칭인 착물이다.</li>
+          </ul>
         </div>
+
+        <p>
+          대칭 등가인 금속 자리를 닫힌 껍질로 치환하는 것도 함께 쓰는 요령이다. Dy<sub>3</sub> 삼각
+          클러스터에서 세 Dy 중 둘을 닫힌 껍질 Lu(III)로 바꾸면 <em>C</em><sub>3</sub> 대칭을 활용해
+          한 자리만 명시적으로 다룰 수 있다.
+        </p>
 
         <h2 id="limits">한계와 다음 — DMRG</h2>
         <p>
