@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>예제 모음 · ORCA 사용자 가이드</title>
+  <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="examples.html" class="active">KO</a>
+    <a href="../en/examples.html">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">ORCA</div>
+    <div class="brand-subtitle">사용자 가이드 · v6.0</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="keywords.html"><span class="nav-num">03</span>키워드 모음</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">자주 쓰는 계산</div>
+      <ul class="nav-list">
+        <li><a href="single-point.html"><span class="nav-num">04</span>단일점 에너지</a></li>
+        <li><a href="geometry-optimization.html"><span class="nav-num">05</span>구조 최적화</a></li>
+        <li><a href="frequencies.html"><span class="nav-num">06</span>진동수 계산</a></li>
+        <li><a href="transition-states.html"><span class="nav-num">07</span>전이 상태 · NEB</a></li>
+        <li><a href="excited-states.html"><span class="nav-num">08</span>들뜬 상태 · TD-DFT</a></li>
+        <li><a href="solvation.html"><span class="nav-num">09</span>용매 효과</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">방법론 선택</div>
+      <ul class="nav-list">
+        <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>기저집합</a></li>
+        <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT 함수 선택</a></li>
+        <li><a href="casscf.html"><span class="nav-num">13</span>CASSCF · 다중참조</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">실전 운영</div>
+      <ul class="nav-list">
+        <li><a href="tips.html"><span class="nav-num">14</span>팁 · 트러블슈팅</a></li>
+        <li><a href="examples.html"><span class="nav-num">15</span>예제 모음</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 15 · 실전 운영</div>
+        <h1 class="page-title">예제 모음</h1>
+        <p class="page-lede">
+          입력과 실제 출력을 한곳에. 아래 <code>.out</code>은 전부 ORCA 6.1.1로 실제 실행한 결과이며,
+          입력을 그대로 받아 자기 분자에 맞게 고쳐 쓰면 된다.
+        </p>
+      </header>
+
+      <article class="content">
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <ul>
+            <li><a href="#worked">예제 — 입력 + 실제 출력</a></li>
+            <li><a href="#fragment">조각 병합 예제</a></li>
+            <li><a href="#templates">템플릿 — 바로 고쳐 쓰는 스켈레톤</a></li>
+          </ul>
+        </div>
+
+        <div class="note">
+          <div class="note-title">전부 실제 실행 결과</div>
+          <p>
+            아래 출력은 illustrative가 아니라 ORCA 6.1.1에서 직접 돌린 것이다.
+            실행은 <code>orca water.inp &gt; water.out</code> 한 줄이면 된다. 파일을 클릭하면
+            텍스트로 열리거나 내려받아진다.
+          </p>
+        </div>
+
+        <h2 id="worked">예제 — 입력 + 실제 출력</h2>
+        <table>
+          <thead>
+            <tr><th>계산</th><th>핵심 결과</th><th>파일</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>단일점 에너지</strong><br />water · B3LYP/def2-SVP</td>
+              <td>FINAL SPE −76.321274 Eh</td>
+              <td><a href="../examples/01-single-point/water.inp">입력</a> · <a href="../examples/01-single-point/water.out">출력</a></td>
+            </tr>
+            <tr>
+              <td><strong>최적화 + 진동수</strong><br />water · 열화학까지</td>
+              <td>Gibbs −76.422869 Eh · 허수진동수 0</td>
+              <td><a href="../examples/02-opt-freq/water.inp">입력</a> · <a href="../examples/02-opt-freq/water.out">출력</a></td>
+            </tr>
+            <tr>
+              <td><strong>DLPNO-CCSD(T)</strong><br />water · cc-pVTZ</td>
+              <td>−76.331959 Eh</td>
+              <td><a href="../examples/03-dlpno-ccsdt/water.inp">입력</a> · <a href="../examples/03-dlpno-ccsdt/water.out">출력</a></td>
+            </tr>
+            <tr>
+              <td><strong>용매 효과</strong><br />water · SMD(water) 단일점</td>
+              <td>−76.332972 Eh</td>
+              <td><a href="../examples/04-solvation-smd/water.inp">입력</a> · <a href="../examples/04-solvation-smd/water.out">출력</a></td>
+            </tr>
+            <tr>
+              <td><strong>CASSCF(2,2)</strong><br />H<sub>2</sub> · 늘어난 결합 (다중참조)</td>
+              <td>E(CAS) −1.056125 Eh · N(occ) 1.81/0.19</td>
+              <td><a href="../examples/05-casscf-h2/h2_casscf.inp">입력</a> · <a href="../examples/05-casscf-h2/h2_casscf.out">출력</a></td>
+            </tr>
+            <tr>
+              <td><strong>조각 병합 → CASSCF(5,5)</strong><br />[Mn(H<sub>2</sub>O)]<sup>2+</sup> · 고스핀 d<sup>5</sup></td>
+              <td>N(occ) 1.00×5 · E(CAS) −1225.0207 Eh</td>
+              <td><a href="../examples/06-fragment-merge/">폴더</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <code>05-casscf-h2/</code>의 <code>dissociation_{rhf,cas}.dat</code>은 H–H 거리 0.4–3.0 Å를
+          RHF·CASSCF로 훑은 실제 곡선이다 (<a href="../assets/img/h2-dissociation.png">h2-dissociation.png</a>의 출처).
+          RHF는 해리에서 발산, CASSCF는 정상 — 단일참조가 깨지는 고전적 사례다.
+        </p>
+
+        <h2 id="fragment">조각 병합 예제 — <code>06-fragment-merge/</code></h2>
+        <p>
+          금속과 리간드를 따로 풀어 <code>orca_mergefrag</code>로 궤도를 합치는 절차를 실제로 돌린 것이다.
+          자세한 설명과 함정은 <a href="casscf.html#fragment">13장 CASSCF의 “조각 병합” 절</a>에 있다.
+        </p>
+        <table>
+          <thead><tr><th>파일</th><th>역할</th></tr></thead>
+          <tbody>
+            <tr><td><a href="../examples/06-fragment-merge/fragMn.inp">fragMn.inp</a></td><td>금속 조각 — Mn<sup>2+</sup> 고스핀(육중항)</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/fragH2O.inp">fragH2O.inp</a></td><td>리간드 조각 — H<sub>2</sub>O (HFTyp 일치 위해 UHF)</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/mergefrag.log">mergefrag.log</a></td><td>실제 병합 출력 — Dim 31+24=55, NEl 23+10=33</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/super-cas-merged.inp">super-cas-merged.inp</a></td><td>병합 guess를 읽는 CASSCF(5,5)</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/cas-default.inp">cas-default.inp</a></td><td>비교용 — 기본 guess CASSCF</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/cas-default.out">cas-default.out</a></td><td>수렴 결과 — E −1225.0207 Eh, N(occ) 1.0×5</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="templates">템플릿 — 바로 고쳐 쓰는 스켈레톤</h2>
+        <p>전부 ORCA 6.1.1에서 실행 검증했다. <code>mol.xyz</code>를 자기 분자 좌표로 바꿔 쓰면 된다.</p>
+        <table>
+          <thead><tr><th>파일</th><th>용도</th></tr></thead>
+          <tbody>
+            <tr><td><a href="../examples/templates/single-point.inp">single-point.inp</a></td><td>단일점 에너지</td></tr>
+            <tr><td><a href="../examples/templates/opt-freq.inp">opt-freq.inp</a></td><td>최적화 + 진동수 + 열화학</td></tr>
+            <tr><td><a href="../examples/templates/solvation-smd.inp">solvation-smd.inp</a></td><td>SMD 용매 단일점</td></tr>
+            <tr><td><a href="../examples/templates/dlpno-composite-step1.inp">dlpno-composite-step1.inp</a></td><td>DFT 최적화+진동수(D4) → <code>step1.xyz</code> 생성</td></tr>
+            <tr><td><a href="../examples/templates/dlpno-composite-step2.inp">dlpno-composite-step2.inp</a></td><td>DLPNO-CCSD(T)/CBS 정밀 단일점 (<code>AutoAux</code>, step1.xyz 읽기)</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <div class="note-title">검증 중 발견한 함정 두 가지 (템플릿에 반영됨)</div>
+          <ul>
+            <li><code>DLPNO-CCSD(T) Extrapolate(...)</code>는 <strong><code>AutoAux</code>가 없으면</strong> “보조 기저집합 필요” 오류로 죽는다.</li>
+            <li>DFT 최적화(D4)와 CCSD(T)를 한 입력의 <code>$new_job</code>으로 묶으면 <strong>D4가 CC 단계로 넘어가</strong> “분산 + CC 동시 금지” 오류가 난다 → 단계를 <strong>별도 파일로 분리</strong>한다.</li>
+          </ul>
+        </div>
+
+        <footer class="site-footer">
+          <p>
+            ORCA 한국어 사용자 가이드 · ORCA Manual 6.0.0 기반 · 비공식 정리물이다.
+          </p>
+        </footer>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="tips.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">팁 · 트러블슈팅</div>
+        </a>
+        <a class="next" href="index.html">
+          <div class="page-nav-label">처음으로 ↑</div>
+          <div class="page-nav-title">개요</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
