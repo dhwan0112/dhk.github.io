@@ -113,6 +113,17 @@
 </ul>
 <p>z 축 비주기 경계는 표면 흡착 시뮬레이션의 표준 설정이다.
 이는 슬랩 위에 진공 영역을 두어 두 분자가 표면으로 유입/탈리하는 과정을 자연스럽게 관찰하기 위함이다.</p>
+<figure>
+  <img src="assets/images/cu-cell.svg" alt="Cu 표면 흡착 시뮬레이션 셀의 슬랩 기하 모식도" style="width:100%;max-width:860px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
+  <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
+    그림 1. 시뮬레이션 셀의 단면(x–z) 모식도. z 하단에 Cu 슬랩(고정),
+    그 위 진공-액체 영역에 벤젠(π)·에탄올(−OH)이 배치되고, z 상단에는
+    분자 이탈을 막는 <code>wall/lj93</code> 벽이 있다. x·y는 주기 경계(p),
+    z는 비주기 경계(f)다. 그림은 시스템 구성 모식도이며, 실제 Cu(100) 슬랩의
+    원자 배열은 아래 그림 2에서 확인할 수 있다.
+  </figcaption>
+</figure>
+
 <h3 id="cu">Cu 슬랩의 결정학적 면</h3>
 <p>데이터 파일에서 Cu 원자는 (0, 0, 0), (0, 0, 3.615), (0, 0, 7.230), …
 와 같이 3.615 Å 간격으로 배치되어 있다. 이는 fcc Cu의 격자 상수
@@ -143,6 +154,19 @@
 </tbody>
 </table>
 <p>표면 에너지 값은 Vitos 외 (1998), <em>Surf. Sci.</em> 411, 186 에서 발췌하였다.</p>
+<figure>
+  <img src="assets/images/cu-slab.png" alt="실제로 실행한 Cu(100) 슬랩의 측면도와 z 방향 원자 밀도 프로파일" style="width:100%;max-width:880px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
+  <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
+    그림 2. 위 슬랩 기하를 실제로 구성해 돌린 결과(LAMMPS 22 Jul 2025, EAM Mishin 2001,
+    fcc <em>a</em> = 3.615 Å, 1664 원자, NVT 열냉수 설정 300 K, 하단 한 층 고정). 왼쪽은 측면도(x–z 투영)로
+    하단의 이산적인 Cu 원자층과 그 위의 진공 영역이 그대로 보인다.
+    오른쪽 z-밀도 프로파일에서 각 봉우리는 (100) 원자 한 층(층 간격 ≈ 1.81 Å)에 해당하며,
+    진공 영역에서는 밀도가 0으로 떨어진다 — <code>boundary p p f</code>의 슬랩+진공 구조를
+    수치로 확인할 수 있다. 본 그림은 금속 슬랩 단독 실행이며, 본문의 생성 동역학은
+    이 슬랩 위에 유기 분자를 올리고 Cu는 고정한다.
+  </figcaption>
+</figure>
+
 <h2 id="13">1.3 표면 흡착의 분자동역학적 측면</h2>
 <p>본 시스템에서 다루는 흡착은 다음 세 가지 기여로 분해할 수 있다.</p>
 <ol>
