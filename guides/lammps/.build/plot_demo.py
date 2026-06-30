@@ -3,7 +3,7 @@
   2. lj-rdf.png         — radial distribution function g(r)
   3. lj-msd.png         — mean squared displacement vs time + linear fit (self-diffusion)
 
-All data was captured from an actual run of in.demo (LAMMPS 29 Aug 2024,
+All data was captured from an actual run of in.demo (LAMMPS 22 Jul 2025,
 serial, in a conda-forge env on WSL Ubuntu 24.04). The matplotlib styling
 mirrors the existing lj-thermo.png to keep the visual language consistent."""
 

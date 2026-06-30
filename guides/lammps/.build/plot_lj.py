@@ -1,6 +1,6 @@
 """Plot the LJ-fluid thermo trace from chapter 01 — temperature equilibration
 and total-energy conservation under NVE. Data captured from an actual run of
-the guide's in.lj script (LAMMPS 29 Aug 2024, conda-forge serial)."""
+the guide's in.lj script (LAMMPS 22 Jul 2025, conda-forge serial)."""
 
 from __future__ import annotations
 from pathlib import Path
@@ -46,7 +46,7 @@ ax2.legend(loc="center right", frameon=False, fontsize=9)
 
 ax2.set_ylim(-7.0, -4.2)
 
-fig.suptitle("LJ fluid, NVE 250 steps  (lattice fcc 0.8442, 4000 atoms, LAMMPS 29 Aug 2024)",
+fig.suptitle("LJ fluid, NVE 250 steps  (lattice fcc 0.8442, 4000 atoms, LAMMPS 22 Jul 2025)",
              fontsize=12, y=1.02, color="#1a202c")
 fig.tight_layout()
 
