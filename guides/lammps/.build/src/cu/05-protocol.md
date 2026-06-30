@@ -26,6 +26,16 @@ nav_order: 6
 | 4. 평형화 | NVT | 300 K | 없음 | 열역학 평형 분포 확보 |
 | 5. 생성 동역학 | NVT | 300 K | 없음 | 통계 수집 |
 
+<figure>
+  <img src="assets/images/cu-protocol.svg" alt="5단계 시뮬레이션 프로토콜의 온도 일정 타임라인" style="width:100%;max-width:880px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
+  <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
+    그림 1. 다섯 단계의 온도 일정. 1~2단계는 0 K 부근에서 중첩 해소와 최소화를 거치고,
+    3단계에서 0.1 → 10 → 100 → 200 → 300 K로 단계적으로 가열한 뒤, 4~5단계는 300 K
+    등온에서 평형화와 통계 수집을 수행한다. 각 박스의 아래에 통합기/열냉수와 대표 지속
+    시간을 표기했다. 가로축 시간 폭은 비례 축척이 아니다.
+  </figcaption>
+</figure>
+
 ## 5.1 Stage 1: 소프트 완화 (Soft potential relaxation)
 
 ### 화학적 정당화
