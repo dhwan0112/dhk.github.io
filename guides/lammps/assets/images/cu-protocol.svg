@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 430" font-family="'IBM Plex Sans', sans-serif">
-  <defs>
-    <marker id="ap" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L0,6 L8,3 z" fill="#4a5568"/>
-    </marker>
-  </defs>
   <rect width="880" height="430" fill="#ffffff"/>
 
   <!-- Title -->
@@ -26,57 +21,56 @@
     <line x1="700" y1="78" x2="700" y2="212"/>
   </g>
 
-  <!-- Temperature trace -->
+  <!-- Temperature trace (single muted accent) -->
   <polyline points="72,210 208,210 212,212 328,212 330,210 387,205.7 445,166.7 502,123.3 560,80 822,80"
-            fill="none" stroke="#c05621" stroke-width="2.4"/>
-  <!-- heating sub-step dots -->
-  <g fill="#c05621">
+            fill="none" stroke="#b06a3c" stroke-width="2.4"/>
+  <g fill="#b06a3c">
     <circle cx="387" cy="205.7" r="2.6"/><circle cx="445" cy="166.7" r="2.6"/>
     <circle cx="502" cy="123.3" r="2.6"/><circle cx="560" cy="80" r="2.6"/>
   </g>
-  <text x="455" y="150" text-anchor="middle" font-size="9.5" fill="#c05621" font-style="italic">0.1→10→100→200→300 K</text>
-  <text x="690" y="74" text-anchor="middle" font-size="9.5" fill="#2f855a">300 K 등온 유지</text>
+  <text x="455" y="150" text-anchor="middle" font-size="9.5" fill="#b06a3c" font-style="italic">0.1→10→100→200→300 K</text>
+  <text x="690" y="74" text-anchor="middle" font-size="9.5" fill="#718096">300 K 등온 유지</text>
 
-  <!-- Stage boxes -->
+  <!-- Stage boxes (uniform neutral) -->
   <!-- S1 -->
-  <rect x="72"  y="236" width="136" height="66" rx="8" fill="#ebf8ff" stroke="#2b6cb0" stroke-width="1.8"/>
-  <text x="140" y="256" text-anchor="middle" font-size="10" font-weight="700" fill="#2b6cb0">STAGE 1</text>
+  <rect x="72"  y="236" width="136" height="66" rx="8" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1.4"/>
+  <text x="140" y="256" text-anchor="middle" font-size="10" font-weight="700" fill="#3b6ea5">STAGE 1</text>
   <text x="140" y="275" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a202c">소프트 완화</text>
-  <text x="140" y="292" text-anchor="middle" font-size="10" fill="#4a5568">원자 중첩 해소</text>
-  <text x="140" y="318" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#2b6cb0">nve/limit</text>
-  <text x="140" y="332" text-anchor="middle" font-size="9.5" fill="#718096">~50 ps</text>
+  <text x="140" y="292" text-anchor="middle" font-size="10" fill="#718096">원자 중첩 해소</text>
+  <text x="140" y="318" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#4a5568">nve/limit</text>
+  <text x="140" y="332" text-anchor="middle" font-size="9.5" fill="#a0aec0">~50 ps</text>
 
   <!-- S2 -->
-  <rect x="212" y="236" width="114" height="66" rx="8" fill="#faf5ff" stroke="#805ad5" stroke-width="1.8"/>
-  <text x="269" y="256" text-anchor="middle" font-size="10" font-weight="700" fill="#805ad5">STAGE 2</text>
+  <rect x="212" y="236" width="114" height="66" rx="8" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1.4"/>
+  <text x="269" y="256" text-anchor="middle" font-size="10" font-weight="700" fill="#3b6ea5">STAGE 2</text>
   <text x="269" y="275" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a202c">에너지 최소화</text>
-  <text x="269" y="292" text-anchor="middle" font-size="10" fill="#4a5568">0 K 국소 최소점</text>
-  <text x="269" y="318" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#805ad5">minimize cg</text>
-  <text x="269" y="332" text-anchor="middle" font-size="9.5" fill="#718096">~10⁴ iter</text>
+  <text x="269" y="292" text-anchor="middle" font-size="10" fill="#718096">0 K 국소 최소점</text>
+  <text x="269" y="318" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#4a5568">minimize cg</text>
+  <text x="269" y="332" text-anchor="middle" font-size="9.5" fill="#a0aec0">~10⁴ iter</text>
 
   <!-- S3 -->
-  <rect x="330" y="236" width="228" height="66" rx="8" fill="#fffaf0" stroke="#c05621" stroke-width="1.8"/>
-  <text x="444" y="256" text-anchor="middle" font-size="10" font-weight="700" fill="#c05621">STAGE 3</text>
+  <rect x="330" y="236" width="228" height="66" rx="8" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1.4"/>
+  <text x="444" y="256" text-anchor="middle" font-size="10" font-weight="700" fill="#3b6ea5">STAGE 3</text>
   <text x="444" y="275" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a202c">단계적 가열  0.1 → 300 K</text>
-  <text x="444" y="292" text-anchor="middle" font-size="10" fill="#4a5568">운동 에너지 점진 주입 · 구조 붕괴 방지</text>
-  <text x="444" y="318" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#c05621">nvt / langevin</text>
-  <text x="444" y="332" text-anchor="middle" font-size="9.5" fill="#718096">~350 ps (4 부단계)</text>
+  <text x="444" y="292" text-anchor="middle" font-size="10" fill="#718096">운동 에너지 점진 주입 · 구조 붕괴 방지</text>
+  <text x="444" y="318" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#4a5568">nvt / langevin</text>
+  <text x="444" y="332" text-anchor="middle" font-size="9.5" fill="#a0aec0">~350 ps (4 부단계)</text>
 
   <!-- S4 -->
-  <rect x="562" y="236" width="136" height="66" rx="8" fill="#f0fff4" stroke="#2f855a" stroke-width="1.8"/>
-  <text x="630" y="256" text-anchor="middle" font-size="10" font-weight="700" fill="#2f855a">STAGE 4</text>
+  <rect x="562" y="236" width="136" height="66" rx="8" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1.4"/>
+  <text x="630" y="256" text-anchor="middle" font-size="10" font-weight="700" fill="#3b6ea5">STAGE 4</text>
   <text x="630" y="275" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a202c">평형화</text>
-  <text x="630" y="292" text-anchor="middle" font-size="10" fill="#4a5568">평형 분포 확보</text>
-  <text x="630" y="318" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#2f855a">nvt (Nosé–Hoover)</text>
-  <text x="630" y="332" text-anchor="middle" font-size="9.5" fill="#718096">2 – 7.5 ns</text>
+  <text x="630" y="292" text-anchor="middle" font-size="10" fill="#718096">평형 분포 확보</text>
+  <text x="630" y="318" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#4a5568">nvt (Nosé–Hoover)</text>
+  <text x="630" y="332" text-anchor="middle" font-size="9.5" fill="#a0aec0">2 – 7.5 ns</text>
 
   <!-- S5 -->
-  <rect x="702" y="236" width="118" height="66" rx="8" fill="#fff5f5" stroke="#9b2c2c" stroke-width="1.8"/>
-  <text x="761" y="256" text-anchor="middle" font-size="10" font-weight="700" fill="#9b2c2c">STAGE 5</text>
+  <rect x="702" y="236" width="118" height="66" rx="8" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1.4"/>
+  <text x="761" y="256" text-anchor="middle" font-size="10" font-weight="700" fill="#3b6ea5">STAGE 5</text>
   <text x="761" y="275" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a202c">생성 동역학</text>
-  <text x="761" y="292" text-anchor="middle" font-size="10" fill="#4a5568">통계 수집</text>
-  <text x="761" y="318" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#9b2c2c">nvt + 분석</text>
-  <text x="761" y="332" text-anchor="middle" font-size="9.5" fill="#718096">5 – 20 ns</text>
+  <text x="761" y="292" text-anchor="middle" font-size="10" fill="#718096">통계 수집</text>
+  <text x="761" y="318" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#4a5568">nvt + 분석</text>
+  <text x="761" y="332" text-anchor="middle" font-size="9.5" fill="#a0aec0">5 – 20 ns</text>
 
   <!-- footnote -->
   <line x1="70" y1="356" x2="822" y2="356" stroke="#e2e8f0" stroke-width="1"/>
