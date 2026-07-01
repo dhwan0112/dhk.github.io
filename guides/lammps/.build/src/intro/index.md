@@ -85,6 +85,34 @@ LAMMPS(Large-scale Atomic/Molecular Massively Parallel Simulator)는
   </a>
 </div>
 
+### 예제 따라 하기
+
+각 예제는 목적 → 입력 스크립트 → 실행 → 출력·그림 순으로 자체완결 페이지에
+정리돼 있습니다.
+
+<div class="cards">
+  <a class="card" href="ex-01-lj-basic.html">
+    <div class="card-num">예제 · E1</div>
+    <div class="card-title">LJ 액체 (NVE)</div>
+    <div class="card-desc">외부 파일 없이 4000개 LJ 입자를 NVE로 돌리는 첫 실행.</div>
+  </a>
+  <a class="card" href="ex-02-lj-demo.html">
+    <div class="card-num">예제 · E2</div>
+    <div class="card-title">LJ 5단계 + RDF·MSD</div>
+    <div class="card-desc">최소화 → NVT → NPT → 생성과 g(r)·MSD 분석까지.</div>
+  </a>
+  <a class="card" href="ex-03-cu-slab.html">
+    <div class="card-num">예제 · E3</div>
+    <div class="card-title">Cu(100) 슬랩</div>
+    <div class="card-desc">EAM으로 슬랩+진공을 만들고 z 밀도 프로파일을 측정.</div>
+  </a>
+  <a class="card" href="ex-04-cu-adsorption.html">
+    <div class="card-num">예제 · E4</div>
+    <div class="card-title">Cu 벤젠-에탄올 흡착</div>
+    <div class="card-desc">응용 프로토콜의 입력 구성과 5단계 실행 흐름(참고).</div>
+  </a>
+</div>
+
 ### 응용 예제: Cu 표면 흡착
 
 본 입문 가이드를 끝낸 다음, 실제 연구 문제에 LAMMPS를 어떻게 적용했는지

@@ -179,6 +179,15 @@ LAMMPS 성능 진단의 출발점입니다. 코어 수나 시스템 크기를 �
   </figcaption>
 </figure>
 
+<div class="tip">
+  <div class="note-title">전체 예제로 보기</div>
+  <p>
+    이 <code>in.lj</code> 예제의 전체 입력·실행·출력은
+    <a href="ex-01-lj-basic.html">예제 E1 — LJ 액체 (NVE) 첫 실행</a> 에
+    한자리에 정리돼 있습니다.
+  </p>
+</div>
+
 ## 1.5 다음 단계
 
 이번 장에서는 LAMMPS 실행 방법과 가장 단순한 입력 스크립트의 형태만

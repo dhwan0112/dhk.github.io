@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LJ 5단계 + RDF·MSD · LAMMPS 가이드</title>
+  <meta name="description" content="LJ 액체를 최소화 → NVT → NPT → 생성으로 돌리고 RDF·MSD를 측정하는 완전한 워크플로." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../" class="sidebar-back">← Donghwan KIM</a>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">LAMMPS</div>
+    <div class="brand-subtitle">한국어 입문 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 스크립트 구조</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시뮬레이션 만들기</div>
+      <ul class="nav-list">
+        <li><a href="03-units-atomstyle.html"><span class="nav-num">03</span>단위계와 atom_style</a></li>
+        <li><a href="04-system.html"><span class="nav-num">04</span>시스템 정의</a></li>
+        <li><a href="05-forcefield.html"><span class="nav-num">05</span>상호작용 모델</a></li>
+        <li><a href="06-fix-run.html"><span class="nav-num">06</span>셋업과 실행</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 결과와 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-output.html"><span class="nav-num">07</span>출력과 분석</a></li>
+        <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">예제 · 따라 하기</div>
+      <ul class="nav-list">
+        <li><a href="ex-01-lj-basic.html"><span class="nav-num">E1</span>LJ 액체 (NVE)</a></li>
+        <li><a href="ex-02-lj-demo.html" class="active" aria-current="page"><span class="nav-num">E2</span>LJ 5단계 + RDF·MSD</a></li>
+        <li><a href="ex-03-cu-slab.html"><span class="nav-num">E3</span>Cu(100) 슬랩</a></li>
+        <li><a href="ex-04-cu-adsorption.html"><span class="nav-num">E4</span>Cu 벤젠-에탄올 흡착</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">응용 · Cu 표면 흡착</div>
+      <ul class="nav-list">
+        <li><a href="cu-overview.html"><span class="nav-num">A0</span>개요</a></li>
+        <li><a href="cu-01-system.html"><span class="nav-num">A1</span>시스템 개요</a></li>
+        <li><a href="cu-02-data-files.html"><span class="nav-num">A2</span>데이터 파일</a></li>
+        <li><a href="cu-03-force-fields.html"><span class="nav-num">A3</span>힘장 비교</a></li>
+        <li><a href="cu-04-electrostatics.html"><span class="nav-num">A4</span>정전기 방법</a></li>
+        <li><a href="cu-05-protocol.html"><span class="nav-num">A5</span>5단계 프로토콜</a></li>
+        <li><a href="cu-06-frameworks.html"><span class="nav-num">A6</span>4가지 프레임워크</a></li>
+        <li><a href="cu-07-analysis.html"><span class="nav-num">A7</span>분석 방법</a></li>
+        <li><a href="cu-08-troubleshooting.html"><span class="nav-num">A8</span>응용 트러블슈팅</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">예제 · E2</div>
+        <h1 class="page-title">LJ 5단계 + RDF·MSD</h1>
+        <p class="page-lede">LJ 액체를 최소화 → NVT → NPT → 생성으로 돌리고 RDF·MSD를 측정하는 완전한 워크플로.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#_1">무엇을 하는 예제인가</a></li>
+<li><a href="#indemo">전체 입력 스크립트 — in.demo</a></li>
+<li><a href="#_2">실행</a></li>
+<li><a href="#1">결과 ① — 생성 단계 안정성</a></li>
+<li><a href="#2-gr">결과 ② — 동경 분포 함수 g(r)</a></li>
+<li><a href="#3-msd">결과 ③ — MSD 와 자기확산계수</a></li>
+<li><a href="#_3">요점</a></li>
+<li><a href="#_4">관련 개념 챕터</a></li>
+</ul>
+</div>
+<hr />
+<h2 id="_1">무엇을 하는 예제인가</h2>
+<p><a href="ex-01-lj-basic.html">E1</a> 의 LJ 계를 실제 연구에 쓰는 형태로 확장합니다.
+에너지 최소화로 시작해 NVT로 데우고 NPT로 압력까지 평형화한 뒤, 생성(production)
+단계에서 동경 분포 함수 <code>g(r)</code> 와 평균 제곱 변위(MSD)를 측정합니다. 한 입력
+파일 안에 <code>minimize → fix nvt → fix npt → compute/fix ave</code> 의 표준 흐름이 모두
+들어 있어, 대부분의 입문 예제가 그대로 따르는 골격을 보여 줍니다.</p>
+<p>관련 개념은 <a href="06-fix-run.html">06 셋업과 실행</a> 과 <a href="07-output.html">07 출력과 분석</a>
+에서 다룹니다.</p>
+<h2 id="indemo">전체 입력 스크립트 — <code>in.demo</code></h2>
+<pre><code class="language-lammps"># LJ liquid: minimize -&gt; NVT (T=1.0) -&gt; NPT (T=1.0, P=0.5) -&gt; production + rdf + msd
+units           lj
+atom_style      atomic
+lattice         fcc 0.8442
+region          box block 0 8 0 8 0 8
+create_box      1 box
+create_atoms    1 box
+mass            1 1.0
+
+pair_style      lj/cut 2.5
+pair_coeff      1 1 1.0 1.0 2.5
+
+velocity        all create 1.0 12345 mom yes rot yes dist gaussian
+neighbor        0.3 bin
+neigh_modify    every 20 delay 0 check no
+
+thermo_style    custom step temp press pe ke etotal density
+thermo          200
+
+# 1단계: 에너지 최소화
+min_style       cg
+minimize        1.0e-4 1.0e-6 1000 10000
+
+# 2단계: NVT 가열/평형
+fix             1 all nvt temp 1.0 1.0 0.5
+run             2000
+unfix           1
+
+# 3단계: NPT 압력 평형 (T = 1.0, P = 0.5)
+fix             2 all npt temp 1.0 1.0 0.5 iso 0.5 0.5 5.0
+run             3000
+
+# 4단계: 생성 + 측정 (RDF, MSD)
+reset_timestep  0
+compute         rdf1 all rdf 100
+fix             rdfavg all ave/time 10 100 1000 c_rdf1[*] file rdf.dat mode vector
+
+compute         msd1 all msd
+fix             msdavg all ave/time 1 1 100 c_msd1[1] c_msd1[2] c_msd1[3] c_msd1[4] file msd.dat
+
+thermo          100
+run             5000
+</code></pre>
+<p>8 × 8 × 8 격자로 원자 2048개입니다. <code>compute rdf</code> 와 <code>compute msd</code> 의 결과를
+<code>fix ave/time</code> 으로 시간 평균해 각각 <code>rdf.dat</code>, <code>msd.dat</code> 로 저장합니다.</p>
+<h2 id="_2">실행</h2>
+<pre><code class="language-bash">lmp -in in.demo &gt; out.demo
+</code></pre>
+<p>LAMMPS 22 Jul 2025 직렬 빌드에서 전체가 약 7초 만에 끝납니다. 끝나면 <code>out.demo</code>
+와 함께 <code>rdf.dat</code>, <code>msd.dat</code> 가 생깁니다.</p>
+<h2 id="1">결과 ① — 생성 단계 안정성</h2>
+<p>생성 단계의 thermo를 보면 온도는 setpoint 1.0 부근에서 ±0.04, 압력은 setpoint
+0.5 부근에서 ±0.2 정도로 진동하며 평형을 유지하고, 밀도는 0.69–0.70 부근으로
+NPT 평형에 도달합니다.</p>
+<figure>
+  <img src="assets/images/lj-production.png" alt="LJ 액체 NPT production 단계의 온도·압력·밀도 추이" style="width:100%;max-width:980px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
+  <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
+    NPT production 5000 step. 좌: 온도 setpoint 1.0 근방 정착(thermostat).
+    중: 압력 setpoint 0.5 근방 수렴(barostat). 우: 밀도 0.69–0.70 평형.
+  </figcaption>
+</figure>
+
+<h2 id="2-gr">결과 ② — 동경 분포 함수 <code>g(r)</code></h2>
+<p><code>rdf.dat</code> 를 그리면 액체 특유의 진동 구조가 나옵니다. 첫 피크가 r ≈ 1.09 σ 에서
+g(r) ≈ 2.41, 두 번째 봉우리가 ~ 2.1 σ 부근에 보입니다.</p>
+<figure>
+  <img src="assets/images/lj-rdf.png" alt="LJ 액체의 동경 분포 함수 g(r) 과 누적 배위수 N(r)" style="width:100%;max-width:760px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
+  <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
+    파란 선이 g(r), 주황 점선이 누적 배위수 N(r). 가까운 배위수가 약 12–14 임을 보여 줍니다.
+  </figcaption>
+</figure>
+
+<h2 id="3-msd">결과 ③ — MSD 와 자기확산계수</h2>
+<p>MSD가 시간에 선형으로 증가하는 정상 확산이 관찰되고, Einstein 관계
+⟨Δr²(t)⟩ = 6 D t 에서 직선 fit 의 기울기로 자기확산계수를 얻습니다. 5000-step
+데이터의 fit 결과는 D ≈ 0.117 (LJ 단위)입니다.</p>
+<figure>
+  <img src="assets/images/lj-msd.png" alt="LJ 액체의 평균 제곱 변위 (MSD) 와 선형 fit" style="width:100%;max-width:760px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
+  <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
+    녹색이 3차원 총 MSD, x/y/z 성분이 거의 겹쳐 등방 확산. 검은 점선은 후반 75 %
+    선형 fit 으로 D ≈ 0.117.
+  </figcaption>
+</figure>
+
+<h2 id="_3">요점</h2>
+<ul>
+<li><code>minimize → nvt → npt</code> 순서는 작은 LJ부터 큰 분자계까지 그대로 통하는 표준 셋업입니다.</li>
+<li><code>compute</code> 는 값을 "정의"만 하고, <code>fix ave/time</code> 으로 "꺼내" 파일에 저장합니다.</li>
+<li><code>g(r)</code> 는 구조를, MSD 기울기는 동역학(확산)을 정량화합니다.</li>
+<li>같은 입력을 다시 돌리면 <code>rdf.dat</code>·<code>msd.dat</code> 는 시드가 고정돼 동일하게 재현됩니다.</li>
+</ul>
+<h2 id="_4">관련 개념 챕터</h2>
+<ul>
+<li><a href="06-fix-run.html">06 셋업과 실행</a> — <code>fix nvt/npt</code>, <code>minimize</code>, <code>run</code></li>
+<li><a href="07-output.html">07 출력과 분석</a> — <code>compute</code>, <code>fix ave/*</code>, 후처리</li>
+<li><a href="05-forcefield.html">05 상호작용 모델</a> — <code>pair_style lj/cut</code></li>
+</ul>
+<p>바로 앞 예제는 <a href="ex-01-lj-basic.html">E1 — LJ 액체 첫 실행</a>, 다음은
+<a href="ex-03-cu-slab.html">E3 — Cu(100) 슬랩</a> 입니다.</p>
+      </article>
+<nav class="page-nav"><a class="prev" href="ex-01-lj-basic.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">LJ 액체 (NVE)</div></a><a class="next" href="ex-03-cu-slab.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">Cu(100) 슬랩</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
