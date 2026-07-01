@@ -57,6 +57,15 @@
       </ul>
     </div>
     <div class="nav-section">
+      <div class="nav-section-title">예제 · 따라 하기</div>
+      <ul class="nav-list">
+        <li><a href="ex-01-lj-basic.html"><span class="nav-num">E1</span>LJ 액체 (NVE)</a></li>
+        <li><a href="ex-02-lj-demo.html"><span class="nav-num">E2</span>LJ 5단계 + RDF·MSD</a></li>
+        <li><a href="ex-03-cu-slab.html"><span class="nav-num">E3</span>Cu(100) 슬랩</a></li>
+        <li><a href="ex-04-cu-adsorption.html"><span class="nav-num">E4</span>Cu 벤젠-에탄올 흡착</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
       <div class="nav-section-title">응용 · Cu 표면 흡착</div>
       <ul class="nav-list">
         <li><a href="cu-overview.html"><span class="nav-num">A0</span>개요</a></li>
@@ -84,8 +93,8 @@
 <li><a href="#71-lammps">7.1 LAMMPS가 내보내는 다섯 갈래 결과</a></li>
 <li><a href="#72-thermo-log">7.2 thermo — 화면과 log에 찍히는 열역학</a></li>
 <li><a href="#73-dump">7.3 dump — 좌표·속도 트라젝토리</a></li>
-<li><a href="#74-compute">7.4 compute — 시뮬레이션 중 계산</a><ul>
-<li><a href="#1-gr">실제 결과 ① — g(r) (동경 분포 함수)</a></li>
+<li><a href="#74-compute">7.4 compute — 시뮬레이션 중 계산</a></li>
+<li><a href="#1-gr">실제 결과 ① — g(r) (동경 분포 함수)</a><ul>
 <li><a href="#2-msd">실제 결과 ② — MSD 와 자기확산계수</a></li>
 </ul>
 </li>
@@ -300,7 +309,14 @@ compute         myMSD all msd
 <p>compute의 결과는 그 자체로는 어디에도 저장되지 않습니다.
 <code>thermo_style custom ... c_myT</code> 또는 다음에 나오는 <code>fix ave/time</code> 으로
 "꺼내야" 비로소 값을 볼 수 있습니다.</p>
-<h3 id="1-gr">실제 결과 ① — g(r) (동경 분포 함수)</h3>
+<h1 id="_1"><div class="tip"></h1>
+<div class="note-title">전체 예제로 보기</div>
+<p>
+    아래 g(r)·MSD는 <a href="ex-02-lj-demo.html">예제 E2 — LJ 5단계</a> 의
+    생성 단계에서 나온 출력입니다. 전체 입력과 실행 절차는 그 페이지에서 볼 수 있습니다.
+  </p>
+</div>
+<h2 id="1-gr">실제 결과 ① — g(r) (동경 분포 함수)</h2>
 <p>위 chapter 6 에서 돌린 LJ NPT production 5000 step 에 다음 두 줄을 더해
 RDF 를 함께 계산했습니다.</p>
 <pre><code class="language-lammps">compute         rdf1 all rdf 100              # 100 bin 까지의 g(r)

@@ -36,6 +36,15 @@ nav_order: 6
   </figcaption>
 </figure>
 
+<div class="tip">
+  <div class="note-title">입력 구성으로 보기</div>
+  <p>
+    이 5단계의 모듈식 입력 구성과 실행 흐름을 한자리에 모은 것이
+    <a href="ex-04-cu-adsorption.html">예제 E4 — Cu 벤젠-에탄올 흡착</a> 이다
+    (데이터 파일 부재로 그대로는 실행되지 않는다는 점도 그 페이지에 명시했다).
+  </p>
+</div>
+
 ## 5.1 Stage 1: 소프트 완화 (Soft potential relaxation)
 
 ### 화학적 정당화

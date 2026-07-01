@@ -43,6 +43,15 @@ PAGES = [
         "thermo, dump, compute, fix ave/*, restart 그리고 OVITO/VMD 등 후처리 도구."),
     ("08-troubleshooting.html",   "intro/08-troubleshooting.md", "CHAPTER 08 · 운영",
         "자주 발생하는 오류, 결과 의심 시 점검 순서, 병렬 실행과 성능 진단, 좋은 운영 습관."),
+    # === Examples: runnable walkthroughs ===
+    ("ex-01-lj-basic.html",       "examples/01-lj-basic.md",      "예제 · E1",
+        "외부 파일 없이 LJ 액체 4000개를 NVE로 250 step 돌리는 가장 단순한 첫 실행."),
+    ("ex-02-lj-demo.html",        "examples/02-lj-demo.md",       "예제 · E2",
+        "LJ 액체를 최소화 → NVT → NPT → 생성으로 돌리고 RDF·MSD를 측정하는 완전한 워크플로."),
+    ("ex-03-cu-slab.html",        "examples/03-cu-slab.md",       "예제 · E3",
+        "EAM으로 Cu(100) 슬랩+진공을 만들고 z 밀도 프로파일을 뽑는 금속 표면 예제."),
+    ("ex-04-cu-adsorption.html",  "examples/04-cu-adsorption.md", "예제 · E4",
+        "Cu 표면 벤젠-에탄올 경쟁 흡착 응용 프로토콜의 입력 구성과 5단계 실행 흐름."),
     # === Applied: Cu surface adsorption ===
     ("cu-overview.html",          "cu/index.md",                 "APPLIED · OVERVIEW",
         "응용 시리즈 진입 — Cu(100)/Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착 프로토콜 개요."),
@@ -80,6 +89,12 @@ NAV_SECTIONS = [
     ("입문 · 결과와 운영", [
         ("07-output.html",            "07", "출력과 분석"),
         ("08-troubleshooting.html",   "08", "트러블슈팅"),
+    ]),
+    ("예제 · 따라 하기", [
+        ("ex-01-lj-basic.html",       "E1", "LJ 액체 (NVE)"),
+        ("ex-02-lj-demo.html",        "E2", "LJ 5단계 + RDF·MSD"),
+        ("ex-03-cu-slab.html",        "E3", "Cu(100) 슬랩"),
+        ("ex-04-cu-adsorption.html",  "E4", "Cu 벤젠-에탄올 흡착"),
     ]),
     ("응용 · Cu 표면 흡착", [
         ("cu-overview.html",          "A0", "개요"),

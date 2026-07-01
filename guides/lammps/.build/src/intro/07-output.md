@@ -119,7 +119,15 @@ compute의 결과는 그 자체로는 어디에도 저장되지 않습니다.
 `thermo_style custom ... c_myT` 또는 다음에 나오는 `fix ave/time` 으로
 "꺼내야" 비로소 값을 볼 수 있습니다.
 
-### 실제 결과 ① — g(r) (동경 분포 함수)
+#<div class="tip">
+  <div class="note-title">전체 예제로 보기</div>
+  <p>
+    아래 g(r)·MSD는 <a href="ex-02-lj-demo.html">예제 E2 — LJ 5단계</a> 의
+    생성 단계에서 나온 출력입니다. 전체 입력과 실행 절차는 그 페이지에서 볼 수 있습니다.
+  </p>
+</div>
+
+## 실제 결과 ① — g(r) (동경 분포 함수)
 
 위 chapter 6 에서 돌린 LJ NPT production 5000 step 에 다음 두 줄을 더해
 RDF 를 함께 계산했습니다.
