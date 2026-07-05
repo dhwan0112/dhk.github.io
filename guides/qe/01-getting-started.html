@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>시작하기 · QE 가이드</title>
+  <meta name="description" content="설치 확인, pw.x 첫 실행, 가장 단순한 실리콘 SCF, 출력 파일 읽기." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-fortran.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../" class="sidebar-back">← Donghwan KIM</a>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Quantum ESPRESSO</div>
+    <div class="brand-subtitle">한국어 입문 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-getting-started.html" class="active" aria-current="page"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 계산 준비</div>
+      <ul class="nav-list">
+        <li><a href="03-pseudopotentials.html"><span class="nav-num">03</span>유사퍼텐셜</a></li>
+        <li><a href="04-kpoints.html"><span class="nav-num">04</span>k점 샘플링</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 계산과 최적화</div>
+      <ul class="nav-list">
+        <li><a href="05-scf-convergence.html"><span class="nav-num">05</span>SCF와 수렴</a></li>
+        <li><a href="06-relax.html"><span class="nav-num">06</span>구조 최적화</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 결과와 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-bands-dos.html"><span class="nav-num">07</span>밴드와 DOS</a></li>
+        <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">예제 · 따라 하기</div>
+      <ul class="nav-list">
+        <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
+        <li><a href="ex-02-si-bands.html"><span class="nav-num">E2</span>Si 밴드 + DOS</a></li>
+        <li><a href="ex-03-metal-smearing.html"><span class="nav-num">E3</span>금속 smearing</a></li>
+        <li><a href="ex-04-relax.html"><span class="nav-num">E4</span>구조 최적화</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 01 · 시작</div>
+        <h1 class="page-title">시작하기</h1>
+        <p class="page-lede">설치 확인, pw.x 첫 실행, 가장 단순한 실리콘 SCF, 출력 파일 읽기.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#11-quantum-espresso">1.1 Quantum ESPRESSO란</a></li>
+<li><a href="#12">1.2 설치 확인</a></li>
+<li><a href="#13-scf">1.3 첫 계산 — 실리콘 SCF</a></li>
+<li><a href="#14">1.4 출력 결과 살펴보기</a></li>
+<li><a href="#15">1.5 다음 단계</a></li>
+</ul>
+</div>
+<hr />
+<h2 id="11-quantum-espresso">1.1 Quantum ESPRESSO란</h2>
+<p>Quantum ESPRESSO는 평면파 기저와 유사퍼텐셜을 쓰는 밀도범함수이론(DFT) 계산
+패키지입니다. 핵심 프로그램은 자체무결(self-consistent) 전자구조와 전체 에너지,
+힘·응력을 계산하는 <code>pw.x</code>(PWscf)이고, 그 결과를 받아 밴드구조(<code>bands.x</code>),
+상태밀도(<code>dos.x</code>, <code>projwfc.x</code>), 포논(<code>ph.x</code>) 등을 계산하는 후처리 프로그램들이
+함께 배포됩니다.</p>
+<p>본 가이드는 <strong>Quantum ESPRESSO 7.5</strong>(2025년 8월 릴리스)를 기준으로 하며, 모든
+출력은 conda-forge 빌드로 실제 실행해 얻은 값입니다.</p>
+<h2 id="12">1.2 설치 확인</h2>
+<p>가장 간편한 설치는 conda(또는 mamba/micromamba)입니다.</p>
+<table>
+<thead>
+<tr>
+<th>환경</th>
+<th>설치 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Conda / Mamba</td>
+<td><code>conda install -c conda-forge qe</code></td>
+</tr>
+<tr>
+<td>Ubuntu/Debian</td>
+<td><code>sudo apt install quantum-espresso</code></td>
+</tr>
+<tr>
+<td>macOS (Homebrew)</td>
+<td><code>brew install quantum-espresso</code></td>
+</tr>
+<tr>
+<td>HPC</td>
+<td><code>module load quantum-espresso</code> 또는 소스 빌드</td>
+</tr>
+</tbody>
+</table>
+<p>설치되면 프로그램들이 <code>pw.x</code>, <code>dos.x</code>, <code>bands.x</code>, <code>projwfc.x</code>, <code>pp.x</code>, <code>ph.x</code>
+등의 이름으로 생깁니다. 다음으로 버전을 확인합니다.</p>
+<pre><code class="language-bash">pw.x -h | head        # 사용법
+echo | pw.x | head -3 # 배너에서 버전 확인
+</code></pre>
+<p>출력 첫 줄에 <code>Program PWSCF v.7.5 ...</code> 처럼 버전이 보이면 정상입니다.</p>
+<h2 id="13-scf">1.3 첫 계산 — 실리콘 SCF</h2>
+<p>QE의 가장 단순한 예제는 실리콘 결정의 전체 에너지를 구하는 SCF 계산입니다.
+다이아몬드 구조 실리콘의 원시 셀(원자 2개)을 다음과 같이 <code>si.scf.in</code> 으로
+저장합니다.</p>
+<pre><code class="language-fortran">&amp;control
+  calculation = 'scf'
+  prefix      = 'si'
+  outdir      = './out'
+  pseudo_dir  = './pseudo'
+/
+&amp;system
+  ibrav     = 2
+  celldm(1) = 10.26
+  nat       = 2
+  ntyp      = 1
+  ecutwfc   = 40.0
+  ecutrho   = 320.0
+/
+&amp;electrons
+  conv_thr    = 1.0d-8
+  mixing_beta = 0.7
+/
+ATOMIC_SPECIES
+  Si  28.0855  Si.pbe-n-rrkjus_psl.1.0.0.UPF
+ATOMIC_POSITIONS (alat)
+  Si  0.00 0.00 0.00
+  Si  0.25 0.25 0.25
+K_POINTS (automatic)
+  8 8 8  0 0 0
+</code></pre>
+<p><code>ibrav = 2</code> 는 면심입방(FCC) 브라베 격자, <code>celldm(1) = 10.26</code> 은 격자 상수
+(bohr 단위, 5.43 Å에 해당)입니다. 원자 두 개를 (0,0,0)과 (¼,¼,¼)에 두면
+다이아몬드 구조가 됩니다. <code>ecutwfc</code>(파동함수 컷오프)와 <code>ecutrho</code>(전하밀도 컷오프)는
+<a href="03-pseudopotentials.html">03장</a>에서, <code>K_POINTS</code>는 <a href="04-kpoints.html">04장</a>에서
+자세히 다룹니다.</p>
+<p>유사퍼텐셜 파일(<code>Si.pbe-n-rrkjus_psl.1.0.0.UPF</code>)은 <code>pseudo_dir</code> 로 지정한
+디렉토리에 있어야 합니다. 이 파일은 <a href="https://www.materialscloud.org/discover/sssp">SSSP</a>
+같은 라이브러리에서 받습니다(<a href="03-pseudopotentials.html">03장</a> 참고).</p>
+<p>실행은 다음과 같이 합니다.</p>
+<pre><code class="language-bash"># 직렬
+pw.x -in si.scf.in &gt; si.scf.out
+
+# 병렬 (예: 8 프로세스, k점을 8개 풀로 분할)
+mpirun -np 8 pw.x -nk 8 -in si.scf.in &gt; si.scf.out
+</code></pre>
+<div class="tip">
+  <div class="note-title">작은 계는 스레드보다 MPI가 빠릅니다</div>
+  <p>
+    OpenMP 스레드를 잔뜩 띄우면 원자 몇 개짜리 계는 오히려 느려집니다.
+    <code>export OMP_NUM_THREADS=1</code> 로 스레드를 끄고 <code>mpirun -np N</code>
+    로 k점을 병렬화(<code>-nk</code>)하는 편이 보통 훨씬 빠릅니다. 위 예제는
+    이렇게 하면 몇 초 만에 끝납니다.
+  </p>
+</div>
+
+<h2 id="14">1.4 출력 결과 살펴보기</h2>
+<p><code>si.scf.out</code> 을 보면 SCF 순환이 한 줄씩 찍힙니다. 아래는 본 가이드를 작성하며
+QE 7.5로 실제 실행해 얻은 값입니다.</p>
+<pre><code class="language-text">     iteration #  1     ecut=    40.00 Ry     beta= 0.70
+     total energy              =     -22.83676466 Ry
+     estimated scf accuracy    &lt;       0.05408644 Ry
+     ...
+     iteration #  5     ecut=    40.00 Ry     beta= 0.70
+     total energy              =     -22.83941737 Ry
+     estimated scf accuracy    &lt;       0.00000047 Ry
+     End of self-consistent calculation
+
+!    total energy              =     -22.83941780 Ry
+     estimated scf accuracy    &lt;          2.8E-09 Ry
+
+     The total energy is the sum of the following terms:
+     one-electron contribution =       5.17095299 Ry
+     hartree contribution      =       1.10074142 Ry
+     xc contribution           =     -12.31018265 Ry
+     ewald contribution        =     -16.80092957 Ry
+
+     highest occupied level (ev):     6.2117
+</code></pre>
+<ul>
+<li><code>estimated scf accuracy</code> 가 매 반복 줄어들다 <code>conv_thr</code>(여기서는 10⁻⁸ Ry)
+  아래로 내려가면 수렴한 것입니다.</li>
+<li><strong>느낌표(<code>!</code>)가 붙은 <code>total energy</code></strong> 가 최종 수렴 전체 에너지입니다. 실리콘
+  원시 셀 기준 −22.8394 Ry 가 나왔습니다.</li>
+<li>그 아래 에너지 분해(one-electron / hartree / xc / ewald)는 전체 에너지가
+  어떤 항들의 합인지 보여 줍니다.</li>
+<li>반도체라 페르미 준위 대신 <code>highest occupied level</code>(최고 점유 준위, 6.21 eV)이
+  찍힙니다. 금속이면 <code>the Fermi energy is ...</code> 로 나옵니다(<a href="05-scf-convergence.html">05장</a>).</li>
+</ul>
+<p>파일 끝에 <code>JOB DONE.</code> 가 있으면 정상 종료입니다.</p>
+<div class="tip">
+  <div class="note-title">전체 예제로 보기</div>
+  <p>
+    이 SCF 예제의 전체 입력·실행과 컷오프·k점 수렴 그래프는
+    <a href="ex-01-si-scf.html">예제 E1 — Si SCF</a> 에 정리돼 있습니다.
+  </p>
+</div>
+
+<h2 id="15">1.5 다음 단계</h2>
+<p>다음 장에서는 이 입력 파일을 한 줄씩 뜯어보며, <code>pw.x</code> 입력이 어떤
+<strong>네임리스트와 카드</strong>로 이루어지는지 살펴봅니다.</p>
+      </article>
+<nav class="page-nav"><a class="prev" href="index.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">개요</div></a><a class="next" href="02-input-structure.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">입력 파일 구조</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

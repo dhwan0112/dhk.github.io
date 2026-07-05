@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Si 밴드 + DOS · QE 가이드</title>
+  <meta name="description" content="scf → nscf → bands.x 로 실리콘 밴드구조를, dos.x 로 상태밀도를 뽑는 완전한 워크플로." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-fortran.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../" class="sidebar-back">← Donghwan KIM</a>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Quantum ESPRESSO</div>
+    <div class="brand-subtitle">한국어 입문 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 계산 준비</div>
+      <ul class="nav-list">
+        <li><a href="03-pseudopotentials.html"><span class="nav-num">03</span>유사퍼텐셜</a></li>
+        <li><a href="04-kpoints.html"><span class="nav-num">04</span>k점 샘플링</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 계산과 최적화</div>
+      <ul class="nav-list">
+        <li><a href="05-scf-convergence.html"><span class="nav-num">05</span>SCF와 수렴</a></li>
+        <li><a href="06-relax.html"><span class="nav-num">06</span>구조 최적화</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 결과와 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-bands-dos.html"><span class="nav-num">07</span>밴드와 DOS</a></li>
+        <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">예제 · 따라 하기</div>
+      <ul class="nav-list">
+        <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
+        <li><a href="ex-02-si-bands.html" class="active" aria-current="page"><span class="nav-num">E2</span>Si 밴드 + DOS</a></li>
+        <li><a href="ex-03-metal-smearing.html"><span class="nav-num">E3</span>금속 smearing</a></li>
+        <li><a href="ex-04-relax.html"><span class="nav-num">E4</span>구조 최적화</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">예제 · E2</div>
+        <h1 class="page-title">Si 밴드 + DOS</h1>
+        <p class="page-lede">scf → nscf → bands.x 로 실리콘 밴드구조를, dos.x 로 상태밀도를 뽑는 완전한 워크플로.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#_1">무엇을 하는 예제인가</a></li>
+<li><a href="#1-scf">1단계 — SCF</a></li>
+<li><a href="#2-bandsx">2단계 — 밴드 경로 계산 + bands.x</a></li>
+<li><a href="#3-dos-nscf-dosx">3단계 — DOS (nscf + dos.x)</a></li>
+<li><a href="#_2">결과</a></li>
+<li><a href="#_3">요점</a></li>
+<li><a href="#_4">관련 개념 챕터</a></li>
+</ul>
+</div>
+<hr />
+<h2 id="_1">무엇을 하는 예제인가</h2>
+<p><a href="ex-01-si-scf.html">E1</a> 의 실리콘 SCF를 이어받아, 밴드구조와 상태밀도(DOS)를
+구합니다. <code>scf → bands → bands.x</code> 로 밴드를, <code>scf → nscf → dos.x</code> 로 DOS를 얻는
+표준 흐름을 한자리에서 실행합니다.</p>
+<p>관련 개념은 <a href="07-bands-dos.html">07 밴드와 DOS</a>에서 다룹니다.</p>
+<h2 id="1-scf">1단계 — SCF</h2>
+<p>먼저 <a href="ex-01-si-scf.html">E1</a>의 <code>si.scf.in</code> 과 동일한 SCF를 돌려 전하밀도를
+<code>./out</code> 에 저장합니다.</p>
+<pre><code class="language-bash">export OMP_NUM_THREADS=1
+mpirun -np 8 pw.x -nk 8 -in scf.in &gt; scf.out
+</code></pre>
+<h2 id="2-bandsx">2단계 — 밴드 경로 계산 + bands.x</h2>
+<p>고대칭점 L–Γ–X–U–Γ 을 잇는 경로에서 고윳값을 계산합니다.</p>
+<pre><code class="language-fortran">&amp;control
+  calculation = 'bands'
+  prefix='si', outdir='./out', pseudo_dir='./pseudo'
+/
+&amp;system
+  ibrav=2, celldm(1)=10.26, nat=2, ntyp=1, ecutwfc=40, ecutrho=320, nbnd=8
+/
+&amp;electrons
+  conv_thr=1.0d-8
+/
+ATOMIC_SPECIES
+  Si 28.0855 Si.pbe-n-rrkjus_psl.1.0.0.UPF
+ATOMIC_POSITIONS (alat)
+  Si 0.00 0.00 0.00
+  Si 0.25 0.25 0.25
+K_POINTS {crystal_b}
+5
+  0.5000 0.5000 0.5000 40   ! L
+  0.0000 0.0000 0.0000 40   ! Γ
+  0.5000 0.0000 0.5000 40   ! X
+  0.6250 0.2500 0.6250 40   ! U
+  0.0000 0.0000 0.0000 1    ! Γ
+</code></pre>
+<pre><code class="language-bash">mpirun -np 8 pw.x -nk 8 -in bands.in &gt; bands.out
+</code></pre>
+<p>이어 <code>bands.x</code> 로 고윳값을 밴드별로 정렬합니다.</p>
+<pre><code class="language-fortran">&amp;bands
+  prefix='si', outdir='./out', filband='si.bands.dat'
+/
+</code></pre>
+<pre><code class="language-bash">bands.x -in bandsx.in &gt; bandsx.out
+</code></pre>
+<p><code>si.bands.dat.gnu</code>(k-거리 vs 에너지)와 함께 <code>bandsx.out</code> 에 고대칭점 위치가
+출력됩니다.</p>
+<h2 id="3-dos-nscf-dosx">3단계 — DOS (nscf + dos.x)</h2>
+<p>촘촘한 격자에서 nscf로 고윳값을 구하고 <code>dos.x</code> 로 상태밀도를 만듭니다.</p>
+<pre><code class="language-fortran">&amp;control
+  calculation = 'nscf'
+  prefix='si', outdir='./out', pseudo_dir='./pseudo'
+/
+&amp;system
+  ibrav=2, celldm(1)=10.26, nat=2, ntyp=1, ecutwfc=40, ecutrho=320
+  occupations='tetrahedra'
+/
+&amp;electrons
+  conv_thr=1.0d-8
+/
+...
+K_POINTS (automatic)
+  16 16 16 0 0 0
+</code></pre>
+<pre><code class="language-bash">mpirun -np 8 pw.x -nk 8 -in nscf.in &gt; nscf.out
+# dos.x: &amp;dos prefix='si', outdir='./out', fildos='si.dos', DeltaE=0.05 /
+dos.x -in dosx.in &gt; dosx.out
+</code></pre>
+<h2 id="_2">결과</h2>
+<figure>
+  <img src="assets/images/qe-si-bands-dos.png" alt="실리콘 밴드구조와 상태밀도" style="width:100%;max-width:940px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
+  <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
+    실리콘 밴드구조(L–Γ–X–U–Γ)와 DOS(QE 7.5, PBE). 에너지는 최고 점유 준위(VBM)를
+    0으로. 원자가 밴드 최대는 Γ, 전도 밴드 최소는 X 근처 → <b>간접 띠간격 ≈ 0.57 eV</b>.
+    오른쪽 DOS의 채워진 영역이 원자가 밴드입니다.
+  </figcaption>
+</figure>
+
+<p>밴드구조에서 원자가 밴드 최대(VBM)가 Γ에, 전도 밴드 최소(CBM)가 X 근처에 있어
+<strong>간접 반도체</strong>임이 보입니다. PBE 간격 0.57 eV는 실험값(약 1.1 eV)보다 작은데,
+이는 표준 DFT의 알려진 특성입니다(<a href="07-bands-dos.html">07장</a>).</p>
+<h2 id="_3">요점</h2>
+<ul>
+<li>밴드/DOS는 SCF 전하밀도를 고정한 nscf 계산 — <code>prefix</code>·<code>outdir</code> 일치가 핵심.</li>
+<li>밴드구조는 경로 k점(<code>crystal_b</code>) + <code>bands.x</code>.</li>
+<li>DOS는 촘촘한 격자 + <code>tetrahedra</code> + <code>dos.x</code>.</li>
+<li>궤도별 기여가 필요하면 <code>projwfc.x</code>(투영 DOS).</li>
+</ul>
+<h2 id="_4">관련 개념 챕터</h2>
+<ul>
+<li><a href="07-bands-dos.html">07 밴드와 DOS</a> · <a href="04-kpoints.html">04 k점 샘플링</a></li>
+</ul>
+<p>앞 예제는 <a href="ex-01-si-scf.html">E1 — Si SCF</a>, 다음은
+<a href="ex-03-metal-smearing.html">E3 — 금속 smearing</a> 입니다.</p>
+      </article>
+<nav class="page-nav"><a class="prev" href="ex-01-si-scf.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">Si SCF</div></a><a class="next" href="ex-03-metal-smearing.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">금속 smearing</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>금속 smearing · QE 가이드</title>
+  <meta name="description" content="금속 알루미늄을 smearing 으로 SCF 하고 페르미 준위와 상태밀도를 확인하는 예제." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-fortran.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../" class="sidebar-back">← Donghwan KIM</a>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Quantum ESPRESSO</div>
+    <div class="brand-subtitle">한국어 입문 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 계산 준비</div>
+      <ul class="nav-list">
+        <li><a href="03-pseudopotentials.html"><span class="nav-num">03</span>유사퍼텐셜</a></li>
+        <li><a href="04-kpoints.html"><span class="nav-num">04</span>k점 샘플링</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 계산과 최적화</div>
+      <ul class="nav-list">
+        <li><a href="05-scf-convergence.html"><span class="nav-num">05</span>SCF와 수렴</a></li>
+        <li><a href="06-relax.html"><span class="nav-num">06</span>구조 최적화</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 결과와 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-bands-dos.html"><span class="nav-num">07</span>밴드와 DOS</a></li>
+        <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">예제 · 따라 하기</div>
+      <ul class="nav-list">
+        <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
+        <li><a href="ex-02-si-bands.html"><span class="nav-num">E2</span>Si 밴드 + DOS</a></li>
+        <li><a href="ex-03-metal-smearing.html" class="active" aria-current="page"><span class="nav-num">E3</span>금속 smearing</a></li>
+        <li><a href="ex-04-relax.html"><span class="nav-num">E4</span>구조 최적화</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">예제 · E3</div>
+        <h1 class="page-title">금속 smearing</h1>
+        <p class="page-lede">금속 알루미늄을 smearing 으로 SCF 하고 페르미 준위와 상태밀도를 확인하는 예제.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#_1">무엇을 하는 예제인가</a></li>
+<li><a href="#scfin">전체 입력 스크립트 — scf.in</a></li>
+<li><a href="#_2">실행</a></li>
+<li><a href="#_3">출력 — 페르미 준위</a></li>
+<li><a href="#_4">상태밀도 — 금속성 확인</a></li>
+<li><a href="#_5">요점</a></li>
+<li><a href="#_6">관련 개념 챕터</a></li>
+</ul>
+</div>
+<hr />
+<h2 id="_1">무엇을 하는 예제인가</h2>
+<p>반도체(실리콘)와 달리 금속은 페르미 준위가 밴드를 가로지르므로 점유가 급변합니다.
+이 예제는 FCC 알루미늄을 <strong>smearing</strong> 으로 SCF하고, 페르미 준위와 페르미 준위에
+상태가 존재하는(=금속) 상태밀도를 확인합니다.</p>
+<p>관련 개념은 <a href="05-scf-convergence.html">05 SCF와 수렴</a>, <a href="04-kpoints.html">04 k점 샘플링</a>
+에서 다룹니다.</p>
+<h2 id="scfin">전체 입력 스크립트 — <code>scf.in</code></h2>
+<pre><code class="language-fortran">&amp;control
+  calculation = 'scf'
+  prefix='al', outdir='./out', pseudo_dir='./pseudo'
+/
+&amp;system
+  ibrav=2, celldm(1)=7.65, nat=1, ntyp=1, ecutwfc=30, ecutrho=240
+  occupations='smearing'
+  smearing='mv'          ! Marzari-Vanderbilt (cold)
+  degauss=0.02           ! 번짐 폭 (Ry)
+/
+&amp;electrons
+  conv_thr=1.0d-8, mixing_beta=0.7
+/
+ATOMIC_SPECIES
+  Al 26.9815 Al.pbe-n-rrkjus_psl.1.0.0.UPF
+ATOMIC_POSITIONS (alat)
+  Al 0.0 0.0 0.0
+K_POINTS (automatic)
+  12 12 12 0 0 0
+</code></pre>
+<p>금속이라 <code>occupations='smearing'</code> 과 촘촘한 k점(12×12×12)이 필수입니다. 격자
+상수 celldm(1)=7.65 bohr 는 Al의 약 4.05 Å 에 해당합니다.</p>
+<h2 id="_2">실행</h2>
+<pre><code class="language-bash">export OMP_NUM_THREADS=1
+mpirun -np 8 pw.x -nk 8 -in scf.in &gt; scf.out
+</code></pre>
+<h2 id="_3">출력 — 페르미 준위</h2>
+<p>반도체와 달리 페르미 준위가 출력됩니다(QE 7.5 실제 실행).</p>
+<pre><code class="language-text">     the Fermi energy is     7.7439 ev
+!    total energy           =      -5.04013796 Ry
+</code></pre>
+<h2 id="_4">상태밀도 — 금속성 확인</h2>
+<p>촘촘한 격자(24×24×24)로 nscf(<code>tetrahedra</code>) 후 <code>dos.x</code> 로 DOS를 구합니다.</p>
+<pre><code class="language-bash">mpirun -np 8 pw.x -nk 8 -in nscf.in &gt; nscf.out   # occupations='tetrahedra', 24 24 24
+dos.x -in dosx.in &gt; dosx.out                      # fildos='al.dos'
+</code></pre>
+<figure>
+  <img src="assets/images/qe-al-dos.png" alt="알루미늄의 상태밀도와 페르미 준위" style="width:100%;max-width:720px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
+  <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
+    알루미늄 DOS(QE 7.5, PBE, MV smearing). 에너지는 페르미 준위 E$_F$ 를 0으로.
+    자유전자에 가까운 √E 모양이며, <b>E$_F$ 에서 상태밀도가 0이 아닙니다</b>
+    (≈ 0.4 states/eV) — 이것이 금속의 정의입니다. 실리콘([E2](ex-02-si-bands.html))처럼
+    간격이 있는 반도체와 대비됩니다.
+  </figcaption>
+</figure>
+
+<h2 id="_5">요점</h2>
+<ul>
+<li>금속은 <code>occupations='smearing'</code> + 촘촘한 k점 없이는 거의 수렴하지 않습니다.</li>
+<li><code>smearing='mv'</code>(cold)나 <code>'mp'</code> 는 전체 에너지의 degauss 의존성이 작아 널리 씁니다.</li>
+<li>페르미 준위에서 DOS가 0이 아니면 금속, 간격이 있으면 반도체·절연체입니다.</li>
+<li><code>degauss</code> 를 바꾸면 k점 밀도도 다시 수렴을 확인해야 합니다.</li>
+</ul>
+<h2 id="_6">관련 개념 챕터</h2>
+<ul>
+<li><a href="05-scf-convergence.html">05 SCF와 수렴</a> · <a href="04-kpoints.html">04 k점 샘플링</a></li>
+</ul>
+<p>앞 예제는 <a href="ex-02-si-bands.html">E2 — Si 밴드 + DOS</a>, 다음은
+<a href="ex-04-relax.html">E4 — 구조 최적화</a> 입니다.</p>
+      </article>
+<nav class="page-nav"><a class="prev" href="ex-02-si-bands.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">Si 밴드 + DOS</div></a><a class="next" href="ex-04-relax.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">구조 최적화</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

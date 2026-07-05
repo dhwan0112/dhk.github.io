@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>트러블슈팅과 운영 · QE 가이드</title>
+  <meta name="description" content="자주 나는 오류, 결과 의심 시 점검 순서, 병렬 실행(-nk)과 성능 감각, 좋은 운영 습관." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-fortran.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../" class="sidebar-back">← Donghwan KIM</a>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Quantum ESPRESSO</div>
+    <div class="brand-subtitle">한국어 입문 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 계산 준비</div>
+      <ul class="nav-list">
+        <li><a href="03-pseudopotentials.html"><span class="nav-num">03</span>유사퍼텐셜</a></li>
+        <li><a href="04-kpoints.html"><span class="nav-num">04</span>k점 샘플링</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 계산과 최적화</div>
+      <ul class="nav-list">
+        <li><a href="05-scf-convergence.html"><span class="nav-num">05</span>SCF와 수렴</a></li>
+        <li><a href="06-relax.html"><span class="nav-num">06</span>구조 최적화</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 결과와 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-bands-dos.html"><span class="nav-num">07</span>밴드와 DOS</a></li>
+        <li><a href="08-troubleshooting.html" class="active" aria-current="page"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">예제 · 따라 하기</div>
+      <ul class="nav-list">
+        <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
+        <li><a href="ex-02-si-bands.html"><span class="nav-num">E2</span>Si 밴드 + DOS</a></li>
+        <li><a href="ex-03-metal-smearing.html"><span class="nav-num">E3</span>금속 smearing</a></li>
+        <li><a href="ex-04-relax.html"><span class="nav-num">E4</span>구조 최적화</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 08 · 운영</div>
+        <h1 class="page-title">트러블슈팅과 운영</h1>
+        <p class="page-lede">자주 나는 오류, 결과 의심 시 점검 순서, 병렬 실행(-nk)과 성능 감각, 좋은 운영 습관.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#81">8.1 자주 나는 오류</a></li>
+<li><a href="#82">8.2 결과가 의심스러울 때 점검 순서</a></li>
+<li><a href="#83">8.3 병렬 실행 — 무엇을 나누는가</a></li>
+<li><a href="#84">8.4 성능 감각</a></li>
+<li><a href="#85">8.5 좋은 운영 습관</a></li>
+<li><a href="#86">8.6 더 알아보기</a></li>
+</ul>
+</div>
+<hr />
+<h2 id="81">8.1 자주 나는 오류</h2>
+<table>
+<thead>
+<tr>
+<th>증상</th>
+<th>흔한 원인과 대응</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reading pseudopotential</code> 오류</td>
+<td><code>pseudo_dir</code> 경로·파일 이름 오타. <code>ATOMIC_SPECIES</code> 의 이름과 실제 UPF 파일명 일치 확인.</td>
+</tr>
+<tr>
+<td><code>SCF correction compared to forces is large</code></td>
+<td>힘 임계에 비해 SCF가 덜 수렴. <code>conv_thr</code> 을 더 작게.</td>
+</tr>
+<tr>
+<td><code>convergence NOT achieved</code></td>
+<td><code>mixing_beta</code> 를 0.2~0.3으로. 금속이면 smearing + k점 증가.</td>
+</tr>
+<tr>
+<td><code>Not enough space allocated for radial FFT</code></td>
+<td>US/PAW인데 <code>ecutrho</code> 가 작음. 8~12×ecutwfc로.</td>
+</tr>
+<tr>
+<td><code>too many bands are not converged</code></td>
+<td><code>nbnd</code> 를 늘리거나 <code>diagonalization='cg'</code> 시도.</td>
+</tr>
+<tr>
+<td><code>S matrix not positive definite</code></td>
+<td>원자가 너무 가까움 — 초기 구조 점검.</td>
+</tr>
+<tr>
+<td>에너지가 이상하게 낮음/발산</td>
+<td>LDA·PBE 유사퍼텐셜 혼용, 또는 컷오프가 너무 낮음.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="82">8.2 결과가 의심스러울 때 점검 순서</h2>
+<ol>
+<li><strong>JOB DONE.</strong> 로 정상 종료했는가? 중간에 멈췄으면 그 앞 오류를 봅니다.</li>
+<li><strong>수렴</strong>했는가? <code>estimated scf accuracy &lt; conv_thr</code> 확인.</li>
+<li><strong>컷오프·k점</strong>이 수렴 범위인가? (<a href="03-pseudopotentials.html">03</a>·<a href="04-kpoints.html">04</a>장)</li>
+<li><strong>구조</strong>가 의도한 대로인가? 출력 초반의 <code>site n. ... positions</code> 로 확인.</li>
+<li><strong>유사퍼텐셜</strong>이 같은 범함수·적절한 컷오프인가?</li>
+<li>금속인데 smearing을 켰는가? 절연체인데 간격이 맞는가?</li>
+</ol>
+<h2 id="83">8.3 병렬 실행 — 무엇을 나누는가</h2>
+<p><code>pw.x</code> 는 여러 축으로 병렬화합니다. 가장 효과적인 것부터:</p>
+<pre><code class="language-bash"># k점 풀 병렬(-nk): k점을 npool개 그룹으로 나눔. k점 많은 계에 가장 효율적
+mpirun -np 16 pw.x -nk 4 -in scf.in &gt; scf.out    # 16 프로세스, 4 풀(풀당 4)
+</code></pre>
+<ul>
+<li><code>-nk</code>(k-point pools): k점을 나눕니다. <strong>k점이 많을수록 효율이 좋아</strong> 대개 첫
+  번째로 씁니다.</li>
+<li>그 밖에 <code>-nb</code>(band), <code>-nt</code>(FFT task), <code>-nd</code>(선형대수) 축이 있으나, 입문
+  단계에서는 <code>-nk</code> 만으로 충분한 경우가 많습니다.</li>
+</ul>
+<div class="tip">
+  <div class="note-title">작은 계는 스레드를 끄세요</div>
+  <p>
+    원자 몇 개짜리 계에 OpenMP 스레드를 16개씩 띄우면 오히려 느려집니다
+    (스레드가 서로 기다리며 CPU만 태웁니다). <code>export OMP_NUM_THREADS=1</code>
+    로 끄고 MPI로 k점을 병렬화하는 편이 보통 빠릅니다. 본 가이드의 실리콘 SCF는
+    이렇게 하면 2분 걸리던 것이 3초로 줄었습니다.
+  </p>
+</div>
+
+<h2 id="84">8.4 성능 감각</h2>
+<ul>
+<li>출력 끝의 <code>PWSCF : ... CPU ... WALL</code> 로 소요 시간을 봅니다. <code>CPU</code> 가 <code>WALL</code> 의
+  수십 배면 스레드 과다입니다(위 팁 참고).</li>
+<li>계산량은 대략 (평면파 수) × (k점 수) × (밴드 수)에 비례합니다. <code>ecutwfc</code>,
+  k점, 셀 크기를 키우면 그만큼 무거워집니다.</li>
+<li><code>outdir</code> 에는 파동함수·전하밀도가 쌓이므로, 큰 계는 디스크 여유와
+  <code>wf_collect</code>/정리 습관이 필요합니다.</li>
+</ul>
+<h2 id="85">8.5 좋은 운영 습관</h2>
+<ul>
+<li>새 계는 <strong>작게 시작</strong>합니다. 성긴 k점·낮은 컷오프로 돌려 흐름을 확인한 뒤
+  수렴값으로 키웁니다.</li>
+<li>스텝 간 <code>prefix</code>·<code>outdir</code> 를 일관되게 유지합니다(후처리가 이를 참조).</li>
+<li>입력 파일과 유사퍼텐셜 출처를 함께 보관해 재현성을 확보합니다.</li>
+<li>장시간 계산은 <code>tmux</code>/배치 스케줄러로 돌리고, 중간 재시작(<code>restart_mode</code>)을
+  활용합니다.</li>
+</ul>
+<h2 id="86">8.6 더 알아보기</h2>
+<ul>
+<li>각 프로그램 입력 변수: <a href="https://www.quantum-espresso.org/Doc/INPUT_PW.html">INPUT_PW</a> 등 공식 설명서</li>
+<li>사용자 포럼과 메일링 리스트: <a href="https://www.quantum-espresso.org/">quantum-espresso.org</a></li>
+<li>예제로 전체 흐름 익히기: <a href="ex-01-si-scf.html">E1</a>–<a href="ex-04-relax.html">E4</a></li>
+</ul>
+      </article>
+<nav class="page-nav"><a class="prev" href="07-bands-dos.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">밴드와 DOS</div></a><a class="next" href="ex-01-si-scf.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">Si SCF</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -64,6 +64,34 @@ permalink: /guides/
                     <span class="tag">Cu Surface (응용)</span>
                 </div>
             </article>
+
+            <article class="post-preview">
+                <div class="post-header">
+                    <h2 class="post-title">
+                        <a href="{{ '/guides/qe/' | relative_url }}">Quantum ESPRESSO 한국어 입문 가이드</a>
+                    </h2>
+                    <div class="post-meta">
+                        <span class="post-category"><i class="fas fa-wave-square"></i> DFT · 제일원리</span>
+                        <span class="post-category"><i class="fas fa-book"></i> QE 7.5</span>
+                    </div>
+                </div>
+                <div class="post-excerpt">
+                    <p>
+                        실리콘 SCF 한 예제부터 시작해 pw.x 입력의 네임리스트 구조, 유사퍼텐셜,
+                        k점 샘플링, SCF 수렴과 smearing, 구조 최적화, 밴드구조·상태밀도까지
+                        단계별로 풀어쓴 한국어 입문 가이드입니다(8장). 이어 Si SCF·밴드/DOS,
+                        금속 Al smearing, vc-relax 구조 최적화 네 예제를 QE 7.5로 실제 실행해
+                        실측 결과와 함께 정리했습니다.
+                    </p>
+                    <a href="{{ '/guides/qe/' | relative_url }}" class="read-more">가이드 열기 →</a>
+                </div>
+                <div class="post-tags">
+                    <span class="tag">Quantum ESPRESSO</span>
+                    <span class="tag">DFT</span>
+                    <span class="tag">Band Structure · DOS</span>
+                    <span class="tag">Pseudopotential</span>
+                </div>
+            </article>
         </div>
     </div>
 </section>

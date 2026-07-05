@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SCF와 수렴 · QE 가이드</title>
+  <meta name="description" content="SCF 순환, mixing_beta·conv_thr, 금속의 smearing, 수렴이 안 될 때의 진단." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-fortran.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../" class="sidebar-back">← Donghwan KIM</a>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Quantum ESPRESSO</div>
+    <div class="brand-subtitle">한국어 입문 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 계산 준비</div>
+      <ul class="nav-list">
+        <li><a href="03-pseudopotentials.html"><span class="nav-num">03</span>유사퍼텐셜</a></li>
+        <li><a href="04-kpoints.html"><span class="nav-num">04</span>k점 샘플링</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 계산과 최적화</div>
+      <ul class="nav-list">
+        <li><a href="05-scf-convergence.html" class="active" aria-current="page"><span class="nav-num">05</span>SCF와 수렴</a></li>
+        <li><a href="06-relax.html"><span class="nav-num">06</span>구조 최적화</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 결과와 운영</div>
+      <ul class="nav-list">
+        <li><a href="07-bands-dos.html"><span class="nav-num">07</span>밴드와 DOS</a></li>
+        <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">예제 · 따라 하기</div>
+      <ul class="nav-list">
+        <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
+        <li><a href="ex-02-si-bands.html"><span class="nav-num">E2</span>Si 밴드 + DOS</a></li>
+        <li><a href="ex-03-metal-smearing.html"><span class="nav-num">E3</span>금속 smearing</a></li>
+        <li><a href="ex-04-relax.html"><span class="nav-num">E4</span>구조 최적화</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 05 · 계산</div>
+        <h1 class="page-title">SCF와 수렴</h1>
+        <p class="page-lede">SCF 순환, mixing_beta·conv_thr, 금속의 smearing, 수렴이 안 될 때의 진단.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#51-scf">5.1 SCF 순환 읽기</a></li>
+<li><a href="#52-smearing">5.2 금속의 문제 — 왜 smearing이 필요한가</a></li>
+<li><a href="#53">5.3 수렴이 안 될 때</a></li>
+<li><a href="#54">5.4 요점</a></li>
+</ul>
+</div>
+<hr />
+<p>DFT의 전자 문제는 스스로를 참조합니다. 전하밀도가 유효 퍼텐셜을 만들고, 그
+퍼텐셜이 다시 파동함수와 전하밀도를 만듭니다. 이 순환을 입력과 출력 전하밀도가
+같아질 때까지 반복하는 것이 <strong>자체무결(self-consistent field, SCF)</strong> 계산입니다.</p>
+<h2 id="51-scf">5.1 SCF 순환 읽기</h2>
+<p><code>&amp;electrons</code> 의 두 변수가 순환을 제어합니다.</p>
+<pre><code class="language-fortran">&amp;electrons
+  conv_thr    = 1.0d-8   ! 수렴 임계 (Ry)
+  mixing_beta = 0.7      ! 새 전하밀도를 섞는 비율
+/
+</code></pre>
+<p>출력에서 매 반복마다 <code>estimated scf accuracy</code> 가 찍히고, 이 값이 <code>conv_thr</code>
+아래로 내려가면 수렴합니다.</p>
+<pre><code class="language-text">     iteration #  1 ...   estimated scf accuracy &lt;   0.05408644 Ry
+     iteration #  3 ...   estimated scf accuracy &lt;   0.00010828 Ry
+     iteration #  5 ...   estimated scf accuracy &lt;   0.00000047 Ry
+</code></pre>
+<ul>
+<li><code>conv_thr</code> 은 보통 전체 에너지 계산에 10⁻⁶~10⁻⁸ Ry, 힘·구조 최적화에는
+  10⁻⁸~10⁻⁹ Ry 처럼 더 엄격히 잡습니다.</li>
+<li><code>mixing_beta</code> 는 새 전하밀도를 얼마나 공격적으로 반영할지입니다. 기본 0.7이
+  잘 수렴하지만, <strong>진동하며 수렴이 안 되면 0.2~0.3으로 낮추는 것</strong>이 첫 대응입니다.</li>
+</ul>
+<h2 id="52-smearing">5.2 금속의 문제 — 왜 smearing이 필요한가</h2>
+<p>반도체·절연체는 점유된 밴드와 빈 밴드 사이에 띠간격(gap)이 있어, 각 k점에서 어떤
+상태가 채워지는지 뚜렷합니다. 반면 금속은 페르미 준위가 밴드를 가로지르므로,
+k점을 옮길 때마다 점유가 0과 1 사이에서 급변합니다. 이 불연속 때문에 유한한
+k점으로는 적분이 잘 수렴하지 않고 SCF가 진동합니다.</p>
+<p><strong>Smearing</strong>(번짐)은 페르미 준위 근처의 점유를 매끄러운 함수로 퍼뜨려 이
+불연속을 완화합니다.</p>
+<pre><code class="language-fortran">&amp;system
+  occupations = 'smearing'
+  smearing    = 'mv'      ! Marzari-Vanderbilt(cold). 'gaussian','mp','fd'도 있음
+  degauss     = 0.02      ! 번짐 폭 (Ry)
+/
+</code></pre>
+<ul>
+<li><code>smearing = 'mv'</code>(cold smearing)나 <code>'mp'</code>(Methfessel-Paxton)는 전체 에너지의
+  degauss 의존성이 작아 금속에 널리 쓰입니다.</li>
+<li><code>degauss</code> 가 크면 수렴은 쉬워지지만 물리가 뭉개집니다. 보통 0.01~0.02 Ry.</li>
+<li><strong>degauss를 바꾸면 k점 밀도도 다시 수렴을 확인</strong>해야 합니다. 둘은 함께 움직입니다.</li>
+</ul>
+<p>금속을 smearing으로 SCF하면 반도체와 달리 페르미 준위가 출력됩니다.</p>
+<pre><code class="language-text">     the Fermi energy is     7.7439 ev
+</code></pre>
+<p>알루미늄을 실제로 smearing SCF해 페르미 준위와 금속성 상태밀도를 확인하는 과정은
+<a href="ex-03-metal-smearing.html">예제 E3</a>에 있습니다.</p>
+<div class="tip">
+  <div class="note-title">절연체에 smearing을 쓰면?</div>
+  <p>
+    띠간격이 뚜렷한 절연체에 굳이 smearing을 쓸 필요는 없습니다(기본
+    <code>occupations='fixed'</code>). 다만 수렴 안정성 때문에 작은 degauss를
+    쓰기도 합니다. 반대로 <b>금속에 fixed를 쓰면</b> 거의 수렴하지 않습니다.
+  </p>
+</div>
+
+<h2 id="53">5.3 수렴이 안 될 때</h2>
+<ol>
+<li><code>mixing_beta</code> 를 0.2~0.3으로 낮춥니다(가장 흔한 해결).</li>
+<li>금속이면 <code>smearing</code> 을 켜고 k점을 늘립니다.</li>
+<li>초기 구조가 나쁘면(원자가 너무 가깝거나) 먼저 구조를 점검합니다.</li>
+<li><code>mixing_mode = 'local-TF'</code> 나 더 많은 <code>electron_maxstep</code> 을 시도합니다.</li>
+<li>자기(magnetic) 계는 초기 자기모멘트(<code>starting_magnetization</code>)를 줍니다.</li>
+</ol>
+<p>자세한 진단은 <a href="08-troubleshooting.html">08장</a>에서 다룹니다.</p>
+<h2 id="54">5.4 요점</h2>
+<ul>
+<li>SCF는 <code>estimated scf accuracy</code> 가 <code>conv_thr</code> 아래로 내려가면 수렴입니다.</li>
+<li>수렴이 흔들리면 <code>mixing_beta</code> 를 낮추는 것이 첫 대응입니다.</li>
+<li>금속은 <code>occupations='smearing'</code> + 촘촘한 k점이 필수입니다.</li>
+<li>degauss와 k점 밀도는 함께 수렴을 확인해야 합니다.</li>
+</ul>
+      </article>
+<nav class="page-nav"><a class="prev" href="04-kpoints.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">k점 샘플링</div></a><a class="next" href="06-relax.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">구조 최적화</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
