@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>입력 파일 구조 · QE 가이드</title>
-  <meta name="description" content="pw.x 입력의 네임리스트(&amp;CONTROL/&amp;SYSTEM/&amp;ELECTRONS)와 카드 문법, 최소 입력 해부." />
+  <title>컷오프와 k-점 수렴 · QE 가이드</title>
+  <meta name="description" content="ecutwfc·ecutrho·k점 수렴 테스트의 표준 절차, 수렴 판단에서 흔한 오해." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -37,7 +37,7 @@
       <ul class="nav-list">
         <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
         <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html" class="active" aria-current="page"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
         <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
       </ul>
     </div>
@@ -45,7 +45,7 @@
       <div class="nav-section-title">입문 · 핵심 개념</div>
       <ul class="nav-list">
         <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
+        <li><a href="05-convergence.html" class="active" aria-current="page"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
         <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
         <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
       </ul>
@@ -107,136 +107,112 @@
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 02 · 입문 · 시작</div>
-        <h1 class="page-title">입력 파일 구조</h1>
-        <p class="page-lede">pw.x 입력의 네임리스트(&amp;CONTROL/&amp;SYSTEM/&amp;ELECTRONS)와 카드 문법, 최소 입력 해부.</p>
+        <div class="page-eyebrow">CHAPTER 05 · 입문 · 핵심 개념</div>
+        <h1 class="page-title">컷오프와 k-점 수렴</h1>
+        <p class="page-lede">ecutwfc·ecutrho·k점 수렴 테스트의 표준 절차, 수렴 판단에서 흔한 오해.</p>
       </header>
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
-<li><a href="#_1">입력은 네임리스트와 카드, 두 층입니다</a></li>
-<li><a href="#scf">최소 입력 해부 — 실리콘 SCF</a></li>
-<li><a href="#_2">실행 명령</a></li>
+<li><a href="#_1">표준 절차</a></li>
+<li><a href="#paw">실측 — 실리콘 PAW의 수렴 거동</a></li>
+<li><a href="#_2">수렴 판단에서 흔한 오해</a></li>
+<li><a href="#k-">k-점 격자에 관한 실무 감각</a></li>
 <li><a href="#_3">관련 예제</a></li>
 </ul>
 </div>
-<h2 id="_1">입력은 네임리스트와 카드, 두 층입니다</h2>
-<p><code>pw.x</code> 입력 파일은 두 종류의 블록으로 구성됩니다.</p>
-<ul>
-<li><strong>네임리스트(namelist)</strong> — <code>&amp;CONTROL</code>, <code>&amp;SYSTEM</code>, <code>&amp;ELECTRONS</code>처럼 <code>&amp;이름</code>으로
-  시작해 <code>/</code>로 닫는 Fortran 네임리스트. <code>변수 = 값</code> 형태이며 순서는
-  <code>&amp;CONTROL → &amp;SYSTEM → &amp;ELECTRONS → (&amp;IONS) → (&amp;CELL)</code> 로 고정입니다.</li>
-<li><strong>카드(card)</strong> — <code>ATOMIC_SPECIES</code>, <code>ATOMIC_POSITIONS</code>, <code>K_POINTS</code>,
-  <code>CELL_PARAMETERS</code>, <code>HUBBARD</code>처럼 대문자 제목 아래 표 형태의 데이터가 오는
-  블록. 네임리스트 뒤에 옵니다. 일부 카드는 괄호로 단위/옵션을 받습니다
-  (예: <code>ATOMIC_POSITIONS (crystal)</code>).</li>
-</ul>
-<p>문자열은 작은따옴표(<code>'scf'</code>), 논리값은 <code>.true.</code>/<code>.false.</code>, 주석은 <code>!</code>입니다.</p>
-<h2 id="scf">최소 입력 해부 — 실리콘 SCF</h2>
-<p>첫 계산은 <strong>반드시 실리콘 같은 단순 반도체</strong>로 하세요. Fe 계로 바로 뛰어들면
-수렴 실패의 원인이 물리 문제인지 설정 문제인지 구별할 수 없습니다.</p>
-<pre><code class="language-fortran">&amp;CONTROL
-  calculation  = 'scf'        ! scf / nscf / bands / relax / vc-relax / md
-  prefix       = 'si'         ! 출력 파일 접두어 (후속 계산과 반드시 일치)
-  outdir       = './tmp/'
-  pseudo_dir   = './pseudo/'
-  verbosity    = 'high'       ! 학습 단계에서는 무조건 high
-  tprnfor      = .true.       ! 힘 출력
-  tstress      = .true.       ! 응력 출력
-/
-&amp;SYSTEM
-  ibrav        = 2            ! fcc. 0이면 CELL_PARAMETERS로 직접 지정
-  celldm(1)    = 10.26        ! bohr 단위 (= 5.43 Å)
-  nat          = 2
-  ntyp         = 1
-  ecutwfc      = 30           ! Ry — 파동함수 컷오프
-  ecutrho      = 240          ! Ry — 전하밀도 컷오프 (PAW/US는 8배)
-  occupations  = 'fixed'      ! 절연체/반도체
-/
-&amp;ELECTRONS
-  conv_thr     = 1.0d-8       ! Ry
-  mixing_beta  = 0.7
-/
-
-ATOMIC_SPECIES
-  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
-
-ATOMIC_POSITIONS (alat)
-  Si  0.00  0.00  0.00
-  Si  0.25  0.25  0.25
-
-K_POINTS (automatic)
-  8 8 8  0 0 0
-</code></pre>
-<p>각 블록의 역할:</p>
+<p><strong>이 장이 QE의 절반입니다.</strong> 수렴 테스트를 통과하지 않은 숫자는 숫자가
+아닙니다. QE는 물리적으로 완전히 틀린 결과도 아주 깔끔하게 출력해 줍니다.</p>
+<h2 id="_1">표준 절차</h2>
+<ol>
+<li><strong><code>ecutwfc</code> 수렴</strong> — k-점을 적당히 고정하고 컷오프를 20 → 80 Ry로 스캔합니다.
+   판단 기준은 총에너지 절대값이 아니라 <strong>원자당 에너지 변화</strong>(보통 1~5 meV/atom
+   이내)입니다.</li>
+<li><strong><code>ecutrho</code> 수렴</strong> — US/PAW라면 <code>ecutwfc</code>를 고정하고 4배 → 12배로 스캔합니다.</li>
+<li><strong>k-점 수렴</strong> — 컷오프를 고정하고 격자를 조밀하게 늘립니다. 금속은 절연체보다
+   훨씬 조밀해야 합니다.</li>
+<li><strong><code>degauss</code> 수렴</strong> (금속만) — smearing 폭 → 0 극한에서의 외삽 거동을
+   확인합니다 (<a href="06-occupations.html">06장</a>).</li>
+</ol>
+<p>Ry를 meV/atom으로 환산해서 봅니다.</p>
+<p>$$\Delta E\,[\mathrm{meV/atom}] = \frac{|E(n) - E(n_{\max})| \times 13605.7}{N_\mathrm{at}}$$</p>
+<p>수렴 기준의 눈높이:</p>
 <table>
 <thead>
 <tr>
-<th>블록</th>
-<th>담당</th>
-<th>자세히</th>
+<th>목적</th>
+<th>기준</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>&amp;CONTROL</code></td>
-<td>무엇을 계산하고 어디에 쓸 것인가</td>
-<td>계산 종류는 <a href="08-scf-nscf.html">08장</a>·<a href="09-relaxation.html">09장</a></td>
+<td>총에너지 차이 (상 안정성 등)</td>
+<td>1~5 meV/atom</td>
 </tr>
 <tr>
-<td><code>&amp;SYSTEM</code></td>
-<td>계가 무엇인가 (셀, 원자 수, 기저, 점유)</td>
-<td>단위·좌표는 <a href="03-units-coordinates.html">03장</a>, 점유는 <a href="06-occupations.html">06장</a></td>
+<td><strong>힘 (ML 퍼텐셜 학습 데이터)</strong></td>
+<td>원자당 힘 성분 ~1 meV/Å (≈ 2×10⁻⁵ Ry/bohr)</td>
 </tr>
 <tr>
-<td><code>&amp;ELECTRONS</code></td>
-<td>SCF를 어떻게 수렴시킬 것인가</td>
-<td><a href="07-scf-control.html">07장</a></td>
-</tr>
-<tr>
-<td><code>ATOMIC_SPECIES</code></td>
-<td>라벨·질량·유사퍼텐셜 파일</td>
-<td><a href="04-pseudopotentials.html">04장</a></td>
-</tr>
-<tr>
-<td><code>ATOMIC_POSITIONS</code></td>
-<td>원자 좌표 (+선택적 <code>if_pos</code> 고정 플래그)</td>
-<td><a href="03-units-coordinates.html">03장</a></td>
-</tr>
-<tr>
-<td><code>K_POINTS</code></td>
-<td>Brillouin zone 샘플링</td>
-<td><a href="05-convergence.html">05장</a></td>
+<td>응력 (<code>vc-relax</code> 예정 시)</td>
+<td>~0.1 kbar</td>
 </tr>
 </tbody>
 </table>
-<p>카드별 전체 문법은 <a href="ref-cards.html">R2 · 카드 레퍼런스</a>에 정리했습니다.</p>
-<h2 id="_2">실행 명령</h2>
-<pre><code class="language-bash">pw.x -in si.scf.in &gt; si.scf.out                       # 직렬
-mpirun -np 8 pw.x -nk 4 -in si.scf.in &gt; si.scf.out    # 병렬 (k-점 풀 4개)
-</code></pre>
-<p>출력은 표준출력으로 나오므로 리다이렉트(<code>&gt;</code>)로 저장합니다. 계산 중간 파일은
-<code>outdir/prefix.save/</code>에 쌓이고, 후속 계산(nscf, 후처리)은 <strong>같은 <code>prefix</code>와
-<code>outdir</code></strong>로 이 디렉터리를 찾아갑니다.</p>
+<h2 id="paw">실측 — 실리콘 PAW의 수렴 거동</h2>
+<p>아래는 <a href="ex-03-convergence.html">예제 E3</a>에서 번들 스크립트로 실측한 실리콘
+(PAW, <code>ecutrho = 8×ecutwfc</code> 동시 스캔)의 수렴 곡선입니다.</p>
+<figure>
+  <img src="assets/images/qe-e03-convergence.png"
+       alt="Si convergence: total energy vs ecutwfc and k-grid, force vs ecutwfc" />
+  <figcaption>
+    실리콘 수렴 실측 (QE 7.5, PAW). 왼쪽: ecutwfc 스캔 — 40 Ry에서 1 meV/atom
+    아래로 들어갑니다. 가운데: k-격자 스캔 — 절연체라 6×6×6이면 충분합니다.
+    오른쪽: 대칭을 깬 구조의 힘 수렴 — 에너지보다 늦게 수렴하는 것이 보입니다.
+  </figcaption>
+</figure>
+
+<h2 id="_2">수렴 판단에서 흔한 오해</h2>
+<ul>
+<li><strong>총에너지는 유사퍼텐셜마다 기준점이 다르므로 절대값 비교가 무의미합니다.</strong>
+  같은 조건에서 얻은 에너지끼리의 차이만 물리적 의미가 있습니다.</li>
+<li><strong>에너지가 수렴해도 힘·응력·상태밀도는 아직 안 수렴했을 수 있습니다.</strong>
+  최종 목표 물성(에너지 차이? 힘? 밴드갭? 자기모멘트?)에 대해 수렴을 확인해야
+  합니다. ML 퍼텐셜 학습 데이터가 목적이라면 <strong>힘 기준으로</strong> 수렴을 잡으세요.</li>
+<li><strong>에너지가 컷오프에 대해 위에서 아래로 단조 수렴하는 것은 변분 원리 덕분이고,
+  k-점에 대해서는 단조가 아닌 것이 정상입니다.</strong></li>
+</ul>
 <div class="warning">
   <div class="note-title">흔한 실수</div>
   <p>
-    네임리스트를 <code>/</code>로 닫지 않으면
-    <code>namelist not found</code> 에러가 납니다. 문자열을 큰따옴표로 쓰거나
-    논리값을 <code>true</code>로 쓰는 것도 파싱 실패의 단골 원인입니다.
-    카드 이름 오타는 <code>Error in routine card_xxx</code>로 나타납니다.
-    입력 문법 오류 전반은 <a href="ref-errors.html">R3 · 오류 사전</a>을
-    참고하세요.
+    수렴 테스트를 한 번 하고 "이 원소는 40 Ry"라고 영구히 못 박는 것.
+    컷오프 요구는 <strong>유사퍼텐셜 파일</strong>에 붙는 속성이지 원소의
+    속성이 아닙니다. 유사퍼텐셜을 바꾸면 수렴 테스트도 다시 해야 합니다.
+    또, 셀·배위가 크게 다른 구조(벌크 vs 표면 vs 분자)를 섞어 쓰는 프로젝트라면
+    <strong>가장 요구가 큰 구조 기준으로 통일</strong>해야 합니다.
   </p>
 </div>
 
+<h2 id="k-">k-점 격자에 관한 실무 감각</h2>
+<ul>
+<li><code>K_POINTS (automatic)</code>의 <code>nk1 nk2 nk3 s1 s2 s3</code>은 Monkhorst-Pack 격자와
+  시프트입니다. 시프트 <code>1</code>은 반 칸 밀기로, 절연체에서 같은 밀도 대비 수렴이
+  빨라질 수 있습니다. 단, <strong>사면체법을 쓸 nscf는 반드시 시프트 없는 Γ 중심
+  격자</strong>여야 합니다.</li>
+<li>격자 밀도는 셀 크기에 반비례로 잡습니다. 큰 셀(슬랩, 초격자)은 해당 방향의
+  k-점을 줄입니다 — 슬랩의 진공 방향은 1이면 충분합니다.</li>
+<li>금속은 Fermi 면 해상도가 필요해 절연체보다 훨씬 조밀해야 합니다
+  (<a href="ex-05-al-metal.html">예제 E5</a>의 12×12×12, <a href="ex-09-fe-bcc.html">E9</a>의
+  16×16×16이 그 예입니다).</li>
+</ul>
 <h2 id="_3">관련 예제</h2>
 <ul>
-<li><a href="ex-01-si-scf.html">E1 · Si SCF</a> — 이 입력을 그대로 실행하고 출력을 읽습니다.</li>
-<li><a href="ex-02-si-ibrav0.html">E2 · ibrav=0 다시 쓰기</a> — 같은 계를 다른 문법으로.</li>
+<li><a href="ex-03-convergence.html">E3 · 수렴 테스트 자동화</a> — 이 장의 절차를
+  스크립트로 자동화해 실측했습니다.</li>
+<li><a href="ex-05-al-metal.html">E5 · fcc Al 금속</a> — 금속의 k-점·degauss 수렴.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="01-getting-started.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">시작하기</div></a><a class="next" href="03-units-coordinates.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">단위계와 좌표계</div></a></nav>
+<nav class="page-nav"><a class="prev" href="04-pseudopotentials.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">유사퍼텐셜</div></a><a class="next" href="06-occupations.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">점유수와 smearing</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>오류 메시지 사전 · QE 가이드</title>
+  <meta name="description" content="증상 → 원인 → 해결 순서의 오류 사전과 &#x27;에러 없이 틀리는 경우&#x27; 점검표." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-fortran.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../" class="sidebar-back">← Donghwan KIM</a>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Quantum ESPRESSO</div>
+    <div class="brand-subtitle">한국어 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <ul class="nav-list">
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 계산 종류</div>
+      <ul class="nav-list">
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <ul class="nav-list">
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <ul class="nav-list">
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">레퍼런스</div>
+      <ul class="nav-list">
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
+        <li><a href="ref-errors.html" class="active" aria-current="page"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">예제 · 따라 하기</div>
+      <ul class="nav-list">
+        <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">레퍼런스 · R3</div>
+        <h1 class="page-title">오류 메시지 사전</h1>
+        <p class="page-lede">증상 → 원인 → 해결 순서의 오류 사전과 &#x27;에러 없이 틀리는 경우&#x27; 점검표.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#_1">에러를 읽는 법</a></li>
+<li><a href="#_2">입력 파일 문법 오류</a></li>
+<li><a href="#_3">유사퍼텐셜·전하밀도 문제</a></li>
+<li><a href="#scf">SCF·대각화 수렴 실패</a><ul>
+<li><a href="#convergence-not-achieved-after-n-iterations">convergence NOT achieved after N iterations</a></li>
+<li><a href="#c_bands-n-eigenvalues-not-converged">c_bands: N eigenvalues not converged</a></li>
+<li><a href="#cdiaghg-problems-computing-cholesky-s-matrix-not-positive-definite">cdiaghg: problems computing cholesky / S matrix not positive definite</a></li>
+<li><a href="#not-enough-space-allocated-for-radial-fft">Not enough space allocated for radial FFT</a></li>
+<li><a href="#checkallsym-some-of-the-original-symmetry-operations-not-satisfied">checkallsym: some of the original symmetry operations not satisfied</a></li>
+</ul>
+</li>
+<li><a href="#io">병렬·메모리·I/O 문제</a></li>
+<li><a href="#_4">에러 없이 틀리는 경우 — 가장 위험한 범주</a></li>
+<li><a href="#_5">자성 전이금속 산화물 전용 체크리스트</a></li>
+<li><a href="#_6">도움을 구할 때</a></li>
+</ul>
+</div>
+<p>QE의 에러는 대부분 <code>Error in routine &lt;루틴명&gt; (&lt;코드&gt;)</code> 형태로 나오며,
+<strong>루틴 이름이 원인의 가장 강한 단서</strong>입니다.</p>
+<h2 id="_1">에러를 읽는 법</h2>
+<pre><code>     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     Error in routine  cdiaghg (2):
+      problems computing cholesky
+     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>루틴 이름</th>
+<th>문제 영역</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read_*</code>, <code>card_*</code>, <code>iosys</code></td>
+<td>입력 파일 문법</td>
+</tr>
+<tr>
+<td><code>c_bands</code>, <code>cdiaghg</code>, <code>regterg</code>, <code>cegterg</code></td>
+<td>대각화</td>
+</tr>
+<tr>
+<td><code>sum_band</code>, <code>v_of_rho</code></td>
+<td>전하밀도 (컷오프, 유사퍼텐셜)</td>
+</tr>
+<tr>
+<td><code>electrons</code></td>
+<td>SCF 수렴</td>
+</tr>
+<tr>
+<td><code>punch</code>, <code>openfil</code>, <code>davcio</code></td>
+<td>파일 I/O (경로, 디스크, <code>prefix</code> 불일치)</td>
+</tr>
+</tbody>
+</table>
+<p>에러가 없는데 결과가 이상한 경우가 더 위험합니다 — 아래
+<a href="#에러-없이-틀리는-경우--가장-위험한-범주">에러 없이 틀리는 경우</a>를 보세요.</p>
+<h2 id="_2">입력 파일 문법 오류</h2>
+<table>
+<thead>
+<tr>
+<th>메시지</th>
+<th>원인</th>
+<th>해결</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Error in routine card_xxx</code></td>
+<td>카드 이름 오타 또는 필드 수 불일치</td>
+<td>카드명 대문자 확인, 열 개수 확인</td>
+</tr>
+<tr>
+<td><code>too many atomic species</code> / <code>nat is wrong</code></td>
+<td><code>nat</code>·<code>ntyp</code>이 실제 줄 수와 다름</td>
+<td>카드 내용과 대조</td>
+</tr>
+<tr>
+<td><code>Unknown label of the Hubbard parameter</code></td>
+<td><code>HUBBARD</code> 카드의 파라미터 문자 오타</td>
+<td><code>U</code>, <code>J0</code>, <code>J</code>, <code>V</code>, <code>alpha</code> 중 하나여야 함</td>
+</tr>
+<tr>
+<td><code>namelist not found</code></td>
+<td>네임리스트 이름 오타 또는 <code>/</code> 누락</td>
+<td>모든 네임리스트는 <code>/</code>로 종료</td>
+</tr>
+<tr>
+<td><code>input_dft not allowed</code></td>
+<td>유사퍼텐셜 범함수와 충돌</td>
+<td><code>input_dft</code>를 지우고 PP 내장 범함수 사용</td>
+</tr>
+<tr>
+<td><code>reading namelist ...</code></td>
+<td>Fortran 파싱 실패 (대개 쉼표·따옴표)</td>
+<td>문자열은 작은따옴표, 논리값은 <code>.true.</code>/<code>.false.</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">유사퍼텐셜·전하밀도 문제</h2>
+<table>
+<thead>
+<tr>
+<th>메시지</th>
+<th>원인</th>
+<th>해결</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>charge is wrong: smearing is needed</code></td>
+<td>절연체로 가정했는데 금속</td>
+<td><code>occupations = 'smearing'</code></td>
+</tr>
+<tr>
+<td><code>charge is wrong</code> (적분 전하 불일치)</td>
+<td>k-격자 대비 과소한 <code>degauss</code>, 또는 <code>ecutrho</code> 부족</td>
+<td>degauss·k-격자 함께 수렴, US/PAW는 <code>ecutrho</code> 8~12배</td>
+</tr>
+<tr>
+<td><code>negative rho (up, down)</code> (경고)</td>
+<td><code>ecutrho</code> 부족</td>
+<td>US/PAW라면 8~12배로</td>
+</tr>
+<tr>
+<td><code>Error in routine readpp</code> / <code>upf_read</code></td>
+<td>UPF 손상, 경로 오류, 버전 비호환</td>
+<td><code>pseudo_dir</code> 확인, PP 재다운로드</td>
+</tr>
+<tr>
+<td><code>wrong number of valence electrons</code></td>
+<td>PP와 원자 종류 불일치</td>
+<td><code>ATOMIC_SPECIES</code> 재확인</td>
+</tr>
+<tr>
+<td><code>set_hubbard_l: pseudopotential not yet inserted</code></td>
+<td>Hubbard 매니폴드를 PP가 지원 안 함</td>
+<td>반코어(semicore) 포함 PP 사용</td>
+</tr>
+</tbody>
+</table>
+<p>실측 사례 — 본 가이드 <a href="ex-05-al-metal.html">예제 E5</a>의 degauss 스캔에서
+<code>mv</code> smearing에 <code>degauss=0.005</code>를 주자 12×12×12 격자로는 적분 전하가
+3.003으로 어긋나며 <code>charge is wrong</code>으로 정지했습니다. smearing 폭과
+k-격자는 함께 수렴시켜야 한다는 실제 사례입니다.</p>
+<h2 id="scf">SCF·대각화 수렴 실패</h2>
+<h3 id="convergence-not-achieved-after-n-iterations">convergence NOT achieved after N iterations</h3>
+<p>가장 흔한 문제입니다. <strong>순서대로</strong> 시도하세요.</p>
+<ol>
+<li><code>mixing_beta</code> 0.7 → 0.3 → 0.1</li>
+<li><code>mixing_mode = 'local-TF'</code> (금속, 슬랩, 자성계에 효과적)</li>
+<li><code>electron_maxstep</code> 증가 (200~500)</li>
+<li><code>mixing_ndim</code> 증가 (8 → 12~16, 메모리 여유가 있을 때)</li>
+<li><code>degauss</code>를 일시적으로 키워 수렴시킨 뒤 <code>startingpot='file'</code>로 재시작하며 줄이기</li>
+<li><code>diagonalization = 'cg'</code> 또는 <code>'ppcg'</code> (느리지만 안정)</li>
+<li>초기 구조 점검 (원자 간 거리가 너무 가깝지 않은가)</li>
+</ol>
+<h3 id="c_bands-n-eigenvalues-not-converged">c_bands: N eigenvalues not converged</h3>
+<ul>
+<li>경고 수준이면 무시 가능한 경우가 많지만, 반복되면 대각화 실패입니다.</li>
+<li><code>diagonalization</code>을 바꾸고 <code>nbnd</code>를 늘리세요 (특히 금속·자성계).</li>
+<li><code>diago_david_ndim</code> 2 → 4도 개선책입니다 (메모리 증가).</li>
+</ul>
+<h3 id="cdiaghg-problems-computing-cholesky-s-matrix-not-positive-definite">cdiaghg: problems computing cholesky / S matrix not positive definite</h3>
+<ul>
+<li>겹침 행렬이 특이해진 경우. 대개 <strong>원자가 너무 가깝거나, 초기 파동함수가
+  나쁘거나, 기저가 선형종속</strong>.</li>
+<li><code>startingwfc = 'random'</code>으로 바꿔 보세요.</li>
+<li>구조를 다시 확인하세요 — 원자 두 개가 겹쳐 있는 경우가 의외로 많습니다.</li>
+</ul>
+<h3 id="not-enough-space-allocated-for-radial-fft">Not enough space allocated for radial FFT</h3>
+<ul>
+<li>셀이 매우 크거나 원자가 셀 경계에 걸친 경우.</li>
+<li><code>cell_factor</code>를 늘리거나 원자를 셀 안쪽으로 옮기세요.</li>
+</ul>
+<h3 id="checkallsym-some-of-the-original-symmetry-operations-not-satisfied">checkallsym: some of the original symmetry operations not satisfied</h3>
+<ul>
+<li>초기 구조에서 잡힌 대칭을 이후의 원자 이동이 깨뜨린 경우. <strong>MD에서 거의
+  반드시 만납니다</strong> (열운동이 대칭 위치를 즉시 무너뜨림).</li>
+<li>MD는 <code>&amp;SYSTEM</code>에 <code>nosym = .true.</code>를 넣으세요 (<a href="16-molecular-dynamics.html">16장</a>).
+  구조 최적화에서 나온다면 초기 구조의 대칭이 수치 잡음 수준으로만 성립했던
+  것이니 구조를 정밀화하거나 역시 <code>nosym</code>을 고려하세요.</li>
+</ul>
+<h2 id="io">병렬·메모리·I/O 문제</h2>
+<table>
+<thead>
+<tr>
+<th>메시지</th>
+<th>원인</th>
+<th>해결</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>some processors have no planes</code></td>
+<td>MPI 랭크가 FFT 격자보다 많음</td>
+<td>랭크 축소 또는 <code>-nk</code> 증가</td>
+</tr>
+<tr>
+<td><code>npool must divide nproc</code></td>
+<td><code>-nk</code> 설정 오류</td>
+<td><code>nproc</code>을 <code>-nk</code>로 나누어떨어지게</td>
+</tr>
+<tr>
+<td><code>ndiag must be a square number</code></td>
+<td><code>-nd</code> 설정 오류</td>
+<td>1, 4, 9, 16, ...</td>
+</tr>
+<tr>
+<td><code>Error in routine davcio</code></td>
+<td>디스크 부족, 권한, <code>outdir</code> 불일치</td>
+<td>용량·경로 확인</td>
+</tr>
+<tr>
+<td><code>cannot open file ... .save/charge-density.dat</code></td>
+<td><code>prefix</code>/<code>outdir</code>이 선행 계산과 다름</td>
+<td>전 단계와 동일하게</td>
+</tr>
+<tr>
+<td>메모리 부족(OOM)</td>
+<td><code>-nk</code> 과다 (풀마다 밀도 사본)</td>
+<td><code>-nk</code> 감소, <code>diago_david_ndim</code> 감소</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">에러 없이 틀리는 경우 — 가장 위험한 범주</h2>
+<p>QE는 물리적으로 틀린 결과도 깔끔하게 출력합니다. 다음을 습관적으로
+점검하세요.</p>
+<table>
+<thead>
+<tr>
+<th>증상</th>
+<th>숨은 원인</th>
+<th>점검 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>총에너지가 문헌과 크게 다름</td>
+<td>유사퍼텐셜이 다름</td>
+<td>총에너지 <strong>절대값은 비교 대상이 아님</strong>. 같은 조건의 차이만 의미 있음</td>
+</tr>
+<tr>
+<td>자기모멘트가 0으로 붕괴</td>
+<td>초기 자화 부족, smearing 과다</td>
+<td><code>starting_magnetization</code> 증가, <code>degauss</code> 감소</td>
+</tr>
+<tr>
+<td>AFM인데 <code>total magnetization</code> ≠ 0</td>
+<td>라벨 분리 실패, 대칭이 배열을 강제</td>
+<td><code>ntyp</code> 늘려 라벨 분리, <code>Sym. Ops.</code> 확인</td>
+</tr>
+<tr>
+<td>FeO가 금속으로 나옴</td>
+<td>GGA의 자기상호작용 오차</td>
+<td>DFT+U 적용. U만으로 부족하면 <code>starting_ns_eigenvalue</code></td>
+</tr>
+<tr>
+<td>U를 켰는데도 금속</td>
+<td>d 궤도 점유가 잘못된 극소값에 갇힘</td>
+<td><code>starting_ns_eigenvalue</code>로 점유 유도</td>
+</tr>
+<tr>
+<td><code>vc-relax</code> 결과가 재현 안 됨</td>
+<td>Pulay stress</td>
+<td>최종 구조로 <code>scf</code> 재실행</td>
+</tr>
+<tr>
+<td>DOS가 톱니처럼 거침</td>
+<td>nscf k-점 부족</td>
+<td>격자 증가 + <code>tetrahedra_opt</code></td>
+</tr>
+<tr>
+<td>밴드 경로가 이상함</td>
+<td><code>crystal_b</code> 좌표계 혼동</td>
+<td><code>tpiba_b</code> 사용 또는 SeeK-path</td>
+</tr>
+<tr>
+<td>슬랩 에너지가 진공 두께에 민감</td>
+<td>쌍극자 상호작용</td>
+<td><code>dipfield</code> 활성화, 진공 증가</td>
+</tr>
+<tr>
+<td>힘이 수렴하지 않음</td>
+<td>에너지 기준으로만 수렴을 봤음</td>
+<td>힘 기준 수렴 테스트 별도 수행</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_5">자성 전이금속 산화물 전용 체크리스트</h2>
+<p>FeO, Fe₂O₃, Fe₃O₄ 같은 계에서 반복적으로 겪는 문제들입니다.</p>
+<ul>
+<li><code>ecutrho</code>가 <code>ecutwfc</code>의 최소 10배인가 (Fe PAW는 특히 요구가 큼)</li>
+<li>스핀 up/down 라벨을 다른 원자종으로 분리했는가</li>
+<li><code>mixing_beta</code> 0.3 이하 + <code>mixing_mode='local-TF'</code>인가</li>
+<li>여러 초기 자화에서 출발해 <strong>에너지가 가장 낮은 해</strong>를 골랐는가</li>
+<li><code>HUBBARD</code> 카드가 <strong>신문법</strong>인가 (<code>lda_plus_u</code>가 남아 있지 않은가)</li>
+<li>투영자(<code>ortho-atomic</code> 등)를 U 값과 세트로 기록해 두었는가</li>
+<li><code>starting_ns_eigenvalue</code>로 올바른 궤도 점유를 유도했는가</li>
+<li><code>hp.x</code>를 쓴다면 <code>nq</code> 수렴을 확인했는가</li>
+<li>데이터셋 전체에서 컷오프·k-점·smearing·U가 완전히 동일한가</li>
+</ul>
+<h2 id="_6">도움을 구할 때</h2>
+<p><a href="https://www.mail-archive.com/users@lists.quantum-espresso.org/">QE users 메일링 리스트 아카이브</a>에서
+먼저 검색하세요. 대부분의 문제가 이미 답변되어 있고, 개발자(Giannozzi,
+Timrov 등)가 직접 답한 스레드는 사실상 공식 문서에 준합니다.</p>
+<p>질문할 때 반드시 포함할 것:</p>
+<ol>
+<li>QE 버전과 빌드 방식</li>
+<li><strong>입력 파일 전문</strong></li>
+<li>출력의 에러 부분 <strong>앞뒤 30줄</strong></li>
+<li>이미 시도해 본 것</li>
+</ol>
+      </article>
+<nav class="page-nav"><a class="prev" href="ref-cards.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">카드 레퍼런스</div></a><a class="next" href="ref-executables.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">실행 파일 목록</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

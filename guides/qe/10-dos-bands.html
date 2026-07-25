@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>입력 파일 구조 · QE 가이드</title>
-  <meta name="description" content="pw.x 입력의 네임리스트(&amp;CONTROL/&amp;SYSTEM/&amp;ELECTRONS)와 카드 문법, 최소 입력 해부." />
+  <title>상태밀도와 밴드 · QE 가이드</title>
+  <meta name="description" content="dos.x·projwfc.x·bands.x 후처리 파이프라인, 갭 읽기와 PDOS 해석." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -37,7 +37,7 @@
       <ul class="nav-list">
         <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
         <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html" class="active" aria-current="page"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
         <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
       </ul>
     </div>
@@ -55,7 +55,7 @@
       <ul class="nav-list">
         <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
         <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
+        <li><a href="10-dos-bands.html" class="active" aria-current="page"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
         <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
       </ul>
     </div>
@@ -107,136 +107,113 @@
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 02 · 입문 · 시작</div>
-        <h1 class="page-title">입력 파일 구조</h1>
-        <p class="page-lede">pw.x 입력의 네임리스트(&amp;CONTROL/&amp;SYSTEM/&amp;ELECTRONS)와 카드 문법, 최소 입력 해부.</p>
+        <div class="page-eyebrow">CHAPTER 10 · 입문 · 계산 종류</div>
+        <h1 class="page-title">상태밀도와 밴드</h1>
+        <p class="page-lede">dos.x·projwfc.x·bands.x 후처리 파이프라인, 갭 읽기와 PDOS 해석.</p>
       </header>
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
-<li><a href="#_1">입력은 네임리스트와 카드, 두 층입니다</a></li>
-<li><a href="#scf">최소 입력 해부 — 실리콘 SCF</a></li>
-<li><a href="#_2">실행 명령</a></li>
+<li><a href="#dos-pdos">DOS / PDOS 파이프라인</a></li>
+<li><a href="#_1">밴드 구조 파이프라인</a></li>
+<li><a href="#_2">갭 읽기 — 세 가지 방법</a></li>
 <li><a href="#_3">관련 예제</a></li>
 </ul>
 </div>
-<h2 id="_1">입력은 네임리스트와 카드, 두 층입니다</h2>
-<p><code>pw.x</code> 입력 파일은 두 종류의 블록으로 구성됩니다.</p>
+<p>전자구조 후처리는 <strong>파이프라인 순서와 <code>prefix</code>/<code>outdir</code> 일치가 전부</strong>입니다.</p>
+<h2 id="dos-pdos">DOS / PDOS 파이프라인</h2>
+<pre><code>scf (성긴 k) ─→ nscf (조밀한 k, occupations='tetrahedra_opt') ─┬─→ dos.x      (총 DOS)
+                                                                └─→ projwfc.x  (PDOS + Löwdin)
+</code></pre>
 <ul>
-<li><strong>네임리스트(namelist)</strong> — <code>&amp;CONTROL</code>, <code>&amp;SYSTEM</code>, <code>&amp;ELECTRONS</code>처럼 <code>&amp;이름</code>으로
-  시작해 <code>/</code>로 닫는 Fortran 네임리스트. <code>변수 = 값</code> 형태이며 순서는
-  <code>&amp;CONTROL → &amp;SYSTEM → &amp;ELECTRONS → (&amp;IONS) → (&amp;CELL)</code> 로 고정입니다.</li>
-<li><strong>카드(card)</strong> — <code>ATOMIC_SPECIES</code>, <code>ATOMIC_POSITIONS</code>, <code>K_POINTS</code>,
-  <code>CELL_PARAMETERS</code>, <code>HUBBARD</code>처럼 대문자 제목 아래 표 형태의 데이터가 오는
-  블록. 네임리스트 뒤에 옵니다. 일부 카드는 괄호로 단위/옵션을 받습니다
-  (예: <code>ATOMIC_POSITIONS (crystal)</code>).</li>
+<li><strong>nscf</strong>: k-격자를 조밀하게(예: 8³ → 16³), <code>nbnd</code>를 전도대까지 넉넉하게,
+  <code>occupations='tetrahedra'</code>. 사면체법은 <strong>Γ 중심의 시프트 없는 자동
+  격자</strong>를 요구합니다. 최적화판 <code>'tetrahedra_opt'</code>는 dos.x에는 문제없지만
+  <strong>QE 7.5에서 projwfc.x의 PDOS가 0으로 나오는 문제를 실측에서
+  확인</strong>했으므로, PDOS까지 뽑을 파이프라인이라면 고전 <code>'tetrahedra'</code>를
+  쓰세요 (<a href="ex-07-si-dos.html">예제 E7</a>의 실측 노트).</li>
+<li><strong><code>dos.x</code></strong> (<code>&amp;DOS</code>): 총 DOS. 출력 <code>fildos</code> 파일은 1열 E(eV), 2열 DOS,
+  3열 적분 DOS입니다. 적분 DOS가 Fermi 준위에서 원자가 전자 수와 일치하는지
+  검산할 수 있습니다.</li>
+<li><strong><code>projwfc.x</code></strong> (<code>&amp;PROJWFC</code>): 원자·궤도별 분해 DOS(PDOS)와 <strong>Löwdin 전하</strong>.
+  <code>si.pdos_atm#1(Si)_wfc#2(p)</code>처럼 원자·궤도별 파일이 생깁니다. Fe의 d-궤도
+  점유, 스핀별 분해, d-band center가 모두 여기서 나옵니다.</li>
 </ul>
-<p>문자열은 작은따옴표(<code>'scf'</code>), 논리값은 <code>.true.</code>/<code>.false.</code>, 주석은 <code>!</code>입니다.</p>
-<h2 id="scf">최소 입력 해부 — 실리콘 SCF</h2>
-<p>첫 계산은 <strong>반드시 실리콘 같은 단순 반도체</strong>로 하세요. Fe 계로 바로 뛰어들면
-수렴 실패의 원인이 물리 문제인지 설정 문제인지 구별할 수 없습니다.</p>
-<pre><code class="language-fortran">&amp;CONTROL
-  calculation  = 'scf'        ! scf / nscf / bands / relax / vc-relax / md
-  prefix       = 'si'         ! 출력 파일 접두어 (후속 계산과 반드시 일치)
-  outdir       = './tmp/'
-  pseudo_dir   = './pseudo/'
-  verbosity    = 'high'       ! 학습 단계에서는 무조건 high
-  tprnfor      = .true.       ! 힘 출력
-  tstress      = .true.       ! 응력 출력
-/
-&amp;SYSTEM
-  ibrav        = 2            ! fcc. 0이면 CELL_PARAMETERS로 직접 지정
-  celldm(1)    = 10.26        ! bohr 단위 (= 5.43 Å)
-  nat          = 2
-  ntyp         = 1
-  ecutwfc      = 30           ! Ry — 파동함수 컷오프
-  ecutrho      = 240          ! Ry — 전하밀도 컷오프 (PAW/US는 8배)
-  occupations  = 'fixed'      ! 절연체/반도체
-/
-&amp;ELECTRONS
-  conv_thr     = 1.0d-8       ! Ry
-  mixing_beta  = 0.7
-/
+<figure>
+  <img src="assets/images/qe-e07-dos-pdos.png"
+       alt="Si total DOS and s/p-projected DOS" />
+  <figcaption>
+    실리콘 총 DOS와 s/p 분해 PDOS 실측 (QE 7.5, nscf 16×16×16, tetrahedra).
+    원자가띠 하단은 s, 상단은 p 성격이 지배적임이 그대로 보입니다. 절차와
+    수치는 <a href="ex-07-si-dos.html">예제 E7</a>.
+  </figcaption>
+</figure>
 
-ATOMIC_SPECIES
-  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
-
-ATOMIC_POSITIONS (alat)
-  Si  0.00  0.00  0.00
-  Si  0.25  0.25  0.25
-
-K_POINTS (automatic)
-  8 8 8  0 0 0
+<h2 id="_1">밴드 구조 파이프라인</h2>
+<pre><code>scf ─→ calculation='bands' (K_POINTS tpiba_b / crystal_b 경로) ─→ bands.x ─→ 플롯
 </code></pre>
-<p>각 블록의 역할:</p>
-<table>
-<thead>
-<tr>
-<th>블록</th>
-<th>담당</th>
-<th>자세히</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>&amp;CONTROL</code></td>
-<td>무엇을 계산하고 어디에 쓸 것인가</td>
-<td>계산 종류는 <a href="08-scf-nscf.html">08장</a>·<a href="09-relaxation.html">09장</a></td>
-</tr>
-<tr>
-<td><code>&amp;SYSTEM</code></td>
-<td>계가 무엇인가 (셀, 원자 수, 기저, 점유)</td>
-<td>단위·좌표는 <a href="03-units-coordinates.html">03장</a>, 점유는 <a href="06-occupations.html">06장</a></td>
-</tr>
-<tr>
-<td><code>&amp;ELECTRONS</code></td>
-<td>SCF를 어떻게 수렴시킬 것인가</td>
-<td><a href="07-scf-control.html">07장</a></td>
-</tr>
-<tr>
-<td><code>ATOMIC_SPECIES</code></td>
-<td>라벨·질량·유사퍼텐셜 파일</td>
-<td><a href="04-pseudopotentials.html">04장</a></td>
-</tr>
-<tr>
-<td><code>ATOMIC_POSITIONS</code></td>
-<td>원자 좌표 (+선택적 <code>if_pos</code> 고정 플래그)</td>
-<td><a href="03-units-coordinates.html">03장</a></td>
-</tr>
-<tr>
-<td><code>K_POINTS</code></td>
-<td>Brillouin zone 샘플링</td>
-<td><a href="05-convergence.html">05장</a></td>
-</tr>
-</tbody>
-</table>
-<p>카드별 전체 문법은 <a href="ref-cards.html">R2 · 카드 레퍼런스</a>에 정리했습니다.</p>
-<h2 id="_2">실행 명령</h2>
-<pre><code class="language-bash">pw.x -in si.scf.in &gt; si.scf.out                       # 직렬
-mpirun -np 8 pw.x -nk 4 -in si.scf.in &gt; si.scf.out    # 병렬 (k-점 풀 4개)
+<p><code>calculation='bands'</code>에서 k-경로를 카드로 지정합니다.</p>
+<pre><code class="language-fortran">K_POINTS (tpiba_b)
+6
+  0.500 0.500 0.500  30   ! L
+  0.000 0.000 0.000  30   ! Gamma
+  0.000 1.000 0.000  20   ! X
+  0.500 1.000 0.000  20   ! W
+  0.750 0.750 0.000  30   ! K
+  0.000 0.000 0.000   0   ! Gamma  (마지막 점은 분할 0)
 </code></pre>
-<p>출력은 표준출력으로 나오므로 리다이렉트(<code>&gt;</code>)로 저장합니다. 계산 중간 파일은
-<code>outdir/prefix.save/</code>에 쌓이고, 후속 계산(nscf, 후처리)은 <strong>같은 <code>prefix</code>와
-<code>outdir</code></strong>로 이 디렉터리를 찾아갑니다.</p>
+<p>각 줄은 고대칭점과 "다음 점까지의 분할 수"입니다. <code>bands.x</code>(<code>&amp;BANDS</code>)가
+고유값을 밴드 순서로 재정렬해 <code>filband</code> 파일(<code>.gnu</code> 포함)로 씁니다.</p>
+<div class="tip">
+  <div class="note-title">tpiba_b vs crystal_b — 경로가 이상할 때</div>
+  <p>
+    <code>tpiba_b</code>는 2π/a 단위의 <strong>직교 좌표</strong>,
+    <code>crystal_b</code>는 <strong>역격자 기저의 분수 좌표</strong>입니다.
+    QE의 <code>ibrav=2</code> 원시벡터 정의는 문헌의 표준 fcc 정의와 다를 수
+    있어, 문헌의 분수좌표를 <code>crystal_b</code>에 그대로 넣으면 틀린 경로가
+    됩니다. <strong>경로가 헷갈릴 때는 <code>tpiba_b</code>가 안전합니다.</strong>
+    복잡한 결정계는
+    <a href="https://www.materialscloud.org/work/tools/seekpath">SeeK-path</a>로
+    경로를 생성하세요.
+  </p>
+</div>
+
+<figure>
+  <img src="assets/images/qe-e08-bands.png"
+       alt="Si band structure along L-Gamma-X-W-K-Gamma" />
+  <figcaption>
+    실리콘 밴드 구조 실측 (QE 7.5, PBE, L–Γ–X–W–K–Γ). 가전자대 꼭대기는 Γ,
+    전도대 바닥은 Γ–X 위에 있는 간접갭 반도체입니다. PBE 갭은 실험(1.12 eV)을
+    체계적으로 과소평가합니다. 수치는 <a href="ex-08-si-bands.html">예제 E8</a>.
+  </figcaption>
+</figure>
+
+<h2 id="_2">갭 읽기 — 세 가지 방법</h2>
+<ol>
+<li>scf/nscf 출력의 <code>highest occupied, lowest unoccupied level (ev)</code> — 가장 간단.</li>
+<li>밴드 데이터에서 VBM/CBM을 직접 읽기 — 간접갭의 위치까지 알 수 있음.</li>
+<li>DOS에서 상태가 0인 구간 — k-격자가 성기면 갭이 실제보다 넓어 보일 수 있음.</li>
+</ol>
 <div class="warning">
   <div class="note-title">흔한 실수</div>
   <p>
-    네임리스트를 <code>/</code>로 닫지 않으면
-    <code>namelist not found</code> 에러가 납니다. 문자열을 큰따옴표로 쓰거나
-    논리값을 <code>true</code>로 쓰는 것도 파싱 실패의 단골 원인입니다.
-    카드 이름 오타는 <code>Error in routine card_xxx</code>로 나타납니다.
-    입력 문법 오류 전반은 <a href="ref-errors.html">R3 · 오류 사전</a>을
-    참고하세요.
+    DOS가 톱니처럼 거칠다고 <code>DeltaE</code>만 줄이는 것. 원인은 거의 항상
+    <strong>nscf k-격자 부족</strong>입니다. 격자를 늘리고
+    <code>tetrahedra_opt</code>를 쓰세요. 또, nscf 없이 성긴 scf 밀도에서 바로
+    <code>dos.x</code>를 돌리면 돌아가긴 하지만 해상도가 형편없습니다 —
+    파이프라인 순서를 지키세요.
   </p>
 </div>
 
 <h2 id="_3">관련 예제</h2>
 <ul>
-<li><a href="ex-01-si-scf.html">E1 · Si SCF</a> — 이 입력을 그대로 실행하고 출력을 읽습니다.</li>
-<li><a href="ex-02-si-ibrav0.html">E2 · ibrav=0 다시 쓰기</a> — 같은 계를 다른 문법으로.</li>
+<li><a href="ex-07-si-dos.html">E7 · Si DOS·PDOS</a> — 파이프라인 전체 실측, Löwdin 전하.</li>
+<li><a href="ex-08-si-bands.html">E8 · Si 밴드 구조</a> — 경로 지정과 간접갭 읽기.</li>
+<li><a href="ex-10-feo-afm.html">E10</a>/<a href="ex-11-feo-hubbard.html">E11 · FeO</a> — 스핀 분해
+  DOS로 GGA 실패와 +U 갭 열림을 확인.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="01-getting-started.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">시작하기</div></a><a class="next" href="03-units-coordinates.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">단위계와 좌표계</div></a></nav>
+<nav class="page-nav"><a class="prev" href="09-relaxation.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">구조 최적화</div></a><a class="next" href="11-postprocessing.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">전하밀도와 퍼텐셜</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>
