@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>키워드 사전 · QE 가이드</title>
+  <meta name="description" content="네임리스트별 주요 변수를 찾아보는 사전. &amp;CONTROL부터 &amp;CELL까지." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-fortran.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../" class="sidebar-back">← Donghwan KIM</a>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Quantum ESPRESSO</div>
+    <div class="brand-subtitle">한국어 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <ul class="nav-list">
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 계산 종류</div>
+      <ul class="nav-list">
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <ul class="nav-list">
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <ul class="nav-list">
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">레퍼런스</div>
+      <ul class="nav-list">
+        <li><a href="ref-keywords.html" class="active" aria-current="page"><span class="nav-num">R1</span>키워드 사전</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">예제 · 따라 하기</div>
+      <ul class="nav-list">
+        <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">레퍼런스 · R1</div>
+        <h1 class="page-title">키워드 사전</h1>
+        <p class="page-lede">네임리스트별 주요 변수를 찾아보는 사전. &amp;CONTROL부터 &amp;CELL까지.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#control">&amp;CONTROL</a></li>
+<li><a href="#system">&amp;SYSTEM — 격자와 원자</a></li>
+<li><a href="#system_1">&amp;SYSTEM — 기저와 컷오프</a></li>
+<li><a href="#system-smearing">&amp;SYSTEM — 점유수와 smearing</a></li>
+<li><a href="#system_2">&amp;SYSTEM — 스핀과 자성</a></li>
+<li><a href="#system-dftu-v71">&amp;SYSTEM — DFT+U 관련 (v7.1+ 신문법)</a></li>
+<li><a href="#system_3">&amp;SYSTEM — 범함수·분산·고립계·전기장</a></li>
+<li><a href="#electrons">&amp;ELECTRONS</a></li>
+<li><a href="#ions">&amp;IONS</a></li>
+<li><a href="#cell">&amp;CELL</a></li>
+<li><a href="#_1">명령행 병렬화 플래그</a></li>
+<li><a href="#_2">환경 변수</a></li>
+</ul>
+</div>
+<p><code>pw.x</code> 입력 변수를 네임리스트별로 찾아보는 사전입니다. 기본값은 QE 7.5
+기준이며, <strong>최종 근거는 항상 설치 버전의 <code>Doc/INPUT_PW.txt</code></strong>
+(<a href="https://www.quantum-espresso.org/Doc/INPUT_PW.html">온라인판</a>)입니다.
+카드 문법은 <a href="ref-cards.html">R2</a>, 후처리 코드 변수는
+<a href="ref-executables.html">R4</a>에 있습니다.</p>
+<h2 id="control">&amp;CONTROL</h2>
+<table>
+<thead>
+<tr>
+<th>변수</th>
+<th>기본값</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>calculation</code></td>
+<td><code>'scf'</code></td>
+<td><code>scf</code> / <code>nscf</code> / <code>bands</code> / <code>relax</code> / <code>md</code> / <code>vc-relax</code> / <code>vc-md</code></td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>없음</td>
+<td>출력에 찍히는 설명. 배치 작업 관리에 유용</td>
+</tr>
+<tr>
+<td><code>verbosity</code></td>
+<td><code>'low'</code></td>
+<td><code>'high'</code>면 대칭 연산, ns 행렬, k-점 목록까지 출력. <strong>학습 중에는 항상 high</strong></td>
+</tr>
+<tr>
+<td><code>restart_mode</code></td>
+<td><code>'from_scratch'</code></td>
+<td><code>'restart'</code>로 중단된 계산 재개</td>
+</tr>
+<tr>
+<td><code>nstep</code></td>
+<td>scf 1, relax/md 50</td>
+<td>이온 스텝 수</td>
+</tr>
+<tr>
+<td><code>dt</code></td>
+<td>20.0</td>
+<td>MD 시간 간격. <strong>Rydberg 원자단위</strong> (20 a.u. ≈ 0.968 fs)</td>
+</tr>
+<tr>
+<td><code>outdir</code></td>
+<td><code>./</code> 또는 <code>$ESPRESSO_TMPDIR</code></td>
+<td>대용량 임시 파일 위치. <strong>빠른 디스크로 지정할 것</strong></td>
+</tr>
+<tr>
+<td><code>wfcdir</code></td>
+<td><code>outdir</code></td>
+<td>파동함수만 따로 둘 때</td>
+</tr>
+<tr>
+<td><code>prefix</code></td>
+<td><code>'pwscf'</code></td>
+<td>후속 계산과 <strong>반드시 일치</strong>해야 함</td>
+</tr>
+<tr>
+<td><code>pseudo_dir</code></td>
+<td><code>$ESPRESSO_PSEUDO</code> 또는 <code>~/espresso/pseudo</code></td>
+<td>UPF 파일 위치</td>
+</tr>
+<tr>
+<td><code>disk_io</code></td>
+<td>계산 종류에 따름</td>
+<td><code>'none'</code> / <code>'low'</code> / <code>'medium'</code> / <code>'high'</code> / <code>'nowf'</code>. MD에서는 <code>'none'</code></td>
+</tr>
+<tr>
+<td><code>tprnfor</code></td>
+<td>scf에서 <code>.false.</code></td>
+<td>힘 출력. <strong>ML 학습 데이터라면 반드시 <code>.true.</code></strong></td>
+</tr>
+<tr>
+<td><code>tstress</code></td>
+<td><code>.false.</code></td>
+<td>응력 출력</td>
+</tr>
+<tr>
+<td><code>etot_conv_thr</code></td>
+<td>1.0d-4 Ry</td>
+<td>이온 최적화의 에너지 수렴 기준</td>
+</tr>
+<tr>
+<td><code>forc_conv_thr</code></td>
+<td>1.0d-3 Ry/bohr</td>
+<td>이온 최적화의 힘 수렴 기준</td>
+</tr>
+<tr>
+<td><code>max_seconds</code></td>
+<td>1.0d7</td>
+<td>시간 초과 시 안전 저장 후 종료. <strong>HPC 배치에서 필수</strong></td>
+</tr>
+<tr>
+<td><code>tefield</code>, <code>dipfield</code></td>
+<td><code>.false.</code></td>
+<td>톱니 전기장 / 쌍극자 보정 스위치. <strong>&amp;CONTROL 소속</strong> (위치 파라미터 <code>edir</code> 등은 &amp;SYSTEM)</td>
+</tr>
+<tr>
+<td><code>lelfield</code>, <code>gate</code>, <code>trism</code></td>
+<td><code>.false.</code></td>
+<td>특수 기능 (유한 전기장 / 게이트 / RISM)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="system">&amp;SYSTEM — 격자와 원자</h2>
+<table>
+<thead>
+<tr>
+<th>변수</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ibrav</code></td>
+<td>0 = <code>CELL_PARAMETERS</code>로 직접 지정 / 1 단순입방 / 2 fcc / 3 bcc / 4 육방 / 5 능면체 / 6·7 정방 / 8~11 사방 / 12·13 단사 / 14 삼사</td>
+</tr>
+<tr>
+<td><code>celldm(1..6)</code></td>
+<td><code>ibrav</code>에 따른 격자 파라미터. <strong><code>celldm(1)</code>은 bohr</strong></td>
+</tr>
+<tr>
+<td><code>A, B, C, cosAB, cosAC, cosBC</code></td>
+<td><code>celldm</code>의 대안. <strong><code>A</code>는 Å 단위</strong> (혼동 주의)</td>
+</tr>
+<tr>
+<td><code>nat</code>, <code>ntyp</code></td>
+<td>원자 수 / 원자 종류 수. 카드의 줄 수와 일치해야 함</td>
+</tr>
+<tr>
+<td><code>nosym</code>, <code>noinv</code></td>
+<td>대칭/반전 사용 억제. 특수한 자기 배열이나 디버깅용</td>
+</tr>
+</tbody>
+</table>
+<p><code>ibrav=0</code>은 유연하지만 대칭 자동 탐지가 약해질 수 있습니다. 출력의
+<code>Sym. Ops.</code> 개수를 확인하세요.</p>
+<h2 id="system_1">&amp;SYSTEM — 기저와 컷오프</h2>
+<table>
+<thead>
+<tr>
+<th>변수</th>
+<th>기본값</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ecutwfc</code></td>
+<td><strong>필수</strong></td>
+<td>파동함수 컷오프 (Ry)</td>
+</tr>
+<tr>
+<td><code>ecutrho</code></td>
+<td><code>4*ecutwfc</code></td>
+<td>전하밀도 컷오프 (Ry). <strong>US/PAW는 8~12배 필요</strong></td>
+</tr>
+<tr>
+<td><code>nbnd</code></td>
+<td>절연체 <code>nelec/2</code>, 금속은 그보다 여유</td>
+<td>밴드 수. DOS/밴드 계산에서는 넉넉히</td>
+</tr>
+</tbody>
+</table>
+<h2 id="system-smearing">&amp;SYSTEM — 점유수와 smearing</h2>
+<table>
+<thead>
+<tr>
+<th>변수</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>occupations</code></td>
+<td><code>'fixed'</code>(절연체) / <code>'smearing'</code>(금속) / <code>'tetrahedra'</code> / <code>'tetrahedra_lin'</code> / <code>'tetrahedra_opt'</code>(DOS·밴드용 nscf) / <code>'from_input'</code></td>
+</tr>
+<tr>
+<td><code>smearing</code></td>
+<td><code>'gaussian'</code> / <code>'methfessel-paxton'</code>(<code>'mp'</code>) / <code>'marzari-vanderbilt'</code>(<code>'mv'</code>, <code>'cold'</code>) / <code>'fermi-dirac'</code>(<code>'fd'</code>)</td>
+</tr>
+<tr>
+<td><code>degauss</code></td>
+<td>smearing 폭 (Ry). 금속은 보통 0.01~0.02</td>
+</tr>
+</tbody>
+</table>
+<p>사면체법(<code>tetrahedra*</code>)은 <strong>Γ 중심의 shift 없는 자동 그리드</strong>를 요구하며
+<code>nscf</code>에서 씁니다.</p>
+<h2 id="system_2">&amp;SYSTEM — 스핀과 자성</h2>
+<table>
+<thead>
+<tr>
+<th>변수</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nspin</code></td>
+<td>1 비편극 / 2 공선 스핀 편극 / 4 비공선(<code>noncolin</code> 사용 권장)</td>
+</tr>
+<tr>
+<td><code>starting_magnetization(i)</code></td>
+<td>원자종 <code>i</code>의 <strong>초기 자화 비율 (−1~1)</strong>. Bohr magneton 아님</td>
+</tr>
+<tr>
+<td><code>tot_magnetization</code></td>
+<td>셀 전체 자화를 구속. up/down에 별도 Fermi 준위</td>
+</tr>
+<tr>
+<td><code>noncolin</code></td>
+<td><code>.true.</code>면 비공선 자성</td>
+</tr>
+<tr>
+<td><code>lspinorb</code></td>
+<td>스핀궤도결합. 완전상대론적 유사퍼텐셜 필요</td>
+</tr>
+<tr>
+<td><code>angle1(i)</code>, <code>angle2(i)</code></td>
+<td>비공선일 때 자화 방향 (도)</td>
+</tr>
+<tr>
+<td><code>constrained_magnetization</code></td>
+<td><code>'atomic'</code>, <code>'total'</code> 등. <code>lambda</code>로 구속 강도 조절</td>
+</tr>
+</tbody>
+</table>
+<h2 id="system-dftu-v71">&amp;SYSTEM — DFT+U 관련 (v7.1+ 신문법)</h2>
+<p>U 파라미터는 <strong><code>&amp;SYSTEM</code>이 아니라 <code>HUBBARD</code> 카드</strong>(<a href="ref-cards.html">R2</a>)에
+씁니다. <code>&amp;SYSTEM</code>에 남아 있는 관련 변수:</p>
+<table>
+<thead>
+<tr>
+<th>변수</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>starting_ns_eigenvalue(m, ispin, ityp)</code></td>
+<td>초기 d/f 궤도 점유 고유값을 강제. <strong>FeO처럼 잘못된 극소값에 갇히는 계에 필수</strong></td>
+</tr>
+<tr>
+<td><code>Hubbard_occ(ityp, i)</code></td>
+<td>Hubbard 매니폴드의 초기 점유수 override</td>
+</tr>
+</tbody>
+</table>
+<p><strong>폐기된 문법</strong>: <code>lda_plus_u</code>, <code>lda_plus_u_kind</code>, <code>Hubbard_U(i)</code>,
+<code>U_projection_type</code> — v7.1 이후 <code>HUBBARD</code> 카드로 대체되었습니다.</p>
+<h2 id="system_3">&amp;SYSTEM — 범함수·분산·고립계·전기장</h2>
+<table>
+<thead>
+<tr>
+<th>변수</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>input_dft</code></td>
+<td>유사퍼텐셜에 내장된 범함수 override. 되도록 쓰지 말 것</td>
+</tr>
+<tr>
+<td><code>vdw_corr</code></td>
+<td><code>'grimme-d2'</code> / <code>'grimme-d3'</code> / <code>'ts-vdw'</code> / <code>'xdm'</code> / <code>'mbd'</code></td>
+</tr>
+<tr>
+<td><code>assume_isolated</code></td>
+<td><code>'none'</code> / <code>'makov-payne'</code> / <code>'martyna-tuckerman'</code>(<code>'mt'</code>) / <code>'esm'</code> / <code>'2D'</code></td>
+</tr>
+<tr>
+<td><code>edir</code>, <code>emaxpos</code>, <code>eopreg</code>, <code>eamp</code></td>
+<td>전기장 방향(1/2/3), 위치, 폭, 세기 (스위치 <code>tefield</code>/<code>dipfield</code>는 &amp;CONTROL)</td>
+</tr>
+<tr>
+<td><code>exx_fraction</code>, <code>screening_parameter</code>, <code>nqx1..3</code></td>
+<td>하이브리드 범함수 파라미터</td>
+</tr>
+</tbody>
+</table>
+<h2 id="electrons">&amp;ELECTRONS</h2>
+<table>
+<thead>
+<tr>
+<th>변수</th>
+<th>기본값</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>electron_maxstep</code></td>
+<td>100</td>
+<td>SCF 최대 반복</td>
+</tr>
+<tr>
+<td><code>conv_thr</code></td>
+<td>1.0d-6</td>
+<td>SCF 수렴 임계값 (Ry). <code>hp.x</code> 선행 계산은 1.0d-12 권장</td>
+</tr>
+<tr>
+<td><code>mixing_mode</code></td>
+<td><code>'plain'</code></td>
+<td><code>'plain'</code>(Broyden) / <code>'TF'</code> / <code>'local-TF'</code>. <strong>금속·슬랩·자성계는 <code>'local-TF'</code></strong></td>
+</tr>
+<tr>
+<td><code>mixing_beta</code></td>
+<td>0.7</td>
+<td>혼합 계수. 자성·금속은 0.1~0.3</td>
+</tr>
+<tr>
+<td><code>mixing_ndim</code></td>
+<td>8</td>
+<td>혼합에 쓰는 이전 반복 수. 늘리면 메모리 증가</td>
+</tr>
+<tr>
+<td><code>mixing_fixed_ns</code></td>
+<td>0</td>
+<td>DFT+U: 초기 N회 반복 동안 점유행렬 ns 동결. <strong>nosym+U 조합(MD 등)의 SCF 정체를 풂</strong> (<a href="ex-13-slab-md.html">E13</a> 실측)</td>
+</tr>
+<tr>
+<td><code>diagonalization</code></td>
+<td><code>'david'</code></td>
+<td><code>'david'</code> / <code>'cg'</code> / <code>'ppcg'</code> / <code>'paro'</code> / <code>'rmm-davidson'</code>. 실패 시 <code>'cg'</code>가 느리지만 안정</td>
+</tr>
+<tr>
+<td><code>diago_david_ndim</code></td>
+<td>2</td>
+<td>Davidson 작업공간. 메모리 부족 시 감소</td>
+</tr>
+<tr>
+<td><code>startingwfc</code></td>
+<td><code>'atomic+random'</code></td>
+<td><code>'atomic'</code> / <code>'random'</code> / <code>'file'</code></td>
+</tr>
+<tr>
+<td><code>startingpot</code></td>
+<td><code>'atomic'</code></td>
+<td><code>'atomic'</code> / <code>'file'</code></td>
+</tr>
+<tr>
+<td><code>adaptive_thr</code></td>
+<td><code>.false.</code></td>
+<td>초기 반복에서 임계값 완화 (하이브리드용)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="ions">&amp;IONS</h2>
+<table>
+<thead>
+<tr>
+<th>변수</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ion_dynamics</code></td>
+<td><code>relax</code>: <code>'bfgs'</code>(기본), <code>'damp'</code> / <code>md</code>: <code>'verlet'</code>, <code>'langevin'</code></td>
+</tr>
+<tr>
+<td><code>ion_temperature</code></td>
+<td><code>'not_controlled'</code> / <code>'rescaling'</code> / <code>'rescale-v'</code> / <code>'berendsen'</code> / <code>'andersen'</code> / <code>'svr'</code> / <code>'initial'</code></td>
+</tr>
+<tr>
+<td><code>tempw</code></td>
+<td>목표 온도 (K)</td>
+</tr>
+<tr>
+<td><code>nraise</code></td>
+<td>온도 제어 주기</td>
+</tr>
+<tr>
+<td><code>pot_extrapolation</code>, <code>wfc_extrapolation</code></td>
+<td><code>'none'</code> / <code>'atomic'</code> / <code>'first_order'</code> / <code>'second_order'</code>. MD 속도에 큰 영향</td>
+</tr>
+<tr>
+<td><code>upscale</code></td>
+<td>BFGS에서 SCF 임계값 자동 강화 배수</td>
+</tr>
+<tr>
+<td><code>bfgs_ndim</code></td>
+<td>1 (기본). 2 이상이면 준뉴턴</td>
+</tr>
+</tbody>
+</table>
+<h2 id="cell">&amp;CELL</h2>
+<table>
+<thead>
+<tr>
+<th>변수</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cell_dynamics</code></td>
+<td><code>vc-relax</code>: <code>'bfgs'</code> / <code>vc-md</code>: <code>'pr'</code>, <code>'w'</code></td>
+</tr>
+<tr>
+<td><code>press</code></td>
+<td>목표 압력 (kbar)</td>
+</tr>
+<tr>
+<td><code>press_conv_thr</code></td>
+<td>0.5 kbar (기본)</td>
+</tr>
+<tr>
+<td><code>cell_dofree</code></td>
+<td><code>'all'</code> / <code>'ibrav'</code> / <code>'x'</code>,<code>'y'</code>,<code>'z'</code> / <code>'xy'</code> 등 / <code>'2Dxy'</code> / <code>'2Dshape'</code> / <code>'volume'</code> / <code>'shape'</code>. <strong>슬랩은 <code>'2Dxy'</code></strong></td>
+</tr>
+<tr>
+<td><code>cell_factor</code></td>
+<td>2.0 (vc-relax). 셀이 크게 변할 때 늘림</td>
+</tr>
+<tr>
+<td><code>wmass</code></td>
+<td>셀 관성 질량 (vc-md)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_1">명령행 병렬화 플래그</h2>
+<table>
+<thead>
+<tr>
+<th>플래그</th>
+<th>별칭</th>
+<th>의미</th>
+<th>지침</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-nk</code></td>
+<td><code>-npool</code></td>
+<td>k-점 풀 분할</td>
+<td><strong>효율 최고.</strong> k-점 수를 나누어떨어지게. 메모리 부족 시 줄임</td>
+</tr>
+<tr>
+<td><code>-nb</code></td>
+<td><code>-nband</code></td>
+<td>밴드 그룹</td>
+<td>하이브리드·EXX에서 유효</td>
+</tr>
+<tr>
+<td><code>-nt</code></td>
+<td><code>-ntg</code></td>
+<td>FFT task group</td>
+<td>밴드·코어가 많을 때</td>
+</tr>
+<tr>
+<td><code>-nd</code></td>
+<td><code>-ndiag</code></td>
+<td>대각화 그룹</td>
+<td><strong>제곱수여야 함.</strong> 큰 계에서만</td>
+</tr>
+<tr>
+<td><code>-ni</code></td>
+<td><code>-nimage</code></td>
+<td>이미지 병렬</td>
+<td>NEB, 포논, hp.x</td>
+</tr>
+<tr>
+<td><code>-i</code> / <code>-in</code> / <code>-inp</code></td>
+<td></td>
+<td>입력 파일 지정</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">환경 변수</h2>
+<table>
+<thead>
+<tr>
+<th>변수</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ESPRESSO_PSEUDO</code></td>
+<td>유사퍼텐셜 기본 경로 (<code>pseudo_dir</code> 미지정 시)</td>
+</tr>
+<tr>
+<td><code>ESPRESSO_TMPDIR</code></td>
+<td><code>outdir</code> 기본값</td>
+</tr>
+<tr>
+<td><code>OMP_NUM_THREADS</code></td>
+<td>OpenMP 스레드. MPI와 함께 쓸 때 과다 설정 주의 (<a href="18-parallel-hpc.html">18장</a>)</td>
+</tr>
+<tr>
+<td><code>ESPRESSO_ROOT</code></td>
+<td>소스 트리 경로</td>
+</tr>
+</tbody>
+</table>
+      </article>
+<nav class="page-nav"><a class="prev" href="18-parallel-hpc.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">병렬 실행과 HPC 운영</div></a><a class="next" href="ref-cards.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">카드 레퍼런스</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>입력 파일 구조 · QE 가이드</title>
-  <meta name="description" content="pw.x 입력의 네임리스트(&amp;CONTROL/&amp;SYSTEM/&amp;ELECTRONS)와 카드 문법, 최소 입력 해부." />
+  <title>hp.x 로 U 계산하기 · QE 가이드</title>
+  <meta name="description" content="선형 응답 이론으로 U를 제일원리 계산하는 hp.x 워크플로와 수렴 파라미터." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -37,7 +37,7 @@
       <ul class="nav-list">
         <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
         <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html" class="active" aria-current="page"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
         <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
       </ul>
     </div>
@@ -64,7 +64,7 @@
       <ul class="nav-list">
         <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
         <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="14-hubbard-hp.html" class="active" aria-current="page"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
       </ul>
     </div>
     <div class="nav-section">
@@ -107,136 +107,88 @@
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 02 · 입문 · 시작</div>
-        <h1 class="page-title">입력 파일 구조</h1>
-        <p class="page-lede">pw.x 입력의 네임리스트(&amp;CONTROL/&amp;SYSTEM/&amp;ELECTRONS)와 카드 문법, 최소 입력 해부.</p>
+        <div class="page-eyebrow">CHAPTER 14 · 심화 · 자성과 강상관</div>
+        <h1 class="page-title">hp.x 로 U 계산하기</h1>
+        <p class="page-lede">선형 응답 이론으로 U를 제일원리 계산하는 hp.x 워크플로와 수렴 파라미터.</p>
       </header>
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
-<li><a href="#_1">입력은 네임리스트와 카드, 두 층입니다</a></li>
-<li><a href="#scf">최소 입력 해부 — 실리콘 SCF</a></li>
-<li><a href="#_2">실행 명령</a></li>
-<li><a href="#_3">관련 예제</a></li>
+<li><a href="#_1">원리 한 줄</a></li>
+<li><a href="#_2">워크플로</a></li>
+<li><a href="#_3">주의점</a></li>
+<li><a href="#_4">관련 예제</a></li>
 </ul>
 </div>
-<h2 id="_1">입력은 네임리스트와 카드, 두 층입니다</h2>
-<p><code>pw.x</code> 입력 파일은 두 종류의 블록으로 구성됩니다.</p>
-<ul>
-<li><strong>네임리스트(namelist)</strong> — <code>&amp;CONTROL</code>, <code>&amp;SYSTEM</code>, <code>&amp;ELECTRONS</code>처럼 <code>&amp;이름</code>으로
-  시작해 <code>/</code>로 닫는 Fortran 네임리스트. <code>변수 = 값</code> 형태이며 순서는
-  <code>&amp;CONTROL → &amp;SYSTEM → &amp;ELECTRONS → (&amp;IONS) → (&amp;CELL)</code> 로 고정입니다.</li>
-<li><strong>카드(card)</strong> — <code>ATOMIC_SPECIES</code>, <code>ATOMIC_POSITIONS</code>, <code>K_POINTS</code>,
-  <code>CELL_PARAMETERS</code>, <code>HUBBARD</code>처럼 대문자 제목 아래 표 형태의 데이터가 오는
-  블록. 네임리스트 뒤에 옵니다. 일부 카드는 괄호로 단위/옵션을 받습니다
-  (예: <code>ATOMIC_POSITIONS (crystal)</code>).</li>
-</ul>
-<p>문자열은 작은따옴표(<code>'scf'</code>), 논리값은 <code>.true.</code>/<code>.false.</code>, 주석은 <code>!</code>입니다.</p>
-<h2 id="scf">최소 입력 해부 — 실리콘 SCF</h2>
-<p>첫 계산은 <strong>반드시 실리콘 같은 단순 반도체</strong>로 하세요. Fe 계로 바로 뛰어들면
-수렴 실패의 원인이 물리 문제인지 설정 문제인지 구별할 수 없습니다.</p>
-<pre><code class="language-fortran">&amp;CONTROL
-  calculation  = 'scf'        ! scf / nscf / bands / relax / vc-relax / md
-  prefix       = 'si'         ! 출력 파일 접두어 (후속 계산과 반드시 일치)
+<p>문헌의 U 값을 베끼는 것보다, <strong>선형 응답(DFPT)으로 자기 계에 맞는 U를 직접
+계산</strong>하는 것이 방법론적으로 훨씬 방어 가능합니다. <code>hp.x</code>가 그 도구입니다
+(Timrov, Cococcioni, Marzari, <em>Comput. Phys. Commun.</em> <strong>2022</strong>, <em>279</em>, 108455).</p>
+<h2 id="_1">원리 한 줄</h2>
+<p>Hubbard U는 국소화된 매니폴드의 점유수를 살짝 흔들었을 때(섭동) 계가
+얼마나 되받아치는지(응답 행렬 χ)로 정의됩니다. <code>hp.x</code>는 이 응답을
+밀도범함수 섭동이론으로 계산해, 스크리닝된 상호작용</p>
+<p>$$U = (\chi_0^{-1} - \chi^{-1})$$</p>
+<p>을 돌려줍니다. 경험 파라미터가 들어가지 않습니다.</p>
+<h2 id="_2">워크플로</h2>
+<pre><code>pw.x (작은 초기 U를 넣은 scf, conv_thr 1.0d-12) → hp.x → prefix.Hubbard_parameters.dat
+</code></pre>
+<p><strong>Step 1</strong> — <a href="ex-11-feo-hubbard.html">예제 E11</a>의 입력을 그대로 쓰되 U를
+아주 작은 값으로 넣고 <code>scf</code>를 돌립니다. <code>hp.x</code>가 "어떤 원자를 섭동할지"
+인식하려면 <strong>HUBBARD 카드가 있어야</strong> 합니다.</p>
+<pre><code class="language-fortran">HUBBARD (ortho-atomic)
+U Fe1-3d 1.0d-8
+U Fe2-3d 1.0d-8
+</code></pre>
+<p><code>&amp;ELECTRONS</code>의 <code>conv_thr</code>는 <code>1.0d-12</code> 수준으로 엄격하게 둡니다 — 선형 응답은
+바닥상태 밀도의 품질에 민감합니다.</p>
+<p><strong>Step 2</strong> — <code>hp.x</code> 입력(<code>&amp;INPUTHP</code>):</p>
+<pre><code class="language-fortran">&amp;INPUTHP
+  prefix       = 'FeO'
   outdir       = './tmp/'
-  pseudo_dir   = './pseudo/'
-  verbosity    = 'high'       ! 학습 단계에서는 무조건 high
-  tprnfor      = .true.       ! 힘 출력
-  tstress      = .true.       ! 응력 출력
+  nq1 = 2, nq2 = 2, nq3 = 2
+  conv_thr_chi = 1.0d-6
+  iverbosity   = 2
 /
-&amp;SYSTEM
-  ibrav        = 2            ! fcc. 0이면 CELL_PARAMETERS로 직접 지정
-  celldm(1)    = 10.26        ! bohr 단위 (= 5.43 Å)
-  nat          = 2
-  ntyp         = 1
-  ecutwfc      = 30           ! Ry — 파동함수 컷오프
-  ecutrho      = 240          ! Ry — 전하밀도 컷오프 (PAW/US는 8배)
-  occupations  = 'fixed'      ! 절연체/반도체
-/
-&amp;ELECTRONS
-  conv_thr     = 1.0d-8       ! Ry
-  mixing_beta  = 0.7
-/
-
-ATOMIC_SPECIES
-  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
-
-ATOMIC_POSITIONS (alat)
-  Si  0.00  0.00  0.00
-  Si  0.25  0.25  0.25
-
-K_POINTS (automatic)
-  8 8 8  0 0 0
 </code></pre>
-<p>각 블록의 역할:</p>
-<table>
-<thead>
-<tr>
-<th>블록</th>
-<th>담당</th>
-<th>자세히</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>&amp;CONTROL</code></td>
-<td>무엇을 계산하고 어디에 쓸 것인가</td>
-<td>계산 종류는 <a href="08-scf-nscf.html">08장</a>·<a href="09-relaxation.html">09장</a></td>
-</tr>
-<tr>
-<td><code>&amp;SYSTEM</code></td>
-<td>계가 무엇인가 (셀, 원자 수, 기저, 점유)</td>
-<td>단위·좌표는 <a href="03-units-coordinates.html">03장</a>, 점유는 <a href="06-occupations.html">06장</a></td>
-</tr>
-<tr>
-<td><code>&amp;ELECTRONS</code></td>
-<td>SCF를 어떻게 수렴시킬 것인가</td>
-<td><a href="07-scf-control.html">07장</a></td>
-</tr>
-<tr>
-<td><code>ATOMIC_SPECIES</code></td>
-<td>라벨·질량·유사퍼텐셜 파일</td>
-<td><a href="04-pseudopotentials.html">04장</a></td>
-</tr>
-<tr>
-<td><code>ATOMIC_POSITIONS</code></td>
-<td>원자 좌표 (+선택적 <code>if_pos</code> 고정 플래그)</td>
-<td><a href="03-units-coordinates.html">03장</a></td>
-</tr>
-<tr>
-<td><code>K_POINTS</code></td>
-<td>Brillouin zone 샘플링</td>
-<td><a href="05-convergence.html">05장</a></td>
-</tr>
-</tbody>
-</table>
-<p>카드별 전체 문법은 <a href="ref-cards.html">R2 · 카드 레퍼런스</a>에 정리했습니다.</p>
-<h2 id="_2">실행 명령</h2>
-<pre><code class="language-bash">pw.x -in si.scf.in &gt; si.scf.out                       # 직렬
-mpirun -np 8 pw.x -nk 4 -in si.scf.in &gt; si.scf.out    # 병렬 (k-점 풀 4개)
+<p><code>conv_thr_chi</code>는 응답 함수 χ의 수렴 임계값입니다. GGA 바닥상태가 금속성인
+계(FeO가 그렇습니다)에서는 χ의 수치 노이즈 플로어가 10⁻⁷ 수준이라
+1.0d-8은 도달하지 못할 수 있습니다 — 실측 근거는
+<a href="ex-12-feo-hp.html">예제 E12</a>에 있습니다.</p>
+<pre><code class="language-bash">pw.x -in feo_hp_scf.in &gt; feo_hp_scf.out
+hp.x -in feo.hp.in     &gt; feo.hp.out
+cat FeO.Hubbard_parameters.dat
 </code></pre>
-<p>출력은 표준출력으로 나오므로 리다이렉트(<code>&gt;</code>)로 저장합니다. 계산 중간 파일은
-<code>outdir/prefix.save/</code>에 쌓이고, 후속 계산(nscf, 후처리)은 <strong>같은 <code>prefix</code>와
-<code>outdir</code></strong>로 이 디렉터리를 찾아갑니다.</p>
+<p>결과 파일에 원자별 U가 정리되어 나옵니다. 실측 수치는
+<a href="ex-12-feo-hp.html">예제 E12</a>에 있습니다.</p>
+<h2 id="_3">주의점</h2>
+<ul>
+<li><strong><code>nq</code> 그리드 수렴 테스트가 필수입니다.</strong> 1×1×1로 얻은 U는 신뢰할 수
+  없습니다. scf의 k-그리드도 함께 수렴시켜야 합니다.</li>
+<li><code>hp.x</code>는 계산량이 큽니다. 섭동 횟수는 비등가 Hubbard 원자 수에 비례하고,
+  각 섭동마다 q-점 격자만큼의 선형 응답 계산이 돕니다. <code>-nk</code> 풀 병렬이
+  그대로 적용되고, q-점은 <code>start_q</code>/<code>last_q</code>로 나눠 돌릴 수 있습니다.</li>
+<li>얻은 U를 다시 HUBBARD 카드에 넣어 scf → hp.x를 반복하는
+  <strong>self-consistent U</strong> 절차가 정석입니다. 보통 1~2회 반복이면 안정됩니다.</li>
+<li>라벨 분리(<code>Fe1</code>/<code>Fe2</code>)를 해 두었다면 hp.x가 대칭 등가성을 인식해 등가
+  원자의 섭동을 건너뜁니다(<code>skip_equivalence_q</code> 등 옵션 참조).</li>
+</ul>
 <div class="warning">
   <div class="note-title">흔한 실수</div>
   <p>
-    네임리스트를 <code>/</code>로 닫지 않으면
-    <code>namelist not found</code> 에러가 납니다. 문자열을 큰따옴표로 쓰거나
-    논리값을 <code>true</code>로 쓰는 것도 파싱 실패의 단골 원인입니다.
-    카드 이름 오타는 <code>Error in routine card_xxx</code>로 나타납니다.
-    입력 문법 오류 전반은 <a href="ref-errors.html">R3 · 오류 사전</a>을
-    참고하세요.
+    <code>hp.x</code>로 얻은 U를 <strong>다른 투영자·다른 유사퍼텐셜</strong>
+    설정에 이식하는 것. U는 계산된 조건(투영자, PP, 자기 배열)과 세트로만
+    의미가 있습니다. 또, 선행 scf의 <code>conv_thr</code>가 느슨하면 응답
+    행렬에 잡음이 들어가 U가 수 eV씩 흔들립니다 — 1.0d-12를 지키세요.
   </p>
 </div>
 
-<h2 id="_3">관련 예제</h2>
+<h2 id="_4">관련 예제</h2>
 <ul>
-<li><a href="ex-01-si-scf.html">E1 · Si SCF</a> — 이 입력을 그대로 실행하고 출력을 읽습니다.</li>
-<li><a href="ex-02-si-ibrav0.html">E2 · ibrav=0 다시 쓰기</a> — 같은 계를 다른 문법으로.</li>
+<li><a href="ex-12-feo-hp.html">E12 · hp.x 로 U 계산</a> — FeO에서 U를 실측으로 계산.</li>
+<li><a href="ex-11-feo-hubbard.html">E11 · FeO DFT+U</a> — 얻은 U를 넣어 갭 확인.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="01-getting-started.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">시작하기</div></a><a class="next" href="03-units-coordinates.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">단위계와 좌표계</div></a></nav>
+<nav class="page-nav"><a class="prev" href="13-dft-plus-u.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">DFT+U와 HUBBARD 카드</div></a><a class="next" href="15-surfaces.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">표면·슬랩과 일함수</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

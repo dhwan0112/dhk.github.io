@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>입력 파일 구조 · QE 가이드</title>
-  <meta name="description" content="pw.x 입력의 네임리스트(&amp;CONTROL/&amp;SYSTEM/&amp;ELECTRONS)와 카드 문법, 최소 입력 해부." />
+  <title>전하밀도와 퍼텐셜 · QE 가이드</title>
+  <meta name="description" content="pp.x의 plot_num, 전하밀도·퍼텐셜 추출, 큐브 파일과 시각화 도구." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -37,7 +37,7 @@
       <ul class="nav-list">
         <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
         <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html" class="active" aria-current="page"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
         <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
       </ul>
     </div>
@@ -56,7 +56,7 @@
         <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
         <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
         <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="11-postprocessing.html" class="active" aria-current="page"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
       </ul>
     </div>
     <div class="nav-section">
@@ -107,136 +107,129 @@
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 02 · 입문 · 시작</div>
-        <h1 class="page-title">입력 파일 구조</h1>
-        <p class="page-lede">pw.x 입력의 네임리스트(&amp;CONTROL/&amp;SYSTEM/&amp;ELECTRONS)와 카드 문법, 최소 입력 해부.</p>
+        <div class="page-eyebrow">CHAPTER 11 · 입문 · 계산 종류</div>
+        <h1 class="page-title">전하밀도와 퍼텐셜</h1>
+        <p class="page-lede">pp.x의 plot_num, 전하밀도·퍼텐셜 추출, 큐브 파일과 시각화 도구.</p>
       </header>
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
-<li><a href="#_1">입력은 네임리스트와 카드, 두 층입니다</a></li>
-<li><a href="#scf">최소 입력 해부 — 실리콘 SCF</a></li>
-<li><a href="#_2">실행 명령</a></li>
-<li><a href="#_3">관련 예제</a></li>
+<li><a href="#_1">입력 골격</a></li>
+<li><a href="#plot_num">자주 쓰는 plot_num</a></li>
+<li><a href="#_2">일함수 계산의 뼈대</a></li>
+<li><a href="#bader-qe">Bader 전하 — QE 내장이 아닙니다</a></li>
+<li><a href="#_3">시각화 도구</a></li>
+<li><a href="#_4">관련 예제</a></li>
 </ul>
 </div>
-<h2 id="_1">입력은 네임리스트와 카드, 두 층입니다</h2>
-<p><code>pw.x</code> 입력 파일은 두 종류의 블록으로 구성됩니다.</p>
-<ul>
-<li><strong>네임리스트(namelist)</strong> — <code>&amp;CONTROL</code>, <code>&amp;SYSTEM</code>, <code>&amp;ELECTRONS</code>처럼 <code>&amp;이름</code>으로
-  시작해 <code>/</code>로 닫는 Fortran 네임리스트. <code>변수 = 값</code> 형태이며 순서는
-  <code>&amp;CONTROL → &amp;SYSTEM → &amp;ELECTRONS → (&amp;IONS) → (&amp;CELL)</code> 로 고정입니다.</li>
-<li><strong>카드(card)</strong> — <code>ATOMIC_SPECIES</code>, <code>ATOMIC_POSITIONS</code>, <code>K_POINTS</code>,
-  <code>CELL_PARAMETERS</code>, <code>HUBBARD</code>처럼 대문자 제목 아래 표 형태의 데이터가 오는
-  블록. 네임리스트 뒤에 옵니다. 일부 카드는 괄호로 단위/옵션을 받습니다
-  (예: <code>ATOMIC_POSITIONS (crystal)</code>).</li>
-</ul>
-<p>문자열은 작은따옴표(<code>'scf'</code>), 논리값은 <code>.true.</code>/<code>.false.</code>, 주석은 <code>!</code>입니다.</p>
-<h2 id="scf">최소 입력 해부 — 실리콘 SCF</h2>
-<p>첫 계산은 <strong>반드시 실리콘 같은 단순 반도체</strong>로 하세요. Fe 계로 바로 뛰어들면
-수렴 실패의 원인이 물리 문제인지 설정 문제인지 구별할 수 없습니다.</p>
-<pre><code class="language-fortran">&amp;CONTROL
-  calculation  = 'scf'        ! scf / nscf / bands / relax / vc-relax / md
-  prefix       = 'si'         ! 출력 파일 접두어 (후속 계산과 반드시 일치)
-  outdir       = './tmp/'
-  pseudo_dir   = './pseudo/'
-  verbosity    = 'high'       ! 학습 단계에서는 무조건 high
-  tprnfor      = .true.       ! 힘 출력
-  tstress      = .true.       ! 응력 출력
+<p><code>pp.x</code>는 SCF가 만들어 둔 밀도·퍼텐셜을 실공간 격자로 추출해 시각화 가능한
+파일로 바꿉니다. 입력은 두 네임리스트입니다 — 무엇을 뽑을가(<code>&amp;INPUTPP</code>)와
+어떤 형식으로 쓸가(<code>&amp;PLOT</code>).</p>
+<h2 id="_1">입력 골격</h2>
+<pre><code class="language-fortran">&amp;INPUTPP
+  prefix   = 'si'
+  outdir   = './tmp/'
+  filplot  = 'si.rho.dat'
+  plot_num = 0              ! 0 = 원자가 전하밀도
 /
-&amp;SYSTEM
-  ibrav        = 2            ! fcc. 0이면 CELL_PARAMETERS로 직접 지정
-  celldm(1)    = 10.26        ! bohr 단위 (= 5.43 Å)
-  nat          = 2
-  ntyp         = 1
-  ecutwfc      = 30           ! Ry — 파동함수 컷오프
-  ecutrho      = 240          ! Ry — 전하밀도 컷오프 (PAW/US는 8배)
-  occupations  = 'fixed'      ! 절연체/반도체
+&amp;PLOT
+  nfile         = 1
+  filepp(1)     = 'si.rho.dat'
+  weight(1)     = 1.0
+  iflag         = 3         ! 3 = 3D
+  output_format = 6         ! 6 = Gaussian cube
+  fileout       = 'si.rho.cube'
 /
-&amp;ELECTRONS
-  conv_thr     = 1.0d-8       ! Ry
-  mixing_beta  = 0.7
-/
-
-ATOMIC_SPECIES
-  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
-
-ATOMIC_POSITIONS (alat)
-  Si  0.00  0.00  0.00
-  Si  0.25  0.25  0.25
-
-K_POINTS (automatic)
-  8 8 8  0 0 0
 </code></pre>
-<p>각 블록의 역할:</p>
+<p><code>iflag</code>: 0 = 1D 선 / 1 = 구면평균 / 2 = 2D 단면 / 3 = 3D.
+<code>output_format</code>: 0 = gnuplot / 5 = XSF(XCrySDen) / 6 = Gaussian cube 등.</p>
+<h2 id="plot_num">자주 쓰는 plot_num</h2>
 <table>
 <thead>
 <tr>
-<th>블록</th>
-<th>담당</th>
-<th>자세히</th>
+<th>값</th>
+<th>내용</th>
+<th>용도</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>&amp;CONTROL</code></td>
-<td>무엇을 계산하고 어디에 쓸 것인가</td>
-<td>계산 종류는 <a href="08-scf-nscf.html">08장</a>·<a href="09-relaxation.html">09장</a></td>
+<td>0</td>
+<td>원자가 전하밀도</td>
+<td>결합 성격 관찰</td>
 </tr>
 <tr>
-<td><code>&amp;SYSTEM</code></td>
-<td>계가 무엇인가 (셀, 원자 수, 기저, 점유)</td>
-<td>단위·좌표는 <a href="03-units-coordinates.html">03장</a>, 점유는 <a href="06-occupations.html">06장</a></td>
+<td>1</td>
+<td>총 퍼텐셜 (V_bare + V_H + V_xc)</td>
+<td></td>
 </tr>
 <tr>
-<td><code>&amp;ELECTRONS</code></td>
-<td>SCF를 어떻게 수렴시킬 것인가</td>
-<td><a href="07-scf-control.html">07장</a></td>
+<td>2</td>
+<td>국소 이온 퍼텐셜</td>
+<td></td>
 </tr>
 <tr>
-<td><code>ATOMIC_SPECIES</code></td>
-<td>라벨·질량·유사퍼텐셜 파일</td>
-<td><a href="04-pseudopotentials.html">04장</a></td>
+<td>5</td>
+<td>STM 이미지</td>
+<td>표면</td>
 </tr>
 <tr>
-<td><code>ATOMIC_POSITIONS</code></td>
-<td>원자 좌표 (+선택적 <code>if_pos</code> 고정 플래그)</td>
-<td><a href="03-units-coordinates.html">03장</a></td>
+<td>6</td>
+<td>스핀 밀도 ρ↑ − ρ↓</td>
+<td><strong>자성 분포 시각화</strong></td>
 </tr>
 <tr>
-<td><code>K_POINTS</code></td>
-<td>Brillouin zone 샘플링</td>
-<td><a href="05-convergence.html">05장</a></td>
+<td>8</td>
+<td>ELF (전자 국소화 함수)</td>
+<td>결합·고립전자쌍</td>
+</tr>
+<tr>
+<td>11</td>
+<td>bare + Hartree 퍼텐셜</td>
+<td><strong>슬랩 일함수 계산</strong></td>
 </tr>
 </tbody>
 </table>
-<p>카드별 전체 문법은 <a href="ref-cards.html">R2 · 카드 레퍼런스</a>에 정리했습니다.</p>
-<h2 id="_2">실행 명령</h2>
-<pre><code class="language-bash">pw.x -in si.scf.in &gt; si.scf.out                       # 직렬
-mpirun -np 8 pw.x -nk 4 -in si.scf.in &gt; si.scf.out    # 병렬 (k-점 풀 4개)
-</code></pre>
-<p>출력은 표준출력으로 나오므로 리다이렉트(<code>&gt;</code>)로 저장합니다. 계산 중간 파일은
-<code>outdir/prefix.save/</code>에 쌓이고, 후속 계산(nscf, 후처리)은 <strong>같은 <code>prefix</code>와
-<code>outdir</code></strong>로 이 디렉터리를 찾아갑니다.</p>
+<p>나머지 값과 PAW 전전자(all-electron) 전하밀도 옵션은 버전에 따라 다르므로
+반드시 설치 버전의 <code>Doc/INPUT_PP.txt</code>를 확인하세요.</p>
+<h2 id="_2">일함수 계산의 뼈대</h2>
+<p>슬랩에서 <code>plot_num=11</code>로 퍼텐셜을 뽑고, <code>average.x</code>(또는 직접 파싱)로 표면에
+평행한 평면 평균을 낸 뒤:</p>
+<p>$$\Phi = V_{\mathrm{vacuum}} - E_F$$</p>
+<p>진공 준위는 평면평균 퍼텐셜이 진공 한가운데서 평탄해지는 값입니다.
+쌍극자 보정과 함께 쓰는 전체 절차는 <a href="15-surfaces.html">15장</a>과
+<a href="ex-13-slab-md.html">예제 E13</a>에 있습니다.</p>
+<h2 id="bader-qe">Bader 전하 — QE 내장이 아닙니다</h2>
+<p>Bader 전하 분석은 <code>pp.x</code>로 전하밀도를 cube로 뽑은 뒤 Henkelman 그룹의
+<a href="https://theory.cm.utexas.edu/henkelman/code/bader/"><code>bader</code> 코드</a>에 넘기는
+방식입니다. <strong>PAW를 쓴다면 전전자 전하밀도를 써야 정확하며</strong>, 해당
+<code>plot_num</code> 값은 설치 버전의 <code>Doc/INPUT_PP.txt</code>에서 확인하세요. 원자가
+밀도만으로 Bader를 돌리면 코어 전하가 빠져 결과가 왜곡됩니다.</p>
+<h2 id="_3">시각화 도구</h2>
+<ul>
+<li><strong>VESTA</strong> — 구조 + cube 등가면. 가장 무난한 출발점.</li>
+<li><strong>XCrySDen</strong> — QE와 궁합이 좋은 고전 도구 (XSF 형식).</li>
+<li><strong>Python (ASE / pymatgen)</strong> — 후처리를 직접 파싱하는 습관을 들이면 이후
+  자동화가 훨씬 쉬워집니다. 본 가이드의 그림도 전부 Python으로 그렸습니다.</li>
+</ul>
 <div class="warning">
   <div class="note-title">흔한 실수</div>
   <p>
-    네임리스트를 <code>/</code>로 닫지 않으면
-    <code>namelist not found</code> 에러가 납니다. 문자열을 큰따옴표로 쓰거나
-    논리값을 <code>true</code>로 쓰는 것도 파싱 실패의 단골 원인입니다.
-    카드 이름 오타는 <code>Error in routine card_xxx</code>로 나타납니다.
-    입력 문법 오류 전반은 <a href="ref-errors.html">R3 · 오류 사전</a>을
-    참고하세요.
+    스핀 계에서 <code>plot_num=6</code>(스핀 밀도)을 뽑았는데 0에 가깝게 나오는
+    경우 — <code>spin_component</code> 설정과, 애초에 SCF가 자성 해로 수렴했는지
+    (<code>total/absolute magnetization</code>)부터 확인하세요. 또, cube 파일은
+    금방 수백 MB가 되므로 <code>nx,ny,nz</code>로 격자를 조절하고 저장소를
+    관리하세요.
   </p>
 </div>
 
-<h2 id="_3">관련 예제</h2>
+<h2 id="_4">관련 예제</h2>
 <ul>
-<li><a href="ex-01-si-scf.html">E1 · Si SCF</a> — 이 입력을 그대로 실행하고 출력을 읽습니다.</li>
-<li><a href="ex-02-si-ibrav0.html">E2 · ibrav=0 다시 쓰기</a> — 같은 계를 다른 문법으로.</li>
+<li><a href="ex-13-slab-md.html">E13 · 슬랩과 AIMD</a> — <code>plot_num=11</code>로 일함수 실측.</li>
+<li><a href="ex-09-fe-bcc.html">E9 · bcc Fe</a> — 스핀 분해 DOS와 함께 보면 좋은 계.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="01-getting-started.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">시작하기</div></a><a class="next" href="03-units-coordinates.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">단위계와 좌표계</div></a></nav>
+<nav class="page-nav"><a class="prev" href="10-dos-bands.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">상태밀도와 밴드</div></a><a class="next" href="12-magnetism.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">스핀 편극과 자성</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

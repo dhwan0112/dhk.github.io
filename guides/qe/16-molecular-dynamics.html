@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>입력 파일 구조 · QE 가이드</title>
-  <meta name="description" content="pw.x 입력의 네임리스트(&amp;CONTROL/&amp;SYSTEM/&amp;ELECTRONS)와 카드 문법, 최소 입력 해부." />
+  <title>분자동역학 · QE 가이드</title>
+  <meta name="description" content="Born-Oppenheimer MD, 온도조절(SVR), ML 퍼텐셜 학습 데이터 샘플링의 출발점." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -37,7 +37,7 @@
       <ul class="nav-list">
         <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
         <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html" class="active" aria-current="page"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
         <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
       </ul>
     </div>
@@ -71,7 +71,7 @@
       <div class="nav-section-title">심화 · 응용과 운영</div>
       <ul class="nav-list">
         <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
+        <li><a href="16-molecular-dynamics.html" class="active" aria-current="page"><span class="nav-num">16</span>분자동역학</a></li>
         <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
         <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
       </ul>
@@ -107,136 +107,107 @@
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 02 · 입문 · 시작</div>
-        <h1 class="page-title">입력 파일 구조</h1>
-        <p class="page-lede">pw.x 입력의 네임리스트(&amp;CONTROL/&amp;SYSTEM/&amp;ELECTRONS)와 카드 문법, 최소 입력 해부.</p>
+        <div class="page-eyebrow">CHAPTER 16 · 심화 · 응용과 운영</div>
+        <h1 class="page-title">분자동역학</h1>
+        <p class="page-lede">Born-Oppenheimer MD, 온도조절(SVR), ML 퍼텐셜 학습 데이터 샘플링의 출발점.</p>
       </header>
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
-<li><a href="#_1">입력은 네임리스트와 카드, 두 층입니다</a></li>
-<li><a href="#scf">최소 입력 해부 — 실리콘 SCF</a></li>
-<li><a href="#_2">실행 명령</a></li>
-<li><a href="#_3">관련 예제</a></li>
+<li><a href="#_1">입력 골격</a></li>
+<li><a href="#feou-300-k-bomd">실측 — FeO+U 셀의 300 K BOMD</a></li>
+<li><a href="#ml">ML 퍼텐셜 학습 데이터를 만들 때의 원칙</a></li>
+<li><a href="#_2">관련 예제</a></li>
 </ul>
 </div>
-<h2 id="_1">입력은 네임리스트와 카드, 두 층입니다</h2>
-<p><code>pw.x</code> 입력 파일은 두 종류의 블록으로 구성됩니다.</p>
-<ul>
-<li><strong>네임리스트(namelist)</strong> — <code>&amp;CONTROL</code>, <code>&amp;SYSTEM</code>, <code>&amp;ELECTRONS</code>처럼 <code>&amp;이름</code>으로
-  시작해 <code>/</code>로 닫는 Fortran 네임리스트. <code>변수 = 값</code> 형태이며 순서는
-  <code>&amp;CONTROL → &amp;SYSTEM → &amp;ELECTRONS → (&amp;IONS) → (&amp;CELL)</code> 로 고정입니다.</li>
-<li><strong>카드(card)</strong> — <code>ATOMIC_SPECIES</code>, <code>ATOMIC_POSITIONS</code>, <code>K_POINTS</code>,
-  <code>CELL_PARAMETERS</code>, <code>HUBBARD</code>처럼 대문자 제목 아래 표 형태의 데이터가 오는
-  블록. 네임리스트 뒤에 옵니다. 일부 카드는 괄호로 단위/옵션을 받습니다
-  (예: <code>ATOMIC_POSITIONS (crystal)</code>).</li>
-</ul>
-<p>문자열은 작은따옴표(<code>'scf'</code>), 논리값은 <code>.true.</code>/<code>.false.</code>, 주석은 <code>!</code>입니다.</p>
-<h2 id="scf">최소 입력 해부 — 실리콘 SCF</h2>
-<p>첫 계산은 <strong>반드시 실리콘 같은 단순 반도체</strong>로 하세요. Fe 계로 바로 뛰어들면
-수렴 실패의 원인이 물리 문제인지 설정 문제인지 구별할 수 없습니다.</p>
+<p><code>pw.x</code>의 <code>calculation='md'</code>는 매 스텝 SCF를 수렴시키고 그 힘으로 원자를
+움직이는 <strong>Born-Oppenheimer MD(BOMD)</strong>입니다. (Car-Parrinello MD는 별도
+실행 파일 <code>cp.x</code>가 담당합니다.) 유한온도 샘플링, 그리고 특히 <strong>ML 퍼텐셜
+학습 데이터 생성의 출발점</strong>입니다.</p>
+<h2 id="_1">입력 골격</h2>
 <pre><code class="language-fortran">&amp;CONTROL
-  calculation  = 'scf'        ! scf / nscf / bands / relax / vc-relax / md
-  prefix       = 'si'         ! 출력 파일 접두어 (후속 계산과 반드시 일치)
-  outdir       = './tmp/'
-  pseudo_dir   = './pseudo/'
-  verbosity    = 'high'       ! 학습 단계에서는 무조건 high
-  tprnfor      = .true.       ! 힘 출력
-  tstress      = .true.       ! 응력 출력
+  calculation  = 'md'
+  nstep        = 2000
+  dt           = 20.0        ! Rydberg 원자단위 ≈ 0.968 fs
+  tprnfor      = .true.
+  tstress      = .true.
+  disk_io      = 'none'      ! MD는 I/O가 병목
 /
 &amp;SYSTEM
-  ibrav        = 2            ! fcc. 0이면 CELL_PARAMETERS로 직접 지정
-  celldm(1)    = 10.26        ! bohr 단위 (= 5.43 Å)
-  nat          = 2
-  ntyp         = 1
-  ecutwfc      = 30           ! Ry — 파동함수 컷오프
-  ecutrho      = 240          ! Ry — 전하밀도 컷오프 (PAW/US는 8배)
-  occupations  = 'fixed'      ! 절연체/반도체
+  ...
+  nosym        = .true.      ! MD 필수 (아래 흔한 실수)
 /
-&amp;ELECTRONS
-  conv_thr     = 1.0d-8       ! Ry
-  mixing_beta  = 0.7
+&amp;IONS
+  ion_dynamics    = 'verlet'
+  ion_temperature = 'svr'    ! stochastic velocity rescaling
+  tempw           = 300.0    ! K
+  nraise          = 100
 /
-
-ATOMIC_SPECIES
-  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
-
-ATOMIC_POSITIONS (alat)
-  Si  0.00  0.00  0.00
-  Si  0.25  0.25  0.25
-
-K_POINTS (automatic)
-  8 8 8  0 0 0
 </code></pre>
-<p>각 블록의 역할:</p>
-<table>
-<thead>
-<tr>
-<th>블록</th>
-<th>담당</th>
-<th>자세히</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>&amp;CONTROL</code></td>
-<td>무엇을 계산하고 어디에 쓸 것인가</td>
-<td>계산 종류는 <a href="08-scf-nscf.html">08장</a>·<a href="09-relaxation.html">09장</a></td>
-</tr>
-<tr>
-<td><code>&amp;SYSTEM</code></td>
-<td>계가 무엇인가 (셀, 원자 수, 기저, 점유)</td>
-<td>단위·좌표는 <a href="03-units-coordinates.html">03장</a>, 점유는 <a href="06-occupations.html">06장</a></td>
-</tr>
-<tr>
-<td><code>&amp;ELECTRONS</code></td>
-<td>SCF를 어떻게 수렴시킬 것인가</td>
-<td><a href="07-scf-control.html">07장</a></td>
-</tr>
-<tr>
-<td><code>ATOMIC_SPECIES</code></td>
-<td>라벨·질량·유사퍼텐셜 파일</td>
-<td><a href="04-pseudopotentials.html">04장</a></td>
-</tr>
-<tr>
-<td><code>ATOMIC_POSITIONS</code></td>
-<td>원자 좌표 (+선택적 <code>if_pos</code> 고정 플래그)</td>
-<td><a href="03-units-coordinates.html">03장</a></td>
-</tr>
-<tr>
-<td><code>K_POINTS</code></td>
-<td>Brillouin zone 샘플링</td>
-<td><a href="05-convergence.html">05장</a></td>
-</tr>
-</tbody>
-</table>
-<p>카드별 전체 문법은 <a href="ref-cards.html">R2 · 카드 레퍼런스</a>에 정리했습니다.</p>
-<h2 id="_2">실행 명령</h2>
-<pre><code class="language-bash">pw.x -in si.scf.in &gt; si.scf.out                       # 직렬
-mpirun -np 8 pw.x -nk 4 -in si.scf.in &gt; si.scf.out    # 병렬 (k-점 풀 4개)
-</code></pre>
-<p>출력은 표준출력으로 나오므로 리다이렉트(<code>&gt;</code>)로 저장합니다. 계산 중간 파일은
-<code>outdir/prefix.save/</code>에 쌓이고, 후속 계산(nscf, 후처리)은 <strong>같은 <code>prefix</code>와
-<code>outdir</code></strong>로 이 디렉터리를 찾아갑니다.</p>
+<ul>
+<li><code>dt</code>는 <strong>Rydberg 원자단위</strong>입니다 (20.0 a.u. ≈ 0.968 fs). fs가 아닙니다.</li>
+<li>온도조절기는 <code>'svr'</code>(stochastic velocity rescaling, Bussi-Donadio-Parrinello)
+  가 정준 앙상블을 올바르게 샘플링하면서 안정적이라 기본 선택으로 좋습니다.
+  <code>nraise</code>는 제어 주기입니다.</li>
+<li><code>disk_io='none'</code>으로 파동함수 저장을 끄지 않으면 MD는 I/O에 잠깁니다.</li>
+<li>매 스텝이 SCF이므로 <code>&amp;ELECTRONS</code> 설정(수렴 임계값, mixing)이 그대로
+  속도를 지배합니다. 이전 스텝에서 파동함수·퍼텐셜을 외삽하는
+  <code>pot_extrapolation</code>/<code>wfc_extrapolation</code>이 MD 속도에 큰 영향을 줍니다.</li>
+</ul>
+<h2 id="feou-300-k-bomd">실측 — FeO+U 셀의 300 K BOMD</h2>
+<figure>
+  <img src="assets/images/qe-e13-md.png"
+       alt="FeO BOMD: temperature and conserved energy vs time" />
+  <figcaption>
+    FeO(+U) 4원자 셀의 BOMD 실측 (QE 7.5, SVR 300 K, 0.19 ps). 초반에
+    이온들이 이상적 격자점을 벗어나며 위치에너지를 크게 방출하는 과도
+    구간이 보이고, 작은 셀 특유의 큰 온도 요동(~1/√N) 속에서 SVR가
+    평형화를 진행합니다. 학습 데이터는 평형화된 뒤부터 추출합니다.
+    설정과 수치는 <a href="ex-13-slab-md.html">예제 E13</a>.
+  </figcaption>
+</figure>
+
+<h2 id="ml">ML 퍼텐셜 학습 데이터를 만들 때의 원칙</h2>
+<ul>
+<li>모든 프레임에서 <code>ecutwfc</code>·<code>ecutrho</code>·k-그리드·smearing·U를 <strong>완전히
+  동일하게 고정</strong>하세요. 설정이 섞인 데이터셋은 학습 단계에서 복구가
+  불가능합니다.</li>
+<li>수렴 기준은 에너지가 아니라 <strong>힘</strong>으로 잡습니다
+  (<a href="05-convergence.html">05장</a>의 힘 기준 수렴).</li>
+<li>연속된 MD 프레임은 강하게 상관되어 있으므로 <strong>간격을 두고 추출</strong>하세요
+  (예: 50 스텝마다).</li>
+<li>응력까지 학습시키려면 <code>tstress=.true.</code>가 필요하지만, <strong>nosym+U(ortho-atomic)
+  조합에서는 Hubbard 응력이 <code>stres_hub</code> 에러로 죽는 제약</strong>이 있습니다
+  (QE 7.5 실측). 이 경우 추출한 프레임에 대해 별도 scf로 응력을 계산하세요.</li>
+<li>출력에서 각 스텝의 <code>Ekin + Etot (const)</code> 항이 보존되는지, 온도(<code>temperature</code>)
+  가 목표 주위에서 요동하는지 확인하세요.</li>
+</ul>
 <div class="warning">
   <div class="note-title">흔한 실수</div>
   <p>
-    네임리스트를 <code>/</code>로 닫지 않으면
-    <code>namelist not found</code> 에러가 납니다. 문자열을 큰따옴표로 쓰거나
-    논리값을 <code>true</code>로 쓰는 것도 파싱 실패의 단골 원인입니다.
-    카드 이름 오타는 <code>Error in routine card_xxx</code>로 나타납니다.
-    입력 문법 오류 전반은 <a href="ref-errors.html">R3 · 오류 사전</a>을
-    참고하세요.
+    <strong><code>nosym = .true.</code> 없이 MD를 돌리는 것.</strong> 대칭은
+    초기 구조에서 잡히는데 열운동이 첫 스텝부터 그 대칭을 깨므로, QE가
+    <code>checkallsym: some of the original symmetry operations not
+    satisfied</code>로 멈춥니다 — 본 가이드 실측에서 실제로 겪은 에러입니다.
+    또 DFT+U 계의 MD라면 <code>mixing_fixed_ns</code>도 함께 쓰세요 —
+    nosym 상태에서는 축퇴 궤도 사이의 회전 때문에 SCF가 정체하는데, 초기
+    반복 동안 점유행렬을 동결하면 풀립니다
+    (<a href="ex-13-slab-md.html">E13</a> 실측).
+    또, <code>dt</code>를 fs로 착각해 20 fs 스텝으로 돌리면 궤적이 즉시
+    발산합니다. 마지막으로, MD 도중 SCF가 가끔 수렴 실패해도 QE는 이전
+    밀도로 계속 진행할 수 있는데 그 프레임의 힘은 오염되어 있습니다 — 학습
+    데이터로 쓸 궤적이라면 로그에서 <code>convergence NOT achieved</code>를
+    검색해 해당 프레임을 걸러내세요.
   </p>
 </div>
 
-<h2 id="_3">관련 예제</h2>
+<h2 id="_2">관련 예제</h2>
 <ul>
-<li><a href="ex-01-si-scf.html">E1 · Si SCF</a> — 이 입력을 그대로 실행하고 출력을 읽습니다.</li>
-<li><a href="ex-02-si-ibrav0.html">E2 · ibrav=0 다시 쓰기</a> — 같은 계를 다른 문법으로.</li>
+<li><a href="ex-13-slab-md.html">E13 · 슬랩과 AIMD</a> — FeO 셀 300 K BOMD 실측과
+  프레임 추출 요령.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="01-getting-started.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">시작하기</div></a><a class="next" href="03-units-coordinates.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">단위계와 좌표계</div></a></nav>
+<nav class="page-nav"><a class="prev" href="15-surfaces.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">표면·슬랩과 일함수</div></a><a class="next" href="17-phonons-neb.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">포논과 반응 경로</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

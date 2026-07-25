@@ -4,10 +4,12 @@ Mirrors the LAMMPS guide build: reuses the shared guide stylesheet and adds
 KaTeX (math) and Prism (code highlighting) via CDN.
 
 Source layout under SRC:
-    intro/      8 introductory chapters + index.md
-    examples/   4 runnable example walkthroughs
+    index.md        landing page
+    chapters/       18 concept chapters (01~18)
+    ref/            4 reference pages (keywords / cards / errors / executables)
+    examples/       13 runnable labs (E1~E13, bundle inputs under ../files/)
 
-Output: dhk.github.io/guides/qe/*.html (flat; examples prefixed "ex-").
+Output: dhk.github.io/guides/qe/*.html (flat; refs "ref-", examples "ex-").
 """
 
 from __future__ import annotations
@@ -25,59 +27,138 @@ DST.mkdir(parents=True, exist_ok=True)
 
 # (output_filename, source_md_relpath, page_eyebrow, page_lede)
 PAGES = [
-    ("index.html",                 "intro/index.md",               None,
-        "실리콘 SCF 한 예제부터 시작해 pw.x 입력의 네임리스트 구조, 유사퍼텐셜, k점, 밴드·DOS까지 차근차근 풉니다."),
-    ("01-getting-started.html",    "intro/01-getting-started.md",  "CHAPTER 01 · 시작",
-        "설치 확인, pw.x 첫 실행, 가장 단순한 실리콘 SCF, 출력 파일 읽기."),
-    ("02-input-structure.html",    "intro/02-input-structure.md",  "CHAPTER 02 · 시작",
-        "pw.x 입력의 네임리스트(&control/&system/&electrons)와 카드(ATOMIC_*, K_POINTS, CELL_PARAMETERS) 구조."),
-    ("03-pseudopotentials.html",   "intro/03-pseudopotentials.md", "CHAPTER 03 · 계산 준비",
-        "유사퍼텐셜의 종류(NC/US/PAW), SSSP 라이브러리, ecutwfc·ecutrho 컷오프 선택."),
-    ("04-kpoints.html",            "intro/04-kpoints.md",          "CHAPTER 04 · 계산 준비",
-        "Monkhorst-Pack k점 격자, 자동/명시 K_POINTS, 수렴 점검과 금속의 주의점."),
-    ("05-scf-convergence.html",    "intro/05-scf-convergence.md",  "CHAPTER 05 · 계산",
-        "SCF 순환, mixing_beta·conv_thr, 금속의 smearing, 수렴이 안 될 때의 진단."),
-    ("06-relax.html",              "intro/06-relax.md",            "CHAPTER 06 · 계산",
-        "힘과 응력, relax·vc-relax, &ions/&cell, 최적화가 흔들릴 때의 대처."),
-    ("07-bands-dos.html",          "intro/07-bands-dos.md",        "CHAPTER 07 · 결과",
-        "scf→nscf→bands.x 밴드구조, dos.x 상태밀도, projwfc.x 투영 DOS와 후처리."),
-    ("08-troubleshooting.html",    "intro/08-troubleshooting.md",  "CHAPTER 08 · 운영",
-        "자주 나는 오류, 결과 의심 시 점검 순서, 병렬 실행(-nk)과 성능 감각, 좋은 운영 습관."),
-    # === Examples: runnable walkthroughs ===
-    ("ex-01-si-scf.html",          "examples/01-si-scf.md",        "예제 · E1",
-        "실리콘 8원자 셀의 SCF 전체 에너지와 ecutwfc·k점 수렴을 실제로 돌려보는 첫 예제."),
-    ("ex-02-si-bands.html",        "examples/02-si-bands.md",      "예제 · E2",
-        "scf → nscf → bands.x 로 실리콘 밴드구조를, dos.x 로 상태밀도를 뽑는 완전한 워크플로."),
-    ("ex-03-metal-smearing.html",  "examples/03-metal-smearing.md","예제 · E3",
-        "금속 알루미늄을 smearing 으로 SCF 하고 페르미 준위와 상태밀도를 확인하는 예제."),
-    ("ex-04-relax.html",           "examples/04-relax.md",         "예제 · E4",
-        "힘·응력을 이용한 구조 최적화(relax/vc-relax)를 작은 계로 실제로 돌려보는 예제."),
+    ("index.html", "index.md", None,
+        "실리콘 SCF 한 예제부터 반강자성 FeO의 DFT+U까지, pw.x 중심의 제일원리 계산을 단계별로 풉니다."),
+    # === 입문 · 시작 ===
+    ("01-getting-started.html", "chapters/01-getting-started.md", "CHAPTER 01 · 입문 · 시작",
+        "평면파 DFT의 큰 그림, 설치 경로 선택(conda/소스), 설치 검증, 유사퍼텐셜 확보."),
+    ("02-input-structure.html", "chapters/02-input-structure.md", "CHAPTER 02 · 입문 · 시작",
+        "pw.x 입력의 네임리스트(&CONTROL/&SYSTEM/&ELECTRONS)와 카드 문법, 최소 입력 해부."),
+    ("03-units-coordinates.html", "chapters/03-units-coordinates.md", "CHAPTER 03 · 입문 · 시작",
+        "Rydberg 원자단위, ibrav와 celldm, alat·crystal·angstrom 좌표 규약과 흔한 함정."),
+    # === 입문 · 핵심 개념 ===
+    ("04-pseudopotentials.html", "chapters/04-pseudopotentials.md", "CHAPTER 04 · 입문 · 핵심 개념",
+        "NC/US/PAW 유사퍼텐셜의 차이, PSlibrary·SSSP에서 고르는 법, 파일이 요구하는 컷오프 읽기."),
+    ("05-convergence.html", "chapters/05-convergence.md", "CHAPTER 05 · 입문 · 핵심 개념",
+        "ecutwfc·ecutrho·k점 수렴 테스트의 표준 절차, 수렴 판단에서 흔한 오해."),
+    ("06-occupations.html", "chapters/06-occupations.md", "CHAPTER 06 · 입문 · 핵심 개념",
+        "절연체와 금속의 occupations 선택, smearing 종류와 degauss, 실측 스캔."),
+    ("07-scf-control.html", "chapters/07-scf-control.md", "CHAPTER 07 · 입문 · 핵심 개념",
+        "SCF 순환의 구조, mixing_beta·mixing_mode·diagonalization, 수렴 실패 진단 순서."),
+    # === 입문 · 계산 종류 ===
+    ("08-scf-nscf.html", "chapters/08-scf-nscf.md", "CHAPTER 08 · 입문 · 계산 종류",
+        "자기일관(scf)과 비자기일관(nscf/bands) 계산의 역할 분담, 출력 파일 읽는 법."),
+    ("09-relaxation.html", "chapters/09-relaxation.md", "CHAPTER 09 · 입문 · 계산 종류",
+        "힘과 응력, relax/vc-relax, BFGS, &IONS·&CELL, 수렴 기준과 vc-relax 후 재계산."),
+    ("10-dos-bands.html", "chapters/10-dos-bands.md", "CHAPTER 10 · 입문 · 계산 종류",
+        "dos.x·projwfc.x·bands.x 후처리 파이프라인, 갭 읽기와 PDOS 해석."),
+    ("11-postprocessing.html", "chapters/11-postprocessing.md", "CHAPTER 11 · 입문 · 계산 종류",
+        "pp.x의 plot_num, 전하밀도·퍼텐셜 추출, 큐브 파일과 시각화 도구."),
+    # === 심화 · 자성과 강상관 ===
+    ("12-magnetism.html", "chapters/12-magnetism.md", "CHAPTER 12 · 심화 · 자성과 강상관",
+        "nspin·starting_magnetization, FM/AFM 초기화 요령, bcc Fe와 FeO 실측."),
+    ("13-dft-plus-u.html", "chapters/13-dft-plus-u.md", "CHAPTER 13 · 심화 · 자성과 강상관",
+        "자기상호작용 오류와 DFT+U, v7.1+ HUBBARD 카드 문법, FeO에서 갭이 열리는 이유."),
+    ("14-hubbard-hp.html", "chapters/14-hubbard-hp.md", "CHAPTER 14 · 심화 · 자성과 강상관",
+        "선형 응답 이론으로 U를 제일원리 계산하는 hp.x 워크플로와 수렴 파라미터."),
+    # === 심화 · 응용과 운영 ===
+    ("15-surfaces.html", "chapters/15-surfaces.md", "CHAPTER 15 · 심화 · 응용과 운영",
+        "슬랩 모델 만들기, 쌍극자 보정, 평면평균 퍼텐셜과 일함수."),
+    ("16-molecular-dynamics.html", "chapters/16-molecular-dynamics.md", "CHAPTER 16 · 심화 · 응용과 운영",
+        "Born-Oppenheimer MD, 온도조절(SVR), ML 퍼텐셜 학습 데이터 샘플링의 출발점."),
+    ("17-phonons-neb.html", "chapters/17-phonons-neb.md", "CHAPTER 17 · 심화 · 응용과 운영",
+        "ph.x 포논과 neb.x 반응 경로의 큰 그림 — 언제 필요하고 어디서 시작하는지."),
+    ("18-parallel-hpc.html", "chapters/18-parallel-hpc.md", "CHAPTER 18 · 심화 · 응용과 운영",
+        "-nk/-nd/-ni 병렬화 레벨, 작은 계와 큰 계의 스케일링 감각, HPC 운영 습관."),
+    # === 레퍼런스 ===
+    ("ref-keywords.html", "ref/ref-keywords.md", "레퍼런스 · R1",
+        "네임리스트별 주요 변수를 찾아보는 사전. &CONTROL부터 &CELL까지."),
+    ("ref-cards.html", "ref/ref-cards.md", "레퍼런스 · R2",
+        "pw.x 카드(ATOMIC_*, K_POINTS, CELL_PARAMETERS, HUBBARD)의 문법과 옵션."),
+    ("ref-errors.html", "ref/ref-errors.md", "레퍼런스 · R3",
+        "증상 → 원인 → 해결 순서의 오류 사전과 '에러 없이 틀리는 경우' 점검표."),
+    ("ref-executables.html", "ref/ref-executables.md", "레퍼런스 · R4",
+        "QE 스위트 실행 파일 목록과 각각의 입력 네임리스트·입출력 요약."),
+    # === 예제 · 따라 하기 ===
+    ("ex-01-si-scf.html", "examples/01-si-scf.md", "예제 · E1",
+        "가장 단순한 실리콘 SCF를 한 번 돌리고 출력의 모든 블록을 읽어보는 첫 예제."),
+    ("ex-02-si-ibrav0.html", "examples/02-si-ibrav0.md", "예제 · E2",
+        "같은 결정을 ibrav=0 + CELL_PARAMETERS로 다시 정의해 두 표현의 등가성을 확인합니다."),
+    ("ex-03-convergence.html", "examples/03-convergence.md", "예제 · E3",
+        "ecutwfc·k점·힘 수렴 테스트를 셸 스크립트로 자동화하는 표준 절차."),
+    ("ex-04-o2-molecule.html", "examples/04-o2-molecule.md", "예제 · E4",
+        "고립계 보정과 스핀 고정으로 O₂ 삼중항 분자를 계산하고 결합 에너지를 구합니다."),
+    ("ex-05-al-metal.html", "examples/05-al-metal.md", "예제 · E5",
+        "금속 fcc Al의 smearing SCF, 페르미 준위, degauss 선택의 실측 근거."),
+    ("ex-06-si-vcrelax.html", "examples/06-si-vcrelax.md", "예제 · E6",
+        "셀까지 함께 푸는 vc-relax로 실리콘 평형 격자상수를 찾습니다."),
+    ("ex-07-si-dos.html", "examples/07-si-dos.md", "예제 · E7",
+        "scf → nscf → dos.x → projwfc.x 상태밀도 파이프라인과 Löwdin 전하."),
+    ("ex-08-si-bands.html", "examples/08-si-bands.md", "예제 · E8",
+        "고대칭 경로를 따라 실리콘 밴드 구조를 계산하고 간접 갭을 읽습니다."),
+    ("ex-09-fe-bcc.html", "examples/09-fe-bcc.md", "예제 · E9",
+        "스핀 편극 SCF로 bcc Fe의 강자성 바닥상태와 자기모멘트를 계산합니다."),
+    ("ex-10-feo-afm.html", "examples/10-feo-afm.md", "예제 · E10",
+        "반강자성 FeO를 GGA로 계산하면 무엇이 틀리는지 직접 확인합니다."),
+    ("ex-11-feo-hubbard.html", "examples/11-feo-hubbard.md", "예제 · E11",
+        "HUBBARD 카드로 U를 켜 Hubbard 분리를 실측하고, 이상적 큐빅 셀의 유명한 함정까지 진단합니다."),
+    ("ex-12-feo-hp.html", "examples/12-feo-hp.md", "예제 · E12",
+        "경험 파라미터 없이 hp.x 선형 응답으로 U를 제일원리 계산합니다."),
+    ("ex-13-slab-md.html", "examples/13-slab-md.md", "예제 · E13",
+        "슬랩 생성과 일함수, 그리고 ML 퍼텐셜 학습 데이터 샘플링의 출발점인 BOMD."),
 ]
 
-# Sidebar nav grouping
+# Sidebar nav grouping (STRUCTURE.md 3절 그대로)
 NAV_SECTIONS = [
     ("입문 · 시작", [
-        ("index.html",                 "00", "개요"),
-        ("01-getting-started.html",    "01", "시작하기"),
-        ("02-input-structure.html",    "02", "입력 파일 구조"),
+        ("index.html",              "00", "개요"),
+        ("01-getting-started.html", "01", "시작하기"),
+        ("02-input-structure.html", "02", "입력 파일 구조"),
+        ("03-units-coordinates.html", "03", "단위계와 좌표계"),
     ]),
-    ("입문 · 계산 준비", [
-        ("03-pseudopotentials.html",   "03", "유사퍼텐셜"),
-        ("04-kpoints.html",            "04", "k점 샘플링"),
+    ("입문 · 핵심 개념", [
+        ("04-pseudopotentials.html", "04", "유사퍼텐셜"),
+        ("05-convergence.html",      "05", "컷오프와 k-점 수렴"),
+        ("06-occupations.html",      "06", "점유수와 smearing"),
+        ("07-scf-control.html",      "07", "SCF 수렴 제어"),
     ]),
-    ("입문 · 계산과 최적화", [
-        ("05-scf-convergence.html",    "05", "SCF와 수렴"),
-        ("06-relax.html",              "06", "구조 최적화"),
+    ("입문 · 계산 종류", [
+        ("08-scf-nscf.html",       "08", "SCF와 NSCF"),
+        ("09-relaxation.html",     "09", "구조 최적화"),
+        ("10-dos-bands.html",      "10", "상태밀도와 밴드"),
+        ("11-postprocessing.html", "11", "전하밀도와 퍼텐셜"),
     ]),
-    ("입문 · 결과와 운영", [
-        ("07-bands-dos.html",          "07", "밴드와 DOS"),
-        ("08-troubleshooting.html",    "08", "트러블슈팅"),
+    ("심화 · 자성과 강상관", [
+        ("12-magnetism.html",  "12", "스핀 편극과 자성"),
+        ("13-dft-plus-u.html", "13", "DFT+U와 HUBBARD 카드"),
+        ("14-hubbard-hp.html", "14", "hp.x 로 U 계산하기"),
+    ]),
+    ("심화 · 응용과 운영", [
+        ("15-surfaces.html",           "15", "표면·슬랩과 일함수"),
+        ("16-molecular-dynamics.html", "16", "분자동역학"),
+        ("17-phonons-neb.html",        "17", "포논과 반응 경로"),
+        ("18-parallel-hpc.html",       "18", "병렬 실행과 HPC 운영"),
+    ]),
+    ("레퍼런스", [
+        ("ref-keywords.html",    "R1", "키워드 사전"),
+        ("ref-cards.html",       "R2", "카드 레퍼런스"),
+        ("ref-errors.html",      "R3", "오류 메시지 사전"),
+        ("ref-executables.html", "R4", "실행 파일 목록"),
     ]),
     ("예제 · 따라 하기", [
-        ("ex-01-si-scf.html",          "E1", "Si SCF"),
-        ("ex-02-si-bands.html",        "E2", "Si 밴드 + DOS"),
-        ("ex-03-metal-smearing.html",  "E3", "금속 smearing"),
-        ("ex-04-relax.html",           "E4", "구조 최적화"),
+        ("ex-01-si-scf.html",       "E1",  "Si SCF"),
+        ("ex-02-si-ibrav0.html",    "E2",  "ibrav=0 다시 쓰기"),
+        ("ex-03-convergence.html",  "E3",  "수렴 테스트 자동화"),
+        ("ex-04-o2-molecule.html",  "E4",  "O₂ 분자 (삼중항)"),
+        ("ex-05-al-metal.html",     "E5",  "fcc Al 금속"),
+        ("ex-06-si-vcrelax.html",   "E6",  "Si vc-relax"),
+        ("ex-07-si-dos.html",       "E7",  "Si DOS·PDOS"),
+        ("ex-08-si-bands.html",     "E8",  "Si 밴드 구조"),
+        ("ex-09-fe-bcc.html",       "E9",  "bcc Fe 강자성"),
+        ("ex-10-feo-afm.html",      "E10", "FeO AFM (GGA 실패)"),
+        ("ex-11-feo-hubbard.html",  "E11", "FeO DFT+U"),
+        ("ex-12-feo-hp.html",       "E12", "hp.x 로 U 계산"),
+        ("ex-13-slab-md.html",      "E13", "슬랩과 AIMD"),
     ]),
 ]
 
@@ -88,7 +169,7 @@ def render_sidebar(current: str) -> str:
         '  <a href="../../" class="sidebar-back">← Donghwan KIM</a>',
         '  <a href="index.html" class="sidebar-brand">',
         '    <div class="brand-title">Quantum ESPRESSO</div>',
-        '    <div class="brand-subtitle">한국어 입문 가이드</div>',
+        '    <div class="brand-subtitle">한국어 가이드</div>',
         '  </a>',
         '  <nav>',
     ]
@@ -253,11 +334,11 @@ HEAD_TMPL = """<!DOCTYPE html>
 HERO_TMPL = """      <section class="hero">
         <h1 class="hero-title">
           <em>Quantum ESPRESSO</em><br />
-          <span class="hero-title-accent">한국어 입문 가이드</span>
+          <span class="hero-title-accent">한국어 가이드</span>
         </h1>
         <p class="hero-tagline">{lede}</p>
         <div class="hero-meta">
-          <span>대상 버전</span> 7.5 (2025) · <span>출발 예제</span> 실리콘(Si) · <span>주요 코드</span> pw.x · dos.x · projwfc.x
+          <span>대상 버전</span> QE 7.5 · <span>출발 예제</span> Si SCF · <span>응용 시리즈</span> Fe–O 산화물
         </div>
       </section>"""
 
@@ -276,7 +357,7 @@ def main():
 
         title_raw = str(fm.get("title", "") or "").strip()
         if out_name == "index.html":
-            page_title_full = "Quantum ESPRESSO 한국어 입문 가이드"
+            page_title_full = "Quantum ESPRESSO 한국어 가이드"
         else:
             short = title_raw.split(". ", 1)[-1] if ". " in title_raw else title_raw
             page_title_full = f"{short} · QE 가이드"
@@ -303,7 +384,7 @@ def main():
         )
 
         (DST / out_name).write_text(html_out, encoding="utf-8")
-        print(f"wrote {out_name:<32}  ({len(body_html):>6} bytes body)")
+        print(f"wrote {out_name:<28}  ({len(body_html):>6} bytes body)")
 
 
 if __name__ == "__main__":

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>입력 파일 구조 · QE 가이드</title>
-  <meta name="description" content="pw.x 입력의 네임리스트(&amp;CONTROL/&amp;SYSTEM/&amp;ELECTRONS)와 카드 문법, 최소 입력 해부." />
+  <title>유사퍼텐셜 · QE 가이드</title>
+  <meta name="description" content="NC/US/PAW 유사퍼텐셜의 차이, PSlibrary·SSSP에서 고르는 법, 파일이 요구하는 컷오프 읽기." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -37,14 +37,14 @@
       <ul class="nav-list">
         <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
         <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html" class="active" aria-current="page"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
         <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
       </ul>
     </div>
     <div class="nav-section">
       <div class="nav-section-title">입문 · 핵심 개념</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
+        <li><a href="04-pseudopotentials.html" class="active" aria-current="page"><span class="nav-num">04</span>유사퍼텐셜</a></li>
         <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
         <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
         <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
@@ -107,136 +107,122 @@
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 02 · 입문 · 시작</div>
-        <h1 class="page-title">입력 파일 구조</h1>
-        <p class="page-lede">pw.x 입력의 네임리스트(&amp;CONTROL/&amp;SYSTEM/&amp;ELECTRONS)와 카드 문법, 최소 입력 해부.</p>
+        <div class="page-eyebrow">CHAPTER 04 · 입문 · 핵심 개념</div>
+        <h1 class="page-title">유사퍼텐셜</h1>
+        <p class="page-lede">NC/US/PAW 유사퍼텐셜의 차이, PSlibrary·SSSP에서 고르는 법, 파일이 요구하는 컷오프 읽기.</p>
       </header>
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
-<li><a href="#_1">입력은 네임리스트와 카드, 두 층입니다</a></li>
-<li><a href="#scf">최소 입력 해부 — 실리콘 SCF</a></li>
-<li><a href="#_2">실행 명령</a></li>
-<li><a href="#_3">관련 예제</a></li>
+<li><a href="#nc-us-paw">NC / US / PAW — 세 계열</a></li>
+<li><a href="#_1">어디서 받는가</a></li>
+<li><a href="#_2">파일명 해독법</a></li>
+<li><a href="#_3">범함수는 유사퍼텐셜에 내장되어 있습니다</a></li>
+<li><a href="#_4">관련 예제</a></li>
 </ul>
 </div>
-<h2 id="_1">입력은 네임리스트와 카드, 두 층입니다</h2>
-<p><code>pw.x</code> 입력 파일은 두 종류의 블록으로 구성됩니다.</p>
-<ul>
-<li><strong>네임리스트(namelist)</strong> — <code>&amp;CONTROL</code>, <code>&amp;SYSTEM</code>, <code>&amp;ELECTRONS</code>처럼 <code>&amp;이름</code>으로
-  시작해 <code>/</code>로 닫는 Fortran 네임리스트. <code>변수 = 값</code> 형태이며 순서는
-  <code>&amp;CONTROL → &amp;SYSTEM → &amp;ELECTRONS → (&amp;IONS) → (&amp;CELL)</code> 로 고정입니다.</li>
-<li><strong>카드(card)</strong> — <code>ATOMIC_SPECIES</code>, <code>ATOMIC_POSITIONS</code>, <code>K_POINTS</code>,
-  <code>CELL_PARAMETERS</code>, <code>HUBBARD</code>처럼 대문자 제목 아래 표 형태의 데이터가 오는
-  블록. 네임리스트 뒤에 옵니다. 일부 카드는 괄호로 단위/옵션을 받습니다
-  (예: <code>ATOMIC_POSITIONS (crystal)</code>).</li>
-</ul>
-<p>문자열은 작은따옴표(<code>'scf'</code>), 논리값은 <code>.true.</code>/<code>.false.</code>, 주석은 <code>!</code>입니다.</p>
-<h2 id="scf">최소 입력 해부 — 실리콘 SCF</h2>
-<p>첫 계산은 <strong>반드시 실리콘 같은 단순 반도체</strong>로 하세요. Fe 계로 바로 뛰어들면
-수렴 실패의 원인이 물리 문제인지 설정 문제인지 구별할 수 없습니다.</p>
-<pre><code class="language-fortran">&amp;CONTROL
-  calculation  = 'scf'        ! scf / nscf / bands / relax / vc-relax / md
-  prefix       = 'si'         ! 출력 파일 접두어 (후속 계산과 반드시 일치)
-  outdir       = './tmp/'
-  pseudo_dir   = './pseudo/'
-  verbosity    = 'high'       ! 학습 단계에서는 무조건 high
-  tprnfor      = .true.       ! 힘 출력
-  tstress      = .true.       ! 응력 출력
-/
-&amp;SYSTEM
-  ibrav        = 2            ! fcc. 0이면 CELL_PARAMETERS로 직접 지정
-  celldm(1)    = 10.26        ! bohr 단위 (= 5.43 Å)
-  nat          = 2
-  ntyp         = 1
-  ecutwfc      = 30           ! Ry — 파동함수 컷오프
-  ecutrho      = 240          ! Ry — 전하밀도 컷오프 (PAW/US는 8배)
-  occupations  = 'fixed'      ! 절연체/반도체
-/
-&amp;ELECTRONS
-  conv_thr     = 1.0d-8       ! Ry
-  mixing_beta  = 0.7
-/
-
-ATOMIC_SPECIES
-  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
-
-ATOMIC_POSITIONS (alat)
-  Si  0.00  0.00  0.00
-  Si  0.25  0.25  0.25
-
-K_POINTS (automatic)
-  8 8 8  0 0 0
-</code></pre>
-<p>각 블록의 역할:</p>
+<p>유사퍼텐셜(pseudopotential)은 원자핵 근처의 빠르게 진동하는 전전자(all-electron)
+파동함수를 부드러운 유사파동함수로 대체해, 평면파 기저로 다룰 수 있게 만드는
+장치입니다. <strong>어떤 유사퍼텐셜을 고르느냐가 필요한 컷오프와 정확도를 동시에
+지배</strong>합니다.</p>
+<h2 id="nc-us-paw">NC / US / PAW — 세 계열</h2>
 <table>
 <thead>
 <tr>
-<th>블록</th>
-<th>담당</th>
-<th>자세히</th>
+<th>계열</th>
+<th>특징</th>
+<th>컷오프 요구</th>
+<th><code>ecutrho</code> 배수</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>&amp;CONTROL</code></td>
-<td>무엇을 계산하고 어디에 쓸 것인가</td>
-<td>계산 종류는 <a href="08-scf-nscf.html">08장</a>·<a href="09-relaxation.html">09장</a></td>
+<td>NC (norm-conserving)</td>
+<td>단순, 이론적으로 깔끔. GW 등 고급 방법과 호환 좋음</td>
+<td>높음</td>
+<td>4배(기본값)로 충분</td>
 </tr>
 <tr>
-<td><code>&amp;SYSTEM</code></td>
-<td>계가 무엇인가 (셀, 원자 수, 기저, 점유)</td>
-<td>단위·좌표는 <a href="03-units-coordinates.html">03장</a>, 점유는 <a href="06-occupations.html">06장</a></td>
+<td>US (ultrasoft)</td>
+<td>컷오프를 크게 낮춤. augmentation 전하 도입</td>
+<td>낮음</td>
+<td><strong>8~12배 필요</strong></td>
 </tr>
 <tr>
-<td><code>&amp;ELECTRONS</code></td>
-<td>SCF를 어떻게 수렴시킬 것인가</td>
-<td><a href="07-scf-control.html">07장</a></td>
-</tr>
-<tr>
-<td><code>ATOMIC_SPECIES</code></td>
-<td>라벨·질량·유사퍼텐셜 파일</td>
-<td><a href="04-pseudopotentials.html">04장</a></td>
-</tr>
-<tr>
-<td><code>ATOMIC_POSITIONS</code></td>
-<td>원자 좌표 (+선택적 <code>if_pos</code> 고정 플래그)</td>
-<td><a href="03-units-coordinates.html">03장</a></td>
-</tr>
-<tr>
-<td><code>K_POINTS</code></td>
-<td>Brillouin zone 샘플링</td>
-<td><a href="05-convergence.html">05장</a></td>
+<td>PAW (projector augmented wave)</td>
+<td>US의 장점 + 전전자 정보 복원 가능</td>
+<td>낮음</td>
+<td><strong>8~12배 필요</strong></td>
 </tr>
 </tbody>
 </table>
-<p>카드별 전체 문법은 <a href="ref-cards.html">R2 · 카드 레퍼런스</a>에 정리했습니다.</p>
-<h2 id="_2">실행 명령</h2>
-<pre><code class="language-bash">pw.x -in si.scf.in &gt; si.scf.out                       # 직렬
-mpirun -np 8 pw.x -nk 4 -in si.scf.in &gt; si.scf.out    # 병렬 (k-점 풀 4개)
-</code></pre>
-<p>출력은 표준출력으로 나오므로 리다이렉트(<code>&gt;</code>)로 저장합니다. 계산 중간 파일은
-<code>outdir/prefix.save/</code>에 쌓이고, 후속 계산(nscf, 후처리)은 <strong>같은 <code>prefix</code>와
-<code>outdir</code></strong>로 이 디렉터리를 찾아갑니다.</p>
+<p>본 가이드의 예제는 PSlibrary <strong>PAW</strong>를 씁니다. Fe처럼 요구가 큰 원소는
+<code>ecutrho</code>를 <code>ecutwfc</code>의 10배로 잡았습니다.</p>
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">흔한 실수 — ecutrho의 함정</div>
   <p>
-    네임리스트를 <code>/</code>로 닫지 않으면
-    <code>namelist not found</code> 에러가 납니다. 문자열을 큰따옴표로 쓰거나
-    논리값을 <code>true</code>로 쓰는 것도 파싱 실패의 단골 원인입니다.
-    카드 이름 오타는 <code>Error in routine card_xxx</code>로 나타납니다.
-    입력 문법 오류 전반은 <a href="ref-errors.html">R3 · 오류 사전</a>을
-    참고하세요.
+    <code>ecutrho</code>의 기본값은 <code>4 × ecutwfc</code>인데, 이것은
+    <strong>norm-conserving 기준</strong>입니다. US/PAW에서 이 기본값을 그대로
+    두면 <code>negative rho</code> 경고나 <code>charge is wrong</code> 에러가
+    나거나, 더 나쁘게는 <strong>에러 없이 조용히 틀린 에너지</strong>가 나옵니다.
+    US/PAW는 반드시 8~12배로 명시하세요.
   </p>
 </div>
 
-<h2 id="_3">관련 예제</h2>
+<h2 id="_1">어디서 받는가</h2>
 <ul>
-<li><a href="ex-01-si-scf.html">E1 · Si SCF</a> — 이 입력을 그대로 실행하고 출력을 읽습니다.</li>
-<li><a href="ex-02-si-ibrav0.html">E2 · ibrav=0 다시 쓰기</a> — 같은 계를 다른 문법으로.</li>
+<li><strong><a href="https://www.materialscloud.org/discover/sssp/">SSSP</a></strong> (Standard Solid State
+  Pseudopotentials) — 원소별로 검증된 유사퍼텐셜 모음. <em>efficiency</em> 라이브러리는
+  정밀도를 합리적으로 유지하면서 컷오프를 낮게 잡아 일상 계산과 스크리닝에,
+  <em>precision</em> 라이브러리는 전전자 계산에 가장 가까운 고정밀 모델링에 적합합니다.
+  <strong>초보자에게 SSSP의 진짜 가치는 원소별 권장 컷오프 표</strong>입니다. 수렴 테스트의
+  출발점을 여기서 얻으세요.</li>
+<li><strong><a href="https://pseudopotentials.quantum-espresso.org/">PSlibrary</a></strong> — QE 개발진이
+  만든 NC/US/PAW 라이브러리. QE 공식 사이트에서 원소별로 내려받습니다.</li>
+<li><strong><a href="http://www.pseudo-dojo.org/">PseudoDojo</a></strong> — ONCVPSP 기반 norm-conserving.
+  컷오프는 높지만 검증이 잘 되어 있습니다.</li>
+</ul>
+<h2 id="_2">파일명 해독법</h2>
+<p>PSlibrary 명명 규칙을 읽을 줄 알면 유사퍼텐셜 선택이 훨씬 쉬워집니다.</p>
+<pre><code>Fe.pbe-spn-kjpaw_psl.1.0.0.UPF
+│   │   │    │        └─ PSlibrary 버전
+│   │   │    └─ kjpaw = Kresse-Joubert PAW (rrkjus = ultrasoft)
+│   │   └─ s = semicore s 포함, p = semicore p 포함, n = nonlinear core correction
+│   └─ 교환-상관 범함수 (pbe / pbesol / pz ...)
+└─ 원소
+</code></pre>
+<p>전이금속은 semicore 상태(<code>s</code>, <code>p</code>)를 원자가에 포함한 것을 쓰는 편이
+안전합니다. DFT+U에서 Hubbard 매니폴드를 인식하려면 해당 채널이 유사퍼텐셜에
+있어야 하며, 없으면 <code>set_hubbard_l: pseudopotential not yet inserted</code> 에러가
+납니다.</p>
+<p><code>ATOMIC_SPECIES</code> 카드에서 파일명을 지정합니다. 파일명이 본 가이드와 다르면
+이 카드만 바꾸면 됩니다.</p>
+<pre><code class="language-fortran">ATOMIC_SPECIES
+  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
+</code></pre>
+<h2 id="_3">범함수는 유사퍼텐셜에 내장되어 있습니다</h2>
+<p>교환-상관 범함수는 유사퍼텐셜 파일이 만들어질 때 결정되며, <code>pw.x</code>는 그것을
+읽어 씁니다. <code>input_dft</code>로 강제로 바꿀 수 있지만 <strong>유사퍼텐셜 생성 조건과
+어긋나므로 되도록 쓰지 마세요</strong>. PBE 계산에는 PBE 유사퍼텐셜을 쓰는 것이
+원칙입니다.</p>
+<div class="tip">
+  <div class="note-title">총에너지 절대값은 비교 대상이 아닙니다</div>
+  <p>
+    유사퍼텐셜마다 에너지 기준점이 다르므로, 서로 다른 유사퍼텐셜(또는 다른
+    컷오프)로 얻은 총에너지의 절대값 비교는 무의미합니다. 같은 조건에서 얻은
+    에너지끼리의 <strong>차이</strong>만 물리적 의미가 있습니다. 문헌의
+    총에너지와 내 계산이 다르다고 당황할 필요가 없습니다.
+  </p>
+</div>
+
+<h2 id="_4">관련 예제</h2>
+<ul>
+<li><a href="ex-01-si-scf.html">E1 · Si SCF</a> — PAW 유사퍼텐셜로 첫 계산.</li>
+<li><a href="ex-03-convergence.html">E3 · 수렴 테스트 자동화</a> — 유사퍼텐셜이 요구하는
+  컷오프를 실측으로 확인.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="01-getting-started.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">시작하기</div></a><a class="next" href="03-units-coordinates.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">단위계와 좌표계</div></a></nav>
+<nav class="page-nav"><a class="prev" href="03-units-coordinates.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">단위계와 좌표계</div></a><a class="next" href="05-convergence.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">컷오프와 k-점 수렴</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

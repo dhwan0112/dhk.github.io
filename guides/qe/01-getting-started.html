@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>시작하기 · QE 가이드</title>
-  <meta name="description" content="설치 확인, pw.x 첫 실행, 가장 단순한 실리콘 SCF, 출력 파일 읽기." />
+  <meta name="description" content="평면파 DFT의 큰 그림, 설치 경로 선택(conda/소스), 설치 검증, 유사퍼텐셜 확보." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,7 +29,7 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 입문 가이드</div>
+    <div class="brand-subtitle">한국어 가이드</div>
   </a>
   <nav>
     <div class="nav-section">
@@ -38,199 +38,243 @@
         <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
         <li><a href="01-getting-started.html" class="active" aria-current="page"><span class="nav-num">01</span>시작하기</a></li>
         <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 준비</div>
+      <div class="nav-section-title">입문 · 핵심 개념</div>
       <ul class="nav-list">
-        <li><a href="03-pseudopotentials.html"><span class="nav-num">03</span>유사퍼텐셜</a></li>
-        <li><a href="04-kpoints.html"><span class="nav-num">04</span>k점 샘플링</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산과 최적화</div>
+      <div class="nav-section-title">입문 · 계산 종류</div>
       <ul class="nav-list">
-        <li><a href="05-scf-convergence.html"><span class="nav-num">05</span>SCF와 수렴</a></li>
-        <li><a href="06-relax.html"><span class="nav-num">06</span>구조 최적화</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 결과와 운영</div>
+      <div class="nav-section-title">심화 · 자성과 강상관</div>
       <ul class="nav-list">
-        <li><a href="07-bands-dos.html"><span class="nav-num">07</span>밴드와 DOS</a></li>
-        <li><a href="08-troubleshooting.html"><span class="nav-num">08</span>트러블슈팅</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <ul class="nav-list">
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">레퍼런스</div>
+      <ul class="nav-list">
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
       </ul>
     </div>
     <div class="nav-section">
       <div class="nav-section-title">예제 · 따라 하기</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-bands.html"><span class="nav-num">E2</span>Si 밴드 + DOS</a></li>
-        <li><a href="ex-03-metal-smearing.html"><span class="nav-num">E3</span>금속 smearing</a></li>
-        <li><a href="ex-04-relax.html"><span class="nav-num">E4</span>구조 최적화</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 01 · 시작</div>
+        <div class="page-eyebrow">CHAPTER 01 · 입문 · 시작</div>
         <h1 class="page-title">시작하기</h1>
-        <p class="page-lede">설치 확인, pw.x 첫 실행, 가장 단순한 실리콘 SCF, 출력 파일 읽기.</p>
+        <p class="page-lede">평면파 DFT의 큰 그림, 설치 경로 선택(conda/소스), 설치 검증, 유사퍼텐셜 확보.</p>
       </header>
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
-<li><a href="#11-quantum-espresso">1.1 Quantum ESPRESSO란</a></li>
-<li><a href="#12">1.2 설치 확인</a></li>
-<li><a href="#13-scf">1.3 첫 계산 — 실리콘 SCF</a></li>
-<li><a href="#14">1.4 출력 결과 살펴보기</a></li>
-<li><a href="#15">1.5 다음 단계</a></li>
+<li><a href="#qe">QE를 만지기 전에 — 최소 배경 이론</a></li>
+<li><a href="#_1">설치 경로 선택</a></li>
+<li><a href="#_2">환경 변수와 디렉터리 구조</a></li>
+<li><a href="#_3">설치 검증 — 여기서 반드시 해야 할 것</a></li>
+<li><a href="#_4">유사퍼텐셜 확보</a></li>
+<li><a href="#_5">관련 예제</a></li>
 </ul>
 </div>
-<hr />
-<h2 id="11-quantum-espresso">1.1 Quantum ESPRESSO란</h2>
-<p>Quantum ESPRESSO는 평면파 기저와 유사퍼텐셜을 쓰는 밀도범함수이론(DFT) 계산
-패키지입니다. 핵심 프로그램은 자체무결(self-consistent) 전자구조와 전체 에너지,
-힘·응력을 계산하는 <code>pw.x</code>(PWscf)이고, 그 결과를 받아 밴드구조(<code>bands.x</code>),
-상태밀도(<code>dos.x</code>, <code>projwfc.x</code>), 포논(<code>ph.x</code>) 등을 계산하는 후처리 프로그램들이
-함께 배포됩니다.</p>
-<p>본 가이드는 <strong>Quantum ESPRESSO 7.5</strong>(2025년 8월 릴리스)를 기준으로 하며, 모든
-출력은 conda-forge 빌드로 실제 실행해 얻은 값입니다.</p>
-<h2 id="12">1.2 설치 확인</h2>
-<p>가장 간편한 설치는 conda(또는 mamba/micromamba)입니다.</p>
+<h2 id="qe">QE를 만지기 전에 — 최소 배경 이론</h2>
+<p>배경 이론을 전부 이해하고 코드를 만지겠다는 계획은 대부분 실패합니다.
+아래 여섯 개념의 <strong>정성적 의미</strong>만 잡고 바로 설치로 넘어가는 편이 훨씬
+빠릅니다. 각 개념이 어느 입력 변수와 연결되는지가 핵심입니다.</p>
 <table>
 <thead>
 <tr>
-<th>환경</th>
-<th>설치 방법</th>
+<th>개념</th>
+<th>왜 필요한가</th>
+<th>QE에서 대응되는 입력</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Conda / Mamba</td>
-<td><code>conda install -c conda-forge qe</code></td>
+<td>Kohn–Sham DFT와 SCF 루프</td>
+<td>출력의 "estimated scf accuracy"를 읽으려면 필수</td>
+<td><code>conv_thr</code>, <code>mixing_beta</code>, <code>electron_maxstep</code></td>
 </tr>
 <tr>
-<td>Ubuntu/Debian</td>
-<td><code>sudo apt install quantum-espresso</code></td>
+<td>평면파 기저와 컷오프</td>
+<td>기저 크기 = 정확도 = 비용</td>
+<td><code>ecutwfc</code>, <code>ecutrho</code></td>
 </tr>
 <tr>
-<td>macOS (Homebrew)</td>
-<td><code>brew install quantum-espresso</code></td>
+<td>주기 경계조건 / Bloch 정리 / Brillouin zone</td>
+<td>왜 k-점을 샘플링하는가</td>
+<td><code>K_POINTS</code></td>
 </tr>
 <tr>
-<td>HPC</td>
-<td><code>module load quantum-espresso</code> 또는 소스 빌드</td>
+<td>유사퍼텐셜 (NC / US / PAW)</td>
+<td>컷오프와 정확도를 동시에 지배</td>
+<td><code>ATOMIC_SPECIES</code>, <code>pseudo_dir</code></td>
+</tr>
+<tr>
+<td>교환-상관 범함수 계층</td>
+<td>LDA/GGA의 한계가 곧 DFT+U의 존재 이유</td>
+<td>유사퍼텐셜 파일에 내장, <code>input_dft</code>로 override</td>
+</tr>
+<tr>
+<td>금속의 부분 점유와 smearing</td>
+<td>금속·자성계 수렴의 90%</td>
+<td><code>occupations</code>, <code>smearing</code>, <code>degauss</code></td>
 </tr>
 </tbody>
 </table>
-<p>설치되면 프로그램들이 <code>pw.x</code>, <code>dos.x</code>, <code>bands.x</code>, <code>projwfc.x</code>, <code>pp.x</code>, <code>ph.x</code>
-등의 이름으로 생깁니다. 다음으로 버전을 확인합니다.</p>
-<pre><code class="language-bash">pw.x -h | head        # 사용법
-echo | pw.x | head -3 # 배너에서 버전 확인
+<p>이론 자료로는 <a href="https://compmatphys.epotentia.com/">Cottenier의 온라인 DFT 강좌</a>
+(QE 실습이 이론과 함께 붙어 있어 입문 효율이 가장 좋습니다),
+<a href="http://www.fisica.uniud.it/~giannozz/QE-Tutorial/">Giannozzi의 Hands-on Tutorial</a>
+(QE 개발 주역이 직접 만든 자료), MIT OCW 3.320, 그리고 책으로는
+Sholl &amp; Steckel(입문용)과 R. Martin(레퍼런스용)을 권합니다.</p>
+<h2 id="_1">설치 경로 선택</h2>
+<table>
+<thead>
+<tr>
+<th>방법</th>
+<th>장점</th>
+<th>단점</th>
+<th>추천 상황</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>소스 빌드 (<code>./configure &amp;&amp; make all</code>)</td>
+<td>MKL/ScaLAPACK 최적화, GPU 빌드 가능</td>
+<td>의존성 지옥</td>
+<td>HPC, 성능이 중요한 경우</td>
+</tr>
+<tr>
+<td>conda (<code>conda install -c conda-forge qe</code>)</td>
+<td>5분 설치</td>
+<td>성능 최적화 제한</td>
+<td>로컬 학습·테스트</td>
+</tr>
+<tr>
+<td>deb 패키지 / 배포판</td>
+<td>가장 쉬움</td>
+<td>버전이 뒤처질 수 있음</td>
+<td>로컬 학습</td>
+</tr>
+</tbody>
+</table>
+<p>로컬 워크스테이션에서는 <strong>conda로 먼저 깔고 학습을 시작</strong>한 뒤, HPC에서
+소스 빌드를 익히는 순서를 권합니다. 설치에서 며칠을 태우는 것이 가장 흔한
+이탈 지점입니다. GPU 빌드(<code>--with-cuda</code>)는 NVHPC 컴파일러가 필요하고
+12GB급 VRAM으로는 스핀 편극된 전이금속 산화물의 큰 셀을 담기 어려우므로,
+초기 학습에는 CPU 빌드로 충분합니다.</p>
+<p>본 가이드의 모든 실측은 conda-forge <code>qe 7.5</code> 빌드(WSL Ubuntu, 16코어)에서
+실행했습니다. 작은 셀은 이 환경으로도 수 초~수 분이면 돕니다.</p>
+<pre><code class="language-bash"># micromamba/conda 어느 쪽이든 동일합니다
+conda create -n qe -c conda-forge qe python numpy matplotlib
+conda activate qe
+pw.x -in /dev/null 2&gt;&amp;1 | head -5     # 버전 배너 확인
 </code></pre>
-<p>출력 첫 줄에 <code>Program PWSCF v.7.5 ...</code> 처럼 버전이 보이면 정상입니다.</p>
-<h2 id="13-scf">1.3 첫 계산 — 실리콘 SCF</h2>
-<p>QE의 가장 단순한 예제는 실리콘 결정의 전체 에너지를 구하는 SCF 계산입니다.
-다이아몬드 구조 실리콘의 원시 셀(원자 2개)을 다음과 같이 <code>si.scf.in</code> 으로
-저장합니다.</p>
-<pre><code class="language-fortran">&amp;control
-  calculation = 'scf'
-  prefix      = 'si'
-  outdir      = './out'
-  pseudo_dir  = './pseudo'
-/
-&amp;system
-  ibrav     = 2
-  celldm(1) = 10.26
-  nat       = 2
-  ntyp      = 1
-  ecutwfc   = 40.0
-  ecutrho   = 320.0
-/
-&amp;electrons
-  conv_thr    = 1.0d-8
-  mixing_beta = 0.7
-/
-ATOMIC_SPECIES
-  Si  28.0855  Si.pbe-n-rrkjus_psl.1.0.0.UPF
-ATOMIC_POSITIONS (alat)
-  Si  0.00 0.00 0.00
-  Si  0.25 0.25 0.25
-K_POINTS (automatic)
-  8 8 8  0 0 0
+<h2 id="_2">환경 변수와 디렉터리 구조</h2>
+<pre><code class="language-bash">export ESPRESSO_PSEUDO=$HOME/pseudo     # 유사퍼텐셜 저장소
+export ESPRESSO_TMPDIR=/scratch/$USER   # 대용량 임시파일 (반드시 빠른 디스크)
 </code></pre>
-<p><code>ibrav = 2</code> 는 면심입방(FCC) 브라베 격자, <code>celldm(1) = 10.26</code> 은 격자 상수
-(bohr 단위, 5.43 Å에 해당)입니다. 원자 두 개를 (0,0,0)과 (¼,¼,¼)에 두면
-다이아몬드 구조가 됩니다. <code>ecutwfc</code>(파동함수 컷오프)와 <code>ecutrho</code>(전하밀도 컷오프)는
-<a href="03-pseudopotentials.html">03장</a>에서, <code>K_POINTS</code>는 <a href="04-kpoints.html">04장</a>에서
-자세히 다룹니다.</p>
-<p>유사퍼텐셜 파일(<code>Si.pbe-n-rrkjus_psl.1.0.0.UPF</code>)은 <code>pseudo_dir</code> 로 지정한
-디렉토리에 있어야 합니다. 이 파일은 <a href="https://www.materialscloud.org/discover/sssp">SSSP</a>
-같은 라이브러리에서 받습니다(<a href="03-pseudopotentials.html">03장</a> 참고).</p>
-<p>실행은 다음과 같이 합니다.</p>
-<pre><code class="language-bash"># 직렬
-pw.x -in si.scf.in &gt; si.scf.out
-
-# 병렬 (예: 8 프로세스, k점을 8개 풀로 분할)
-mpirun -np 8 pw.x -nk 8 -in si.scf.in &gt; si.scf.out
+<p>권장 작업 디렉터리 구조:</p>
+<pre><code>project/
+├── pseudo/          # UPF 파일
+├── 01_convergence/  # 수렴 테스트
+├── 02_relax/
+├── 03_scf/
+└── scripts/
 </code></pre>
-<div class="tip">
-  <div class="note-title">작은 계는 스레드보다 MPI가 빠릅니다</div>
-  <p>
-    OpenMP 스레드를 잔뜩 띄우면 원자 몇 개짜리 계는 오히려 느려집니다.
-    <code>export OMP_NUM_THREADS=1</code> 로 스레드를 끄고 <code>mpirun -np N</code>
-    로 k점을 병렬화(<code>-nk</code>)하는 편이 보통 훨씬 빠릅니다. 위 예제는
-    이렇게 하면 몇 초 만에 끝납니다.
-  </p>
-</div>
-
-<h2 id="14">1.4 출력 결과 살펴보기</h2>
-<p><code>si.scf.out</code> 을 보면 SCF 순환이 한 줄씩 찍힙니다. 아래는 본 가이드를 작성하며
-QE 7.5로 실제 실행해 얻은 값입니다.</p>
-<pre><code class="language-text">     iteration #  1     ecut=    40.00 Ry     beta= 0.70
-     total energy              =     -22.83676466 Ry
-     estimated scf accuracy    &lt;       0.05408644 Ry
-     ...
-     iteration #  5     ecut=    40.00 Ry     beta= 0.70
-     total energy              =     -22.83941737 Ry
-     estimated scf accuracy    &lt;       0.00000047 Ry
-     End of self-consistent calculation
-
-!    total energy              =     -22.83941780 Ry
-     estimated scf accuracy    &lt;          2.8E-09 Ry
-
-     The total energy is the sum of the following terms:
-     one-electron contribution =       5.17095299 Ry
-     hartree contribution      =       1.10074142 Ry
-     xc contribution           =     -12.31018265 Ry
-     ewald contribution        =     -16.80092957 Ry
-
-     highest occupied level (ev):     6.2117
+<p><code>outdir</code>(임시 파일)과 <code>pseudo_dir</code>은 입력에서 명시할 수도 있고, 위 환경
+변수를 기본값으로 쓸 수도 있습니다. <code>outdir</code>은 파동함수·전하밀도가 쌓이는
+곳이므로 <strong>반드시 빠른 디스크</strong>를 가리키게 하세요.</p>
+<h2 id="_3">설치 검증 — 여기서 반드시 해야 할 것</h2>
+<p>먼저 배너를 확인합니다.</p>
+<pre><code class="language-bash">which pw.x
+pw.x -in /dev/null 2&gt;&amp;1 | head -20
 </code></pre>
+<p>확인 포인트:</p>
 <ul>
-<li><code>estimated scf accuracy</code> 가 매 반복 줄어들다 <code>conv_thr</code>(여기서는 10⁻⁸ Ry)
-  아래로 내려가면 수렴한 것입니다.</li>
-<li><strong>느낌표(<code>!</code>)가 붙은 <code>total energy</code></strong> 가 최종 수렴 전체 에너지입니다. 실리콘
-  원시 셀 기준 −22.8394 Ry 가 나왔습니다.</li>
-<li>그 아래 에너지 분해(one-electron / hartree / xc / ewald)는 전체 에너지가
-  어떤 항들의 합인지 보여 줍니다.</li>
-<li>반도체라 페르미 준위 대신 <code>highest occupied level</code>(최고 점유 준위, 6.21 eV)이
-  찍힙니다. 금속이면 <code>the Fermi energy is ...</code> 로 나옵니다(<a href="05-scf-convergence.html">05장</a>).</li>
+<li>배너에 <code>Parallel version (MPI), running on N processors</code>가 뜨는가</li>
+<li><code>Number of MPI processes</code> / <code>Threads/MPI process</code>가 의도한 값인가</li>
 </ul>
-<p>파일 끝에 <code>JOB DONE.</code> 가 있으면 정상 종료입니다.</p>
-<div class="tip">
-  <div class="note-title">전체 예제로 보기</div>
+<p>QE 소스 트리가 있다면 <strong><code>PW/examples/</code>와 <code>test-suite/</code></strong>를 여세요.
+이것은 단순한 테스트가 아니라 <strong>가장 좋은 교재</strong>입니다.</p>
+<pre><code class="language-bash">cd PW/examples/example01
+./run_example
+ls results/            # 생성된 입출력 파일을 전부 열어볼 것
+</code></pre>
+<p><code>example01</code>부터 순서대로 입력 파일을 열어 각 예제가 무엇을 시연하는지
+확인하세요. 버전 정합성 면에서 서드파티 튜토리얼보다 이쪽이 안전합니다.</p>
+<h2 id="_4">유사퍼텐셜 확보</h2>
+<p>원소별 UPF 파일이 있어야 첫 계산이 돕니다. 어디서 받고 어떻게 고르는지는
+<a href="04-pseudopotentials.html">04장</a>에서 자세히 다루며, 본 가이드의 예제는
+PSlibrary PAW(<code>*.pbe-*-kjpaw_psl.1.0.0.UPF</code>)를 씁니다.
+<a href="https://pseudopotentials.quantum-espresso.org/">QE 공식 유사퍼텐셜 페이지</a>에서
+원소별로 내려받을 수 있습니다.</p>
+<pre><code class="language-bash">mkdir -p pseudo tmp
+# 예: Si PAW
+curl -O https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-kjpaw_psl.1.0.0.UPF
+mv *.UPF pseudo/
+</code></pre>
+<div class="warning">
+  <div class="note-title">흔한 실수</div>
   <p>
-    이 SCF 예제의 전체 입력·실행과 컷오프·k점 수렴 그래프는
-    <a href="ex-01-si-scf.html">예제 E1 — Si SCF</a> 에 정리돼 있습니다.
+    OpenMP 스레드와 MPI를 동시에 과다 설정하면 작은 계에서 오히려 수십 배
+    느려집니다. 본 가이드의 2원자 Si SCF는 스레드 16개 설정에서 약 2분,
+    <code>OMP_NUM_THREADS=1</code> + <code>mpirun -np 6 pw.x -nk 6</code>
+    설정에서 2.8초가 걸렸습니다. 병렬 설정은
+    <a href="18-parallel-hpc.html">18장</a>을 참고하세요.
   </p>
 </div>
 
-<h2 id="15">1.5 다음 단계</h2>
-<p>다음 장에서는 이 입력 파일을 한 줄씩 뜯어보며, <code>pw.x</code> 입력이 어떤
-<strong>네임리스트와 카드</strong>로 이루어지는지 살펴봅니다.</p>
+<h2 id="_5">관련 예제</h2>
+<ul>
+<li><a href="ex-01-si-scf.html">E1 · Si SCF</a> — 설치가 끝났다면 바로 첫 계산으로.</li>
+<li><a href="ex-03-convergence.html">E3 · 수렴 테스트 자동화</a> — 첫 계산 다음에 반드시.</li>
+</ul>
       </article>
 <nav class="page-nav"><a class="prev" href="index.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">개요</div></a><a class="next" href="02-input-structure.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">입력 파일 구조</div></a></nav>
     </main>

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>입력 파일 구조 · QE 가이드</title>
-  <meta name="description" content="pw.x 입력의 네임리스트(&amp;CONTROL/&amp;SYSTEM/&amp;ELECTRONS)와 카드 문법, 최소 입력 해부." />
+  <title>SCF 수렴 제어 · QE 가이드</title>
+  <meta name="description" content="SCF 순환의 구조, mixing_beta·mixing_mode·diagonalization, 수렴 실패 진단 순서." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -37,7 +37,7 @@
       <ul class="nav-list">
         <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
         <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html" class="active" aria-current="page"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
         <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
       </ul>
     </div>
@@ -47,7 +47,7 @@
         <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
         <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
         <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="07-scf-control.html" class="active" aria-current="page"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
       </ul>
     </div>
     <div class="nav-section">
@@ -107,136 +107,115 @@
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 02 · 입문 · 시작</div>
-        <h1 class="page-title">입력 파일 구조</h1>
-        <p class="page-lede">pw.x 입력의 네임리스트(&amp;CONTROL/&amp;SYSTEM/&amp;ELECTRONS)와 카드 문법, 최소 입력 해부.</p>
+        <div class="page-eyebrow">CHAPTER 07 · 입문 · 핵심 개념</div>
+        <h1 class="page-title">SCF 수렴 제어</h1>
+        <p class="page-lede">SCF 순환의 구조, mixing_beta·mixing_mode·diagonalization, 수렴 실패 진단 순서.</p>
       </header>
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
-<li><a href="#_1">입력은 네임리스트와 카드, 두 층입니다</a></li>
-<li><a href="#scf">최소 입력 해부 — 실리콘 SCF</a></li>
-<li><a href="#_2">실행 명령</a></li>
+<li><a href="#_1">핵심 변수</a></li>
+<li><a href="#mixing_beta">mixing_beta의 직관</a></li>
+<li><a href="#_2">수렴 실패 시 진단 순서</a></li>
 <li><a href="#_3">관련 예제</a></li>
 </ul>
 </div>
-<h2 id="_1">입력은 네임리스트와 카드, 두 층입니다</h2>
-<p><code>pw.x</code> 입력 파일은 두 종류의 블록으로 구성됩니다.</p>
-<ul>
-<li><strong>네임리스트(namelist)</strong> — <code>&amp;CONTROL</code>, <code>&amp;SYSTEM</code>, <code>&amp;ELECTRONS</code>처럼 <code>&amp;이름</code>으로
-  시작해 <code>/</code>로 닫는 Fortran 네임리스트. <code>변수 = 값</code> 형태이며 순서는
-  <code>&amp;CONTROL → &amp;SYSTEM → &amp;ELECTRONS → (&amp;IONS) → (&amp;CELL)</code> 로 고정입니다.</li>
-<li><strong>카드(card)</strong> — <code>ATOMIC_SPECIES</code>, <code>ATOMIC_POSITIONS</code>, <code>K_POINTS</code>,
-  <code>CELL_PARAMETERS</code>, <code>HUBBARD</code>처럼 대문자 제목 아래 표 형태의 데이터가 오는
-  블록. 네임리스트 뒤에 옵니다. 일부 카드는 괄호로 단위/옵션을 받습니다
-  (예: <code>ATOMIC_POSITIONS (crystal)</code>).</li>
-</ul>
-<p>문자열은 작은따옴표(<code>'scf'</code>), 논리값은 <code>.true.</code>/<code>.false.</code>, 주석은 <code>!</code>입니다.</p>
-<h2 id="scf">최소 입력 해부 — 실리콘 SCF</h2>
-<p>첫 계산은 <strong>반드시 실리콘 같은 단순 반도체</strong>로 하세요. Fe 계로 바로 뛰어들면
-수렴 실패의 원인이 물리 문제인지 설정 문제인지 구별할 수 없습니다.</p>
-<pre><code class="language-fortran">&amp;CONTROL
-  calculation  = 'scf'        ! scf / nscf / bands / relax / vc-relax / md
-  prefix       = 'si'         ! 출력 파일 접두어 (후속 계산과 반드시 일치)
-  outdir       = './tmp/'
-  pseudo_dir   = './pseudo/'
-  verbosity    = 'high'       ! 학습 단계에서는 무조건 high
-  tprnfor      = .true.       ! 힘 출력
-  tstress      = .true.       ! 응력 출력
-/
-&amp;SYSTEM
-  ibrav        = 2            ! fcc. 0이면 CELL_PARAMETERS로 직접 지정
-  celldm(1)    = 10.26        ! bohr 단위 (= 5.43 Å)
-  nat          = 2
-  ntyp         = 1
-  ecutwfc      = 30           ! Ry — 파동함수 컷오프
-  ecutrho      = 240          ! Ry — 전하밀도 컷오프 (PAW/US는 8배)
-  occupations  = 'fixed'      ! 절연체/반도체
-/
-&amp;ELECTRONS
-  conv_thr     = 1.0d-8       ! Ry
-  mixing_beta  = 0.7
-/
-
-ATOMIC_SPECIES
-  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
-
-ATOMIC_POSITIONS (alat)
-  Si  0.00  0.00  0.00
-  Si  0.25  0.25  0.25
-
-K_POINTS (automatic)
-  8 8 8  0 0 0
-</code></pre>
-<p>각 블록의 역할:</p>
+<p>SCF(자기일관장) 루프는 "전하밀도 추측 → Kohn-Sham 방정식 풀기 → 새 밀도 →
+섞기(mixing) → 반복"의 순환입니다. <code>&amp;ELECTRONS</code> 네임리스트가 이 순환을
+제어합니다.</p>
+<h2 id="_1">핵심 변수</h2>
 <table>
 <thead>
 <tr>
-<th>블록</th>
-<th>담당</th>
-<th>자세히</th>
+<th>변수</th>
+<th>기본값</th>
+<th>역할</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>&amp;CONTROL</code></td>
-<td>무엇을 계산하고 어디에 쓸 것인가</td>
-<td>계산 종류는 <a href="08-scf-nscf.html">08장</a>·<a href="09-relaxation.html">09장</a></td>
+<td><code>conv_thr</code></td>
+<td>1.0d-6</td>
+<td>수렴 임계값 (Ry). 힘·응력이 필요하면 1.0d-8, <code>hp.x</code> 선행 계산은 1.0d-12 권장</td>
 </tr>
 <tr>
-<td><code>&amp;SYSTEM</code></td>
-<td>계가 무엇인가 (셀, 원자 수, 기저, 점유)</td>
-<td>단위·좌표는 <a href="03-units-coordinates.html">03장</a>, 점유는 <a href="06-occupations.html">06장</a></td>
+<td><code>mixing_beta</code></td>
+<td>0.7</td>
+<td>새 밀도를 얼마나 섞을가. <strong>자성·금속은 0.1~0.3</strong></td>
 </tr>
 <tr>
-<td><code>&amp;ELECTRONS</code></td>
-<td>SCF를 어떻게 수렴시킬 것인가</td>
-<td><a href="07-scf-control.html">07장</a></td>
+<td><code>mixing_mode</code></td>
+<td><code>'plain'</code></td>
+<td><code>'plain'</code>(Broyden) / <code>'TF'</code> / <code>'local-TF'</code>. <strong>금속·슬랩·자성계는 <code>'local-TF'</code></strong></td>
 </tr>
 <tr>
-<td><code>ATOMIC_SPECIES</code></td>
-<td>라벨·질량·유사퍼텐셜 파일</td>
-<td><a href="04-pseudopotentials.html">04장</a></td>
+<td><code>mixing_ndim</code></td>
+<td>8</td>
+<td>혼합에 쓰는 이전 반복 수. 늘리면 메모리 증가</td>
 </tr>
 <tr>
-<td><code>ATOMIC_POSITIONS</code></td>
-<td>원자 좌표 (+선택적 <code>if_pos</code> 고정 플래그)</td>
-<td><a href="03-units-coordinates.html">03장</a></td>
+<td><code>electron_maxstep</code></td>
+<td>100</td>
+<td>최대 반복 횟수</td>
 </tr>
 <tr>
-<td><code>K_POINTS</code></td>
-<td>Brillouin zone 샘플링</td>
-<td><a href="05-convergence.html">05장</a></td>
+<td><code>diagonalization</code></td>
+<td><code>'david'</code></td>
+<td><code>'david'</code> / <code>'cg'</code> / <code>'ppcg'</code> / <code>'paro'</code> / <code>'rmm-davidson'</code></td>
+</tr>
+<tr>
+<td><code>startingwfc</code> / <code>startingpot</code></td>
+<td><code>'atomic+random'</code> / <code>'atomic'</code></td>
+<td><code>'file'</code>이면 이전 계산에서 이어받기</td>
 </tr>
 </tbody>
 </table>
-<p>카드별 전체 문법은 <a href="ref-cards.html">R2 · 카드 레퍼런스</a>에 정리했습니다.</p>
-<h2 id="_2">실행 명령</h2>
-<pre><code class="language-bash">pw.x -in si.scf.in &gt; si.scf.out                       # 직렬
-mpirun -np 8 pw.x -nk 4 -in si.scf.in &gt; si.scf.out    # 병렬 (k-점 풀 4개)
-</code></pre>
-<p>출력은 표준출력으로 나오므로 리다이렉트(<code>&gt;</code>)로 저장합니다. 계산 중간 파일은
-<code>outdir/prefix.save/</code>에 쌓이고, 후속 계산(nscf, 후처리)은 <strong>같은 <code>prefix</code>와
-<code>outdir</code></strong>로 이 디렉터리를 찾아갑니다.</p>
+<p>출력에서는 매 반복의 <code>estimated scf accuracy</code>가 <code>conv_thr</code> 아래로 내려가는
+과정을 지켜봅니다. 수렴하면 <code>convergence has been achieved in N iterations</code>가
+찍힙니다.</p>
+<h2 id="mixing_beta">mixing_beta의 직관</h2>
+<p>밀도를 크게 섞으면(<code>0.7</code>) 수렴이 빠르지만, 금속·자성계처럼 응답이 예민한
+계에서는 밀도가 진동하며 발산합니다. 이런 계는 조금씩(<code>0.2~0.3</code>) 섞어야
+합니다. <code>mixing_mode='local-TF'</code>는 공간적으로 불균일한 계(슬랩, 진공 포함,
+자성 산화물)에서 특히 효과적입니다.</p>
+<p>실측 예로, 본 가이드의 <a href="ex-10-feo-afm.html">FeO AFM 계산(E10)</a>은
+<code>mixing_beta = 0.2</code> + <code>local-TF</code>로 설정했습니다. GGA FeO는 (틀린) 금속 상태로
+수렴하는 예민한 계라 기본값 0.7로는 진동합니다.</p>
+<h2 id="_2">수렴 실패 시 진단 순서</h2>
+<p><code>convergence NOT achieved after N iterations</code>가 나오면 <strong>순서대로</strong>
+시도하세요.</p>
+<ol>
+<li><code>mixing_beta</code> 0.7 → 0.3 → 0.1</li>
+<li><code>mixing_mode = 'local-TF'</code> (금속, 슬랩, 자성계에 효과적)</li>
+<li><code>electron_maxstep</code> 증가 (200~500)</li>
+<li><code>mixing_ndim</code> 증가 (8 → 12~16, 메모리 여유가 있을 때)</li>
+<li><code>degauss</code>를 일시적으로 키워 수렴시킨 뒤, <code>startingpot='file'</code>로 재시작하며
+   줄이기</li>
+<li><code>diagonalization = 'cg'</code> 또는 <code>'ppcg'</code> (느리지만 안정)</li>
+<li>초기 구조가 비물리적이지 않은지 확인 (원자 간 거리가 너무 가깝지 않은가)</li>
+</ol>
+<p>대각화 단계의 문제(<code>c_bands: N eigenvalues not converged</code>,
+<code>cdiaghg: problems computing cholesky</code>)와 그 밖의 오류 대처는
+<a href="ref-errors.html">R3 · 오류 사전</a>에 증상별로 정리했습니다.</p>
 <div class="warning">
   <div class="note-title">흔한 실수</div>
   <p>
-    네임리스트를 <code>/</code>로 닫지 않으면
-    <code>namelist not found</code> 에러가 납니다. 문자열을 큰따옴표로 쓰거나
-    논리값을 <code>true</code>로 쓰는 것도 파싱 실패의 단골 원인입니다.
-    카드 이름 오타는 <code>Error in routine card_xxx</code>로 나타납니다.
-    입력 문법 오류 전반은 <a href="ref-errors.html">R3 · 오류 사전</a>을
-    참고하세요.
+    수렴이 안 된다고 <code>conv_thr</code>를 느슨하게 풀어버리는 것.
+    임계값을 1.0d-4로 풀면 "수렴 달성" 메시지는 나오지만 힘과 응력은 쓰레기가
+    됩니다. 문제의 원인은 거의 항상 mixing(위 1~4번)이지 임계값이 아닙니다.
+    반대로, 구조 최적화·MD·hp.x처럼 힘이나 선형 응답을 쓰는 계산은
+    <code>conv_thr</code>를 <strong>더 엄격하게</strong>(1.0d-8 ~ 1.0d-12)
+    잡아야 합니다.
   </p>
 </div>
 
 <h2 id="_3">관련 예제</h2>
 <ul>
-<li><a href="ex-01-si-scf.html">E1 · Si SCF</a> — 이 입력을 그대로 실행하고 출력을 읽습니다.</li>
-<li><a href="ex-02-si-ibrav0.html">E2 · ibrav=0 다시 쓰기</a> — 같은 계를 다른 문법으로.</li>
+<li><a href="ex-09-fe-bcc.html">E9 · bcc Fe 강자성</a> — 자성 금속의 mixing 설정 실전.</li>
+<li><a href="ex-10-feo-afm.html">E10 · FeO AFM</a> — local-TF + 낮은 beta가 필요한 예민한 계.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="01-getting-started.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">시작하기</div></a><a class="next" href="03-units-coordinates.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">단위계와 좌표계</div></a></nav>
+<nav class="page-nav"><a class="prev" href="06-occupations.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">점유수와 smearing</div></a><a class="next" href="08-scf-nscf.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">SCF와 NSCF</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>실행 파일 목록 · QE 가이드</title>
+  <meta name="description" content="QE 스위트 실행 파일 목록과 각각의 입력 네임리스트·입출력 요약." />
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-fortran.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../" class="sidebar-back">← Donghwan KIM</a>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Quantum ESPRESSO</div>
+    <div class="brand-subtitle">한국어 가이드</div>
+  </a>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <ul class="nav-list">
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">입문 · 계산 종류</div>
+      <ul class="nav-list">
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <ul class="nav-list">
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <ul class="nav-list">
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">레퍼런스</div>
+      <ul class="nav-list">
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
+        <li><a href="ref-executables.html" class="active" aria-current="page"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">예제 · 따라 하기</div>
+      <ul class="nav-list">
+        <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">레퍼런스 · R4</div>
+        <h1 class="page-title">실행 파일 목록</h1>
+        <p class="page-lede">QE 스위트 실행 파일 목록과 각각의 입력 네임리스트·입출력 요약.</p>
+      </header>
+      <article class="content">
+<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<ul>
+<li><a href="#_1">핵심 파이프라인</a></li>
+<li><a href="#_2">후처리 코드 네임리스트 요약</a><ul>
+<li><a href="#dosx-dos">dos.x — &amp;DOS</a></li>
+<li><a href="#projwfcx-projwfc">projwfc.x — &amp;PROJWFC</a></li>
+<li><a href="#bandsx-bands">bands.x — &amp;BANDS</a></li>
+<li><a href="#ppx-inputpp-plot">pp.x — &amp;INPUTPP + &amp;PLOT</a></li>
+<li><a href="#hpx-inputhp">hp.x — &amp;INPUTHP</a></li>
+<li><a href="#phx-inputph">ph.x — &amp;INPUTPH</a></li>
+<li><a href="#nebx-path">neb.x — &amp;PATH</a></li>
+</ul>
+</li>
+<li><a href="#_3">파일 흐름 한 장 요약</a></li>
+</ul>
+</div>
+<p>QE는 하나의 프로그램이 아니라 실행 파일들의 스위트입니다. 각 파일이 무엇을
+받고 무엇을 내놓는지의 지도입니다. 변수 상세는 각 코드의
+<code>Doc/INPUT_&lt;이름&gt;.txt</code>에 있습니다.</p>
+<h2 id="_1">핵심 파이프라인</h2>
+<table>
+<thead>
+<tr>
+<th>실행파일</th>
+<th>입력 네임리스트</th>
+<th>선행 계산</th>
+<th>산출물</th>
+<th>관련 장</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pw.x</code></td>
+<td><code>&amp;CONTROL</code>+<code>&amp;SYSTEM</code>+<code>&amp;ELECTRONS</code>(+<code>&amp;IONS</code>,<code>&amp;CELL</code>)</td>
+<td>—</td>
+<td>총에너지, 힘, 응력, 밀도, 파동함수</td>
+<td><a href="02-input-structure.html">02장</a></td>
+</tr>
+<tr>
+<td><code>dos.x</code></td>
+<td><code>&amp;DOS</code></td>
+<td><code>nscf</code></td>
+<td>총 DOS (<code>fildos</code>)</td>
+<td><a href="10-dos-bands.html">10장</a></td>
+</tr>
+<tr>
+<td><code>projwfc.x</code></td>
+<td><code>&amp;PROJWFC</code></td>
+<td><code>nscf</code></td>
+<td>PDOS, Löwdin 전하</td>
+<td><a href="10-dos-bands.html">10장</a></td>
+</tr>
+<tr>
+<td><code>bands.x</code></td>
+<td><code>&amp;BANDS</code></td>
+<td><code>calculation='bands'</code></td>
+<td>밴드 데이터(<code>.gnu</code>), 대칭 라벨</td>
+<td><a href="10-dos-bands.html">10장</a></td>
+</tr>
+<tr>
+<td><code>pp.x</code></td>
+<td><code>&amp;INPUTPP</code> + <code>&amp;PLOT</code></td>
+<td><code>scf</code></td>
+<td>전하밀도·퍼텐셜·ELF (cube/XSF)</td>
+<td><a href="11-postprocessing.html">11장</a></td>
+</tr>
+<tr>
+<td><code>average.x</code></td>
+<td>(직접 입력)</td>
+<td><code>pp.x</code></td>
+<td>평면 평균 (일함수)</td>
+<td><a href="15-surfaces.html">15장</a></td>
+</tr>
+<tr>
+<td><code>hp.x</code></td>
+<td><code>&amp;INPUTHP</code></td>
+<td><code>scf</code> + HUBBARD 카드</td>
+<td>Hubbard U·V (<code>*.Hubbard_parameters.dat</code>)</td>
+<td><a href="14-hubbard-hp.html">14장</a></td>
+</tr>
+<tr>
+<td><code>ph.x</code></td>
+<td><code>&amp;INPUTPH</code></td>
+<td><code>scf</code></td>
+<td>동역학 행렬 (<code>fildyn</code>)</td>
+<td><a href="17-phonons-neb.html">17장</a></td>
+</tr>
+<tr>
+<td><code>q2r.x</code> / <code>matdyn.x</code></td>
+<td>각자</td>
+<td><code>ph.x</code></td>
+<td>실공간 힘상수 / 포논 분산·DOS</td>
+<td><a href="17-phonons-neb.html">17장</a></td>
+</tr>
+<tr>
+<td><code>neb.x</code></td>
+<td><code>&amp;PATH</code> + 엔진 입력</td>
+<td>양끝 구조 최적화</td>
+<td>최소 에너지 경로, 장벽</td>
+<td><a href="17-phonons-neb.html">17장</a></td>
+</tr>
+<tr>
+<td><code>cp.x</code></td>
+<td>별도 (CP 입력)</td>
+<td>—</td>
+<td>Car-Parrinello MD</td>
+<td><a href="16-molecular-dynamics.html">16장</a> 참고</td>
+</tr>
+<tr>
+<td><code>pw2wannier90.x</code></td>
+<td><code>&amp;INPUTPP</code></td>
+<td><code>nscf</code> + Wannier90</td>
+<td>Wannier 함수 인터페이스</td>
+<td><a href="17-phonons-neb.html">17장</a></td>
+</tr>
+<tr>
+<td><code>plotband.x</code></td>
+<td>대화형</td>
+<td><code>bands.x</code></td>
+<td>밴드 플롯 데이터</td>
+<td><a href="10-dos-bands.html">10장</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">후처리 코드 네임리스트 요약</h2>
+<h3 id="dosx-dos">dos.x — &amp;DOS</h3>
+<p><code>prefix</code>, <code>outdir</code>, <code>fildos</code>, <code>Emin</code>, <code>Emax</code>, <code>DeltaE</code>, <code>ngauss</code>, <code>degauss</code>,
+<code>bz_sum</code>. 출력 파일은 1열 E(eV), 2열 DOS(스핀 계는 up/down 2열), 마지막 열
+적분 DOS.</p>
+<h3 id="projwfcx-projwfc">projwfc.x — &amp;PROJWFC</h3>
+<p><code>prefix</code>, <code>outdir</code>, <code>filpdos</code>, <code>filproj</code>, <code>ngauss</code>, <code>degauss</code>, <code>Emin</code>,
+<code>Emax</code>, <code>DeltaE</code>, <code>lsym</code>(대칭화된 원자 궤도), <code>pawproj</code>, <code>lwrite_overlaps</code>,
+<code>kresolveddos</code>(k-분해 DOS). 출력은 <code>filpdos.pdos_atm#N(라벨)_wfc#M(궤도)</code>
+파일들과, 표준출력의 <strong>Löwdin charges</strong> 블록.</p>
+<h3 id="bandsx-bands">bands.x — &amp;BANDS</h3>
+<p><code>prefix</code>, <code>outdir</code>, <code>filband</code>, <code>lsym</code>(대칭 라벨 부여), <code>spin_component</code>,
+<code>lp</code>(운동량 행렬요소). <code>filband.gnu</code>가 플롯용, 표준출력의
+<code>high-symmetry point</code> 줄이 눈금 위치입니다.</p>
+<h3 id="ppx-inputpp-plot">pp.x — &amp;INPUTPP + &amp;PLOT</h3>
+<p><code>&amp;INPUTPP</code>: <code>prefix</code>, <code>outdir</code>, <code>filplot</code>, <code>plot_num</code>, <code>spin_component</code>,
+<code>sample_bias</code>, <code>kpoint</code>, <code>kband</code>.</p>
+<table>
+<thead>
+<tr>
+<th><code>plot_num</code></th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>원자가 전하밀도</td>
+</tr>
+<tr>
+<td>1</td>
+<td>총 퍼텐셜 (V_bare + V_H + V_xc)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>국소 이온 퍼텐셜</td>
+</tr>
+<tr>
+<td>5</td>
+<td>STM 이미지</td>
+</tr>
+<tr>
+<td>6</td>
+<td>스핀 밀도 ρ↑ − ρ↓</td>
+</tr>
+<tr>
+<td>8</td>
+<td>ELF</td>
+</tr>
+<tr>
+<td>11</td>
+<td>bare + Hartree 퍼텐셜 (<strong>일함수</strong>)</td>
+</tr>
+</tbody>
+</table>
+<p><code>&amp;PLOT</code>: <code>nfile</code>, <code>filepp(i)</code>, <code>weight(i)</code>, <code>iflag</code>(0 1D선 / 1 구면평균 /
+2 2D / 3 3D / 4 2D극좌표), <code>output_format</code>(0 gnuplot / 3 XCrySDen 2D /
+5 XSF 3D / 6 Gaussian cube / 7 gnuplot 2D), <code>fileout</code>, <code>e1,e2,e3</code>, <code>x0</code>,
+<code>nx,ny,nz</code>. PAW 전전자 밀도 옵션은 버전별로 다르므로 <code>Doc/INPUT_PP.txt</code> 확인.</p>
+<h3 id="hpx-inputhp">hp.x — &amp;INPUTHP</h3>
+<p><code>prefix</code>, <code>outdir</code>, <code>nq1/nq2/nq3</code>, <code>conv_thr_chi</code>, <code>thresh_init</code>,
+<code>iverbosity</code>, <code>start_q</code>/<code>last_q</code>(작업 분할), <code>perturb_only_atom(i)</code>,
+<code>skip_equivalence_q</code>, <code>determine_num_pert_only</code>, <code>compute_hp</code>(부분 결과 취합).</p>
+<h3 id="phx-inputph">ph.x — &amp;INPUTPH</h3>
+<p><code>prefix</code>, <code>outdir</code>, <code>fildyn</code>, <code>tr2_ph</code>, <code>ldisp</code>, <code>nq1/nq2/nq3</code>, <code>epsil</code>,
+<code>zeu</code>, <code>recover</code>, <code>start_q</code>/<code>last_q</code>, <code>alpha_mix(1)</code>.</p>
+<h3 id="nebx-path">neb.x — &amp;PATH</h3>
+<p><code>string_method</code>(<code>'neb'</code>/<code>'smd'</code>), <code>num_of_images</code>, <code>nstep_path</code>,
+<code>opt_scheme</code>(<code>'broyden'</code>/<code>'quick-min'</code>/<code>'sd'</code>),
+<code>CI_scheme</code>(<code>'no-CI'</code>/<code>'auto'</code>/<code>'manual'</code>), <code>path_thr</code>, <code>ds</code>, <code>k_max</code>,
+<code>k_min</code>, <code>restart_mode</code>. 입력 블록 구조는 <a href="ref-cards.html">R2</a> 참고.</p>
+<h2 id="_3">파일 흐름 한 장 요약</h2>
+<pre><code>                    ┌─ dos.x ──────→ 총 DOS
+scf ──→ nscf ───────┼─ projwfc.x ──→ PDOS, Löwdin
+ │                  └─ (밀도 고정)
+ ├────→ bands ──────── bands.x ────→ 밴드 (.gnu)
+ ├────→ pp.x ─────────────────────→ 밀도·퍼텐셜 (cube) ──→ average.x → 일함수
+ ├────→ hp.x (HUBBARD 필요) ──────→ U, V
+ └────→ ph.x ──→ q2r.x ──→ matdyn.x → 포논 분산
+</code></pre>
+<p>모든 화살표는 <strong>동일한 <code>prefix</code>·<code>outdir</code></strong>로 연결됩니다. 이 사슬이 끊기면
+<code>cannot open file ... .save/...</code> 에러가 납니다 (<a href="ref-errors.html">R3</a>).</p>
+      </article>
+<nav class="page-nav"><a class="prev" href="ref-errors.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">오류 메시지 사전</div></a><a class="next" href="ex-01-si-scf.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">Si SCF</div></a></nav>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
