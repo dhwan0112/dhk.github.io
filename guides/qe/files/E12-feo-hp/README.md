@@ -1,15 +1,15 @@
 # E12-feo-hp
 
-hp.x 선형응답(DFPT)으로 Hubbard U 직접 계산.
+Computing Hubbard U directly with hp.x linear response (DFPT).
 
-## 포함 파일
+## Files
 
 - `feo.hp.in`
 - `feo_hp_scf.in`
 - `run.sh`
 
-## 실행 전
+## Before running
 
 ```bash
-mkdir -p pseudo tmp   # pseudo/ 에 UPF 파일을 넣어 두세요
+mkdir -p pseudo tmp   # put the UPF files in pseudo/
 ```

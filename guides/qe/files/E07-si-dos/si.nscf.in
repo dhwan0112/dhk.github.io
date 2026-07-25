@@ -13,7 +13,7 @@
   ecutwfc     = 30
   ecutrho     = 240
   nbnd        = 12
-  occupations = 'tetrahedra'      ! 'tetrahedra_opt' 는 QE 7.5 에서 projwfc.x PDOS 가 0 으로 나옴
+  occupations = 'tetrahedra'      ! 'tetrahedra_opt' makes projwfc.x write zero PDOS on QE 7.5
 /
 &ELECTRONS
   conv_thr    = 1.0d-8

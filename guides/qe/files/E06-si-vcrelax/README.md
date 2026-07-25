@@ -1,13 +1,13 @@
 # E06-si-vcrelax
 
-셀+원자 최적화. vc-relax 후 scf 재실행 필수 (Pulay stress).
+Cell + atom optimization. A fresh scf after vc-relax is mandatory (Pulay stress).
 
-## 포함 파일
+## Files
 
 - `si.vcrelax.in`
 
-## 실행 전
+## Before running
 
 ```bash
-mkdir -p pseudo tmp   # pseudo/ 에 UPF 파일을 넣어 두세요
+mkdir -p pseudo tmp   # put the UPF files in pseudo/
 ```

@@ -1,5 +1,5 @@
-! Born-Oppenheimer MD. ML 퍼텐셜 학습 데이터 샘플링의 출발점.
-! dt 는 Rydberg 원자단위: 20.0 a.u. = 0.968 fs
+! Born-Oppenheimer MD: the starting point for sampling ML training data.
+! dt is in Rydberg atomic units: 20.0 a.u. = 0.968 fs
 &CONTROL
   calculation = 'md'
   prefix      = 'feo_md'
@@ -8,7 +8,7 @@
   nstep       = 2000
   dt          = 20.0
   tprnfor     = .true.
-  tstress     = .false.      ! nosym+U(ortho-atomic) 응력은 stres_hub 에러 (QE 7.5 실측)
+  tstress     = .false.      ! Hubbard stress dies with stres_hub under nosym+U (measured on QE 7.5)
   disk_io     = 'none'
 /
 &SYSTEM
@@ -25,14 +25,14 @@
   starting_magnetization(1) =  0.6
   starting_magnetization(2) = -0.6
   starting_magnetization(3) =  0.0
-  nosym       = .true.       ! MD 필수 — 열운동이 초기 대칭을 깨면 checkallsym 에러
+  nosym       = .true.       ! mandatory for MD: thermal motion breaks the initial symmetry (checkallsym)
 /
 &ELECTRONS
-  conv_thr    = 1.0d-6       ! BOMD 데모 기준. nosym+U 는 1.0d-8 도달이 어렵다 (실측)
+  conv_thr    = 1.0d-6       ! BOMD-level threshold; nosym+U struggles below this (measured)
   mixing_beta = 0.2
   mixing_mode = 'local-TF'
   electron_maxstep = 300
-  mixing_fixed_ns  = 30      ! nosym+U 는 ns 동결 없이는 SCF 가 정체한다 (실측)
+  mixing_fixed_ns  = 30      ! nosym+U stalls without freezing ns first (measured)
 /
 &IONS
   ion_dynamics    = 'verlet'
