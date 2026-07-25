@@ -1,19 +1,19 @@
 ---
-title: "R3. 오류 메시지 사전"
+title: "R3. Error message dictionary"
 ---
 
-# R3. 오류 메시지 사전
+# R3. Error message dictionary
 
-QE의 에러는 대부분 `Error in routine <루틴명> (<코드>)` 형태로 나오며,
-**루틴 이름이 원인의 가장 강한 단서**입니다.
+Most QE errors arrive as `Error in routine <name> (<code>)`, and
+**the routine name is the strongest clue to the cause**.
 
-## 목차
+## Contents
 {:.toc-title}
 
 1. TOC
 {:toc}
 
-## 에러를 읽는 법
+## How to read an error
 
 ```
      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -22,136 +22,149 @@ QE의 에러는 대부분 `Error in routine <루틴명> (<코드>)` 형태로 �
      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ```
 
-| 루틴 이름 | 문제 영역 |
+| Routine name | Problem area |
 |---|---|
-| `read_*`, `card_*`, `iosys` | 입력 파일 문법 |
-| `c_bands`, `cdiaghg`, `regterg`, `cegterg` | 대각화 |
-| `sum_band`, `v_of_rho` | 전하밀도 (컷오프, 유사퍼텐셜) |
-| `electrons` | SCF 수렴 |
-| `punch`, `openfil`, `davcio` | 파일 I/O (경로, 디스크, `prefix` 불일치) |
+| `read_*`, `card_*`, `iosys` | Input syntax |
+| `c_bands`, `cdiaghg`, `regterg`, `cegterg` | Diagonalization |
+| `sum_band`, `v_of_rho` | Charge density (cutoffs, pseudopotential) |
+| `electrons` | SCF convergence |
+| `punch`, `openfil`, `davcio` | File I/O (paths, disk, `prefix` mismatch) |
 
-에러가 없는데 결과가 이상한 경우가 더 위험합니다 — 아래
-[에러 없이 틀리는 경우](#에러-없이-틀리는-경우--가장-위험한-범주)를 보세요.
+The truly dangerous cases have no error at all; see
+[the section on silent failures](#silent-failures-the-most-dangerous-category).
 
-## 입력 파일 문법 오류
+## Input syntax errors
 
-| 메시지 | 원인 | 해결 |
+| Message | Cause | Fix |
 |---|---|---|
-| `Error in routine card_xxx` | 카드 이름 오타 또는 필드 수 불일치 | 카드명 대문자 확인, 열 개수 확인 |
-| `too many atomic species` / `nat is wrong` | `nat`·`ntyp`이 실제 줄 수와 다름 | 카드 내용과 대조 |
-| `Unknown label of the Hubbard parameter` | `HUBBARD` 카드의 파라미터 문자 오타 | `U`, `J0`, `J`, `V`, `alpha` 중 하나여야 함 |
-| `namelist not found` | 네임리스트 이름 오타 또는 `/` 누락 | 모든 네임리스트는 `/`로 종료 |
-| `input_dft not allowed` | 유사퍼텐셜 범함수와 충돌 | `input_dft`를 지우고 PP 내장 범함수 사용 |
-| `reading namelist ...` | Fortran 파싱 실패 (대개 쉼표·따옴표) | 문자열은 작은따옴표, 논리값은 `.true.`/`.false.` |
+| `Error in routine card_xxx` | Card-name typo or wrong field count | Check the uppercase card name and column count |
+| `too many atomic species` / `nat is wrong` | `nat`/`ntyp` disagree with the cards | Recount against the cards |
+| `Unknown label of the Hubbard parameter` | Bad parameter letter in the `HUBBARD` card | Must be one of `U`, `J0`, `J`, `V`, `alpha` |
+| `namelist not found` | Namelist typo or missing `/` | Every namelist ends with `/` |
+| `input_dft not allowed` | Conflicts with the pseudopotential functional | Remove `input_dft`; use the built-in functional |
+| `reading namelist ...` | Fortran parse failure (usually commas or quotes) | Single quotes for strings, `.true.`/`.false.` for logicals |
+| `read_namelists ... bad line` | Variable placed in the wrong namelist | Example: `tefield`/`dipfield` belong in `&CONTROL`, not `&SYSTEM` (measured; see [E13](ex-13-slab-md.html)) |
 
-## 유사퍼텐셜·전하밀도 문제
+## Pseudopotential and density problems
 
-| 메시지 | 원인 | 해결 |
+| Message | Cause | Fix |
 |---|---|---|
-| `charge is wrong: smearing is needed` | 절연체로 가정했는데 금속 | `occupations = 'smearing'` |
-| `charge is wrong` (적분 전하 불일치) | k-격자 대비 과소한 `degauss`, 또는 `ecutrho` 부족 | degauss·k-격자 함께 수렴, US/PAW는 `ecutrho` 8~12배 |
-| `negative rho (up, down)` (경고) | `ecutrho` 부족 | US/PAW라면 8~12배로 |
-| `Error in routine readpp` / `upf_read` | UPF 손상, 경로 오류, 버전 비호환 | `pseudo_dir` 확인, PP 재다운로드 |
-| `wrong number of valence electrons` | PP와 원자 종류 불일치 | `ATOMIC_SPECIES` 재확인 |
-| `set_hubbard_l: pseudopotential not yet inserted` | Hubbard 매니폴드를 PP가 지원 안 함 | 반코어(semicore) 포함 PP 사용 |
+| `charge is wrong: smearing is needed` | Assumed an insulator, got a metal | `occupations = 'smearing'` |
+| `charge is wrong` (integrated charge off) | degauss too small for the k-grid, or `ecutrho` too low | Converge degauss with the grid; 8–12x `ecutrho` for US/PAW |
+| `negative rho (up, down)` (warning) | `ecutrho` too low | 8–12x for US/PAW |
+| `Error in routine readpp` / `upf_read` | Corrupt UPF, wrong path, version clash | Check `pseudo_dir`; re-download |
+| `wrong number of valence electrons` | Pseudopotential does not match the species | Recheck `ATOMIC_SPECIES` |
+| `set_hubbard_l: pseudopotential not yet inserted` | The Hubbard manifold is absent from the pseudopotential | Use a semicore pseudopotential |
 
-실측 사례 — 본 가이드 [예제 E5](ex-05-al-metal.html)의 degauss 스캔에서
-`mv` smearing에 `degauss=0.005`를 주자 12×12×12 격자로는 적분 전하가
-3.003으로 어긋나며 `charge is wrong`으로 정지했습니다. smearing 폭과
-k-격자는 함께 수렴시켜야 한다는 실제 사례입니다.
+Measured case: in the degauss scan of
+[Example E5](ex-05-al-metal.html), `mv` smearing with `degauss=0.005` on a
+12×12×12 grid integrated the charge to 3.003 instead of 3 and stopped with
+`charge is wrong`. Smearing width and k-grid must be converged together.
 
-## SCF·대각화 수렴 실패
+## SCF and diagonalization failures
 
 ### convergence NOT achieved after N iterations
 
-가장 흔한 문제입니다. **순서대로** 시도하세요.
+The most common problem. Try these **in order**.
 
 1. `mixing_beta` 0.7 → 0.3 → 0.1
-2. `mixing_mode = 'local-TF'` (금속, 슬랩, 자성계에 효과적)
-3. `electron_maxstep` 증가 (200~500)
-4. `mixing_ndim` 증가 (8 → 12~16, 메모리 여유가 있을 때)
-5. `degauss`를 일시적으로 키워 수렴시킨 뒤 `startingpot='file'`로 재시작하며 줄이기
-6. `diagonalization = 'cg'` 또는 `'ppcg'` (느리지만 안정)
-7. 초기 구조 점검 (원자 간 거리가 너무 가깝지 않은가)
+2. `mixing_mode = 'local-TF'` (metals, slabs, magnets)
+3. Raise `electron_maxstep` (200–500)
+4. Raise `mixing_ndim` (8 → 12–16, if memory allows)
+5. Temporarily raise `degauss`, converge, restart with
+   `startingpot='file'` while lowering it
+6. `diagonalization = 'cg'` or `'ppcg'` (slow but robust)
+7. Inspect the structure (atoms too close)
+
+For DFT+U with `nosym` (MD in particular): the SCF stalls because rotations
+among degenerate orbitals keep the density sloshing. Add
+`mixing_fixed_ns = 30` (measured in [E13](ex-13-slab-md.html): stuck at
+7×10⁻⁵ after 100 iterations without it, converged in 28 with it).
 
 ### c_bands: N eigenvalues not converged
 
-- 경고 수준이면 무시 가능한 경우가 많지만, 반복되면 대각화 실패입니다.
-- `diagonalization`을 바꾸고 `nbnd`를 늘리세요 (특히 금속·자성계).
-- `diago_david_ndim` 2 → 4도 개선책입니다 (메모리 증가).
+- Often ignorable as a warning; repeated occurrences mean diagonalization
+  failure.
+- Switch `diagonalization`, raise `nbnd` (metals and magnets especially).
+- `diago_david_ndim` 2 → 4 can help (more memory).
 
 ### cdiaghg: problems computing cholesky / S matrix not positive definite
 
-- 겹침 행렬이 특이해진 경우. 대개 **원자가 너무 가깝거나, 초기 파동함수가
-  나쁘거나, 기저가 선형종속**.
-- `startingwfc = 'random'`으로 바꿔 보세요.
-- 구조를 다시 확인하세요 — 원자 두 개가 겹쳐 있는 경우가 의외로 많습니다.
+- The overlap matrix went singular. Usual causes: **atoms too close, a bad
+  initial wavefunction, or a linearly dependent basis**.
+- Try `startingwfc = 'random'`.
+- Recheck the structure: overlapping atoms are more common than you think.
 
 ### Not enough space allocated for radial FFT
 
-- 셀이 매우 크거나 원자가 셀 경계에 걸친 경우.
-- `cell_factor`를 늘리거나 원자를 셀 안쪽으로 옮기세요.
+- A very large cell, or atoms straddling the cell boundary.
+- Raise `cell_factor` or move atoms inside the cell.
 
 ### checkallsym: some of the original symmetry operations not satisfied
 
-- 초기 구조에서 잡힌 대칭을 이후의 원자 이동이 깨뜨린 경우. **MD에서 거의
-  반드시 만납니다** (열운동이 대칭 위치를 즉시 무너뜨림).
-- MD는 `&SYSTEM`에 `nosym = .true.`를 넣으세요 ([16장](16-molecular-dynamics.html)).
-  구조 최적화에서 나온다면 초기 구조의 대칭이 수치 잡음 수준으로만 성립했던
-  것이니 구조를 정밀화하거나 역시 `nosym`을 고려하세요.
+- Atomic motion broke the symmetry detected on the initial structure.
+  **In MD you will hit this almost immediately** (thermal motion destroys
+  symmetric positions in the first step).
+- Set `nosym = .true.` for MD
+  ([Chapter 16](16-molecular-dynamics.html)). If it appears during a
+  relaxation, the initial symmetry only held to numerical noise; refine the
+  structure or use `nosym` there too.
 
-## 병렬·메모리·I/O 문제
+## Parallel, memory, and I/O problems
 
-| 메시지 | 원인 | 해결 |
+| Message | Cause | Fix |
 |---|---|---|
-| `some processors have no planes` | MPI 랭크가 FFT 격자보다 많음 | 랭크 축소 또는 `-nk` 증가 |
-| `npool must divide nproc` | `-nk` 설정 오류 | `nproc`을 `-nk`로 나누어떨어지게 |
-| `ndiag must be a square number` | `-nd` 설정 오류 | 1, 4, 9, 16, ... |
-| `Error in routine davcio` | 디스크 부족, 권한, `outdir` 불일치 | 용량·경로 확인 |
-| `cannot open file ... .save/charge-density.dat` | `prefix`/`outdir`이 선행 계산과 다름 | 전 단계와 동일하게 |
-| 메모리 부족(OOM) | `-nk` 과다 (풀마다 밀도 사본) | `-nk` 감소, `diago_david_ndim` 감소 |
+| `some processors have no planes` | More MPI ranks than FFT planes | Fewer ranks, or larger `-nk` |
+| `npool must divide nproc` | Bad `-nk` | Make `nproc` divisible by `-nk` |
+| `ndiag must be a square number` | Bad `-nd` | 1, 4, 9, 16, ... |
+| `Error in routine davcio` | Disk full, permissions, `outdir` mismatch | Check space and paths |
+| `cannot open file ... .save/charge-density.dat` | `prefix`/`outdir` differ from the previous step | Keep them identical along the pipeline |
+| Out of memory | `-nk` too large (each pool copies the density) | Lower `-nk`, lower `diago_david_ndim` |
 
-## 에러 없이 틀리는 경우 — 가장 위험한 범주
+## Silent failures: the most dangerous category
 
-QE는 물리적으로 틀린 결과도 깔끔하게 출력합니다. 다음을 습관적으로
-점검하세요.
+QE prints physically wrong results in a perfectly clean format. Make these
+checks habitual.
 
-| 증상 | 숨은 원인 | 점검 방법 |
+| Symptom | Hidden cause | Check |
 |---|---|---|
-| 총에너지가 문헌과 크게 다름 | 유사퍼텐셜이 다름 | 총에너지 **절대값은 비교 대상이 아님**. 같은 조건의 차이만 의미 있음 |
-| 자기모멘트가 0으로 붕괴 | 초기 자화 부족, smearing 과다 | `starting_magnetization` 증가, `degauss` 감소 |
-| AFM인데 `total magnetization` ≠ 0 | 라벨 분리 실패, 대칭이 배열을 강제 | `ntyp` 늘려 라벨 분리, `Sym. Ops.` 확인 |
-| FeO가 금속으로 나옴 | GGA의 자기상호작용 오차 | DFT+U 적용. U만으로 부족하면 `starting_ns_eigenvalue` |
-| U를 켰는데도 금속 | d 궤도 점유가 잘못된 극소값에 갇힘 | `starting_ns_eigenvalue`로 점유 유도 |
-| `vc-relax` 결과가 재현 안 됨 | Pulay stress | 최종 구조로 `scf` 재실행 |
-| DOS가 톱니처럼 거침 | nscf k-점 부족 | 격자 증가 + `tetrahedra_opt` |
-| 밴드 경로가 이상함 | `crystal_b` 좌표계 혼동 | `tpiba_b` 사용 또는 SeeK-path |
-| 슬랩 에너지가 진공 두께에 민감 | 쌍극자 상호작용 | `dipfield` 활성화, 진공 증가 |
-| 힘이 수렴하지 않음 | 에너지 기준으로만 수렴을 봤음 | 힘 기준 수렴 테스트 별도 수행 |
+| Total energy far from the literature | Different pseudopotential | **Absolute energies are not comparable**; only same-condition differences |
+| Magnetic moment collapses to zero | Weak initial magnetization, excess smearing | Raise `starting_magnetization`, lower `degauss` |
+| AFM but total magnetization is nonzero | Label split missing; symmetry enforcing FM | Split labels via `ntyp`; check `Sym. Ops.` |
+| FeO comes out metallic | GGA self-interaction error | Apply DFT+U; if U alone fails, `starting_ns_eigenvalue` |
+| Still metallic with U on | d occupations trapped in a wrong minimum | Steer the pattern with `starting_ns_eigenvalue` |
+| `vc-relax` results not reproducible | Pulay stress | Fresh `scf` on the final structure |
+| Jagged DOS | Too few nscf k-points | Densify and use the tetrahedron method |
+| Weird band path | `crystal_b` convention confusion | Use `tpiba_b` or SeeK-path |
+| Slab energy sensitive to vacuum size | Dipole interactions | Enable `dipfield`, add vacuum |
+| Forces will not converge | You only converged the energy | Run a separate force-based convergence test |
 
-## 자성 전이금속 산화물 전용 체크리스트
+## A checklist for magnetic transition-metal oxides
 
-FeO, Fe₂O₃, Fe₃O₄ 같은 계에서 반복적으로 겪는 문제들입니다.
+Recurring issues in systems like FeO, Fe₂O₃, Fe₃O₄:
 
-- `ecutrho`가 `ecutwfc`의 최소 10배인가 (Fe PAW는 특히 요구가 큼)
-- 스핀 up/down 라벨을 다른 원자종으로 분리했는가
-- `mixing_beta` 0.3 이하 + `mixing_mode='local-TF'`인가
-- 여러 초기 자화에서 출발해 **에너지가 가장 낮은 해**를 골랐는가
-- `HUBBARD` 카드가 **신문법**인가 (`lda_plus_u`가 남아 있지 않은가)
-- 투영자(`ortho-atomic` 등)를 U 값과 세트로 기록해 두었는가
-- `starting_ns_eigenvalue`로 올바른 궤도 점유를 유도했는가
-- `hp.x`를 쓴다면 `nq` 수렴을 확인했는가
-- 데이터셋 전체에서 컷오프·k-점·smearing·U가 완전히 동일한가
+- Is `ecutrho` at least 10x `ecutwfc`? (Fe PAW is demanding)
+- Are spin-up and spin-down sublattices split into separate labels?
+- Is `mixing_beta` at 0.3 or below with `mixing_mode='local-TF'`?
+- Did you converge from several initial magnetizations and pick the
+  **lowest-energy** solution?
+- Is the `HUBBARD` card in the **new syntax** (no `lda_plus_u` remnants)?
+- Is the projector (`ortho-atomic` etc.) recorded together with the U value?
+- Did you steer the orbital occupations with `starting_ns_eigenvalue`?
+- If you use `hp.x`, did you converge the `nq` grid?
+- Are cutoffs, k-grid, smearing, and U identical across the whole dataset?
 
-## 도움을 구할 때
+## When you ask for help
 
-[QE users 메일링 리스트 아카이브](https://www.mail-archive.com/users@lists.quantum-espresso.org/)에서
-먼저 검색하세요. 대부분의 문제가 이미 답변되어 있고, 개발자(Giannozzi,
-Timrov 등)가 직접 답한 스레드는 사실상 공식 문서에 준합니다.
+Search the
+[QE users mailing list archive](https://www.mail-archive.com/users@lists.quantum-espresso.org/)
+first. Most problems are already answered, and threads answered by the
+developers (Giannozzi, Timrov, and others) are effectively official
+documentation.
 
-질문할 때 반드시 포함할 것:
+Always include:
 
-1. QE 버전과 빌드 방식
-2. **입력 파일 전문**
-3. 출력의 에러 부분 **앞뒤 30줄**
-4. 이미 시도해 본 것
+1. The QE version and how it was built
+2. The **complete input file**
+3. The error section of the output, **with 30 lines of context**
+4. What you already tried
