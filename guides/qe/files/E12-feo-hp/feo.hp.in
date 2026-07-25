@@ -1,7 +1,11 @@
+! E12 step 2: hp.x computes the response matrices chi0 and chi by DFPT
+! and returns U = chi0^-1 - chi^-1 per Hubbard atom.
 &INPUTHP
-  prefix       = 'FeO'
+  prefix       = 'FeO'       ! must match the scf of step 1
   outdir       = './tmp/'
-  nq1 = 2, nq2 = 2, nq3 = 2
-  conv_thr_chi = 1.0d-6      ! 1.0d-8 is unreachable on a metallic (GGA) ground state: chi residual noise (measured)
-  iverbosity   = 2
+  nq1 = 2, nq2 = 2, nq3 = 2  ! q-point grid for the perturbation; CONVERGE THIS
+                             ! (a 1x1x1 U is not trustworthy)
+  conv_thr_chi = 1.0d-6      ! chi convergence; 1.0d-8 is unreachable on a metallic
+                             ! (GGA) ground state, the residual noise floor sits ~1e-7 (measured)
+  iverbosity   = 2           ! print per-iteration chi values (worth watching)
 /

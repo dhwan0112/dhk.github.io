@@ -1,17 +1,20 @@
-! FeO rocksalt, AFM-II (alternating (111) planes)
-! rhombohedral magnetic cell: 2 Fe + 2 O, volume = 0.5 a^3
+! E11: E10 plus DFT+U. Only three lines change anything: the HUBBARD card
+! at the very end. Watch the moments grow and the Hubbard splitting open,
+! and then meet the famous trap (a narrow t2g band pinned at E_F in the
+! ideal cubic cell).
+
 &CONTROL
   calculation = 'scf'
-  prefix      = 'FeO_U'
+  prefix      = 'FeO_U'       ! separate prefix so the E10 files survive
   outdir      = './tmp/'
   pseudo_dir  = './pseudo/'
-  verbosity   = 'high'
+  verbosity   = 'high'        ! prints Tr[ns] and the ns eigenvalues: check the occupations!
   tprnfor     = .true.
   tstress     = .true.
 /
 &SYSTEM
   ibrav       = 0
-  celldm(1)   = 8.18
+  celldm(1)   = 8.18          ! bohr (= 4.33 Angstrom)
   nat         = 4
   ntyp        = 3
   ecutwfc     = 70
@@ -50,6 +53,11 @@ ATOMIC_POSITIONS (crystal)
 K_POINTS (automatic)
   6 6 6  0 0 0
 
+! The v7.1+ Hubbard card. (ortho-atomic) picks the projector; U values are
+! in eV, addressed per label and manifold. The Fe1/Fe2 label split from E10
+! is what lets the two sublattices carry independent ns matrices.
+! U = 4.6 eV is a conventional literature value; E12 computes 5.22 eV for
+! this exact setup from first principles.
 HUBBARD (ortho-atomic)
 U Fe1-3d 4.6
 U Fe2-3d 4.6

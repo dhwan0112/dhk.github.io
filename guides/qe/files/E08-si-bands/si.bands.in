@@ -1,6 +1,10 @@
+! E08 step 2: eigenvalues along a high-symmetry path.
+! 'bands' is an nscf variant: it reads the scf density of prefix 'si'
+! (run E01's si.scf.in first in this directory).
+
 &CONTROL
   calculation = 'bands'
-  prefix      = 'si'
+  prefix      = 'si'          ! must match the preceding scf
   outdir      = './tmp/'
   pseudo_dir  = './pseudo/'
   verbosity   = 'high'
@@ -12,7 +16,7 @@
   ntyp        = 1
   ecutwfc     = 30
   ecutrho     = 240
-  nbnd        = 12
+  nbnd        = 12            ! bands above the gap, so the conduction bands are plotted
   occupations = 'fixed'
 /
 &ELECTRONS
@@ -26,6 +30,11 @@ ATOMIC_POSITIONS (alat)
   Si  0.00  0.00  0.00
   Si  0.25  0.25  0.25
 
+! band path in 'tpiba_b': Cartesian coordinates in units of 2*pi/a.
+! each line: k-point, then the number of divisions to the NEXT point
+! (the last point gets 0). Path: L - Gamma - X - W - K - Gamma.
+! tpiba_b is safer than crystal_b here because QE's fcc primitive-vector
+! convention differs from many textbooks.
 K_POINTS (tpiba_b)
 6
   0.500 0.500 0.500  30   ! L

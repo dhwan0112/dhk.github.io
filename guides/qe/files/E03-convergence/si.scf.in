@@ -1,19 +1,22 @@
+! E03: the reference input for the convergence scans.
+! Identical to E01; the scripts below derive scan inputs from it with sed.
+
 &CONTROL
   calculation  = 'scf'
   prefix       = 'si'
   outdir       = './tmp/'
   pseudo_dir   = './pseudo/'
   verbosity    = 'high'
-  tprnfor      = .true.
+  tprnfor      = .true.       ! forces on: the force scan needs them
   tstress      = .true.
 /
 &SYSTEM
   ibrav        = 2
-  celldm(1)    = 10.26
+  celldm(1)    = 10.26        ! bohr (= 5.43 Angstrom)
   nat          = 2
   ntyp         = 1
-  ecutwfc      = 30
-  ecutrho      = 240
+  ecutwfc      = 30           ! the scan scripts rewrite this line
+  ecutrho      = 240          ! and keep this at 8 x ecutwfc
   occupations  = 'fixed'
 /
 &ELECTRONS
@@ -28,5 +31,6 @@ ATOMIC_POSITIONS (alat)
   Si  0.00  0.00  0.00
   Si  0.25  0.25  0.25
 
+! the k-point scan script rewrites the grid line below
 K_POINTS (automatic)
   8 8 8  0 0 0
