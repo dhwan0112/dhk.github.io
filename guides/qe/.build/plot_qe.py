@@ -1,6 +1,5 @@
 """Generate the QE guide figures from actual pw.x runs (Quantum ESPRESSO 7.5,
-conda-forge, WSL Ubuntu). English axis labels match the site convention; Korean
-explanation goes in the HTML figcaptions.
+conda-forge, WSL Ubuntu). All labels and captions are English.
 
 Reads captured outputs under qe-demo/ and writes PNGs to ../assets/images/:
   qe-e03-convergence.png   E3  dE vs ecutwfc / dE vs k-grid / force convergence
@@ -263,8 +262,8 @@ gap_u, dosef_u = gap_at_ef(eu, upu + dwu)
 
 fig, (ag, au) = plt.subplots(1, 2, figsize=(11.4, 4.3), dpi=160, sharey=True)
 for ax, (e, up, dw), ttl in (
-        (ag, (eg, upg, dwg), "GGA (PBE) — metallic"),
-        (au, (eu, upu, dwu), "GGA+U (U = 4.6 eV) — Hubbard splitting")):
+        (ag, (eg, upg, dwg), "GGA (PBE): metallic"),
+        (au, (eu, upu, dwu), "GGA+U (U = 4.6 eV): Hubbard splitting")):
     ax.plot(e, up, color=BLUE, lw=1.2, label="spin up")
     ax.plot(e, -dw, color=RED, lw=1.2, label="spin down")
     ax.axvline(0, color=ORANGE, ls="--", lw=1.2)
