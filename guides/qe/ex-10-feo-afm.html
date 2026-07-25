@@ -148,47 +148,60 @@ Seeing this failure with your own eyes is the motivation for
 </table>
 <h2 id="input-file">Input file</h2>
 <p><a href="files/E10-feo-afm/feo.scf.in">Download feo.scf.in</a></p>
-<pre><code class="language-fortran">&amp;CONTROL
+<pre><code class="language-fortran">! E10: FeO in the rocksalt structure with AFM-II order
+! (ferromagnetic (111) planes with alternating sign).
+! The magnetic unit cell is rhombohedral: 2 Fe + 2 O, volume = 0.5 a^3.
+! THE POINT of this run: the AFM order converges beautifully, and GGA
+! still predicts a metal. Experiment says insulator, gap ~2.4 eV.
+
+&amp;CONTROL
   calculation = 'scf'
   prefix      = 'FeO'
   outdir      = './tmp/'
   pseudo_dir  = './pseudo/'
-  verbosity   = 'high'
+  verbosity   = 'high'        ! also prints the ns matrices once U is on (E11)
   tprnfor     = .true.
   tstress     = .true.
 /
 &amp;SYSTEM
-  ibrav       = 0
-  celldm(1)   = 8.18            ! bohr (= 4.33 Å cubic lattice constant)
+  ibrav       = 0             ! cell given explicitly below
+  celldm(1)   = 8.18          ! cubic a in bohr (= 4.33 Angstrom); scales CELL_PARAMETERS (alat)
   nat         = 4
-  ntyp        = 3
+  ntyp        = 3             ! Fe1, Fe2, O: the label split that makes AFM possible
   ecutwfc     = 70
-  ecutrho     = 700
-  occupations = 'smearing'
+  ecutrho     = 700           ! the 10x Fe rule again
+  occupations = 'smearing'    ! the GGA ground state is (wrongly) metallic, so smear
   smearing    = 'mv'
   degauss     = 0.01
   nspin       = 2
-  starting_magnetization(1) =  0.6    ! Fe1  up
-  starting_magnetization(2) = -0.6    ! Fe2  down
-  starting_magnetization(3) =  0.0    ! O
+  starting_magnetization(1) =  0.6    ! Fe1 sublattice: up
+  starting_magnetization(2) = -0.6    ! Fe2 sublattice: down  -&gt; AFM seed
+  starting_magnetization(3) =  0.0    ! O: no seed
 /
 &amp;ELECTRONS
   conv_thr    = 1.0d-8
-  mixing_beta = 0.2
+  mixing_beta = 0.2           ! touchy magnetic oxide: mix gently
   mixing_mode = 'local-TF'
   electron_maxstep = 300
 /
 
+! the SAME pseudopotential file under two labels: without this split QE
+! treats the two Fe as symmetry-equivalent and no AFM state can form
 ATOMIC_SPECIES
   Fe1  55.845  Fe.pbe-spn-kjpaw_psl.1.0.0.UPF
-  Fe2  55.845  Fe.pbe-spn-kjpaw_psl.1.0.0.UPF   ! same file, different label
+  Fe2  55.845  Fe.pbe-spn-kjpaw_psl.1.0.0.UPF
   O    15.999  O.pbe-n-kjpaw_psl.1.0.0.UPF
 
+! rhombohedral doubling of the fcc cell along [111], in units of alat:
+! these three vectors hold two rocksalt formula units, so that the two Fe
+! (111) planes can carry opposite spins. det = 0.5 -&gt; volume 0.5 a^3.
 CELL_PARAMETERS (alat)
   0.5  0.5  1.0
   0.5  1.0  0.5
   1.0  0.5  0.5
 
+! fractional coordinates: Fe at 0 and 1/2 along the cell diagonal are the
+! two oppositely magnetized (111) planes; O sits between them
 ATOMIC_POSITIONS (crystal)
   Fe1  0.00  0.00  0.00
   Fe2  0.50  0.50  0.50

@@ -30,7 +30,16 @@ The reference input is the same as [E1](ex-01-si-scf.html)
 
 ```bash
 #!/bin/bash
-# conv_ecut.sh: ecutwfc scan; ecutrho follows at 8x (PAW/US convention)
+# ecutwfc convergence scan; ecutrho follows at 8x (the PAW/US convention).
+#
+# For each cutoff E:
+#   1. sed derives a scan input from si.scf.in, rewriting the two cutoff lines
+#   2. pw.x runs it
+#   3. grep '^!' picks the line "!    total energy = ..." (the converged value;
+#      unmarked "total energy" lines are intermediate SCF iterations)
+# Finally awk converts to meV/atom relative to the densest point:
+#   dE [meV/atom] = (E - E_ref) * 13605.7 / nat     (1 Ry = 13605.7 meV)
+
 NAT=2
 printf "# ecutwfc(Ry)  E_total(Ry)   dE_vs_last(meV/atom)\n" > conv_ecut.dat
 LAST=""
@@ -46,8 +55,26 @@ awk -v nat=$NAT -v ref="$LAST" '!/^#/{printf "%6s  %16s  %10.3f\n",$1,$2,($2-ref
 ```
 
 The k-point scan (`conv_kpts.sh`) rewrites the `K_POINTS` line the same
-way. The force scan (`conv_force.sh`) breaks the symmetry (moving one Si
-from 0.25 to 0.26) and extracts the force on atom 1.
+way. The force scan breaks the symmetry first and then reads the total
+force with `head -1`, never `tail -1`:
+
+```bash
+#!/bin/bash
+# Force-based convergence scan (the criterion that matters for ML training
+# data). On a perfectly symmetric structure every force is zero, so first
+# break the symmetry: move the second Si from 0.25 to 0.26 along x.
+sed 's/  Si  0.25  0.25  0.25/  Si  0.26  0.25  0.25/' si.scf.in > si_disp.in
+for E in 30 40 50 60 70 80 90; do
+  sed -e "s/ecutwfc *=.*/ecutwfc      = $E/" \
+      -e "s/ecutrho *=.*/ecutrho      = $((E*8))/" si_disp.in > tmp_f$E.in
+  pw.x -in tmp_f$E.in > tmp_f$E.out
+  # The FIRST "atom 1 ... force" match after 'Forces acting on atoms' is the
+  # total force. Later matches are the contribution breakdown (the last one
+  # is the ~1e-6 SCF correction), so head -1 here, never tail -1.
+  F=$(grep 'atom    1 type  1   force' tmp_f$E.out | head -1 | awk '{print $7}')
+  echo "$E  $F"   # Ry/bohr -> eV/A: multiply by 25.7110
+done
+```
 
 ## Run
 

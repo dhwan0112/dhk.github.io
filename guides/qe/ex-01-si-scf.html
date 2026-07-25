@@ -145,36 +145,44 @@ every later example.</p>
 </table>
 <h2 id="input-file">Input file</h2>
 <p><a href="files/E01-si-scf/si.scf.in">Download si.scf.in</a></p>
-<pre><code class="language-fortran">&amp;CONTROL
-  calculation  = 'scf'
-  prefix       = 'si'
-  outdir       = './tmp/'
-  pseudo_dir   = './pseudo/'
-  verbosity    = 'high'
-  tprnfor      = .true.
-  tstress      = .true.
+<pre><code class="language-fortran">! E01: the simplest possible SCF, on diamond-structure silicon.
+! Two atoms, the three mandatory namelists, the three mandatory cards.
+
+&amp;CONTROL
+  calculation  = 'scf'        ! one self-consistent run, no ionic motion
+  prefix       = 'si'         ! basename under outdir; follow-up runs must reuse it
+  outdir       = './tmp/'     ! scratch: charge density + wavefunctions land here
+  pseudo_dir   = './pseudo/'  ! where the .UPF pseudopotential files live
+  verbosity    = 'high'       ! print symmetry ops, k-point list (always 'high' while learning)
+  tprnfor      = .true.       ! print forces (zero here by symmetry, but learn to check)
+  tstress      = .true.       ! print the stress tensor (it reports on the lattice constant)
 /
 &amp;SYSTEM
-  ibrav        = 2
-  celldm(1)    = 10.26
-  nat          = 2
-  ntyp         = 1
-  ecutwfc      = 30
-  ecutrho      = 240
-  occupations  = 'fixed'
+  ibrav        = 2            ! fcc Bravais lattice; primitive vectors follow QE's convention
+  celldm(1)    = 10.26        ! cubic lattice constant a, in BOHR (= 5.43 Angstrom, experimental)
+  nat          = 2            ! atoms in the cell
+  ntyp         = 1            ! atomic species
+  ecutwfc      = 30           ! wavefunction cutoff in Ry (converge it yourself in E3)
+  ecutrho      = 240          ! density cutoff: 8 x ecutwfc, the PAW/US rule (4x default is for NC)
+  occupations  = 'fixed'      ! integer occupations: a semiconductor with a gap
 /
 &amp;ELECTRONS
-  conv_thr     = 1.0d-8
-  mixing_beta  = 0.7
+  conv_thr     = 1.0d-8       ! SCF threshold in Ry (1e-6 default is too loose once forces matter)
+  mixing_beta  = 0.7          ! aggressive mixing; fine for a simple insulator
 /
 
+! label | mass in amu (physical only in MD and phonons) | UPF file
 ATOMIC_SPECIES
   Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
 
+! coordinates in units of celldm(1) ('alat').
+! diamond = fcc lattice + two-atom basis at (0,0,0) and (1/4,1/4,1/4)
 ATOMIC_POSITIONS (alat)
   Si  0.00  0.00  0.00
   Si  0.25  0.25  0.25
 
+! Monkhorst-Pack grid nk1 nk2 nk3, then three 0/1 shifts (unshifted here).
+! symmetry reduces 8x8x8 = 512 points to 29 irreducible ones.
 K_POINTS (automatic)
   8 8 8  0 0 0
 </code></pre>

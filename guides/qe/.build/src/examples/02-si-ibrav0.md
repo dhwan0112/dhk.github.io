@@ -25,19 +25,22 @@ format, so you must be able to read it.
 [Download si_ibrav0.scf.in](files/E02-si-ibrav0/si_ibrav0.scf.in)
 
 ```fortran
+! E02: the same crystal as E01, written with an explicit cell.
+! This is exactly the format that structure generators (ASE, pymatgen) emit.
+
 &CONTROL
   calculation = 'scf'
-  prefix      = 'si_ibrav0'
+  prefix      = 'si_ibrav0'   ! separate prefix so E01's files are untouched
   outdir      = './tmp/'
   pseudo_dir  = './pseudo/'
   verbosity   = 'high'
 /
 &SYSTEM
-  ibrav       = 0           ! explicit cell follows
+  ibrav       = 0             ! cell given explicitly below
   nat         = 2
   ntyp        = 1
-  ecutwfc     = 30
-  ecutrho     = 240
+  ecutwfc     = 30            ! identical basis settings to E01,
+  ecutrho     = 240           ! so the energies are directly comparable
   occupations = 'fixed'
 /
 &ELECTRONS
@@ -47,11 +50,16 @@ format, so you must be able to read it.
 ATOMIC_SPECIES
   Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
 
+! the three fcc primitive vectors as rows, in Angstrom.
+! 2.715 = a/2 with a = 5.430 A; note E01's celldm(1)=10.26 bohr is 5.4293 A,
+! so the two inputs differ in the 4th digit of a (visible in the energy).
 CELL_PARAMETERS (angstrom)
   -2.715   0.000   2.715
    0.000   2.715   2.715
   -2.715   2.715   0.000
 
+! fractional ('crystal') coordinates: independent of the cell size,
+! the safest choice in practice
 ATOMIC_POSITIONS (crystal)
   Si  0.00  0.00  0.00
   Si  0.25  0.25  0.25

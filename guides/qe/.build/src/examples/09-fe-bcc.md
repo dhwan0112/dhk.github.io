@@ -24,6 +24,9 @@ magnetism convergence craft of [Chapter 12](12-magnetism.html).
 [Download fe.scf.in](files/E09-fe-bcc/fe.scf.in)
 
 ```fortran
+! E09: ferromagnetic bcc iron. Metal + magnetism, the convergence
+! combination that transition-metal oxides are made of.
+
 &CONTROL
   calculation = 'scf'
   prefix      = 'fe'
@@ -33,22 +36,23 @@ magnetism convergence craft of [Chapter 12](12-magnetism.html).
 /
 &SYSTEM
   ibrav       = 3               ! bcc
-  celldm(1)   = 5.42            ! bohr (= 2.87 Å)
+  celldm(1)   = 5.42            ! bohr (= 2.87 Angstrom, experimental)
   nat         = 1
   ntyp        = 1
-  ecutwfc     = 70
-  ecutrho     = 700             ! 10x or more for Fe
+  ecutwfc     = 70              ! Fe semicore PAW is demanding
+  ecutrho     = 700             ! 10x, not 8x: Fe needs it
   occupations = 'smearing'
   smearing    = 'mv'
   degauss     = 0.02
-  nspin       = 2
-  starting_magnetization(1) = 0.7
+  nspin       = 2               ! collinear spin polarization
+  starting_magnetization(1) = 0.7   ! INITIAL GUESS, a dimensionless ratio in [-1,1]
+                                    ! (not Bohr magnetons); the SCF refines it
 /
 &ELECTRONS
   conv_thr    = 1.0d-8
-  mixing_beta = 0.3             ! keep it low for magnetic metals
-  mixing_mode = 'local-TF'
-  electron_maxstep = 200
+  mixing_beta = 0.3             ! magnetic metals need gentle mixing
+  mixing_mode = 'local-TF'      ! and the local-TF preconditioner
+  electron_maxstep = 200        ! allow more iterations than the default 100
 /
 
 ATOMIC_SPECIES
@@ -57,6 +61,7 @@ ATOMIC_SPECIES
 ATOMIC_POSITIONS (alat)
   Fe  0.00  0.00  0.00
 
+! a dense grid: the Fermi surface of a magnetic metal needs resolution
 K_POINTS (automatic)
   16 16 16  0 0 0
 ```

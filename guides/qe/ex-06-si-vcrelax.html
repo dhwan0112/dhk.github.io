@@ -145,20 +145,25 @@ trajectory, and close with the Pulay-stress rerun rule.</p>
 </table>
 <h2 id="input-file">Input file</h2>
 <p><a href="files/E06-si-vcrelax/si.vcrelax.in">Download si.vcrelax.in</a></p>
-<pre><code class="language-fortran">&amp;CONTROL
+<pre><code class="language-fortran">! E06: variable-cell relaxation of silicon.
+! Start from a deliberately wrong lattice constant and let BFGS find the
+! PBE equilibrium. Afterwards, ALWAYS rerun scf on the final structure
+! (Pulay stress: the plane-wave basis changed with the cell).
+
+&amp;CONTROL
   calculation   = 'vc-relax'
   prefix        = 'si_vc'
   outdir        = './tmp/'
   pseudo_dir    = './pseudo/'
-  etot_conv_thr = 1.0d-5      ! Ry
-  forc_conv_thr = 1.0d-4      ! Ry/bohr
-  nstep         = 100
+  etot_conv_thr = 1.0d-5      ! stop when the energy change per ionic step is below this (Ry)
+  forc_conv_thr = 1.0d-4      ! ... and every force component is below this (Ry/bohr)
+  nstep         = 100         ! maximum number of ionic (BFGS) steps
   tprnfor       = .true.
-  tstress       = .true.
+  tstress       = .true.      ! vc-relax drives the stress to press_conv_thr
 /
 &amp;SYSTEM
   ibrav       = 2
-  celldm(1)   = 10.00         ! deliberately wrong starting point
+  celldm(1)   = 10.00         ! deliberately wrong starting value (compressed, ~+109 kbar)
   nat         = 2
   ntyp        = 1
   ecutwfc     = 40
@@ -166,15 +171,15 @@ trajectory, and close with the Pulay-stress rerun rule.</p>
   occupations = 'fixed'
 /
 &amp;ELECTRONS
-  conv_thr    = 1.0d-10       ! tighter SCF for vc-relax
+  conv_thr    = 1.0d-10       ! tighter than usual: BFGS wanders on noisy forces/stress
 /
 &amp;IONS
-  ion_dynamics   = 'bfgs'
+  ion_dynamics   = 'bfgs'     ! quasi-Newton optimizer for the atoms
 /
 &amp;CELL
-  cell_dynamics  = 'bfgs'
-  press_conv_thr = 0.1        ! kbar
-  cell_dofree    = 'ibrav'    ! keep cubic symmetry
+  cell_dynamics  = 'bfgs'     ! ... and for the cell
+  press_conv_thr = 0.1        ! target |pressure| in kbar
+  cell_dofree    = 'ibrav'    ! keep cubic symmetry: only the lattice constant may change
 /
 
 ATOMIC_SPECIES
