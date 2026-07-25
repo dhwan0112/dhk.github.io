@@ -1,0 +1,9 @@
+Lowdin Charges: 
+
+     Atom #   1: total charge =   3.9637, s =  1.1617, 
+     Atom #   1: total charge =   3.9637, p =  2.8020, pz=  0.9340, px=  0.9340, py=  0.9340, 
+     Atom #   2: total charge =   3.9637, s =  1.1617, 
+     Atom #   2: total charge =   3.9637, p =  2.8020, pz=  0.9340, px=  0.9340, py=  0.9340, 
+     Spilling Parameter:   0.0091
+
+     PROJWFC      :      1.29s CPU      1.57s WALL

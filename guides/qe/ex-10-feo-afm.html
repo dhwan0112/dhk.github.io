@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Si SCF · QE 가이드</title>
-  <meta name="description" content="가장 단순한 실리콘 SCF를 한 번 돌리고 출력의 모든 블록을 읽어보는 첫 예제." />
+  <title>FeO AFM (GGA 실패) · QE 가이드</title>
+  <meta name="description" content="반강자성 FeO를 GGA로 계산하면 무엇이 틀리는지 직접 확인합니다." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -88,7 +88,7 @@
     <div class="nav-section">
       <div class="nav-section-title">예제 · 따라 하기</div>
       <ul class="nav-list">
-        <li><a href="ex-01-si-scf.html" class="active" aria-current="page"><span class="nav-num">E1</span>Si SCF</a></li>
+        <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
         <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
         <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
         <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
@@ -97,7 +97,7 @@
         <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
         <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
         <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
+        <li><a href="ex-10-feo-afm.html" class="active" aria-current="page"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
         <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
         <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
         <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
@@ -107,14 +107,17 @@
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">예제 · E1</div>
-        <h1 class="page-title">Si SCF</h1>
-        <p class="page-lede">가장 단순한 실리콘 SCF를 한 번 돌리고 출력의 모든 블록을 읽어보는 첫 예제.</p>
+        <div class="page-eyebrow">예제 · E10</div>
+        <h1 class="page-title">FeO AFM (GGA 실패)</h1>
+        <p class="page-lede">반강자성 FeO를 GGA로 계산하면 무엇이 틀리는지 직접 확인합니다.</p>
       </header>
       <article class="content">
 <h2 id="_1">목적</h2>
-<p>가장 단순한 계(다이아몬드 구조 실리콘, 2원자)로 SCF를 한 번 돌리고, 출력의
-모든 블록을 읽어봅니다. 이 예제의 입력이 이후 모든 예제의 뼈대입니다.</p>
+<p>반강자성 산화물의 관문 예제입니다. 암염구조 FeO의 AFM-II 배열(교대하는
+(111) 스핀 면)을 <strong>같은 원소를 다른 라벨로 분리</strong>해 만들고, GGA(PBE)가 이
+계를 <strong>금속으로 잘못 예측</strong>하는 것을 직접 확인합니다. 실험은 갭 ~2.4 eV의
+절연체입니다. 이 실패를 눈으로 보는 것이 <a href="ex-11-feo-hubbard.html">E11(DFT+U)</a>로
+넘어가는 동기입니다.</p>
 <h2 id="_2">새로 나오는 카드·변수</h2>
 <table>
 <thead>
@@ -125,154 +128,163 @@
 </thead>
 <tbody>
 <tr>
-<td><code>&amp;CONTROL</code> / <code>&amp;SYSTEM</code> / <code>&amp;ELECTRONS</code></td>
-<td>필수 네임리스트 3종 (<a href="02-input-structure.html">02장</a>)</td>
+<td><code>ntyp=3</code> (Fe1/Fe2/O)</td>
+<td><strong>같은 UPF를 두 라벨로 등록</strong> — AFM 배열의 핵심</td>
 </tr>
 <tr>
-<td><code>ibrav=2</code> + <code>celldm(1)</code></td>
-<td>fcc 격자를 관례로 정의 (<a href="03-units-coordinates.html">03장</a>)</td>
+<td><code>starting_magnetization</code> ±0.6</td>
+<td>Fe1 ↑, Fe2 ↓ 초기화</td>
 </tr>
 <tr>
-<td><code>ATOMIC_SPECIES</code> / <code>ATOMIC_POSITIONS</code> / <code>K_POINTS</code></td>
-<td>필수 카드 3종</td>
+<td><code>ibrav=0</code> + 능면체 자기셀</td>
+<td>2 Fe + 2 O, 부피 = 0.5 a³</td>
 </tr>
 <tr>
-<td><code>verbosity='high'</code>, <code>tprnfor</code>, <code>tstress</code></td>
-<td>학습용 상세 출력 + 힘·응력</td>
+<td><code>mixing_beta=0.2</code> + <code>local-TF</code></td>
+<td>예민한 자성 산화물의 mixing 처방</td>
 </tr>
 </tbody>
 </table>
 <h2 id="_3">입력 파일</h2>
-<p><a href="files/E01-si-scf/si.scf.in">si.scf.in 내려받기</a></p>
+<p><a href="files/E10-feo-afm/feo.scf.in">feo.scf.in 내려받기</a></p>
 <pre><code class="language-fortran">&amp;CONTROL
-  calculation  = 'scf'
-  prefix       = 'si'
-  outdir       = './tmp/'
-  pseudo_dir   = './pseudo/'
-  verbosity    = 'high'
-  tprnfor      = .true.
-  tstress      = .true.
+  calculation = 'scf'
+  prefix      = 'FeO'
+  outdir      = './tmp/'
+  pseudo_dir  = './pseudo/'
+  verbosity   = 'high'
+  tprnfor     = .true.
+  tstress     = .true.
 /
 &amp;SYSTEM
-  ibrav        = 2
-  celldm(1)    = 10.26
-  nat          = 2
-  ntyp         = 1
-  ecutwfc      = 30
-  ecutrho      = 240
-  occupations  = 'fixed'
+  ibrav       = 0
+  celldm(1)   = 8.18            ! bohr (= 4.33 Å, 큐빅 격자상수)
+  nat         = 4
+  ntyp        = 3
+  ecutwfc     = 70
+  ecutrho     = 700
+  occupations = 'smearing'
+  smearing    = 'mv'
+  degauss     = 0.01
+  nspin       = 2
+  starting_magnetization(1) =  0.6    ! Fe1  ↑
+  starting_magnetization(2) = -0.6    ! Fe2  ↓
+  starting_magnetization(3) =  0.0    ! O
 /
 &amp;ELECTRONS
-  conv_thr     = 1.0d-8
-  mixing_beta  = 0.7
+  conv_thr    = 1.0d-8
+  mixing_beta = 0.2
+  mixing_mode = 'local-TF'
+  electron_maxstep = 300
 /
 
 ATOMIC_SPECIES
-  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
+  Fe1  55.845  Fe.pbe-spn-kjpaw_psl.1.0.0.UPF
+  Fe2  55.845  Fe.pbe-spn-kjpaw_psl.1.0.0.UPF   ! 같은 파일, 다른 라벨
+  O    15.999  O.pbe-n-kjpaw_psl.1.0.0.UPF
 
-ATOMIC_POSITIONS (alat)
-  Si  0.00  0.00  0.00
-  Si  0.25  0.25  0.25
+CELL_PARAMETERS (alat)
+  0.5  0.5  1.0
+  0.5  1.0  0.5
+  1.0  0.5  0.5
+
+ATOMIC_POSITIONS (crystal)
+  Fe1  0.00  0.00  0.00
+  Fe2  0.50  0.50  0.50
+  O    0.25  0.25  0.25
+  O    0.75  0.75  0.75
 
 K_POINTS (automatic)
-  8 8 8  0 0 0
+  6 6 6  0 0 0
 </code></pre>
+<p>라벨 분리 없이는 QE가 두 Fe를 대칭 등가로 보고 AFM 배열을 만들 수
+없습니다. 이 라벨 분리는 <a href="ex-11-feo-hubbard.html">DFT+U(E11)</a>와
+<a href="ex-12-feo-hp.html">hp.x(E12)</a>에서도 그대로 필요합니다.</p>
 <h2 id="_4">실행</h2>
-<pre><code class="language-bash">mkdir -p pseudo tmp        # pseudo/ 에 Si PAW UPF를 받아 두세요 (01장)
-pw.x -in si.scf.in &gt; si.scf.out                     # 직렬
-mpirun -np 6 pw.x -nk 6 -in si.scf.in &gt; si.scf.out  # 실측에 쓴 병렬 설정
+<pre><code class="language-bash">mpirun -np 8 pw.x -nk 4 -in feo.scf.in &gt; feo.scf.out
 </code></pre>
-<h2 id="_5">출력에서 확인할 것</h2>
+<h2 id="_5">출력에서 확인할 것 — 실측 (이 예제의 진짜 목적)</h2>
 <table>
 <thead>
 <tr>
-<th>찾을 것</th>
-<th>검색어</th>
+<th>항목</th>
 <th>실측값 (QE 7.5, PAW)</th>
+<th>해석</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>최종 총에너지</td>
-<td><code>!    total</code></td>
-<td><strong>−93.45273690 Ry</strong></td>
+<td>총에너지</td>
+<td>−741.81592118 Ry (28회 수렴)</td>
+<td></td>
 </tr>
 <tr>
-<td>수렴</td>
-<td><code>convergence has been achieved</code></td>
-<td>6회 반복</td>
+<td>total magnetization</td>
+<td><strong>0.00 μB</strong></td>
+<td>AFM 성립</td>
 </tr>
 <tr>
-<td>기약 k-점 수</td>
-<td><code>number of k points</code></td>
-<td>29 (8×8×8에서 대칭으로 축소)</td>
+<td>absolute magnetization</td>
+<td><strong>7.17 μB</strong></td>
+<td>total≈0 + absolute 큼 = AFM의 표지</td>
 </tr>
 <tr>
-<td>대칭 연산</td>
-<td><code>Sym. Ops.</code></td>
-<td>48 (반전 포함)</td>
+<td>Fe 국소 모멘트</td>
+<td>+3.31 / −3.31 μB</td>
+<td>(111) 면 교대 배열 확인</td>
 </tr>
 <tr>
-<td>최고 점유 준위</td>
-<td><code>highest occupied level</code></td>
-<td>6.2124 eV</td>
+<td>O 모멘트</td>
+<td>0.00</td>
+<td></td>
 </tr>
 <tr>
-<td>힘</td>
-<td><code>Total force</code></td>
-<td>0.000000 (대칭 위치이므로 정확히 0)</td>
-</tr>
-<tr>
-<td>응력</td>
-<td><code>total   stress</code></td>
-<td>P = 20.28 kbar</td>
-</tr>
-<tr>
-<td>소요 시간</td>
-<td><code>PWSCF ... WALL</code></td>
-<td>2.75 s (6랭크)</td>
+<td><strong><code>the Fermi energy is 14.2231 ev</code></strong></td>
+<td><strong>출력됨 = 금속</strong></td>
+<td><strong>GGA의 실패.</strong> 실험은 절연체(~2.4 eV)</td>
 </tr>
 </tbody>
 </table>
-<p>읽는 법 몇 가지 —</p>
-<ul>
-<li><code>!</code>가 붙은 총에너지 줄만 수렴된 최종값입니다. PAW라 절대값이 US
-  유사퍼텐셜과 크게 다른데, <a href="04-pseudopotentials.html">총에너지 절대값은 원래 비교 대상이
-  아닙니다</a>.</li>
-<li><code>occupations='fixed'</code>에 기본 <code>nbnd</code>(점유 밴드만)라서
-  <code>highest occupied level</code>만 나오고 갭 추정(<code>lowest unoccupied</code>)은 나오지
-  않습니다. 갭까지 보려면 <code>nbnd</code>를 늘리세요 (직접 써보기 3).</li>
-<li>P = +20 kbar는 이 격자상수(5.43 Å, 실험값)가 PBE 평형보다 압축되어
-  있다는 뜻입니다. PBE 평형 격자상수는 <a href="ex-06-si-vcrelax.html">E6</a>에서
-  구합니다.</li>
-</ul>
+<figure>
+  <img src="assets/images/qe-e10-e11-feo-dos.png"
+       alt="FeO spin-resolved DOS: GGA metallic vs GGA+U gap" />
+  <figcaption>
+    FeO 스핀 분해 DOS 실측 (QE 7.5, nscf 8×8×8). 왼쪽(이 예제, GGA):
+    Fermi 준위에 Fe-3d 상태가 걸려 DOS(E_F)≈3.7 — 금속입니다. 오른쪽은
+    <a href="ex-11-feo-hubbard.html">E11</a>에서 U를 켠 결과로, Hubbard
+    분리가 일어나되 좁은 t2g 띠가 남는 함정까지 그대로 보입니다.
+  </figcaption>
+</figure>
+
+<p>AFM 배열은 완벽히 성립했는데도(모멘트 ±3.31 μB) 전자구조는
+금속입니다. GGA의 자기상호작용 오차가 국소화된 Fe-3d 전자를 비물리적으로
+퍼뜨린 결과이며, U 보정이 필요한 이유입니다 (<a href="13-dft-plus-u.html">13장</a>).</p>
 <h2 id="_6">직접 써보기</h2>
 <ol>
-<li><code>verbosity</code>를 <code>'low'</code>로 바꿔 출력이 얼마나 줄어드는지 확인하고, 학습
-   중에는 왜 <code>'high'</code>를 써야 하는지 설명해 보세요.</li>
-<li><code>occupations</code>를 <code>'smearing'</code>으로 바꾸면 에너지가 어떻게 변하나요? 왜
-   반도체에 smearing을 쓰면 안 되는지 서술해 보세요.</li>
-<li><code>nbnd = 8</code>을 추가해 <code>highest occupied, lowest unoccupied level</code>이
-   출력되게 하고, 그 차이(갭 추정)를 읽어 보세요.</li>
-<li><code>ecutrho</code>를 지우면(기본값 = 4×<code>ecutwfc</code>) 어떤 일이 생기는지 확인하세요.</li>
+<li>PDOS(<a href="ex-07-si-dos.html">E7</a> 절차)를 뽑아 Fermi 준위에 걸린 상태가
+   Fe-3d임을 확인하세요.</li>
+<li>강자성 배열(둘 다 +0.6)로 계산해 AFM과 에너지를 비교하세요. 어느 쪽이
+   바닥상태인가요?</li>
+<li>셀 벡터가 정말 2 formula unit인지 부피로 검산하세요 (행렬식 = 0.5 a³).</li>
+<li><code>starting_magnetization</code>을 모두 0으로 두면 어떤 해로 수렴하나요?</li>
 </ol>
 <div class="warning">
   <div class="note-title">흔한 실수</div>
   <p>
-    <code>pseudo_dir</code>에 UPF 파일이 없거나 파일명이
-    <code>ATOMIC_SPECIES</code>와 다르면 <code>Error in routine readpp</code>로
-    멈춥니다. 그리고 이 계산의 <code>outdir</code>(<code>./tmp/</code>)을
-    지우면 후속 예제(E7·E8)의 nscf가 시작하지 못합니다 —
-    <a href="08-scf-nscf.html">08장</a>.
+    <code>ntyp=2</code>(Fe/O)로 두고 <code>starting_magnetization</code>만
+    ±로 주는 것 — 같은 타입의 원자는 같은 초기 자화를 받으므로 AFM이
+    만들어지지 않습니다. 그리고 AFM인데 total magnetization이 0이 아니라면
+    라벨 분리 실패나 대칭 강제를 의심하세요
+    (<a href="ref-errors.html">R3</a> 5절).
   </p>
 </div>
 
 <h2 id="_7">관련 챕터</h2>
-<p><a href="02-input-structure.html">02 입력 파일 구조</a> ·
-<a href="03-units-coordinates.html">03 단위계와 좌표계</a> ·
-<a href="08-scf-nscf.html">08 SCF와 NSCF</a></p>
+<p><a href="12-magnetism.html">12 스핀 편극과 자성</a> ·
+<a href="13-dft-plus-u.html">13 DFT+U와 HUBBARD 카드</a> ·
+<a href="07-scf-control.html">07 SCF 수렴 제어</a></p>
       </article>
-<nav class="page-nav"><a class="prev" href="ref-executables.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">실행 파일 목록</div></a><a class="next" href="ex-02-si-ibrav0.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">ibrav=0 다시 쓰기</div></a></nav>
+<nav class="page-nav"><a class="prev" href="ex-09-fe-bcc.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">bcc Fe 강자성</div></a><a class="next" href="ex-11-feo-hubbard.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">FeO DFT+U</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>
