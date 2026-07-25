@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ibrav=0 다시 쓰기 · QE 가이드</title>
-  <meta name="description" content="같은 결정을 ibrav=0 + CELL_PARAMETERS로 다시 정의해 두 표현의 등가성을 확인합니다." />
+  <title>Rewriting with ibrav=0 · QE Guide</title>
+  <meta name="description" content="Rewrite the same crystal with ibrav=0 and CELL_PARAMETERS and verify the two descriptions agree." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,120 +29,120 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html" class="active" aria-current="page"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html" class="active" aria-current="page"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">예제 · E2</div>
-        <h1 class="page-title">ibrav=0 다시 쓰기</h1>
-        <p class="page-lede">같은 결정을 ibrav=0 + CELL_PARAMETERS로 다시 정의해 두 표현의 등가성을 확인합니다.</p>
+        <div class="page-eyebrow">EXAMPLE · E2</div>
+        <h1 class="page-title">Rewriting with ibrav=0</h1>
+        <p class="page-lede">Rewrite the same crystal with ibrav=0 and CELL_PARAMETERS and verify the two descriptions agree.</p>
       </header>
       <article class="content">
-<h2 id="_1">목적</h2>
-<p><a href="ex-01-si-scf.html">E1</a>과 <strong>물리적으로 동일한 계</strong>를 <code>ibrav=0</code> +
-<code>CELL_PARAMETERS</code>로 다시 정의합니다. 두 표현의 등가성을 총에너지로
-확인하고, 좌표 단위 옵션(<code>alat</code>/<code>crystal</code>/<code>angstrom</code>)을 몸에 익힙니다.
-자동 생성기(ASE 등)가 뱉는 입력이 전부 이 형식이므로, 읽을 줄 알아야
-합니다.</p>
-<h2 id="_2">새로 나오는 카드·변수</h2>
+<h2 id="goal">Goal</h2>
+<p>Define the <strong>physically identical system</strong> of <a href="ex-01-si-scf.html">E1</a> using
+<code>ibrav=0</code> and an explicit <code>CELL_PARAMETERS</code> card, verify the equivalence
+through the total energy, and internalize the coordinate options
+(<code>alat</code>/<code>crystal</code>/<code>angstrom</code>). Every generator (ASE and friends) emits this
+format, so you must be able to read it.</p>
+<h2 id="new-cards-and-variables">New cards and variables</h2>
 <table>
 <thead>
 <tr>
-<th>항목</th>
-<th>역할</th>
+<th>Item</th>
+<th>Role</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>ibrav = 0</code></td>
-<td>셀을 직접 지정하겠다는 선언</td>
+<td>Declares an explicit cell</td>
 </tr>
 <tr>
 <td><code>CELL_PARAMETERS (angstrom)</code></td>
-<td>셀 벡터 3개를 행으로</td>
+<td>Three cell vectors as rows</td>
 </tr>
 <tr>
 <td><code>ATOMIC_POSITIONS (crystal)</code></td>
-<td>분수 좌표 — 셀과 구조의 분리</td>
+<td>Fractional coordinates: structure decoupled from cell</td>
 </tr>
 </tbody>
 </table>
-<h2 id="_3">입력 파일</h2>
-<p><a href="files/E02-si-ibrav0/si_ibrav0.scf.in">si_ibrav0.scf.in 내려받기</a></p>
+<h2 id="input-file">Input file</h2>
+<p><a href="files/E02-si-ibrav0/si_ibrav0.scf.in">Download si_ibrav0.scf.in</a></p>
 <pre><code class="language-fortran">&amp;CONTROL
   calculation = 'scf'
   prefix      = 'si_ibrav0'
@@ -151,7 +151,7 @@
   verbosity   = 'high'
 /
 &amp;SYSTEM
-  ibrav       = 0           ! 셀을 직접 지정하겠다는 선언
+  ibrav       = 0           ! explicit cell follows
   nat         = 2
   ntyp        = 1
   ecutwfc     = 30
@@ -177,67 +177,68 @@ ATOMIC_POSITIONS (crystal)
 K_POINTS (automatic)
   8 8 8  0 0 0
 </code></pre>
-<h2 id="_4">실행</h2>
+<h2 id="run">Run</h2>
 <pre><code class="language-bash">mpirun -np 6 pw.x -nk 6 -in si_ibrav0.scf.in &gt; si_ibrav0.scf.out
 </code></pre>
-<h2 id="_5">출력에서 확인할 것 — 실측 비교</h2>
+<h2 id="what-to-check-the-measured-comparison">What to check: the measured comparison</h2>
 <table>
 <thead>
 <tr>
-<th>항목</th>
+<th>Item</th>
 <th>E1 (<code>ibrav=2</code>)</th>
 <th>E2 (<code>ibrav=0</code>)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>총에너지</td>
+<td>Total energy</td>
 <td>−93.45273690 Ry</td>
 <td>−93.45274992 Ry</td>
 </tr>
 <tr>
 <td><code>Sym. Ops.</code></td>
-<td>48 (반전 포함)</td>
-<td>48 (반전 포함)</td>
+<td>48 (with inversion)</td>
+<td>48 (with inversion)</td>
 </tr>
 </tbody>
 </table>
 <ul>
-<li>대칭은 두 경우 모두 48개가 온전히 잡혔습니다. 잘 정렬된
-  <code>CELL_PARAMETERS</code>라면 <code>ibrav=0</code>이라도 대칭 탐지가 실패하지 않습니다
-  (일반적으로는 실패할 수 있으니 항상 확인하세요).</li>
-<li>에너지 차이는 1.3×10⁻⁵ Ry(원자당 0.09 meV)로, 완전한 일치가 아닙니다.
-  원인은 문법이 아니라 <strong>격자상수의 반올림</strong>입니다: E1의
-  <code>celldm(1)=10.26 bohr</code>는 5.4293 Å이고, E2의 셀(2.715 Å 반격자)은
-  정확히 5.4300 Å입니다. "같은 구조"를 두 번 쓸 때 단위 변환의 자릿수까지
-  맞춰야 소수점 끝까지 일치합니다 — 그 자체로 좋은 교훈입니다.</li>
+<li>Symmetry detection found all 48 operations in both cases. A cleanly
+  written <code>CELL_PARAMETERS</code> does not necessarily lose symmetry (it can in
+  general, so always check).</li>
+<li>The energies differ by 1.3×10⁻⁵ Ry (0.09 meV/atom): not an exact match.
+  The cause is not the syntax but <strong>rounding in the lattice constant</strong>:
+  E1's <code>celldm(1)=10.26 bohr</code> is 5.4293 Å, while E2's cell (half-vectors of
+  2.715 Å) is exactly 5.4300 Å. Writing "the same structure" twice requires
+  matching the unit conversion to full precision, which is a lesson in
+  itself.</li>
 </ul>
-<h2 id="_6">직접 써보기</h2>
+<h2 id="exercises">Exercises</h2>
 <ol>
-<li><code>CELL_PARAMETERS</code>의 단위를 <code>angstrom</code> → <code>alat</code>로 바꾸고 <code>celldm(1)</code>을
-   도입해 같은 구조를 표현하세요. <code>celldm(1)=10.2614</code> (= 5.4300 Å)로 두면
-   E2와 소수점까지 일치하는지 확인하세요.</li>
-<li><code>ATOMIC_POSITIONS (crystal)</code>을 <code>(angstrom)</code>으로 변환해 쓰세요. 두 결과의
-   총에너지가 같은지 확인하세요.</li>
-<li>셀 벡터의 성분 하나를 일부러 0.001 Å 틀어 보세요. <code>Sym. Ops.</code> 수가
-   몇 개로 떨어지고 기약 k-점이 몇 개로 늘어나는지 관찰하세요.</li>
+<li>Switch <code>CELL_PARAMETERS</code> from <code>angstrom</code> to <code>alat</code>, introducing
+   <code>celldm(1)</code>. With <code>celldm(1)=10.2614</code> (= 5.4300 Å), does the energy now
+   match E2 to all digits?</li>
+<li>Convert <code>ATOMIC_POSITIONS (crystal)</code> to <code>(angstrom)</code> and confirm the
+   total energy is unchanged.</li>
+<li>Perturb one cell-vector component by 0.001 Å. How far does the
+   <code>Sym. Ops.</code> count drop, and how many irreducible k-points do you get?</li>
 </ol>
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    <code>ibrav=0</code>인데 <code>celldm(1)</code>도 함께 준 경우,
-    <code>CELL_PARAMETERS</code>의 단위 옵션이 없으면 <code>alat</code>(=
-    <code>celldm(1)</code>) 단위로 해석됩니다. 단위 옵션을 <strong>항상
-    명시</strong>하는 습관이 사고를 막습니다. 좌표 규약 전체는
-    <a href="03-units-coordinates.html">03장</a>.
+    With <code>ibrav=0</code> and a <code>celldm(1)</code> both present, a
+    <code>CELL_PARAMETERS</code> card without a unit option is interpreted
+    in <code>alat</code> units (that is, scaled by <code>celldm(1)</code>).
+    Always write the unit explicitly. The full coordinate conventions are
+    in <a href="03-units-coordinates.html">Chapter 03</a>.
   </p>
 </div>
 
-<h2 id="_7">관련 챕터</h2>
-<p><a href="03-units-coordinates.html">03 단위계와 좌표계</a> ·
-<a href="02-input-structure.html">02 입력 파일 구조</a></p>
+<h2 id="related-chapters">Related chapters</h2>
+<p><a href="03-units-coordinates.html">03 Units and coordinates</a> ·
+<a href="02-input-structure.html">02 Input file structure</a></p>
       </article>
-<nav class="page-nav"><a class="prev" href="ex-01-si-scf.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">Si SCF</div></a><a class="next" href="ex-03-convergence.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">수렴 테스트 자동화</div></a></nav>
+<nav class="page-nav"><a class="prev" href="ex-01-si-scf.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">Si SCF</div></a><a class="next" href="ex-03-convergence.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">Automating convergence tests</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

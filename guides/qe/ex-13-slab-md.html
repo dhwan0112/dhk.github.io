@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>슬랩과 AIMD · QE 가이드</title>
-  <meta name="description" content="슬랩 생성과 일함수, 그리고 ML 퍼텐셜 학습 데이터 샘플링의 출발점인 BOMD." />
+  <title>Slabs and AIMD · QE Guide</title>
+  <meta name="description" content="Slab generation, the work function, and Born-Oppenheimer MD as a starting point for ML training data." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,180 +29,183 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html" class="active" aria-current="page"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html" class="active" aria-current="page"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">예제 · E13</div>
-        <h1 class="page-title">슬랩과 AIMD</h1>
-        <p class="page-lede">슬랩 생성과 일함수, 그리고 ML 퍼텐셜 학습 데이터 샘플링의 출발점인 BOMD.</p>
+        <div class="page-eyebrow">EXAMPLE · E13</div>
+        <h1 class="page-title">Slabs and AIMD</h1>
+        <p class="page-lede">Slab generation, the work function, and Born-Oppenheimer MD as a starting point for ML training data.</p>
       </header>
       <article class="content">
-<h2 id="_1">목적</h2>
-<p>응용 3종 세트를 한 번에 다룹니다 — (1) ASE로 FeO(100) 슬랩을 <strong>생성</strong>하고
-(손으로 쓰지 않습니다), (2) 쌍극자 보정을 켠 채 relax한 뒤 <code>pp.x</code>로
-<strong>일함수</strong>를 구하고, (3) FeO 벌크 셀로 <strong>Born-Oppenheimer MD</strong>를 돌려
-ML 퍼텐셜 학습 데이터 샘플링의 출발점을 만듭니다. 배경은
-<a href="15-surfaces.html">15장</a>·<a href="16-molecular-dynamics.html">16장</a>.</p>
-<h2 id="_2">새로 나오는 것</h2>
+<h2 id="goal">Goal</h2>
+<p>Three applications in one pass: (1) <strong>generate</strong> a FeO(100) slab with ASE
+(never by hand), (2) relax it with the dipole correction on and extract the
+<strong>work function</strong> with <code>pp.x</code>, and (3) run <strong>Born-Oppenheimer MD</strong> on the
+bulk FeO cell as the starting point for sampling ML training data.
+Background in <a href="15-surfaces.html">Chapter 15</a> and
+<a href="16-molecular-dynamics.html">Chapter 16</a>.</p>
+<h2 id="new-here">New here</h2>
 <table>
 <thead>
 <tr>
-<th>항목</th>
-<th>역할</th>
+<th>Item</th>
+<th>Role</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>ase.build.surface</code></td>
-<td>슬랩 생성기 — 좌표 수작업 금지</td>
+<td>The slab generator; no hand-written coordinates</td>
 </tr>
 <tr>
 <td><code>tefield</code>/<code>dipfield</code>/<code>edir</code>/<code>emaxpos</code></td>
-<td>쌍극자 보정</td>
+<td>The dipole correction</td>
 </tr>
 <tr>
 <td><code>FixAtoms</code> → <code>if_pos 0 0 0</code></td>
-<td>하단 층 고정</td>
+<td>Pinning the bottom layers</td>
 </tr>
 <tr>
 <td><code>calculation='md'</code> + SVR</td>
-<td>BOMD와 온도조절</td>
+<td>BOMD with a thermostat</td>
 </tr>
 <tr>
 <td><code>pp.x plot_num=11</code></td>
-<td>일함수용 정전 퍼텐셜</td>
+<td>The electrostatic potential for the work function</td>
 </tr>
 </tbody>
 </table>
-<h2 id="_3">입력 파일</h2>
+<h2 id="input-files">Input files</h2>
 <p><a href="files/E13-slab-md/gen_slab.py">gen_slab.py</a> ·
 <a href="files/E13-slab-md/feo_md.in">feo_md.in</a> ·
 <a href="files/E13-slab-md/pp_workfunction.in">pp_workfunction.in</a></p>
-<p>슬랩 생성기의 핵심부:</p>
+<p>The core of the generator:</p>
 <pre><code class="language-python">from ase.build import bulk, surface
 from ase.constraints import FixAtoms
 
 feo = bulk(&quot;FeO&quot;, &quot;rocksalt&quot;, a=4.33)
-slab = surface(feo, (1, 0, 0), layers=4, vacuum=8.0)   # 진공 8 Å (양쪽 합 16 Å)
+slab = surface(feo, (1, 0, 0), layers=4, vacuum=8.0)   # 8 Å vacuum per side
 slab.center(axis=2)
-# 하단 절반 층 고정 -&gt; QE의 if_pos 플래그로 변환된다
+# pin the bottom half of the layers -&gt; becomes QE if_pos flags
 </code></pre>
-<p>생성된 <code>feo100.scf.in</code>을 <strong>직접 열어 읽어보세요</strong> — <code>CELL_PARAMETERS</code>와
-<code>ATOMIC_POSITIONS (angstrom)</code>, <code>if_pos</code> 플래그가 어떻게 쓰였는지 읽을 수
-있는 것이 <a href="ex-02-si-ibrav0.html">E2</a>를 한 이유입니다. 슬랩 입력에는
-쌍극자 보정(<code>tefield</code>/<code>dipfield</code>는 <code>&amp;CONTROL</code>, <code>edir=3</code>·<code>emaxpos=0.90</code>은
-<code>&amp;SYSTEM</code>)과 6×6×1 k-격자(진공 방향 1)가 들어 있습니다. 슬랩 SCF는
-비자성으로 단순화했습니다 — 1×1 (100) 셀은 FeO의 AFM-II 배열을 기하적으로
-담을 수 없기 때문입니다 (<a href="15-surfaces.html">15장</a>).</p>
-<h2 id="_4">실행</h2>
-<pre><code class="language-bash">python gen_slab.py                                     # feo100.scf.in 생성
+<p>Open the generated <code>feo100.scf.in</code> and <strong>read it yourself</strong>: the
+<code>CELL_PARAMETERS</code>, the <code>ATOMIC_POSITIONS (angstrom)</code>, the <code>if_pos</code> flags.
+Being able to read generator output is what
+<a href="ex-02-si-ibrav0.html">E2</a> was for. The slab input carries the dipole
+correction (<code>tefield</code>/<code>dipfield</code> in <code>&amp;CONTROL</code>, <code>edir=3</code> and
+<code>emaxpos=0.90</code> in <code>&amp;SYSTEM</code>) and a 6×6×1 grid (one point along the
+vacuum). The slab SCF is nonmagnetic by design: a 1×1 (100) cell <strong>cannot
+geometrically hold</strong> the AFM-II order of FeO
+(<a href="15-surfaces.html">Chapter 15</a>).</p>
+<h2 id="run">Run</h2>
+<pre><code class="language-bash">python gen_slab.py                                     # writes feo100.scf.in
 mpirun -np 8 pw.x -nk 4 -in feo100.scf.in &gt; feo100.relax.out
 mpirun -np 8 pp.x -in pp_workfunction.in  &gt; pp_workfunction.out
 mpirun -np 8 pw.x -nk 4 -in feo_md.in     &gt; feo_md.out
 </code></pre>
-<p>실측에서는 지면 사정상 relax를 최대 25 BFGS 스텝, MD를 <code>nstep=200</code>
-(약 0.2 ps)으로 줄인 사본으로 돌렸습니다. 게재된 입력 파일은
-<code>nstep=2000</code> 원본 그대로입니다 (단, 실측 중 두 가지 결함을 발견해
-고쳤습니다 — <code>tefield</code>/<code>dipfield</code>의 네임리스트 소속과 MD의
-<code>nosym=.true.</code>; 아래 흔한 실수 참조).</p>
-<h2 id="1">출력·그림 — 실측 (1) 슬랩과 일함수</h2>
+<p>For the measurements we capped the relaxation at 25 BFGS steps and ran the
+MD on an <code>nstep=200</code> copy (about 0.2 ps); the distributed input keeps the
+original <code>nstep=2000</code>. Along the way we found and fixed several defects in
+the original decks (the <code>tefield</code>/<code>dipfield</code> namelist placement, the
+missing <code>nosym</code> and <code>mixing_fixed_ns</code> for MD; see the common-mistakes box).</p>
+<h2 id="output-and-figure-measured-1-slab-and-work-function">Output and figure: measured (1) slab and work function</h2>
 <table>
 <thead>
 <tr>
-<th>항목</th>
-<th>실측값 (QE 7.5)</th>
+<th>Item</th>
+<th>Measured (QE 7.5)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>슬랩</td>
-<td>FeO(100) 4층, 8원자(1×1), 진공 16 Å, 비자성 시연</td>
+<td>Slab</td>
+<td>FeO(100), 4 layers, 8 atoms (1×1), 16 Å vacuum, nonmagnetic demo</td>
 </tr>
 <tr>
-<td>relax</td>
-<td>25 BFGS 스텝 사본 (마지막 총힘 0.005 Ry/au — 시연용 부분 최적화)</td>
+<td>Relaxation</td>
+<td>25-step BFGS copy (final total force 0.005 Ry/au: a partial optimization for the demo)</td>
 </tr>
 <tr>
-<td>진공 준위 / Fermi 준위</td>
-<td>7.35 eV / 2.40 eV (진공 평탄도 std 0.05 eV)</td>
+<td>Vacuum level / Fermi level</td>
+<td>7.35 eV / 2.40 eV (vacuum flatness std 0.05 eV)</td>
 </tr>
 <tr>
-<td><strong>일함수 Φ = V_vac − E_F</strong></td>
+<td><strong>Work function Φ = V_vac − E_F</strong></td>
 <td><strong>4.95 eV</strong></td>
 </tr>
 </tbody>
@@ -211,77 +214,82 @@ mpirun -np 8 pw.x -nk 4 -in feo_md.in     &gt; feo_md.out
   <img src="assets/images/qe-e13-workfunction.png"
        alt="Planar-averaged electrostatic potential of the FeO(100) slab" />
   <figcaption>
-    FeO(100) 슬랩의 평면평균 정전 퍼텐셜(pp.x plot_num=11) 실측. 진공
-    구간에서 퍼텐셜이 평탄해진 것을 확인한 뒤 진공 준위와 Fermi 준위의
-    차이로 일함수를 읽습니다.
+    Measured planar-averaged electrostatic potential of the FeO(100) slab
+    (pp.x plot_num=11). Confirm the vacuum plateau is flat, then read the
+    work function as the distance from the plateau to the Fermi level.
   </figcaption>
 </figure>
 
-<h2 id="2-bomd">출력·그림 — 실측 (2) BOMD</h2>
+<h2 id="output-and-figure-measured-2-bomd">Output and figure: measured (2) BOMD</h2>
 <figure>
   <img src="assets/images/qe-e13-md.png"
-       alt="FeO BOMD: temperature and conserved energy trace" />
+       alt="FeO BOMD: temperature and energy trace" />
   <figcaption>
-    FeO(+U) 벌크 셀의 BOMD 실측 (SVR 300 K, dt = 20 a.u. ≈ 0.968 fs,
-    200 스텝 ≈ 0.19 ps). 첫 몇 스텝에서 이온들이 이상적 격자점을 벗어나며
-    위치에너지가 약 2.5 eV 방출됩니다(파란 선) — 열운동이 t2g 축퇴를 풀며
-    낮은 전자 상태가 열리는, E11에서 본 물리의 연장입니다. 온도(주황)의
-    ±100 K대 요동은 오류가 아니라 4원자 셀의 정상 통계입니다(상대 요동
-    ~1/√N). nraise=100(≈0.1 ps) 결합의 SVR가 서서히 평형화를 진행합니다.
+    Measured BOMD of the FeO(+U) bulk cell (SVR 300 K, dt = 20 a.u. ≈
+    0.968 fs, 200 steps ≈ 0.19 ps). In the first steps the ions leave
+    their ideal lattice sites and release about 2.5 eV of potential energy
+    (blue): thermal motion lifting the t2g degeneracy, the physics of E11
+    continued. The ±100 K temperature swings (orange) are not a bug but the
+    normal statistics of a 4-atom cell (relative fluctuations ~1/√N),
+    while the SVR thermostat (nraise=100, ≈0.1 ps coupling) equilibrates
+    slowly.
   </figcaption>
 </figure>
 
-<p>이 과도 구간이 곧 실무 교훈입니다 — <strong>학습 데이터 프레임은 평형화가 끝난
-구간에서만 추출</strong>해야 합니다. 초기 궤적을 섞으면 인위적 고에너지 구조가
-데이터셋을 오염시킵니다.</p>
-<p>ML 학습 데이터로 쓸 때의 원칙(<a href="16-molecular-dynamics.html">16장</a>):
-모든 프레임에서 컷오프·k·smearing·U 동일, 힘 기준 수렴, 상관을 피해
-간격을 두고(예: 50 스텝) 프레임 추출. 응력이 필요하면 추출 프레임에 대해
-별도 scf로 계산합니다(흔한 실수 참조).</p>
-<h2 id="_5">직접 써보기</h2>
+<p>That early transient is itself the practical lesson: <strong>extract training
+frames only after equilibration</strong>. Mixing the transient into a dataset
+contaminates it with artificially high-energy structures.</p>
+<p>Principles for ML datasets (<a href="16-molecular-dynamics.html">Chapter 16</a>):
+identical cutoffs, k-grid, smearing and U on every frame; converge on
+forces; subsample (every 50 steps or so) against frame correlation; and if
+you need stress, compute it in separate scf runs on the extracted frames
+(see the box).</p>
+<h2 id="exercises">Exercises</h2>
 <ol>
-<li><code>layers=4 → 6</code>으로 두꺼운 슬랩을 만들어 일함수가 얼마나 변하는지
-   확인하세요 (층 수도 수렴 파라미터입니다).</li>
-<li><code>dipfield</code>를 끄고 같은 계산을 반복해 평면평균 퍼텐셜의 진공 구간이
-   어떻게 기울어지는지 관찰하세요.</li>
-<li>MD 로그에서 50 스텝 간격으로 에너지·힘 프레임을 추출하는 파서를
-   작성하세요.</li>
-<li>같은 프레임에 대해 컷오프를 60 → 90 Ry로 바꿔 힘이 얼마나 변하는지
-   측정하고, ML 목표 정확도(~50 meV/Å)와 비교하세요.</li>
+<li>Rebuild with <code>layers=4 → 6</code> and see how the work function moves (layer
+   count is a convergence parameter too).</li>
+<li>Turn <code>dipfield</code> off and watch the vacuum region of the planar average
+   acquire a slope.</li>
+<li>Write a parser that pulls energy and force frames from the MD log every
+   50 steps.</li>
+<li>Recompute one frame at 60 and 90 Ry cutoffs and compare the forces
+   against your ML accuracy target (~50 meV/Å).</li>
 </ol>
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes (all measured on QE 7.5)</div>
   <p>
-    <strong><code>tefield</code>/<code>dipfield</code>는 <code>&amp;CONTROL</code>
-    소속입니다.</strong> <code>&amp;SYSTEM</code>에 넣으면
-    <code>read_namelists ... bad line</code>으로 즉시 멈춥니다 — 실측 중
-    실제로 겪고 생성기를 고쳤습니다(위치 파라미터 <code>edir</code> 등만
-    <code>&amp;SYSTEM</code>). <strong>MD에는 <code>nosym=.true.</code>가
-    필수입니다</strong> — 없으면 첫 스텝의 열운동이 초기 대칭을 깨는 순간
-    <code>checkallsym</code> 에러로 멈춥니다(역시 실측으로 확인).
-    그리고 <strong>nosym 상태의 DFT+U는 SCF가 정체하기 쉽습니다</strong> —
-    대칭이 풀리면 축퇴 t2g 사이의 궤도 회전이 자유로워져 밀도가 계속
-    출렁이기 때문입니다. 실측에서 기본 설정으로는 100회 반복에도
-    7×10⁻⁵ Ry에서 멈췄고, <code>mixing_fixed_ns=30</code>(초기 반복 동안
-    점유행렬 ns 동결)을 넣어야 풀렸습니다. 그래도 10⁻⁸ Ry까지는 내려가기
-    어려워, 게재 입력의 <code>conv_thr</code>는 BOMD 관례 수준인
-    10⁻⁶으로 잡았습니다. 응력도 함정입니다 — nosym+U(ortho-atomic)에서
-    <code>tstress=.true.</code>는 <code>stres_hub: non-symmetric stress
-    contribution</code> 에러로 죽습니다(QE 7.5 실측). NVT 샘플링에는 응력이
-    필요 없으므로 껐고, 응력이 필요하면 추출 프레임에 대해 별도 scf로
-    계산하면 됩니다.
-    또, <code>emaxpos</code>(톱니 꼭짓점)는 반드시 진공 한가운데 두어야
-    하고, <code>dt</code>는 Rydberg 원자단위입니다(20 a.u. ≈ 0.968 fs) —
-    fs로 착각하면 궤적이 즉시 발산합니다.
+    <strong><code>tefield</code>/<code>dipfield</code> belong to
+    <code>&amp;CONTROL</code>.</strong> Put them in <code>&amp;SYSTEM</code>
+    and the run dies instantly with
+    <code>read_namelists ... bad line</code> (only the position parameters
+    <code>edir</code> etc. are &amp;SYSTEM variables); we hit this and
+    fixed the generator.
+    <strong>MD requires <code>nosym=.true.</code></strong>: thermal motion
+    breaks the initial symmetry in the first step, and without it the run
+    stops at <code>checkallsym</code>.
+    <strong>DFT+U with nosym stalls the SCF</strong>: rotations among the
+    degenerate t2g orbitals keep the density sloshing (stuck at 7×10⁻⁵ Ry
+    after 100 iterations); <code>mixing_fixed_ns=30</code> (freeze the ns
+    matrix for the first iterations) releases it, after which even 10⁻⁸ is
+    hard to reach, so the distributed input uses the BOMD-conventional
+    <code>conv_thr = 1.0d-6</code>.
+    <strong>Hubbard stress dies under nosym</strong>: with
+    <code>tstress=.true.</code> the run aborts at
+    <code>stres_hub: non-symmetric stress contribution</code>; NVT sampling
+    does not need stress, so it is off, and stress for training data comes
+    from separate scf runs on extracted frames. Finally, <code>emaxpos</code>
+    (the sawtooth peak) must sit in the middle of the vacuum, and
+    <code>dt</code> is in Rydberg atomic units (20 a.u. ≈ 0.968 fs);
+    read it as femtoseconds and the trajectory explodes at once.
   </p>
 </div>
 
-<h2 id="_6">관련 챕터</h2>
-<p><a href="15-surfaces.html">15 표면·슬랩과 일함수</a> ·
-<a href="16-molecular-dynamics.html">16 분자동역학</a> ·
-<a href="11-postprocessing.html">11 전하밀도와 퍼텐셜</a></p>
+<h2 id="related-chapters">Related chapters</h2>
+<p><a href="15-surfaces.html">15 Surfaces, slabs, work function</a> ·
+<a href="16-molecular-dynamics.html">16 Molecular dynamics</a> ·
+<a href="11-postprocessing.html">11 Densities and potentials</a></p>
       </article>
-<nav class="page-nav"><a class="prev" href="ex-12-feo-hp.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">hp.x 로 U 계산</div></a></nav>
+<nav class="page-nav"><a class="prev" href="ex-12-feo-hp.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">Computing U with hp.x</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

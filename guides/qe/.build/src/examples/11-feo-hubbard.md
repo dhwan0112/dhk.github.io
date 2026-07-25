@@ -1,31 +1,31 @@
 ---
-title: "E11. FeO DFT+U"
+title: "E11. FeO with DFT+U"
 ---
 
-# E11. FeO DFT+U
+# E11. FeO with DFT+U
 
-## 목적
+## Goal
 
-[E10](ex-10-feo-afm.html)의 입력 맨 끝에 **`HUBBARD` 카드 세 줄**을 추가해
-DFT+U를 켭니다. U가 Fe-3d 매니폴드를 어떻게 갈라놓는지 실측으로 확인하고 —
-그리고 이 계의 유명한 함정, **"U를 켰는데도 금속으로 수렴하는" 문제**를
-실제로 겪고 진단합니다. 이 함정을 아는 것이 문헌의 FeO+U 결과를 읽는
-눈을 만듭니다.
+Add **three `HUBBARD` lines** to the input of [E10](ex-10-feo-afm.html) and
+turn on DFT+U. Measure what U does to the Fe-3d manifold, and then walk
+into the famous trap of this system, the case where **the run stays
+metallic even with U on**, and learn to diagnose it. Knowing this trap is
+what lets you read FeO+U results in the literature critically.
 
-## 새로 나오는 카드·변수
+## New cards and variables
 
-| 항목 | 역할 |
+| Item | Role |
 |---|---|
-| `HUBBARD (ortho-atomic)` | v7.1+ 신문법, 투영자 지정 ([13장](13-dft-plus-u.html)) |
-| `U Fe1-3d 4.6` | 라벨·매니폴드별 U (eV) |
-| `starting_ns_eigenvalue` | d 궤도 점유를 특정 극소값으로 유도 (아래 함정 절) |
+| `HUBBARD (ortho-atomic)` | The v7.1+ card with its projector ([Chapter 13](13-dft-plus-u.html)) |
+| `U Fe1-3d 4.6` | U (eV) per label and manifold |
+| `starting_ns_eigenvalue` | Steering the d occupations toward a chosen minimum (see the trap section) |
 
-## 입력 파일
+## Input file
 
-[feo_u.scf.in 내려받기](files/E11-feo-hubbard/feo_u.scf.in) ·
+[Download feo_u.scf.in](files/E11-feo-hubbard/feo_u.scf.in) ·
 [scan_U.sh](files/E11-feo-hubbard/scan_U.sh)
 
-입력은 E10과 동일하고, 맨 끝에 다음이 추가됩니다.
+The input is E10 plus this at the end:
 
 ```fortran
 HUBBARD (ortho-atomic)
@@ -33,95 +33,103 @@ U Fe1-3d 4.6
 U Fe2-3d 4.6
 ```
 
-U = 4.6 eV는 FeO 문헌에서 자주 쓰이는 관례값입니다. 자기 계에 맞는 U를
-직접 계산하는 방법이 [E12](ex-12-feo-hp.html)입니다.
+U = 4.6 eV is a conventional literature value for FeO. Computing the U
+proper to your own system is [E12](ex-12-feo-hp.html).
 
-## 실행
+## Run
 
 ```bash
 mpirun -np 8 pw.x -nk 4 -in feo_u.scf.in > feo_u.scf.out
 ```
 
-## 출력에서 확인할 것 — 실측
+## What to check: measured
 
-| 항목 | GGA (E10) | GGA+U (이 예제) |
+| Item | GGA (E10) | GGA+U (this example) |
 |---|---|---|
-| 총에너지 | −741.81592 Ry | −741.52737 Ry (**직접 비교 금지** — 범함수가 다름) |
+| Total energy | −741.81592 Ry | −741.52737 Ry (**do not compare directly**: different functionals) |
 | total / absolute magnetization | 0.00 / 7.17 μB | −0.00 / **7.50 μB** |
-| Fe 국소 모멘트 | ±3.31 μB | **±3.46 μB** (U가 d 국소화를 강화) |
-| 전자구조 | 금속 | **여전히 (반)금속 — 아래 함정 절** |
+| Fe local moments | ±3.31 μB | **±3.46 μB** (U strengthens the d localization) |
+| Electronic structure | Metal | **Still (semi)metallic: see the trap below** |
 
 <figure>
   <img src="assets/images/qe-e10-e11-feo-dos.png"
        alt="FeO spin-resolved DOS: GGA vs GGA+U" />
   <figcaption>
-    FeO 스핀 분해 DOS 실측 (QE 7.5). U를 켜자(오른쪽) 점유/비점유 d
-    매니폴드가 크게 갈라지며 위아래로 Hubbard 갭이 열립니다. 그러나 이상적
-    큐빅 셀에서는 <strong>소수 스핀 t2g에서 유래한 좁은 띠가 Fermi 준위에
-    걸린 채</strong> 남습니다 — U만으로 절연체가 되지 않는 함정의 실측입니다.
+    Measured spin-resolved DOS of FeO (QE 7.5). With U on (right), the
+    occupied and unoccupied d manifolds split apart and Hubbard gaps open
+    above and below. But in the ideal cubic cell a <strong>narrow band of
+    minority-spin t2g character stays pinned at the Fermi level</strong>:
+    the measured face of the "U alone does not make it an insulator" trap.
   </figcaption>
 </figure>
 
-## 함정 — U를 켰는데도 금속인 이유 (실측 포함)
+## The trap: why it stays metallic with U on (with measurements)
 
-DOS를 보면 U는 분명히 일을 했습니다(모멘트 증가, Hubbard 분리). 문제는
-Fe²⁺의 소수 스핀 전자 1개가 들어갈 **t2g 궤도 3개가 이상적 큐빅 셀에서
-축퇴**라는 점입니다. 전자가 특정 궤도 하나를 고르지 못하고 셋에 걸쳐
-비편재화된 좁은 금속 띠를 만듭니다. QE 7.1부터 초기 d 점유를
-유사퍼텐셜에서 읽게 되면서 버전에 따라 서로 다른 금속 해로 수렴할 수
-있는데, **어느 쪽도 올바른 절연체 바닥상태가 아닙니다**
-([13장](13-dft-plus-u.html)의 메일링 리스트 사례).
+The DOS shows U doing real work (larger moments, wide Hubbard splitting).
+The problem is that the single minority-spin electron of Fe²⁺ must choose
+among **three t2g orbitals that are exactly degenerate in the ideal cubic
+cell**. Unable to pick one, it spreads across all three and forms a narrow
+metallic band. Since QE 7.1 the starting d occupations are read from the
+pseudopotential (previously hardcoded), so the same input can land in
+different metallic solutions on different versions, and **neither is the
+correct ground state** (the mailing-list case cited in
+[Chapter 13](13-dft-plus-u.html)).
 
-원고의 처방은 `starting_ns_eigenvalue`로 점유를 유도하는 것입니다.
+The standard prescription is to steer the occupations:
 
 ```fortran
 &SYSTEM
   ...
-  starting_ns_eigenvalue(5,2,1) = 1.d0   ! Fe1 소수 스핀 최고 고유값 점유
-  starting_ns_eigenvalue(5,1,2) = 1.d0   ! Fe2 (반대 스핀 채널)
+  starting_ns_eigenvalue(5,2,1) = 1.d0   ! Fe1: fill the top minority eigenvalue
+  starting_ns_eigenvalue(5,1,2) = 1.d0   ! Fe2: mirrored spin channel
 /
 ```
 
-실측 결과를 그대로 보고합니다 —
+We report what actually happened when we tried:
 
-1. 위의 시드로 다시 돌리자 SCF는 **동일한 금속 해로 복귀**했습니다
-   (에너지 4×10⁻⁷ Ry 이내 일치).
-2. 소수 스핀 점유행렬을 [1,0,0,0,0]으로 **완전 지정**하고 `mixing_beta`를
-   0.1로, `degauss`를 0.005로 낮춘 두 번째 시도는 98회 반복까지 10⁻⁴ Ry
-   수준에서 진동하며 수렴하지 못했습니다.
+1. With the seed above, the SCF **returned to the same metallic solution**
+   (energies agree to 4×10⁻⁷ Ry).
+2. A second attempt that pinned the full minority occupation pattern to
+   [1,0,0,0,0], with `mixing_beta` lowered to 0.1 and `degauss` to 0.005,
+   oscillated near 10⁻⁴ Ry for 98 iterations without converging.
 
-즉 이 기하(이상적 rocksalt)와 이 설정에서는 금속 유역이 매우 깊습니다.
-실제 FeO는 Néel 온도 아래에서 **[111] 방향 능면체 왜곡**이 일어나며, 이
-왜곡이 t2g 축퇴를 깨서 궤도 질서와 절연성이 함께 자리 잡습니다. 완전한
-절연체 해를 얻으려면 (1) 왜곡된 실험 구조 사용, (2) 다양한
-`starting_ns_eigenvalue` 조합 탐색, (3) QE 7.5의 **궤도 분해 DFT+U**
-(t2g/eg에 서로 다른 U — 바로 이런 계를 위해 도입)를 조합해야 합니다.
-"계산이 수렴했다 ≠ 물리적으로 맞다"의 살아 있는 사례입니다.
+In this geometry (ideal rocksalt) and setup, the metallic basin is simply
+very deep. Real FeO distorts rhombohedrally along [111] below its Néel
+temperature, and that distortion lifts the t2g degeneracy so that orbital
+order and the insulating state settle in together. To reach the full
+insulating solution you would combine (1) the experimentally distorted
+structure, (2) a broader search over `starting_ns_eigenvalue` patterns,
+and (3) the **orbital-resolved DFT+U** of QE 7.5 (different U for t2g and
+eg, introduced for precisely this situation). A living example of
+"converged does not mean correct".
 
-## 직접 써보기
+## Exercises
 
-1. [scan_U.sh](files/E11-feo-hubbard/scan_U.sh)로 U = 0, 2, 4, 6, 8 eV를
-   스캔하며 Fe 모멘트와 DOS의 Hubbard 분리가 어떻게 변하는지 표로 만드세요.
-2. 투영자를 `atomic` ↔ `ortho-atomic`으로 바꿔 같은 U에서 결과가 얼마나
-   달라지는지 보세요 — "U 값은 투영자와 세트"라는 것을 체감하게 됩니다.
-3. `CELL_PARAMETERS`에 [111] 방향 ~3% 능면체 왜곡을 넣고
-   `starting_ns_eigenvalue` 시드와 함께 재계산해 보세요. 갭이 열리나요?
-4. `J0 Fe1-3d 0.8`을 추가해 DFT+U+J0를 시도해 보세요.
+1. Use [scan_U.sh](files/E11-feo-hubbard/scan_U.sh) to scan U = 0, 2, 4,
+   6, 8 eV and tabulate the Fe moment and the Hubbard splitting in the
+   DOS.
+2. Switch the projector between `atomic` and `ortho-atomic` at fixed U and
+   compare. You will feel in your hands that "U comes packaged with its
+   projector".
+3. Add a ~3% rhombohedral distortion along [111] to `CELL_PARAMETERS` and
+   rerun with the occupation seed. Does a gap open now?
+4. Try DFT+U+J0 by adding `J0 Fe1-3d 0.8`.
 
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    "U를 켰고 SCF가 수렴했으니 절연체가 됐겠지"라고 속단하는 것.
-    반드시 <code>the Fermi energy is</code>가 사라지고
-    <code>highest occupied, lowest unoccupied level</code>이 나타났는지,
-    출력의 <code>Tr[ns(na)]</code>·ns 고유값 블록(verbosity='high')에서
-    점유 패턴이 물리적인지 확인하세요. 그리고 GGA와 GGA+U의 총에너지는
-    서로 다른 범함수의 값이므로 직접 비교하면 안 됩니다.
+    Concluding "U is on and the SCF converged, so it must be an insulator
+    now". Always check whether <code>the Fermi energy is</code> disappeared
+    in favor of <code>highest occupied, lowest unoccupied level</code>, and
+    inspect the <code>Tr[ns(na)]</code> and ns eigenvalue blocks
+    (<code>verbosity='high'</code>) for a physical occupation pattern.
+    And never compare GGA and GGA+U total energies directly; they belong
+    to different functionals.
   </p>
 </div>
 
-## 관련 챕터
+## Related chapters
 
-[13 DFT+U와 HUBBARD 카드](13-dft-plus-u.html) ·
-[14 hp.x 로 U 계산하기](14-hubbard-hp.html) ·
-[12 스핀 편극과 자성](12-magnetism.html)
+[13 DFT+U and the HUBBARD card](13-dft-plus-u.html) ·
+[14 Computing U with hp.x](14-hubbard-hp.html) ·
+[12 Spin polarization and magnetism](12-magnetism.html)
