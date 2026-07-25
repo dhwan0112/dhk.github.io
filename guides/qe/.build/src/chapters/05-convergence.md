@@ -1,91 +1,99 @@
 ---
-title: "05. 컷오프와 k-점 수렴"
+title: "05. Cutoff and k-point convergence"
 ---
 
-# 05. 컷오프와 k-점 수렴
+# 05. Cutoff and k-point convergence
 
-## 목차
+## Contents
 {:.toc-title}
 
 1. TOC
 {:toc}
 
-**이 장이 QE의 절반입니다.** 수렴 테스트를 통과하지 않은 숫자는 숫자가
-아닙니다. QE는 물리적으로 완전히 틀린 결과도 아주 깔끔하게 출력해 줍니다.
+**This chapter is half of QE.** A number that has not passed a convergence
+test is not a number, and QE will print physically wrong results in a
+perfectly clean format.
 
-## 표준 절차
+## The standard procedure
 
-1. **`ecutwfc` 수렴** — k-점을 적당히 고정하고 컷오프를 20 → 80 Ry로 스캔합니다.
-   판단 기준은 총에너지 절대값이 아니라 **원자당 에너지 변화**(보통 1~5 meV/atom
-   이내)입니다.
-2. **`ecutrho` 수렴** — US/PAW라면 `ecutwfc`를 고정하고 4배 → 12배로 스캔합니다.
-3. **k-점 수렴** — 컷오프를 고정하고 격자를 조밀하게 늘립니다. 금속은 절연체보다
-   훨씬 조밀해야 합니다.
-4. **`degauss` 수렴** (금속만) — smearing 폭 → 0 극한에서의 외삽 거동을
-   확인합니다 ([06장](06-occupations.html)).
+1. **Converge `ecutwfc`.** Fix a reasonable k-grid and scan the cutoff from
+   20 to 80 Ry. Judge by the **energy change per atom** (typically within
+   1–5 meV/atom), not by the absolute total energy.
+2. **Converge `ecutrho`.** For US/PAW, fix `ecutwfc` and scan from 4x to 12x.
+3. **Converge the k-grid.** Fix the cutoffs and densify the grid. Metals need
+   far denser grids than insulators.
+4. **Converge `degauss`** (metals only). Check the behavior toward the
+   σ → 0 limit ([Chapter 06](06-occupations.html)).
 
-Ry를 meV/atom으로 환산해서 봅니다.
+Convert Ry to meV/atom when judging:
 
 $$\Delta E\,[\mathrm{meV/atom}] = \frac{|E(n) - E(n_{\max})| \times 13605.7}{N_\mathrm{at}}$$
 
-수렴 기준의 눈높이:
+Typical thresholds:
 
-| 목적 | 기준 |
+| Goal | Criterion |
 |---|---|
-| 총에너지 차이 (상 안정성 등) | 1~5 meV/atom |
-| **힘 (ML 퍼텐셜 학습 데이터)** | 원자당 힘 성분 ~1 meV/Å (≈ 2×10⁻⁵ Ry/bohr) |
-| 응력 (`vc-relax` 예정 시) | ~0.1 kbar |
+| Total-energy differences (phase stability etc.) | 1–5 meV/atom |
+| **Forces (ML potential training data)** | ~1 meV/Å per force component (≈ 2×10⁻⁵ Ry/bohr) |
+| Stress (before any `vc-relax`) | ~0.1 kbar |
 
-## 실측 — 실리콘 PAW의 수렴 거동
+## Measured: convergence behavior of PAW silicon
 
-아래는 [예제 E3](ex-03-convergence.html)에서 번들 스크립트로 실측한 실리콘
-(PAW, `ecutrho = 8×ecutwfc` 동시 스캔)의 수렴 곡선입니다.
+Below are the measured curves from [Example E3](ex-03-convergence.html),
+using the bundled scripts on silicon (PAW, with `ecutrho = 8 × ecutwfc`
+scanned together).
 
 <figure>
   <img src="assets/images/qe-e03-convergence.png"
        alt="Si convergence: total energy vs ecutwfc and k-grid, force vs ecutwfc" />
   <figcaption>
-    실리콘 수렴 실측 (QE 7.5, PAW). 왼쪽: ecutwfc 스캔 — 40 Ry에서 1 meV/atom
-    아래로 들어갑니다. 가운데: k-격자 스캔 — 절연체라 6×6×6이면 충분합니다.
-    오른쪽: 대칭을 깬 구조의 힘 수렴 — 에너지보다 늦게 수렴하는 것이 보입니다.
+    Measured silicon convergence (QE 7.5, PAW). Left: the cutoff scan drops
+    below 1 meV/atom at 40 Ry. Center: the k-grid scan; as an insulator,
+    6×6×6 is already decent. Right: force convergence on a distorted
+    structure, which lags the energy.
   </figcaption>
 </figure>
 
-## 수렴 판단에서 흔한 오해
+## Common misconceptions
 
-- **총에너지는 유사퍼텐셜마다 기준점이 다르므로 절대값 비교가 무의미합니다.**
-  같은 조건에서 얻은 에너지끼리의 차이만 물리적 의미가 있습니다.
-- **에너지가 수렴해도 힘·응력·상태밀도는 아직 안 수렴했을 수 있습니다.**
-  최종 목표 물성(에너지 차이? 힘? 밴드갭? 자기모멘트?)에 대해 수렴을 확인해야
-  합니다. ML 퍼텐셜 학습 데이터가 목적이라면 **힘 기준으로** 수렴을 잡으세요.
-- **에너지가 컷오프에 대해 위에서 아래로 단조 수렴하는 것은 변분 원리 덕분이고,
-  k-점에 대해서는 단조가 아닌 것이 정상입니다.**
+- **Absolute total energies have a different zero for every pseudopotential,
+  so comparing them is meaningless.** Only differences computed under
+  identical conditions matter.
+- **A converged energy does not imply converged forces, stress, or DOS.**
+  Verify convergence for the property you actually care about (an energy
+  difference? forces? a band gap? a magnetic moment?). For ML training data,
+  converge on **forces**.
+- **Monotonic convergence in the cutoff is guaranteed by the variational
+  principle; monotonic convergence in the k-grid is not.** Non-monotonic
+  k-point behavior is normal.
 
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    수렴 테스트를 한 번 하고 "이 원소는 40 Ry"라고 영구히 못 박는 것.
-    컷오프 요구는 <strong>유사퍼텐셜 파일</strong>에 붙는 속성이지 원소의
-    속성이 아닙니다. 유사퍼텐셜을 바꾸면 수렴 테스트도 다시 해야 합니다.
-    또, 셀·배위가 크게 다른 구조(벌크 vs 표면 vs 분자)를 섞어 쓰는 프로젝트라면
-    <strong>가장 요구가 큰 구조 기준으로 통일</strong>해야 합니다.
+    Running one convergence test and declaring "this element needs 40 Ry"
+    forever. Cutoff requirements attach to the <strong>pseudopotential
+    file</strong>, not to the element. New potential, new test. And if a
+    project mixes very different structures (bulk, surface, molecule),
+    standardize on the settings demanded by the most demanding one.
   </p>
 </div>
 
-## k-점 격자에 관한 실무 감각
+## Practical sense for k-grids
 
-- `K_POINTS (automatic)`의 `nk1 nk2 nk3 s1 s2 s3`은 Monkhorst-Pack 격자와
-  시프트입니다. 시프트 `1`은 반 칸 밀기로, 절연체에서 같은 밀도 대비 수렴이
-  빨라질 수 있습니다. 단, **사면체법을 쓸 nscf는 반드시 시프트 없는 Γ 중심
-  격자**여야 합니다.
-- 격자 밀도는 셀 크기에 반비례로 잡습니다. 큰 셀(슬랩, 초격자)은 해당 방향의
-  k-점을 줄입니다 — 슬랩의 진공 방향은 1이면 충분합니다.
-- 금속은 Fermi 면 해상도가 필요해 절연체보다 훨씬 조밀해야 합니다
-  ([예제 E5](ex-05-al-metal.html)의 12×12×12, [E9](ex-09-fe-bcc.html)의
-  16×16×16이 그 예입니다).
+- In `K_POINTS (automatic)`, the six numbers are the Monkhorst-Pack grid
+  `nk1 nk2 nk3` and shifts `s1 s2 s3`. A shift of `1` (half-step offset) can
+  speed convergence for insulators at equal density. However, **any nscf
+  that will use the tetrahedron method must have an unshifted, Γ-centered
+  grid**.
+- Scale the grid inversely with cell size. Large cells (slabs, supercells)
+  need fewer points; one point suffices along a vacuum direction.
+- Metals need dense grids to resolve the Fermi surface. See the 12×12×12 in
+  [Example E5](ex-05-al-metal.html) and 16×16×16 in
+  [Example E9](ex-09-fe-bcc.html).
 
-## 관련 예제
+## Related examples
 
-- [E3 · 수렴 테스트 자동화](ex-03-convergence.html) — 이 장의 절차를
-  스크립트로 자동화해 실측했습니다.
-- [E5 · fcc Al 금속](ex-05-al-metal.html) — 금속의 k-점·degauss 수렴.
+- [E3 · Automating convergence tests](ex-03-convergence.html): this chapter's
+  procedure, scripted and measured.
+- [E5 · fcc Al metal](ex-05-al-metal.html): k-point and degauss convergence
+  in a metal.

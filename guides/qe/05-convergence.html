@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>컷오프와 k-점 수렴 · QE 가이드</title>
-  <meta name="description" content="ecutwfc·ecutrho·k점 수렴 테스트의 표준 절차, 수렴 판단에서 흔한 오해." />
+  <title>Cutoff and k-point convergence · QE Guide</title>
+  <meta name="description" content="The standard procedure for converging ecutwfc, ecutrho and the k-grid, with the usual misconceptions." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,190 +29,198 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html" class="active" aria-current="page"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html" class="active" aria-current="page"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 05 · 입문 · 핵심 개념</div>
-        <h1 class="page-title">컷오프와 k-점 수렴</h1>
-        <p class="page-lede">ecutwfc·ecutrho·k점 수렴 테스트의 표준 절차, 수렴 판단에서 흔한 오해.</p>
+        <div class="page-eyebrow">CHAPTER 05 · BASICS · CORE CONCEPTS</div>
+        <h1 class="page-title">Cutoff and k-point convergence</h1>
+        <p class="page-lede">The standard procedure for converging ecutwfc, ecutrho and the k-grid, with the usual misconceptions.</p>
       </header>
       <article class="content">
-<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<div class="toc"><div class="toc-title">On this page</div>
 <ul>
-<li><a href="#_1">표준 절차</a></li>
-<li><a href="#paw">실측 — 실리콘 PAW의 수렴 거동</a></li>
-<li><a href="#_2">수렴 판단에서 흔한 오해</a></li>
-<li><a href="#k-">k-점 격자에 관한 실무 감각</a></li>
-<li><a href="#_3">관련 예제</a></li>
+<li><a href="#the-standard-procedure">The standard procedure</a></li>
+<li><a href="#measured-convergence-behavior-of-paw-silicon">Measured: convergence behavior of PAW silicon</a></li>
+<li><a href="#common-misconceptions">Common misconceptions</a></li>
+<li><a href="#practical-sense-for-k-grids">Practical sense for k-grids</a></li>
+<li><a href="#related-examples">Related examples</a></li>
 </ul>
 </div>
-<p><strong>이 장이 QE의 절반입니다.</strong> 수렴 테스트를 통과하지 않은 숫자는 숫자가
-아닙니다. QE는 물리적으로 완전히 틀린 결과도 아주 깔끔하게 출력해 줍니다.</p>
-<h2 id="_1">표준 절차</h2>
+<p><strong>This chapter is half of QE.</strong> A number that has not passed a convergence
+test is not a number, and QE will print physically wrong results in a
+perfectly clean format.</p>
+<h2 id="the-standard-procedure">The standard procedure</h2>
 <ol>
-<li><strong><code>ecutwfc</code> 수렴</strong> — k-점을 적당히 고정하고 컷오프를 20 → 80 Ry로 스캔합니다.
-   판단 기준은 총에너지 절대값이 아니라 <strong>원자당 에너지 변화</strong>(보통 1~5 meV/atom
-   이내)입니다.</li>
-<li><strong><code>ecutrho</code> 수렴</strong> — US/PAW라면 <code>ecutwfc</code>를 고정하고 4배 → 12배로 스캔합니다.</li>
-<li><strong>k-점 수렴</strong> — 컷오프를 고정하고 격자를 조밀하게 늘립니다. 금속은 절연체보다
-   훨씬 조밀해야 합니다.</li>
-<li><strong><code>degauss</code> 수렴</strong> (금속만) — smearing 폭 → 0 극한에서의 외삽 거동을
-   확인합니다 (<a href="06-occupations.html">06장</a>).</li>
+<li><strong>Converge <code>ecutwfc</code>.</strong> Fix a reasonable k-grid and scan the cutoff from
+   20 to 80 Ry. Judge by the <strong>energy change per atom</strong> (typically within
+   1–5 meV/atom), not by the absolute total energy.</li>
+<li><strong>Converge <code>ecutrho</code>.</strong> For US/PAW, fix <code>ecutwfc</code> and scan from 4x to 12x.</li>
+<li><strong>Converge the k-grid.</strong> Fix the cutoffs and densify the grid. Metals need
+   far denser grids than insulators.</li>
+<li><strong>Converge <code>degauss</code></strong> (metals only). Check the behavior toward the
+   σ → 0 limit (<a href="06-occupations.html">Chapter 06</a>).</li>
 </ol>
-<p>Ry를 meV/atom으로 환산해서 봅니다.</p>
+<p>Convert Ry to meV/atom when judging:</p>
 <p>$$\Delta E\,[\mathrm{meV/atom}] = \frac{|E(n) - E(n_{\max})| \times 13605.7}{N_\mathrm{at}}$$</p>
-<p>수렴 기준의 눈높이:</p>
+<p>Typical thresholds:</p>
 <table>
 <thead>
 <tr>
-<th>목적</th>
-<th>기준</th>
+<th>Goal</th>
+<th>Criterion</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>총에너지 차이 (상 안정성 등)</td>
-<td>1~5 meV/atom</td>
+<td>Total-energy differences (phase stability etc.)</td>
+<td>1–5 meV/atom</td>
 </tr>
 <tr>
-<td><strong>힘 (ML 퍼텐셜 학습 데이터)</strong></td>
-<td>원자당 힘 성분 ~1 meV/Å (≈ 2×10⁻⁵ Ry/bohr)</td>
+<td><strong>Forces (ML potential training data)</strong></td>
+<td>~1 meV/Å per force component (≈ 2×10⁻⁵ Ry/bohr)</td>
 </tr>
 <tr>
-<td>응력 (<code>vc-relax</code> 예정 시)</td>
+<td>Stress (before any <code>vc-relax</code>)</td>
 <td>~0.1 kbar</td>
 </tr>
 </tbody>
 </table>
-<h2 id="paw">실측 — 실리콘 PAW의 수렴 거동</h2>
-<p>아래는 <a href="ex-03-convergence.html">예제 E3</a>에서 번들 스크립트로 실측한 실리콘
-(PAW, <code>ecutrho = 8×ecutwfc</code> 동시 스캔)의 수렴 곡선입니다.</p>
+<h2 id="measured-convergence-behavior-of-paw-silicon">Measured: convergence behavior of PAW silicon</h2>
+<p>Below are the measured curves from <a href="ex-03-convergence.html">Example E3</a>,
+using the bundled scripts on silicon (PAW, with <code>ecutrho = 8 × ecutwfc</code>
+scanned together).</p>
 <figure>
   <img src="assets/images/qe-e03-convergence.png"
        alt="Si convergence: total energy vs ecutwfc and k-grid, force vs ecutwfc" />
   <figcaption>
-    실리콘 수렴 실측 (QE 7.5, PAW). 왼쪽: ecutwfc 스캔 — 40 Ry에서 1 meV/atom
-    아래로 들어갑니다. 가운데: k-격자 스캔 — 절연체라 6×6×6이면 충분합니다.
-    오른쪽: 대칭을 깬 구조의 힘 수렴 — 에너지보다 늦게 수렴하는 것이 보입니다.
+    Measured silicon convergence (QE 7.5, PAW). Left: the cutoff scan drops
+    below 1 meV/atom at 40 Ry. Center: the k-grid scan; as an insulator,
+    6×6×6 is already decent. Right: force convergence on a distorted
+    structure, which lags the energy.
   </figcaption>
 </figure>
 
-<h2 id="_2">수렴 판단에서 흔한 오해</h2>
+<h2 id="common-misconceptions">Common misconceptions</h2>
 <ul>
-<li><strong>총에너지는 유사퍼텐셜마다 기준점이 다르므로 절대값 비교가 무의미합니다.</strong>
-  같은 조건에서 얻은 에너지끼리의 차이만 물리적 의미가 있습니다.</li>
-<li><strong>에너지가 수렴해도 힘·응력·상태밀도는 아직 안 수렴했을 수 있습니다.</strong>
-  최종 목표 물성(에너지 차이? 힘? 밴드갭? 자기모멘트?)에 대해 수렴을 확인해야
-  합니다. ML 퍼텐셜 학습 데이터가 목적이라면 <strong>힘 기준으로</strong> 수렴을 잡으세요.</li>
-<li><strong>에너지가 컷오프에 대해 위에서 아래로 단조 수렴하는 것은 변분 원리 덕분이고,
-  k-점에 대해서는 단조가 아닌 것이 정상입니다.</strong></li>
+<li><strong>Absolute total energies have a different zero for every pseudopotential,
+  so comparing them is meaningless.</strong> Only differences computed under
+  identical conditions matter.</li>
+<li><strong>A converged energy does not imply converged forces, stress, or DOS.</strong>
+  Verify convergence for the property you actually care about (an energy
+  difference? forces? a band gap? a magnetic moment?). For ML training data,
+  converge on <strong>forces</strong>.</li>
+<li><strong>Monotonic convergence in the cutoff is guaranteed by the variational
+  principle; monotonic convergence in the k-grid is not.</strong> Non-monotonic
+  k-point behavior is normal.</li>
 </ul>
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    수렴 테스트를 한 번 하고 "이 원소는 40 Ry"라고 영구히 못 박는 것.
-    컷오프 요구는 <strong>유사퍼텐셜 파일</strong>에 붙는 속성이지 원소의
-    속성이 아닙니다. 유사퍼텐셜을 바꾸면 수렴 테스트도 다시 해야 합니다.
-    또, 셀·배위가 크게 다른 구조(벌크 vs 표면 vs 분자)를 섞어 쓰는 프로젝트라면
-    <strong>가장 요구가 큰 구조 기준으로 통일</strong>해야 합니다.
+    Running one convergence test and declaring "this element needs 40 Ry"
+    forever. Cutoff requirements attach to the <strong>pseudopotential
+    file</strong>, not to the element. New potential, new test. And if a
+    project mixes very different structures (bulk, surface, molecule),
+    standardize on the settings demanded by the most demanding one.
   </p>
 </div>
 
-<h2 id="k-">k-점 격자에 관한 실무 감각</h2>
+<h2 id="practical-sense-for-k-grids">Practical sense for k-grids</h2>
 <ul>
-<li><code>K_POINTS (automatic)</code>의 <code>nk1 nk2 nk3 s1 s2 s3</code>은 Monkhorst-Pack 격자와
-  시프트입니다. 시프트 <code>1</code>은 반 칸 밀기로, 절연체에서 같은 밀도 대비 수렴이
-  빨라질 수 있습니다. 단, <strong>사면체법을 쓸 nscf는 반드시 시프트 없는 Γ 중심
-  격자</strong>여야 합니다.</li>
-<li>격자 밀도는 셀 크기에 반비례로 잡습니다. 큰 셀(슬랩, 초격자)은 해당 방향의
-  k-점을 줄입니다 — 슬랩의 진공 방향은 1이면 충분합니다.</li>
-<li>금속은 Fermi 면 해상도가 필요해 절연체보다 훨씬 조밀해야 합니다
-  (<a href="ex-05-al-metal.html">예제 E5</a>의 12×12×12, <a href="ex-09-fe-bcc.html">E9</a>의
-  16×16×16이 그 예입니다).</li>
+<li>In <code>K_POINTS (automatic)</code>, the six numbers are the Monkhorst-Pack grid
+  <code>nk1 nk2 nk3</code> and shifts <code>s1 s2 s3</code>. A shift of <code>1</code> (half-step offset) can
+  speed convergence for insulators at equal density. However, <strong>any nscf
+  that will use the tetrahedron method must have an unshifted, Γ-centered
+  grid</strong>.</li>
+<li>Scale the grid inversely with cell size. Large cells (slabs, supercells)
+  need fewer points; one point suffices along a vacuum direction.</li>
+<li>Metals need dense grids to resolve the Fermi surface. See the 12×12×12 in
+  <a href="ex-05-al-metal.html">Example E5</a> and 16×16×16 in
+  <a href="ex-09-fe-bcc.html">Example E9</a>.</li>
 </ul>
-<h2 id="_3">관련 예제</h2>
+<h2 id="related-examples">Related examples</h2>
 <ul>
-<li><a href="ex-03-convergence.html">E3 · 수렴 테스트 자동화</a> — 이 장의 절차를
-  스크립트로 자동화해 실측했습니다.</li>
-<li><a href="ex-05-al-metal.html">E5 · fcc Al 금속</a> — 금속의 k-점·degauss 수렴.</li>
+<li><a href="ex-03-convergence.html">E3 · Automating convergence tests</a>: this chapter's
+  procedure, scripted and measured.</li>
+<li><a href="ex-05-al-metal.html">E5 · fcc Al metal</a>: k-point and degauss convergence
+  in a metal.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="04-pseudopotentials.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">유사퍼텐셜</div></a><a class="next" href="06-occupations.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">점유수와 smearing</div></a></nav>
+<nav class="page-nav"><a class="prev" href="04-pseudopotentials.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">Pseudopotentials</div></a><a class="next" href="06-occupations.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">Occupations and smearing</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

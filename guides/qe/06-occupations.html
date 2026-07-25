@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>점유수와 smearing · QE 가이드</title>
-  <meta name="description" content="절연체와 금속의 occupations 선택, smearing 종류와 degauss, 실측 스캔." />
+  <title>Occupations and smearing · QE Guide</title>
+  <meta name="description" content="Choosing occupations for insulators and metals, smearing types and degauss, with measured scans." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,218 +29,223 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html" class="active" aria-current="page"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html" class="active" aria-current="page"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 06 · 입문 · 핵심 개념</div>
-        <h1 class="page-title">점유수와 smearing</h1>
-        <p class="page-lede">절연체와 금속의 occupations 선택, smearing 종류와 degauss, 실측 스캔.</p>
+        <div class="page-eyebrow">CHAPTER 06 · BASICS · CORE CONCEPTS</div>
+        <h1 class="page-title">Occupations and smearing</h1>
+        <p class="page-lede">Choosing occupations for insulators and metals, smearing types and degauss, with measured scans.</p>
       </header>
       <article class="content">
-<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<div class="toc"><div class="toc-title">On this page</div>
 <ul>
-<li><a href="#occupations">occupations — 계의 종류에 따라</a></li>
-<li><a href="#smearing-degauss">smearing 종류와 degauss</a></li>
-<li><a href="#al-smearing-degauss">실측 — Al에서 smearing 종류별 degauss 의존성</a></li>
-<li><a href="#_1">사면체법 — 후처리 전용</a></li>
-<li><a href="#_2">관련 예제</a></li>
+<li><a href="#occupations-by-system-type">occupations, by system type</a></li>
+<li><a href="#smearing-types-and-degauss">Smearing types and degauss</a></li>
+<li><a href="#measured-degauss-dependence-per-smearing-type-in-al">Measured: degauss dependence per smearing type in Al</a></li>
+<li><a href="#the-tetrahedron-method-post-processing-only">The tetrahedron method: post-processing only</a></li>
+<li><a href="#related-examples">Related examples</a></li>
 </ul>
 </div>
-<p>금속·자성계 수렴 문제의 90%가 점유수 처리에서 옵니다. <code>occupations</code> 선택은
-"이 계가 절연체인가 금속인가"라는 물리적 판단입니다.</p>
-<h2 id="occupations">occupations — 계의 종류에 따라</h2>
+<p>Ninety percent of convergence trouble in metals and magnets traces back to
+how occupations are handled. Choosing <code>occupations</code> is the physical judgment
+"is this system an insulator or a metal?"</p>
+<h2 id="occupations-by-system-type">occupations, by system type</h2>
 <table>
 <thead>
 <tr>
-<th>값</th>
-<th>의미</th>
-<th>용도</th>
+<th>Value</th>
+<th>Meaning</th>
+<th>Use for</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>'fixed'</code></td>
-<td>정수 점유. 갭이 있어야 함</td>
-<td>절연체/반도체</td>
+<td>Integer occupations; requires a gap</td>
+<td>Insulators and semiconductors</td>
 </tr>
 <tr>
 <td><code>'smearing'</code></td>
-<td>Fermi 준위 주변을 부드럽게 부분 점유</td>
-<td><strong>금속</strong>, 갭 유무가 불확실한 계</td>
+<td>Smooth partial occupations around the Fermi level</td>
+<td><strong>Metals</strong>, and systems whose gap is uncertain</td>
 </tr>
 <tr>
 <td><code>'tetrahedra'</code> / <code>'tetrahedra_lin'</code> / <code>'tetrahedra_opt'</code></td>
-<td>smearing 없는 정밀 BZ 적분</td>
-<td><strong>DOS·밴드용 nscf 전용</strong></td>
+<td>Exact BZ integration without smearing</td>
+<td><strong>nscf runs for DOS and bands only</strong></td>
 </tr>
 <tr>
 <td><code>'from_input'</code></td>
-<td><code>OCCUPATIONS</code> 카드로 밴드별 점유 직접 지정</td>
-<td>특수</td>
+<td>Occupations given per band via the <code>OCCUPATIONS</code> card</td>
+<td>Special cases</td>
 </tr>
 </tbody>
 </table>
-<p>절연체에 <code>'fixed'</code> 대신 smearing을 쓰면 갭 근처 상태가 미세하게 부분 점유되어
-에너지가 오염됩니다. 반대로 금속에 <code>'fixed'</code>를 쓰면
-<code>the system is metallic, specify occupations</code> 에러로 멈춥니다.</p>
-<h2 id="smearing-degauss">smearing 종류와 degauss</h2>
-<p><code>occupations='smearing'</code>일 때 두 변수가 따라옵니다 — 어떤 함수로 뭉갤 것인가
-(<code>smearing</code>)와 얼마나 넓게 뭉갤 것인가(<code>degauss</code>, Ry).</p>
+<p>Using smearing on an insulator lets states near the gap edge acquire small
+fractional occupations and contaminates the energy. Using <code>'fixed'</code> on a
+metal stops the run with
+<code>the system is metallic, specify occupations</code>.</p>
+<h2 id="smearing-types-and-degauss">Smearing types and degauss</h2>
+<p>With <code>occupations='smearing'</code> two variables follow: which function to smear
+with (<code>smearing</code>) and how wide (<code>degauss</code>, in Ry).</p>
 <table>
 <thead>
 <tr>
-<th>값</th>
-<th>특징</th>
-<th>용도</th>
+<th>Value</th>
+<th>Character</th>
+<th>Use for</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>'gaussian'</code></td>
-<td>단순, 안전, 느린 수렴</td>
-<td>범용</td>
+<td>Simple, safe, slow to converge</td>
+<td>General</td>
 </tr>
 <tr>
 <td><code>'mv'</code> (Marzari-Vanderbilt, cold)</td>
-<td>자유에너지 ≈ E(σ→0), 외삽 불필요</td>
-<td><strong>금속 기본 선택</strong></td>
+<td>Free energy ≈ E(σ→0), no extrapolation needed</td>
+<td><strong>Default choice for metals</strong></td>
 </tr>
 <tr>
 <td><code>'mp'</code> (Methfessel-Paxton)</td>
-<td>고차 전개, 점유수가 음수가 될 수 있음</td>
-<td>금속</td>
+<td>Higher-order expansion; occupations can go negative</td>
+<td>Metals</td>
 </tr>
 <tr>
 <td><code>'fd'</code> (Fermi-Dirac)</td>
-<td>물리적 전자온도에 대응</td>
-<td>유한온도 계산</td>
+<td>A physical electronic temperature</td>
+<td>Finite-temperature work</td>
 </tr>
 </tbody>
 </table>
-<p>smearing은 수치 안정화 장치이면서 동시에 근사입니다. <code>degauss</code>가 크면 수렴은
-쉬워지지만 결과가 σ = 0 극한에서 멀어집니다. 출력의 <code>smearing contrib. (-TS)</code>
-항이 그 오염의 크기입니다 — 이 값이 크면 <code>degauss</code>가 과하다는 뜻입니다.</p>
-<h2 id="al-smearing-degauss">실측 — Al에서 smearing 종류별 degauss 의존성</h2>
-<p><a href="ex-05-al-metal.html">예제 E5</a>의 fcc Al(12×12×12 k)에서 smearing 종류별로
-<code>degauss</code>를 스캔한 실측입니다.</p>
+<p>Smearing is a numerical stabilizer and an approximation at the same time.
+Larger <code>degauss</code> converges more easily but drifts further from the σ = 0
+limit. The <code>smearing contrib. (-TS)</code> term in the output is the size of that
+contamination: if it is large, your <code>degauss</code> is too big.</p>
+<h2 id="measured-degauss-dependence-per-smearing-type-in-al">Measured: degauss dependence per smearing type in Al</h2>
+<p>The scan below is from <a href="ex-05-al-metal.html">Example E5</a>: fcc Al at
+12×12×12 k, with <code>degauss</code> scanned for each smearing type.</p>
 <figure>
   <img src="assets/images/qe-e05-smearing.png"
-       alt="Al total energy vs degauss for gaussian / mv / fd smearing" />
+       alt="Al total energy vs degauss for gaussian, mv, and fd smearing" />
   <figcaption>
-    fcc Al의 전체 에너지 vs degauss (QE 7.5 실측). cold smearing(mv)은
-    degauss에 거의 무감해 외삽 없이 σ→0 값을 주는 반면, gaussian과
-    Fermi-Dirac은 degauss에 따라 에너지가 흘러갑니다. 금속에 mv가 기본
-    선택인 이유입니다.
+    Measured fcc Al (QE 7.5). Cold smearing (mv) moves by only 0.3 mRy from
+    0.01 to 0.05 Ry, essentially flat, while gaussian drifts by 3 mRy and
+    Fermi-Dirac by 22 mRy. This is the measured basis for "mv needs no
+    extrapolation".
   </figcaption>
 </figure>
 
-<h2 id="_1">사면체법 — 후처리 전용</h2>
-<p><code>'tetrahedra_opt'</code>(최적화 사면체법)는 smearing 없이 BZ 적분을 수행해 DOS가
-가장 깨끗하게 나옵니다. 단, 제약이 있습니다.</p>
+<h2 id="the-tetrahedron-method-post-processing-only">The tetrahedron method: post-processing only</h2>
+<p><code>'tetrahedra_opt'</code> (the optimized tetrahedron method) integrates the BZ
+without smearing and gives the cleanest DOS. Its constraints:</p>
 <ul>
-<li><strong>Γ 중심, 시프트 없는 자동 격자</strong>(<code>K_POINTS automatic</code>의 시프트 0 0 0)를
-  요구합니다.</li>
-<li>SCF 자체보다는 <strong>DOS/밴드용 nscf</strong>에서 쓰는 것이 정석입니다
-  (<a href="10-dos-bands.html">10장</a>).</li>
-<li>실측 주의: <code>'tetrahedra_opt'</code> nscf 위에서 QE 7.5의 projwfc.x가 PDOS를
-  0으로 쓰는 문제를 확인했습니다. PDOS가 필요하면 고전 <code>'tetrahedra'</code>를
-  쓰세요 (<a href="ex-07-si-dos.html">예제 E7</a>).</li>
+<li>It requires a <strong>Γ-centered automatic grid with zero shift</strong>
+  (<code>K_POINTS automatic</code> with shifts <code>0 0 0</code>).</li>
+<li>Use it in the <strong>nscf step for DOS and bands</strong>, not in the SCF itself
+  (<a href="10-dos-bands.html">Chapter 10</a>).</li>
+<li>Measured caveat: on QE 7.5 we found that projwfc.x writes all-zero PDOS
+  on top of a <code>'tetrahedra_opt'</code> nscf. If you need PDOS, use the classic
+  <code>'tetrahedra'</code> (<a href="ex-07-si-dos.html">Example E7</a>).</li>
 </ul>
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    degauss를 "수렴이 잘 되는 큰 값"으로 올려 두고 잊는 것. smearing 폭은
-    결과에 남는 근사이므로, 목표 물성이 degauss에 둔감한지 반드시 확인해야
-    합니다. 특히 자성계에서 과한 degauss는 <strong>자기모멘트를 0으로
-    붕괴</strong>시키는 단골 원인입니다(<a href="12-magnetism.html">12장</a>).
-    금속 k-점 수렴과 degauss 수렴은 결합되어 있으므로 함께 스캔하세요.
+    Setting degauss to "whatever converges nicely" and forgetting about it.
+    The smearing width is an approximation that stays in your results, so
+    always check that your target property is insensitive to it. In magnetic
+    systems, an oversized degauss is a classic cause of the
+    <strong>magnetic moment collapsing to zero</strong>
+    (<a href="12-magnetism.html">Chapter 12</a>). Also, k-grid convergence
+    and degauss convergence are coupled in metals; scan them together.
   </p>
 </div>
 
-<h2 id="_2">관련 예제</h2>
+<h2 id="related-examples">Related examples</h2>
 <ul>
-<li><a href="ex-05-al-metal.html">E5 · fcc Al 금속</a> — smearing SCF, 페르미 준위,
-  degauss 스캔 실측.</li>
-<li><a href="ex-04-o2-molecule.html">E4 · O₂ 분자</a> — 분자인데 smearing을 쓰는 이유
-  (부분 점유 안정화)와 <code>tot_magnetization</code>.</li>
+<li><a href="ex-05-al-metal.html">E5 · fcc Al metal</a>: smearing SCF, Fermi level, and
+  the measured degauss scan.</li>
+<li><a href="ex-04-o2-molecule.html">E4 · O₂ molecule</a>: why even a molecule can need
+  smearing (degenerate partial occupations) and <code>tot_magnetization</code>.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="05-convergence.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">컷오프와 k-점 수렴</div></a><a class="next" href="07-scf-control.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">SCF 수렴 제어</div></a></nav>
+<nav class="page-nav"><a class="prev" href="05-convergence.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">Cutoff and k-point convergence</div></a><a class="next" href="07-scf-control.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">Controlling SCF convergence</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

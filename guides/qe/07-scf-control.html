@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SCF 수렴 제어 · QE 가이드</title>
-  <meta name="description" content="SCF 순환의 구조, mixing_beta·mixing_mode·diagonalization, 수렴 실패 진단 순서." />
+  <title>Controlling SCF convergence · QE Guide</title>
+  <meta name="description" content="How the SCF cycle works, mixing_beta, mixing_mode and diagonalization, and a diagnosis order for failures." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,134 +29,134 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html" class="active" aria-current="page"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html" class="active" aria-current="page"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 07 · 입문 · 핵심 개념</div>
-        <h1 class="page-title">SCF 수렴 제어</h1>
-        <p class="page-lede">SCF 순환의 구조, mixing_beta·mixing_mode·diagonalization, 수렴 실패 진단 순서.</p>
+        <div class="page-eyebrow">CHAPTER 07 · BASICS · CORE CONCEPTS</div>
+        <h1 class="page-title">Controlling SCF convergence</h1>
+        <p class="page-lede">How the SCF cycle works, mixing_beta, mixing_mode and diagonalization, and a diagnosis order for failures.</p>
       </header>
       <article class="content">
-<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<div class="toc"><div class="toc-title">On this page</div>
 <ul>
-<li><a href="#_1">핵심 변수</a></li>
-<li><a href="#mixing_beta">mixing_beta의 직관</a></li>
-<li><a href="#_2">수렴 실패 시 진단 순서</a></li>
-<li><a href="#_3">관련 예제</a></li>
+<li><a href="#the-key-variables">The key variables</a></li>
+<li><a href="#intuition-for-mixing_beta">Intuition for mixing_beta</a></li>
+<li><a href="#a-diagnosis-order-for-failures">A diagnosis order for failures</a></li>
+<li><a href="#related-examples">Related examples</a></li>
 </ul>
 </div>
-<p>SCF(자기일관장) 루프는 "전하밀도 추측 → Kohn-Sham 방정식 풀기 → 새 밀도 →
-섞기(mixing) → 반복"의 순환입니다. <code>&amp;ELECTRONS</code> 네임리스트가 이 순환을
-제어합니다.</p>
-<h2 id="_1">핵심 변수</h2>
+<p>The SCF (self-consistent field) loop is the cycle "guess a density, solve
+the Kohn-Sham equations, get a new density, mix, repeat". The <code>&amp;ELECTRONS</code>
+namelist controls that cycle.</p>
+<h2 id="the-key-variables">The key variables</h2>
 <table>
 <thead>
 <tr>
-<th>변수</th>
-<th>기본값</th>
-<th>역할</th>
+<th>Variable</th>
+<th>Default</th>
+<th>Role</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>conv_thr</code></td>
 <td>1.0d-6</td>
-<td>수렴 임계값 (Ry). 힘·응력이 필요하면 1.0d-8, <code>hp.x</code> 선행 계산은 1.0d-12 권장</td>
+<td>Convergence threshold (Ry). Use 1.0d-8 when forces or stress matter; 1.0d-12 for a run feeding <code>hp.x</code></td>
 </tr>
 <tr>
 <td><code>mixing_beta</code></td>
 <td>0.7</td>
-<td>새 밀도를 얼마나 섞을가. <strong>자성·금속은 0.1~0.3</strong></td>
+<td>How much new density to mix in. <strong>0.1–0.3 for magnets and metals</strong></td>
 </tr>
 <tr>
 <td><code>mixing_mode</code></td>
 <td><code>'plain'</code></td>
-<td><code>'plain'</code>(Broyden) / <code>'TF'</code> / <code>'local-TF'</code>. <strong>금속·슬랩·자성계는 <code>'local-TF'</code></strong></td>
+<td><code>'plain'</code> (Broyden) / <code>'TF'</code> / <code>'local-TF'</code>. <strong>Use <code>'local-TF'</code> for metals, slabs, magnets</strong></td>
 </tr>
 <tr>
 <td><code>mixing_ndim</code></td>
 <td>8</td>
-<td>혼합에 쓰는 이전 반복 수. 늘리면 메모리 증가</td>
+<td>History length for mixing; more costs memory</td>
 </tr>
 <tr>
 <td><code>electron_maxstep</code></td>
 <td>100</td>
-<td>최대 반복 횟수</td>
+<td>Maximum iterations</td>
 </tr>
 <tr>
 <td><code>diagonalization</code></td>
@@ -166,56 +166,59 @@
 <tr>
 <td><code>startingwfc</code> / <code>startingpot</code></td>
 <td><code>'atomic+random'</code> / <code>'atomic'</code></td>
-<td><code>'file'</code>이면 이전 계산에서 이어받기</td>
+<td><code>'file'</code> continues from a previous run</td>
 </tr>
 </tbody>
 </table>
-<p>출력에서는 매 반복의 <code>estimated scf accuracy</code>가 <code>conv_thr</code> 아래로 내려가는
-과정을 지켜봅니다. 수렴하면 <code>convergence has been achieved in N iterations</code>가
-찍힙니다.</p>
-<h2 id="mixing_beta">mixing_beta의 직관</h2>
-<p>밀도를 크게 섞으면(<code>0.7</code>) 수렴이 빠르지만, 금속·자성계처럼 응답이 예민한
-계에서는 밀도가 진동하며 발산합니다. 이런 계는 조금씩(<code>0.2~0.3</code>) 섞어야
-합니다. <code>mixing_mode='local-TF'</code>는 공간적으로 불균일한 계(슬랩, 진공 포함,
-자성 산화물)에서 특히 효과적입니다.</p>
-<p>실측 예로, 본 가이드의 <a href="ex-10-feo-afm.html">FeO AFM 계산(E10)</a>은
-<code>mixing_beta = 0.2</code> + <code>local-TF</code>로 설정했습니다. GGA FeO는 (틀린) 금속 상태로
-수렴하는 예민한 계라 기본값 0.7로는 진동합니다.</p>
-<h2 id="_2">수렴 실패 시 진단 순서</h2>
-<p><code>convergence NOT achieved after N iterations</code>가 나오면 <strong>순서대로</strong>
-시도하세요.</p>
+<p>In the output, watch <code>estimated scf accuracy</code> descend below <code>conv_thr</code>;
+success prints <code>convergence has been achieved in N iterations</code>.</p>
+<h2 id="intuition-for-mixing_beta">Intuition for mixing_beta</h2>
+<p>Mixing aggressively (0.7) converges fast, but in systems with a soft
+response (metals, magnets) the density oscillates and diverges. Such systems
+need gentle mixing (0.2–0.3). <code>mixing_mode='local-TF'</code> is particularly
+effective for spatially inhomogeneous systems: slabs, cells with vacuum,
+magnetic oxides.</p>
+<p>A measured example: the <a href="ex-10-feo-afm.html">FeO AFM run (E10)</a> uses
+<code>mixing_beta = 0.2</code> with <code>local-TF</code>. GGA FeO converges to a (wrong)
+metallic state and is touchy; the default 0.7 oscillates.</p>
+<h2 id="a-diagnosis-order-for-failures">A diagnosis order for failures</h2>
+<p>When you see <code>convergence NOT achieved after N iterations</code>, try these
+<strong>in order</strong>.</p>
 <ol>
 <li><code>mixing_beta</code> 0.7 → 0.3 → 0.1</li>
-<li><code>mixing_mode = 'local-TF'</code> (금속, 슬랩, 자성계에 효과적)</li>
-<li><code>electron_maxstep</code> 증가 (200~500)</li>
-<li><code>mixing_ndim</code> 증가 (8 → 12~16, 메모리 여유가 있을 때)</li>
-<li><code>degauss</code>를 일시적으로 키워 수렴시킨 뒤, <code>startingpot='file'</code>로 재시작하며
-   줄이기</li>
-<li><code>diagonalization = 'cg'</code> 또는 <code>'ppcg'</code> (느리지만 안정)</li>
-<li>초기 구조가 비물리적이지 않은지 확인 (원자 간 거리가 너무 가깝지 않은가)</li>
+<li><code>mixing_mode = 'local-TF'</code> (metals, slabs, magnets)</li>
+<li>Increase <code>electron_maxstep</code> (200–500)</li>
+<li>Increase <code>mixing_ndim</code> (8 → 12–16, if memory allows)</li>
+<li>Temporarily raise <code>degauss</code> to converge, then restart with
+   <code>startingpot='file'</code> while lowering it back</li>
+<li><code>diagonalization = 'cg'</code> or <code>'ppcg'</code> (slower but robust)</li>
+<li>Check the structure for nonsense (atoms too close together)</li>
 </ol>
-<p>대각화 단계의 문제(<code>c_bands: N eigenvalues not converged</code>,
-<code>cdiaghg: problems computing cholesky</code>)와 그 밖의 오류 대처는
-<a href="ref-errors.html">R3 · 오류 사전</a>에 증상별로 정리했습니다.</p>
+<p>Diagonalization-stage problems
+(<code>c_bands: N eigenvalues not converged</code>,
+<code>cdiaghg: problems computing cholesky</code>) and other errors are collected by
+symptom in the <a href="ref-errors.html">R3 error dictionary</a>.</p>
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    수렴이 안 된다고 <code>conv_thr</code>를 느슨하게 풀어버리는 것.
-    임계값을 1.0d-4로 풀면 "수렴 달성" 메시지는 나오지만 힘과 응력은 쓰레기가
-    됩니다. 문제의 원인은 거의 항상 mixing(위 1~4번)이지 임계값이 아닙니다.
-    반대로, 구조 최적화·MD·hp.x처럼 힘이나 선형 응답을 쓰는 계산은
-    <code>conv_thr</code>를 <strong>더 엄격하게</strong>(1.0d-8 ~ 1.0d-12)
-    잡아야 합니다.
+    Loosening <code>conv_thr</code> because the SCF will not converge. At
+    1.0d-4 you will get the "convergence achieved" message, and garbage
+    forces and stress along with it. The cause is almost always mixing
+    (items 1–4 above), not the threshold. In the other direction: runs that
+    consume forces or linear response (optimization, MD, hp.x) need a
+    <strong>tighter</strong> threshold, 1.0d-8 to 1.0d-12.
   </p>
 </div>
 
-<h2 id="_3">관련 예제</h2>
+<h2 id="related-examples">Related examples</h2>
 <ul>
-<li><a href="ex-09-fe-bcc.html">E9 · bcc Fe 강자성</a> — 자성 금속의 mixing 설정 실전.</li>
-<li><a href="ex-10-feo-afm.html">E10 · FeO AFM</a> — local-TF + 낮은 beta가 필요한 예민한 계.</li>
+<li><a href="ex-09-fe-bcc.html">E9 · Ferromagnetic bcc Fe</a>: mixing settings for a
+  magnetic metal in practice.</li>
+<li><a href="ex-10-feo-afm.html">E10 · FeO AFM</a>: a touchy system that needs local-TF
+  and low beta.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="06-occupations.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">점유수와 smearing</div></a><a class="next" href="08-scf-nscf.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">SCF와 NSCF</div></a></nav>
+<nav class="page-nav"><a class="prev" href="06-occupations.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">Occupations and smearing</div></a><a class="next" href="08-scf-nscf.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">SCF and NSCF</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

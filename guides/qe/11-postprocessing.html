@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>전하밀도와 퍼텐셜 · QE 가이드</title>
-  <meta name="description" content="pp.x의 plot_num, 전하밀도·퍼텐셜 추출, 큐브 파일과 시각화 도구." />
+  <title>Densities and potentials · QE Guide</title>
+  <meta name="description" content="pp.x and plot_num, extracting charge densities and potentials, cube files, and visualization tools." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,108 +29,108 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html" class="active" aria-current="page"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html" class="active" aria-current="page"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 11 · 입문 · 계산 종류</div>
-        <h1 class="page-title">전하밀도와 퍼텐셜</h1>
-        <p class="page-lede">pp.x의 plot_num, 전하밀도·퍼텐셜 추출, 큐브 파일과 시각화 도구.</p>
+        <div class="page-eyebrow">CHAPTER 11 · BASICS · CALCULATION TYPES</div>
+        <h1 class="page-title">Densities and potentials</h1>
+        <p class="page-lede">pp.x and plot_num, extracting charge densities and potentials, cube files, and visualization tools.</p>
       </header>
       <article class="content">
-<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<div class="toc"><div class="toc-title">On this page</div>
 <ul>
-<li><a href="#_1">입력 골격</a></li>
-<li><a href="#plot_num">자주 쓰는 plot_num</a></li>
-<li><a href="#_2">일함수 계산의 뼈대</a></li>
-<li><a href="#bader-qe">Bader 전하 — QE 내장이 아닙니다</a></li>
-<li><a href="#_3">시각화 도구</a></li>
-<li><a href="#_4">관련 예제</a></li>
+<li><a href="#input-skeleton">Input skeleton</a></li>
+<li><a href="#frequently-used-plot_num-values">Frequently used plot_num values</a></li>
+<li><a href="#the-skeleton-of-a-work-function-calculation">The skeleton of a work-function calculation</a></li>
+<li><a href="#bader-charges-are-not-built-into-qe">Bader charges are not built into QE</a></li>
+<li><a href="#visualization-tools">Visualization tools</a></li>
+<li><a href="#related-examples">Related examples</a></li>
 </ul>
 </div>
-<p><code>pp.x</code>는 SCF가 만들어 둔 밀도·퍼텐셜을 실공간 격자로 추출해 시각화 가능한
-파일로 바꿉니다. 입력은 두 네임리스트입니다 — 무엇을 뽑을가(<code>&amp;INPUTPP</code>)와
-어떤 형식으로 쓸가(<code>&amp;PLOT</code>).</p>
-<h2 id="_1">입력 골격</h2>
+<p><code>pp.x</code> extracts densities and potentials from a finished SCF onto real-space
+grids and writes them in visualizable formats. Its input has two namelists:
+what to extract (<code>&amp;INPUTPP</code>) and how to write it (<code>&amp;PLOT</code>).</p>
+<h2 id="input-skeleton">Input skeleton</h2>
 <pre><code class="language-fortran">&amp;INPUTPP
   prefix   = 'si'
   outdir   = './tmp/'
   filplot  = 'si.rho.dat'
-  plot_num = 0              ! 0 = 원자가 전하밀도
+  plot_num = 0              ! 0 = valence charge density
 /
 &amp;PLOT
   nfile         = 1
@@ -141,95 +141,104 @@
   fileout       = 'si.rho.cube'
 /
 </code></pre>
-<p><code>iflag</code>: 0 = 1D 선 / 1 = 구면평균 / 2 = 2D 단면 / 3 = 3D.
-<code>output_format</code>: 0 = gnuplot / 5 = XSF(XCrySDen) / 6 = Gaussian cube 등.</p>
-<h2 id="plot_num">자주 쓰는 plot_num</h2>
+<p><code>iflag</code>: 0 = 1D line, 1 = spherical average, 2 = 2D plane, 3 = 3D.
+<code>output_format</code>: 0 = gnuplot, 5 = XSF (XCrySDen), 6 = Gaussian cube, among
+others.</p>
+<h2 id="frequently-used-plot_num-values">Frequently used plot_num values</h2>
 <table>
 <thead>
 <tr>
-<th>값</th>
-<th>내용</th>
-<th>용도</th>
+<th>Value</th>
+<th>Quantity</th>
+<th>Use</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>0</td>
-<td>원자가 전하밀도</td>
-<td>결합 성격 관찰</td>
+<td>Valence charge density</td>
+<td>Bonding character</td>
 </tr>
 <tr>
 <td>1</td>
-<td>총 퍼텐셜 (V_bare + V_H + V_xc)</td>
+<td>Total potential (V_bare + V_H + V_xc)</td>
 <td></td>
 </tr>
 <tr>
 <td>2</td>
-<td>국소 이온 퍼텐셜</td>
+<td>Local ionic potential</td>
 <td></td>
 </tr>
 <tr>
 <td>5</td>
-<td>STM 이미지</td>
-<td>표면</td>
+<td>STM image</td>
+<td>Surfaces</td>
 </tr>
 <tr>
 <td>6</td>
-<td>스핀 밀도 ρ↑ − ρ↓</td>
-<td><strong>자성 분포 시각화</strong></td>
+<td>Spin density ρ↑ − ρ↓</td>
+<td><strong>Visualizing magnetism</strong></td>
 </tr>
 <tr>
 <td>8</td>
-<td>ELF (전자 국소화 함수)</td>
-<td>결합·고립전자쌍</td>
+<td>ELF (electron localization function)</td>
+<td>Bonds and lone pairs</td>
 </tr>
 <tr>
 <td>11</td>
-<td>bare + Hartree 퍼텐셜</td>
-<td><strong>슬랩 일함수 계산</strong></td>
+<td>Bare + Hartree potential</td>
+<td><strong>Work-function calculations</strong></td>
 </tr>
 </tbody>
 </table>
-<p>나머지 값과 PAW 전전자(all-electron) 전하밀도 옵션은 버전에 따라 다르므로
-반드시 설치 버전의 <code>Doc/INPUT_PP.txt</code>를 확인하세요.</p>
-<h2 id="_2">일함수 계산의 뼈대</h2>
-<p>슬랩에서 <code>plot_num=11</code>로 퍼텐셜을 뽑고, <code>average.x</code>(또는 직접 파싱)로 표면에
-평행한 평면 평균을 낸 뒤:</p>
+<p>The remaining values, and the PAW all-electron density options, vary by
+version; always check the <code>Doc/INPUT_PP.txt</code> of your install.</p>
+<h2 id="the-skeleton-of-a-work-function-calculation">The skeleton of a work-function calculation</h2>
+<p>For a slab, extract the potential with <code>plot_num=11</code>, take the planar
+average parallel to the surface (with <code>average.x</code> or your own parser), and
+then:</p>
 <p>$$\Phi = V_{\mathrm{vacuum}} - E_F$$</p>
-<p>진공 준위는 평면평균 퍼텐셜이 진공 한가운데서 평탄해지는 값입니다.
-쌍극자 보정과 함께 쓰는 전체 절차는 <a href="15-surfaces.html">15장</a>과
-<a href="ex-13-slab-md.html">예제 E13</a>에 있습니다.</p>
-<h2 id="bader-qe">Bader 전하 — QE 내장이 아닙니다</h2>
-<p>Bader 전하 분석은 <code>pp.x</code>로 전하밀도를 cube로 뽑은 뒤 Henkelman 그룹의
-<a href="https://theory.cm.utexas.edu/henkelman/code/bader/"><code>bader</code> 코드</a>에 넘기는
-방식입니다. <strong>PAW를 쓴다면 전전자 전하밀도를 써야 정확하며</strong>, 해당
-<code>plot_num</code> 값은 설치 버전의 <code>Doc/INPUT_PP.txt</code>에서 확인하세요. 원자가
-밀도만으로 Bader를 돌리면 코어 전하가 빠져 결과가 왜곡됩니다.</p>
-<h2 id="_3">시각화 도구</h2>
+<p>The vacuum level is the flat plateau of the planar-averaged potential in
+the middle of the vacuum. The full procedure, including the dipole
+correction, is in <a href="15-surfaces.html">Chapter 15</a> and
+<a href="ex-13-slab-md.html">Example E13</a>.</p>
+<h2 id="bader-charges-are-not-built-into-qe">Bader charges are not built into QE</h2>
+<p>Bader analysis means exporting the density as a cube with <code>pp.x</code> and feeding
+it to the Henkelman group's
+<a href="https://theory.cm.utexas.edu/henkelman/code/bader/"><code>bader</code> code</a>.
+<strong>With PAW you must export the all-electron density</strong> (check the
+corresponding <code>plot_num</code> in your version's <code>Doc/INPUT_PP.txt</code>); running
+Bader on the valence-only density distorts the result because the core
+charge is missing.</p>
+<h2 id="visualization-tools">Visualization tools</h2>
 <ul>
-<li><strong>VESTA</strong> — 구조 + cube 등가면. 가장 무난한 출발점.</li>
-<li><strong>XCrySDen</strong> — QE와 궁합이 좋은 고전 도구 (XSF 형식).</li>
-<li><strong>Python (ASE / pymatgen)</strong> — 후처리를 직접 파싱하는 습관을 들이면 이후
-  자동화가 훨씬 쉬워집니다. 본 가이드의 그림도 전부 Python으로 그렸습니다.</li>
+<li><strong>VESTA</strong>: structures plus cube isosurfaces; the easiest starting point.</li>
+<li><strong>XCrySDen</strong>: the classic companion to QE (XSF format).</li>
+<li><strong>Python (ASE, pymatgen)</strong>: get in the habit of parsing outputs yourself;
+  it pays off the moment you need automation. Every figure in this guide is
+  drawn with Python.</li>
 </ul>
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    스핀 계에서 <code>plot_num=6</code>(스핀 밀도)을 뽑았는데 0에 가깝게 나오는
-    경우 — <code>spin_component</code> 설정과, 애초에 SCF가 자성 해로 수렴했는지
-    (<code>total/absolute magnetization</code>)부터 확인하세요. 또, cube 파일은
-    금방 수백 MB가 되므로 <code>nx,ny,nz</code>로 격자를 조절하고 저장소를
-    관리하세요.
+    Extracting the spin density (<code>plot_num=6</code>) and getting nearly
+    zero: check <code>spin_component</code>, and first check whether the SCF
+    actually converged to a magnetic solution at all
+    (<code>total/absolute magnetization</code>). Also, cube files reach
+    hundreds of MB quickly; manage the grid with
+    <code>nx, ny, nz</code> and your disk.
   </p>
 </div>
 
-<h2 id="_4">관련 예제</h2>
+<h2 id="related-examples">Related examples</h2>
 <ul>
-<li><a href="ex-13-slab-md.html">E13 · 슬랩과 AIMD</a> — <code>plot_num=11</code>로 일함수 실측.</li>
-<li><a href="ex-09-fe-bcc.html">E9 · bcc Fe</a> — 스핀 분해 DOS와 함께 보면 좋은 계.</li>
+<li><a href="ex-13-slab-md.html">E13 · Slabs and AIMD</a>: a measured work function via
+  <code>plot_num=11</code>.</li>
+<li><a href="ex-09-fe-bcc.html">E9 · bcc Fe</a>: a good system to pair with spin-resolved
+  DOS.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="10-dos-bands.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">상태밀도와 밴드</div></a><a class="next" href="12-magnetism.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">스핀 편극과 자성</div></a></nav>
+<nav class="page-nav"><a class="prev" href="10-dos-bands.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">DOS and band structure</div></a><a class="next" href="12-magnetism.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">Spin polarization and magnetism</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>
