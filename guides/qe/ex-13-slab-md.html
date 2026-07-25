@@ -154,24 +154,119 @@ Background in <a href="15-surfaces.html">Chapter 15</a> and
 <p><a href="files/E13-slab-md/gen_slab.py">gen_slab.py</a> ·
 <a href="files/E13-slab-md/feo_md.in">feo_md.in</a> ·
 <a href="files/E13-slab-md/pp_workfunction.in">pp_workfunction.in</a></p>
-<p>The core of the generator:</p>
-<pre><code class="language-python">from ase.build import bulk, surface
+<p>The generator in full:</p>
+<pre><code class="language-python">&quot;&quot;&quot;Generate a FeO(100) slab and write it as a QE input.
+Never write slab coordinates by hand; always use a generator.&quot;&quot;&quot;
+from ase.build import bulk, surface
+from ase.io import write
 from ase.constraints import FixAtoms
 
+# rocksalt FeO with the cubic lattice constant a = 4.33 A
 feo = bulk(&quot;FeO&quot;, &quot;rocksalt&quot;, a=4.33)
-slab = surface(feo, (1, 0, 0), layers=4, vacuum=8.0)   # 8 Å vacuum per side
+
+# cut a (100) surface: 4 layers, 8 A of vacuum added on each side
+# (16 A total once the cell is closed), then center the slab in the cell
+slab = surface(feo, (1, 0, 0), layers=4, vacuum=8.0)
 slab.center(axis=2)
-# pin the bottom half of the layers -&gt; becomes QE if_pos flags
+
+# pin the bottom half of the layers at bulk positions; ASE constraints are
+# translated into QE if_pos flags (0 0 0 on the fixed atoms)
+zs = sorted(set(round(z, 3) for z in slab.positions[:, 2]))
+fixed_z = set(zs[: len(zs) // 2])
+slab.set_constraint(FixAtoms(
+    indices=[i for i, a in enumerate(slab) if round(a.position[2], 3) in fixed_z]))
+
+write(
+    &quot;feo100.scf.in&quot;, slab, format=&quot;espresso-in&quot;,
+    pseudopotentials={&quot;Fe&quot;: &quot;Fe.pbe-spn-kjpaw_psl.1.0.0.UPF&quot;,
+                      &quot;O&quot;:  &quot;O.pbe-n-kjpaw_psl.1.0.0.UPF&quot;},
+    kpts=(6, 6, 1),          # one k-point along the vacuum direction
+    input_data={
+        # tefield/dipfield are &amp;CONTROL variables (&amp;SYSTEM placement raises
+        # read_namelists); they switch on the sawtooth dipole correction
+        &quot;control&quot;: {&quot;calculation&quot;: &quot;relax&quot;, &quot;prefix&quot;: &quot;feo100&quot;,
+                    &quot;outdir&quot;: &quot;./tmp/&quot;, &quot;pseudo_dir&quot;: &quot;./pseudo/&quot;,
+                    &quot;tprnfor&quot;: True, &quot;forc_conv_thr&quot;: 1.0e-4,
+                    &quot;tefield&quot;: True, &quot;dipfield&quot;: True},
+        # nonmagnetic demo: a 1x1 (100) cell cannot hold the AFM-II order.
+        # edir=3: correction along z; emaxpos=0.90 puts the sawtooth peak in
+        # the middle of the vacuum; eamp=0 means correction only, no field
+        &quot;system&quot;: {&quot;ecutwfc&quot;: 70, &quot;ecutrho&quot;: 700,
+                   &quot;occupations&quot;: &quot;smearing&quot;, &quot;smearing&quot;: &quot;mv&quot;, &quot;degauss&quot;: 0.01,
+                   &quot;edir&quot;: 3, &quot;emaxpos&quot;: 0.90, &quot;eopreg&quot;: 0.05, &quot;eamp&quot;: 0.0},
+        # slabs with vacuum are inhomogeneous: gentle mixing + local-TF,
+        # and more than the default 100 iterations for the first SCF
+        &quot;electrons&quot;: {&quot;conv_thr&quot;: 1.0e-8, &quot;mixing_beta&quot;: 0.2,
+                      &quot;mixing_mode&quot;: &quot;local-TF&quot;, &quot;electron_maxstep&quot;: 200},
+        &quot;ions&quot;: {&quot;ion_dynamics&quot;: &quot;bfgs&quot;},
+    },
+)
+print(&quot;wrote feo100.scf.in; open it and read CELL_PARAMETERS/ATOMIC_POSITIONS yourself&quot;)
 </code></pre>
 <p>Open the generated <code>feo100.scf.in</code> and <strong>read it yourself</strong>: the
 <code>CELL_PARAMETERS</code>, the <code>ATOMIC_POSITIONS (angstrom)</code>, the <code>if_pos</code> flags.
 Being able to read generator output is what
-<a href="ex-02-si-ibrav0.html">E2</a> was for. The slab input carries the dipole
-correction (<code>tefield</code>/<code>dipfield</code> in <code>&amp;CONTROL</code>, <code>edir=3</code> and
-<code>emaxpos=0.90</code> in <code>&amp;SYSTEM</code>) and a 6×6×1 grid (one point along the
-vacuum). The slab SCF is nonmagnetic by design: a 1×1 (100) cell <strong>cannot
-geometrically hold</strong> the AFM-II order of FeO
+<a href="ex-02-si-ibrav0.html">E2</a> was for. The slab SCF is nonmagnetic by design:
+a 1×1 (100) cell <strong>cannot geometrically hold</strong> the AFM-II order of FeO
 (<a href="15-surfaces.html">Chapter 15</a>).</p>
+<p>The MD deck, fully annotated (the same FeO(+U) bulk cell as E11):</p>
+<pre><code class="language-fortran">! E13: Born-Oppenheimer MD on the bulk FeO(+U) cell.
+! dt is in Rydberg atomic units: 20.0 a.u. = 0.968 fs
+
+&amp;CONTROL
+  calculation = 'md'
+  prefix      = 'feo_md'
+  outdir      = './tmp/'
+  pseudo_dir  = './pseudo/'
+  nstep       = 2000         ! 2000 steps x 0.968 fs ~ 1.9 ps
+  dt          = 20.0         ! TIME STEP IN RYDBERG A.U., not femtoseconds
+  tprnfor     = .true.       ! forces on every step: that is the training data
+  tstress     = .false.      ! Hubbard stress dies with stres_hub under nosym+U (measured);
+                             ! recompute stress on extracted frames with scf runs if needed
+  disk_io     = 'none'       ! do not write wavefunctions every step: I/O kills MD
+/
+&amp;SYSTEM
+  ...                        ! same cell/cutoffs/magnetization as E11, plus:
+  nosym       = .true.       ! mandatory for MD: thermal motion breaks the initial
+                             ! symmetry in step 1 (checkallsym error without this)
+/
+&amp;ELECTRONS
+  conv_thr    = 1.0d-6       ! BOMD-level threshold; nosym+U struggles below this (measured)
+  mixing_beta = 0.2
+  mixing_mode = 'local-TF'
+  electron_maxstep = 300
+  mixing_fixed_ns  = 30      ! freeze the DFT+U ns matrix for the first 30 iterations:
+                             ! without symmetry the degenerate t2g orbitals rotate freely
+                             ! and the SCF stalls otherwise (measured)
+/
+&amp;IONS
+  ion_dynamics    = 'verlet' ! velocity-Verlet integrator
+  ion_temperature = 'svr'    ! stochastic velocity rescaling thermostat (canonical sampling)
+  tempw           = 300.0    ! target temperature in K
+  nraise          = 100      ! thermostat coupling period, in steps (~0.1 ps here)
+/
+</code></pre>
+<p>And the work-function extraction:</p>
+<pre><code class="language-fortran">! extract the electrostatic potential of the relaxed slab.
+! two namelists: WHAT to extract, then HOW to write it.
+&amp;INPUTPP
+  prefix   = 'feo100'          ! the slab relaxation's prefix
+  outdir   = './tmp/'
+  filplot  = 'feo100.pot.dat'  ! intermediate file
+  plot_num = 11                ! 11 = bare + Hartree potential (no XC), the
+                               ! standard choice for vacuum-level alignment
+/
+&amp;PLOT
+  nfile         = 1
+  filepp(1)     = 'feo100.pot.dat'
+  weight(1)     = 1.0
+  iflag         = 3            ! 3 = full 3D grid
+  output_format = 6            ! 6 = Gaussian cube
+  fileout       = 'feo100.pot.cube'
+/
+! afterwards: planar-average the cube over x,y, check the vacuum plateau is
+! FLAT, then work function = V_vacuum - E_Fermi
+</code></pre>
 <h2 id="run">Run</h2>
 <pre><code class="language-bash">python gen_slab.py                                     # writes feo100.scf.in
 mpirun -np 8 pw.x -nk 4 -in feo100.scf.in &gt; feo100.relax.out

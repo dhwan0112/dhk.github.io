@@ -147,7 +147,16 @@ of judging in meV/atom and meV/Å. Background in
 <a href="files/E03-convergence/conv_kpts.sh">conv_kpts.sh</a> ·
 <a href="files/E03-convergence/conv_force.sh">conv_force.sh</a></p>
 <pre><code class="language-bash">#!/bin/bash
-# conv_ecut.sh: ecutwfc scan; ecutrho follows at 8x (PAW/US convention)
+# ecutwfc convergence scan; ecutrho follows at 8x (the PAW/US convention).
+#
+# For each cutoff E:
+#   1. sed derives a scan input from si.scf.in, rewriting the two cutoff lines
+#   2. pw.x runs it
+#   3. grep '^!' picks the line &quot;!    total energy = ...&quot; (the converged value;
+#      unmarked &quot;total energy&quot; lines are intermediate SCF iterations)
+# Finally awk converts to meV/atom relative to the densest point:
+#   dE [meV/atom] = (E - E_ref) * 13605.7 / nat     (1 Ry = 13605.7 meV)
+
 NAT=2
 printf &quot;# ecutwfc(Ry)  E_total(Ry)   dE_vs_last(meV/atom)\n&quot; &gt; conv_ecut.dat
 LAST=&quot;&quot;
@@ -162,8 +171,24 @@ done
 awk -v nat=$NAT -v ref="$LAST&quot; '!/^#/{printf &quot;%6s  %16s  %10.3f\n&quot;,$1,$2,($2-ref)*13605.7/nat}' conv_ecut.dat
 </code></pre>
 <p>The k-point scan (<code>conv_kpts.sh</code>) rewrites the <code>K_POINTS</code> line the same
-way. The force scan (<code>conv_force.sh</code>) breaks the symmetry (moving one Si
-from 0.25 to 0.26) and extracts the force on atom 1.</p>
+way. The force scan breaks the symmetry first and then reads the total
+force with <code>head -1</code>, never <code>tail -1</code>:</p>
+<pre><code class="language-bash">#!/bin/bash
+# Force-based convergence scan (the criterion that matters for ML training
+# data). On a perfectly symmetric structure every force is zero, so first
+# break the symmetry: move the second Si from 0.25 to 0.26 along x.
+sed 's/  Si  0.25  0.25  0.25/  Si  0.26  0.25  0.25/' si.scf.in &gt; si_disp.in
+for E in 30 40 50 60 70 80 90; do
+  sed -e &quot;s/ecutwfc *=.*/ecutwfc      = $E/&quot; \
+      -e &quot;s/ecutrho *=.*/ecutrho      = $((E*8))/" si_disp.in > tmp_f$E.in
+  pw.x -in tmp_f$E.in > tmp_f$E.out
+  # The FIRST &quot;atom 1 ... force&quot; match after 'Forces acting on atoms' is the
+  # total force. Later matches are the contribution breakdown (the last one
+  # is the ~1e-6 SCF correction), so head -1 here, never tail -1.
+  F=$(grep 'atom    1 type  1   force' tmp_f$E.out | head -1 | awk '{print $7}')
+  echo &quot;$E  $F&quot;   # Ry/bohr -&gt; eV/A: multiply by 25.7110
+done
+</code></pre>
 <h2 id="run">Run</h2>
 <pre><code class="language-bash">bash conv_ecut.sh
 bash conv_kpts.sh  &gt; conv_kpts.dat

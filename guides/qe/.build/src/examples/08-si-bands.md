@@ -28,9 +28,44 @@ scf ─→ calculation='bands' (K_POINTS tpiba_b) ─→ bands.x ─→ plot
 [si.bandspp.in](files/E08-si-bands/si.bandspp.in)
 (the preceding scf is [E1's si.scf.in](files/E01-si-scf/si.scf.in))
 
-The path card:
+The bands run in full:
 
 ```fortran
+! E08 step 2: eigenvalues along a high-symmetry path.
+! 'bands' is an nscf variant: it reads the scf density of prefix 'si'
+! (run E01's si.scf.in first in this directory).
+
+&CONTROL
+  calculation = 'bands'
+  prefix      = 'si'          ! must match the preceding scf
+  outdir      = './tmp/'
+  pseudo_dir  = './pseudo/'
+  verbosity   = 'high'
+/
+&SYSTEM
+  ibrav       = 2
+  celldm(1)   = 10.26
+  nat         = 2
+  ntyp        = 1
+  ecutwfc     = 30
+  ecutrho     = 240
+  nbnd        = 12            ! bands above the gap, so the conduction bands are plotted
+  occupations = 'fixed'
+/
+&ELECTRONS
+  conv_thr    = 1.0d-8
+/
+
+ATOMIC_SPECIES
+  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
+
+ATOMIC_POSITIONS (alat)
+  Si  0.00  0.00  0.00
+  Si  0.25  0.25  0.25
+
+! band path in 'tpiba_b': Cartesian coordinates in units of 2*pi/a.
+! each line: k-point, then the number of divisions to the NEXT point
+! (the last point gets 0). Path: L - Gamma - X - W - K - Gamma.
 K_POINTS (tpiba_b)
 6
   0.500 0.500 0.500  30   ! L
@@ -46,6 +81,20 @@ K_POINTS (tpiba_b)
 fractional coordinates pasted into `crystal_b` produce a wrong path.
 **When unsure, `tpiba_b` is the safe choice**
 ([Chapter 10](10-dos-bands.html)).
+
+The post-processor input:
+
+```fortran
+! E08 step 3: bands.x reorders the raw eigenvalues into continuous bands.
+! Products: si.bands.dat (+ .gnu for plotting, .rap with symmetry labels),
+! and 'high-symmetry point' lines on stdout that give the x-axis ticks.
+&BANDS
+  prefix  = 'si'
+  outdir  = './tmp/'
+  filband = 'si.bands.dat'   ! output basename
+  lsym    = .true.           ! classify states by symmetry (writes the .rap file)
+/
+```
 
 ## Run
 

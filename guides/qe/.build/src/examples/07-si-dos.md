@@ -32,16 +32,46 @@ scf (8³ k) ─→ nscf (16³ k, tetrahedra) ─┬─→ dos.x       (total DOS
 [si.projwfc.in](files/E07-si-dos/si.projwfc.in) ·
 [run.sh](files/E07-si-dos/run.sh)
 
-The heart of the nscf input:
+The nscf input in full (the scf is E1's, run under the same prefix):
 
 ```fortran
-&SYSTEM
-  ...
-  nbnd = 12                   ! cover the conduction bands
-  occupations = 'tetrahedra'  ! tetrahedron method (see the note below)
+! E07 step 2: non-self-consistent run on a dense grid.
+! Reads the frozen charge density of the scf (same prefix/outdir) and
+! only recomputes eigenvalues, which is what a smooth DOS needs.
+
+&CONTROL
+  calculation = 'nscf'
+  prefix      = 'si'          ! MUST match the scf
+  outdir      = './tmp/'      ! MUST match the scf
+  pseudo_dir  = './pseudo/'
+  verbosity   = 'high'
 /
+&SYSTEM
+  ibrav       = 2
+  celldm(1)   = 10.26
+  nat         = 2
+  ntyp        = 1
+  ecutwfc     = 30
+  ecutrho     = 240
+  nbnd        = 12                ! extra empty bands so the conduction DOS exists
+  occupations = 'tetrahedra'      ! exact BZ integration for the DOS.
+                                  ! ('tetrahedra_opt' makes projwfc.x write zero PDOS on QE 7.5)
+/
+&ELECTRONS
+  conv_thr    = 1.0d-8
+/
+
+ATOMIC_SPECIES
+  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
+
+ATOMIC_POSITIONS (alat)
+  Si  0.00  0.00  0.00
+  Si  0.25  0.25  0.25
+
+! the tetrahedron method requires a Gamma-centered, UNSHIFTED grid;
+! 16^3 is dense enough for a smooth Si DOS
 K_POINTS (automatic)
-  16 16 16  0 0 0             ! tetrahedra require a Γ-centered, unshifted grid
+  16 16 16  0 0 0
 ```
 
 <div class="warning">
@@ -57,27 +87,49 @@ K_POINTS (automatic)
   </p>
 </div>
 
-The `dos.x` input:
+The two post-processor inputs:
 
 ```fortran
+! E07 step 3: dos.x sums the nscf eigenvalues into the total DOS.
+! Output columns of 'si.dos': E (eV) | DOS | integrated DOS.
 &DOS
-  prefix = 'si'
+  prefix = 'si'      ! same chain as before
   outdir = './tmp/'
-  fildos = 'si.dos'
-  Emin   = -10.0
-  Emax   =  20.0
-  DeltaE =  0.05
+  fildos = 'si.dos'  ! output file
+  Emin   = -10.0     ! energy window in ABSOLUTE eV (not relative to E_F!);
+  Emax   =  20.0     ! Si's valence bands sit near -6..+6 eV here, so this covers them
+  DeltaE =  0.05     ! energy grid spacing in eV
+/
+```
+
+```fortran
+! E07 step 4: projwfc.x projects the states onto atomic orbitals.
+! Products: one PDOS file per atom and orbital plus the Lowdin charges
+! printed at the end of standard output.
+&PROJWFC
+  prefix  = 'si'
+  outdir  = './tmp/'
+  filpdos = 'si.pdos'   ! basename of the PDOS files
+  ngauss  = 0           ! 0 = plain Gaussian broadening of the projections
+  degauss = 0.01        ! broadening width, in Ry
+  Emin    = -10.0       ! same absolute-eV window convention as dos.x
+  Emax    =  20.0
+  DeltaE  =  0.05
+  lsym    = .true.      ! symmetrize the projections (recommended)
 /
 ```
 
 ## Run
 
 ```bash
-pw.x       -in si.scf.in     > si.scf.out
-pw.x       -in si.nscf.in    > si.nscf.out
-dos.x      -in si.dos.in     > si.dos.out
-projwfc.x  -in si.projwfc.in > si.projwfc.out
-grep -A20 'Lowdin Charges' si.projwfc.out
+#!/bin/bash
+# The whole pipeline in order; everything is glued by prefix + outdir.
+set -e
+pw.x       -in si.scf.in     > si.scf.out      # 1. converge the density
+pw.x       -in si.nscf.in    > si.nscf.out     # 2. dense-grid eigenvalues
+dos.x      -in si.dos.in     > si.dos.out      # 3. total DOS -> si.dos
+projwfc.x  -in si.projwfc.in > si.projwfc.out  # 4. PDOS + Lowdin charges
+grep -A20 'Lowdin Charges' si.projwfc.out      # show the per-orbital occupations
 ```
 
 ## Output and figure: measured

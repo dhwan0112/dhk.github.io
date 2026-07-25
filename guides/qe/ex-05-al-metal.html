@@ -145,7 +145,10 @@ leave their fingerprints on the energy.</p>
 </table>
 <h2 id="input-file">Input file</h2>
 <p><a href="files/E05-al-metal/al.scf.in">Download al.scf.in</a></p>
-<pre><code class="language-fortran">&amp;CONTROL
+<pre><code class="language-fortran">! E05: fcc aluminium, the first metal.
+! A metal has no gap, so occupations must be smeared around the Fermi level.
+
+&amp;CONTROL
   calculation = 'scf'
   prefix      = 'al'
   outdir      = './tmp/'
@@ -153,20 +156,21 @@ leave their fingerprints on the energy.</p>
   verbosity   = 'high'
 /
 &amp;SYSTEM
-  ibrav       = 2
-  celldm(1)   = 7.65        ! bohr (= 4.05 Å)
+  ibrav       = 2           ! fcc
+  celldm(1)   = 7.65        ! bohr (= 4.05 Angstrom, experimental)
   nat         = 1
   ntyp        = 1
   ecutwfc     = 40
-  ecutrho     = 320
-  occupations = 'smearing'
-  smearing    = 'mv'        ! Marzari-Vanderbilt (cold), recommended for metals
-  degauss     = 0.02        ! Ry
-  nbnd        = 8           ! more generous than the default
+  ecutrho     = 320         ! 8x rule
+  occupations = 'smearing'  ! mandatory for a metal ('fixed' would abort)
+  smearing    = 'mv'        ! Marzari-Vanderbilt cold smearing: free energy ~ E(sigma-&gt;0),
+                            ! so no extrapolation in degauss is needed
+  degauss     = 0.02        ! smearing width in Ry; converge it together with the k-grid
+  nbnd        = 8           ! more bands than the default: partial occupations need headroom
 /
 &amp;ELECTRONS
   conv_thr    = 1.0d-8
-  mixing_beta = 0.7
+  mixing_beta = 0.7         ! simple sp metal: aggressive mixing still works
 /
 
 ATOMIC_SPECIES
@@ -175,6 +179,8 @@ ATOMIC_SPECIES
 ATOMIC_POSITIONS (alat)
   Al  0.00  0.00  0.00
 
+! metals need dense grids to resolve the Fermi surface;
+! 12x12x12 here vs the 8x8x8 that sufficed for the Si insulator
 K_POINTS (automatic)
   12 12 12  0 0 0
 </code></pre>

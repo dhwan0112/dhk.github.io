@@ -25,16 +25,21 @@ what lets you read FeO+U results in the literature critically.
 [Download feo_u.scf.in](files/E11-feo-hubbard/feo_u.scf.in) ·
 [scan_U.sh](files/E11-feo-hubbard/scan_U.sh)
 
-The input is E10 plus this at the end:
+The input is E10 (with `prefix = 'FeO_U'` so the E10 files survive) plus
+this card at the very end:
 
 ```fortran
+! The v7.1+ Hubbard card. (ortho-atomic) picks the projector; U values are
+! in eV, addressed per label and manifold. The Fe1/Fe2 label split from E10
+! is what lets the two sublattices carry independent ns matrices.
+! U = 4.6 eV is a conventional literature value; E12 computes 5.22 eV for
+! this exact setup from first principles.
 HUBBARD (ortho-atomic)
 U Fe1-3d 4.6
 U Fe2-3d 4.6
 ```
 
-U = 4.6 eV is a conventional literature value for FeO. Computing the U
-proper to your own system is [E12](ex-12-feo-hp.html).
+Computing the U proper to your own system is [E12](ex-12-feo-hp.html).
 
 ## Run
 

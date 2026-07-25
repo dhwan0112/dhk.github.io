@@ -146,23 +146,31 @@ projector. Background in <a href="14-hubbard-hp.html">Chapter 14</a>.</p>
 <p><a href="files/E12-feo-hp/feo_hp_scf.in">feo_hp_scf.in</a> ·
 <a href="files/E12-feo-hp/feo.hp.in">feo.hp.in</a> ·
 <a href="files/E12-feo-hp/run.sh">run.sh</a></p>
-<p>The scf input is the cell of <a href="ex-10-feo-afm.html">E10</a> plus:</p>
+<p>The scf input is the cell of <a href="ex-10-feo-afm.html">E10</a> with two changes:</p>
 <pre><code class="language-fortran">&amp;ELECTRONS
-  conv_thr         = 1.0d-12     ! very tight before hp.x
-  ...
+  conv_thr         = 1.0d-12    ! very tight: the response matrix inherits this quality
+  mixing_beta      = 0.2
+  mixing_mode      = 'local-TF'
+  electron_maxstep = 300
 /
 ...
+! effectively-zero U: registers the Fe-3d manifolds with hp.x without
+! biasing the ground state
 HUBBARD (ortho-atomic)
 U Fe1-3d 1.0d-8
 U Fe2-3d 1.0d-8
 </code></pre>
-<p>The hp.x input:</p>
-<pre><code class="language-fortran">&amp;INPUTHP
-  prefix       = 'FeO'
+<p>The hp.x input in full:</p>
+<pre><code class="language-fortran">! E12 step 2: hp.x computes the response matrices chi0 and chi by DFPT
+! and returns U = chi0^-1 - chi^-1 per Hubbard atom.
+&amp;INPUTHP
+  prefix       = 'FeO'       ! must match the scf of step 1
   outdir       = './tmp/'
-  nq1 = 2, nq2 = 2, nq3 = 2
-  conv_thr_chi = 1.0d-6      ! 1.0d-8 is unreachable on a metallic GGA ground state (measured)
-  iverbosity   = 2
+  nq1 = 2, nq2 = 2, nq3 = 2  ! q-point grid for the perturbation; CONVERGE THIS
+                             ! (a 1x1x1 U is not trustworthy)
+  conv_thr_chi = 1.0d-6      ! chi convergence; 1.0d-8 is unreachable on a metallic
+                             ! (GGA) ground state, noise floor ~1e-7 (measured)
+  iverbosity   = 2           ! print per-iteration chi values (worth watching)
 /
 </code></pre>
 <p>A measured note on <code>conv_thr_chi</code>: we first ran with 1.0d-8, and even
@@ -173,8 +181,12 @@ metallic, like FeO, that is where the numerical noise of the response
 function lives, so we relaxed the threshold to 1.0d-6. The relative
 scatter of χ is below 0.1%, which moves U by less than 0.01 eV.</p>
 <h2 id="run">Run</h2>
-<pre><code class="language-bash">pw.x -in feo_hp_scf.in &gt; feo_hp_scf.out
-hp.x -in feo.hp.in     &gt; feo.hp.out
+<pre><code class="language-bash">#!/bin/bash
+# tightly converged scf first, then the hp.x linear-response run
+set -e
+pw.x -in feo_hp_scf.in &gt; feo_hp_scf.out   # ~3 min on 8 ranks (measured)
+hp.x -in feo.hp.in     &gt; feo.hp.out       # ~2 h on 8 ranks, 4 irreducible q (measured)
+echo &quot;--- computed Hubbard parameters ---&quot;
 cat FeO.Hubbard_parameters.dat
 </code></pre>
 <p>hp.x runs one perturbation series per inequivalent Hubbard atom, so it

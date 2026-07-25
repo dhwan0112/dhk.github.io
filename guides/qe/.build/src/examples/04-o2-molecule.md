@@ -27,9 +27,60 @@ badly overbinding O₂, which you will measure yourself.
 [o_atom.scf.in](files/E04-o2-molecule/o_atom.scf.in)
 
 ```fortran
+! E04: the O2 molecule in its triplet ground state.
+! A molecule in a periodic code = one molecule in a big empty box.
+
 &CONTROL
   calculation       = 'scf'
   prefix            = 'o2'
+  outdir            = './tmp/'
+  pseudo_dir        = './pseudo/'
+  verbosity         = 'high'
+  tprnfor           = .true.      ! check the residual force at d = 1.21 A
+/
+&SYSTEM
+  ibrav             = 1           ! simple cubic box
+  celldm(1)         = 20.0        ! box edge in bohr (~10.6 A); vacuum size is a convergence parameter
+  nat               = 2
+  ntyp              = 1
+  ecutwfc           = 60          ! oxygen is a hard element; higher cutoff than Si
+  ecutrho           = 480         ! 8x rule again
+  assume_isolated   = 'mt'        ! Martyna-Tuckerman correction for the periodic images
+  nspin             = 2           ! spin-polarized
+  tot_magnetization = 2.0         ! CONSTRAIN the cell moment to 2 uB: the triplet.
+                                  ! (two separate Fermi levels are used, up and down)
+  occupations       = 'smearing'  ! the degenerate pi* level needs fractional occupations
+  smearing          = 'gaussian'
+  degauss           = 0.001       ! tiny width: only for numerical stability
+/
+&ELECTRONS
+  conv_thr          = 1.0d-8
+  mixing_beta       = 0.3         ! gentler mixing; molecular levels shift easily
+/
+
+ATOMIC_SPECIES
+  O  15.9994  O.pbe-n-kjpaw_psl.1.0.0.UPF
+
+! absolute Cartesian coordinates; 1.21 A is the experimental bond length
+ATOMIC_POSITIONS (angstrom)
+  O  0.000  0.000  0.000
+  O  0.000  0.000  1.210
+
+! a molecule has no band dispersion: one k-point at Gamma.
+! the 'gamma' keyword also switches on the real-wavefunction speedup.
+K_POINTS gamma
+```
+
+The atomic reference (`o_atom.scf.in`) keeps the box, the cutoffs, and the
+pseudopotential identical, because only same-condition energies may be
+subtracted:
+
+```fortran
+! E04: the isolated O atom, for the binding energy D = 2 E(O) - E(O2).
+
+&CONTROL
+  calculation       = 'scf'
+  prefix            = 'o_atom'
   outdir            = './tmp/'
   pseudo_dir        = './pseudo/'
   verbosity         = 'high'
@@ -37,14 +88,14 @@ badly overbinding O₂, which you will measure yourself.
 /
 &SYSTEM
   ibrav             = 1
-  celldm(1)         = 20.0        ! bohr, the vacuum box
-  nat               = 2
+  celldm(1)         = 20.0        ! identical box to o2.scf.in
+  nat               = 1
   ntyp              = 1
   ecutwfc           = 60
   ecutrho           = 480
-  assume_isolated   = 'mt'        ! Martyna-Tuckerman image correction
+  assume_isolated   = 'mt'
   nspin             = 2
-  tot_magnetization = 2.0         ! enforce the triplet (two Fermi levels)
+  tot_magnetization = 2.0         ! atomic oxygen is a triplet too (2p4, Hund's rules)
   occupations       = 'smearing'
   smearing          = 'gaussian'
   degauss           = 0.001
@@ -59,13 +110,9 @@ ATOMIC_SPECIES
 
 ATOMIC_POSITIONS (angstrom)
   O  0.000  0.000  0.000
-  O  0.000  0.000  1.210
 
 K_POINTS gamma
 ```
-
-The atomic input (`o_atom.scf.in`) is the same box and cutoffs with
-`nat=1` and `tot_magnetization=2.0` (the ³P ground state of atomic O).
 
 ## Run
 

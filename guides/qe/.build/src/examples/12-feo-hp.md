@@ -29,28 +29,36 @@ pw.x (scf with U ≈ 0, conv_thr 1e-12) → hp.x → FeO.Hubbard_parameters.dat
 [feo.hp.in](files/E12-feo-hp/feo.hp.in) ·
 [run.sh](files/E12-feo-hp/run.sh)
 
-The scf input is the cell of [E10](ex-10-feo-afm.html) plus:
+The scf input is the cell of [E10](ex-10-feo-afm.html) with two changes:
 
 ```fortran
 &ELECTRONS
-  conv_thr         = 1.0d-12     ! very tight before hp.x
-  ...
+  conv_thr         = 1.0d-12    ! very tight: the response matrix inherits this quality
+  mixing_beta      = 0.2
+  mixing_mode      = 'local-TF'
+  electron_maxstep = 300
 /
 ...
+! effectively-zero U: registers the Fe-3d manifolds with hp.x without
+! biasing the ground state
 HUBBARD (ortho-atomic)
 U Fe1-3d 1.0d-8
 U Fe2-3d 1.0d-8
 ```
 
-The hp.x input:
+The hp.x input in full:
 
 ```fortran
+! E12 step 2: hp.x computes the response matrices chi0 and chi by DFPT
+! and returns U = chi0^-1 - chi^-1 per Hubbard atom.
 &INPUTHP
-  prefix       = 'FeO'
+  prefix       = 'FeO'       ! must match the scf of step 1
   outdir       = './tmp/'
-  nq1 = 2, nq2 = 2, nq3 = 2
-  conv_thr_chi = 1.0d-6      ! 1.0d-8 is unreachable on a metallic GGA ground state (measured)
-  iverbosity   = 2
+  nq1 = 2, nq2 = 2, nq3 = 2  ! q-point grid for the perturbation; CONVERGE THIS
+                             ! (a 1x1x1 U is not trustworthy)
+  conv_thr_chi = 1.0d-6      ! chi convergence; 1.0d-8 is unreachable on a metallic
+                             ! (GGA) ground state, noise floor ~1e-7 (measured)
+  iverbosity   = 2           ! print per-iteration chi values (worth watching)
 /
 ```
 
@@ -65,8 +73,12 @@ scatter of χ is below 0.1%, which moves U by less than 0.01 eV.
 ## Run
 
 ```bash
-pw.x -in feo_hp_scf.in > feo_hp_scf.out
-hp.x -in feo.hp.in     > feo.hp.out
+#!/bin/bash
+# tightly converged scf first, then the hp.x linear-response run
+set -e
+pw.x -in feo_hp_scf.in > feo_hp_scf.out   # ~3 min on 8 ranks (measured)
+hp.x -in feo.hp.in     > feo.hp.out       # ~2 h on 8 ranks, 4 irreducible q (measured)
+echo "--- computed Hubbard parameters ---"
 cat FeO.Hubbard_parameters.dat
 ```
 
