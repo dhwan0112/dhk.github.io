@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>병렬 실행과 HPC 운영 · QE 가이드</title>
-  <meta name="description" content="-nk/-nd/-ni 병렬화 레벨, 작은 계와 큰 계의 스케일링 감각, HPC 운영 습관." />
+  <title>Parallel execution and HPC · QE Guide</title>
+  <meta name="description" content="The -nk/-nd/-ni parallelization levels, scaling intuition for small and large systems, and HPC habits." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,213 +29,219 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html" class="active" aria-current="page"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html" class="active" aria-current="page"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 18 · 심화 · 응용과 운영</div>
-        <h1 class="page-title">병렬 실행과 HPC 운영</h1>
-        <p class="page-lede">-nk/-nd/-ni 병렬화 레벨, 작은 계와 큰 계의 스케일링 감각, HPC 운영 습관.</p>
+        <div class="page-eyebrow">CHAPTER 18 · ADVANCED · APPLICATIONS</div>
+        <h1 class="page-title">Parallel execution and HPC</h1>
+        <p class="page-lede">The -nk/-nd/-ni parallelization levels, scaling intuition for small and large systems, and HPC habits.</p>
       </header>
       <article class="content">
-<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<div class="toc"><div class="toc-title">On this page</div>
 <ul>
-<li><a href="#_1">병렬화 레벨 치트시트</a></li>
-<li><a href="#_2">실측 — 작은 계에서 스레드의 함정</a></li>
-<li><a href="#_3">어디에 시간을 쓰는지 먼저 봅니다</a></li>
-<li><a href="#hpc">HPC 운영 습관</a></li>
-<li><a href="#_4">관련 예제</a></li>
+<li><a href="#the-parallelization-cheat-sheet">The parallelization cheat sheet</a></li>
+<li><a href="#measured-the-thread-trap-on-small-systems">Measured: the thread trap on small systems</a></li>
+<li><a href="#read-the-timing-breakdown-first">Read the timing breakdown first</a></li>
+<li><a href="#hpc-habits">HPC habits</a></li>
+<li><a href="#related-examples">Related examples</a></li>
 </ul>
 </div>
-<h2 id="_1">병렬화 레벨 치트시트</h2>
+<h2 id="the-parallelization-cheat-sheet">The parallelization cheat sheet</h2>
 <pre><code class="language-bash">mpirun -np 32 pw.x -nk 8 -in input.in &gt; output.out
 </code></pre>
 <table>
 <thead>
 <tr>
-<th>플래그</th>
-<th>별칭</th>
-<th>의미</th>
-<th>실무 지침</th>
+<th>Flag</th>
+<th>Alias</th>
+<th>Meaning</th>
+<th>Guidance</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>-nk</code></td>
 <td><code>-npool</code></td>
-<td>k-점 풀 분할</td>
-<td><strong>가장 효율이 좋음.</strong> k-점 수를 나누어떨어지게 잡되, <code>nproc/nk</code>가 FFT 분할에 충분해야 함</td>
+<td>k-point pools</td>
+<td><strong>Most efficient.</strong> Make it divide the k-point count, and leave <code>nproc/nk</code> large enough for the FFT distribution</td>
 </tr>
 <tr>
 <td><code>-nb</code></td>
 <td><code>-nband</code></td>
-<td>밴드 그룹</td>
-<td>하이브리드·EXX에서 유효</td>
+<td>Band groups</td>
+<td>Useful for hybrids and EXX</td>
 </tr>
 <tr>
 <td><code>-nt</code></td>
 <td><code>-ntg</code></td>
-<td>FFT task group</td>
-<td>밴드가 많고 코어가 많을 때</td>
+<td>FFT task groups</td>
+<td>Many bands and many cores</td>
 </tr>
 <tr>
 <td><code>-nd</code></td>
 <td><code>-ndiag</code></td>
-<td>대각화 그룹</td>
-<td><strong>제곱수여야 함.</strong> 큰 계에서만</td>
+<td>Diagonalization group</td>
+<td><strong>Must be a square number.</strong> Large systems only</td>
 </tr>
 <tr>
 <td><code>-ni</code></td>
 <td><code>-nimage</code></td>
-<td>이미지 병렬</td>
-<td>NEB, 포논, hp.x</td>
+<td>Image parallelism</td>
+<td>NEB, phonons, hp.x</td>
 </tr>
 </tbody>
 </table>
-<p>기본 분할(플래그 없음)은 평면파(G-벡터) 분산입니다. 작은 셀 + 많은 k-점이면
-<code>-nk</code>가 압도적이고, 큰 셀 + 적은 k-점이면 G-벡터 분산과 <code>-nd</code>가 주력이
-됩니다. <strong>메모리가 부족하면 <code>-nk</code>를 줄이세요</strong> — 풀마다 전하밀도 사본을
-가집니다.</p>
-<h2 id="_2">실측 — 작은 계에서 스레드의 함정</h2>
-<p>본 가이드의 2원자 Si SCF 실측 (16코어 WSL, conda-forge 빌드):</p>
+<p>The default split (no flags) distributes plane waves (G-vectors). Small
+cells with many k-points want <code>-nk</code>; large cells with few k-points lean on
+the G-vector split and <code>-nd</code>. <strong>If you run out of memory, lower <code>-nk</code></strong>:
+every pool holds its own copy of the charge density.</p>
+<h2 id="measured-the-thread-trap-on-small-systems">Measured: the thread trap on small systems</h2>
+<p>The two-atom Si SCF from this guide, on a 16-core WSL machine with the
+conda-forge build:</p>
 <table>
 <thead>
 <tr>
-<th>설정</th>
-<th>WALL</th>
+<th>Setting</th>
+<th>Wall time</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>OMP_NUM_THREADS=16</code> (스레드만)</td>
-<td>약 2분</td>
+<td><code>OMP_NUM_THREADS=16</code> (threads only)</td>
+<td>about 2 minutes</td>
 </tr>
 <tr>
 <td><code>OMP_NUM_THREADS=1</code> + <code>mpirun -np 6 pw.x -nk 6</code></td>
-<td><strong>2.8초</strong></td>
+<td><strong>2.8 seconds</strong></td>
 </tr>
 </tbody>
 </table>
-<p>conda 빌드는 OpenMP가 켜져 있어, 그대로 두면 작은 계에서 스레드 스핀으로
-수십 배 느려질 수 있습니다. <strong>로컬 학습 환경에서는 <code>OMP_NUM_THREADS=1</code>을
-명시하고 MPI + <code>-nk</code>로 병렬화</strong>하는 것이 안전합니다. HPC에서 MPI×OpenMP
-하이브리드를 쓸 때는 노드당 랭크 수 × 스레드 수 = 물리 코어 수를 지키세요.</p>
-<h2 id="_3">어디에 시간을 쓰는지 먼저 봅니다</h2>
-<p>출력 맨 아래 timing 분해가 병렬화 전략의 출발점입니다.</p>
+<p>Conda builds ship with OpenMP enabled, and on small systems the idle-thread
+spinning can cost you an order of magnitude or two. <strong>On a local learning
+machine, set <code>OMP_NUM_THREADS=1</code> explicitly and parallelize with MPI plus
+<code>-nk</code>.</strong> On HPC, if you use hybrid MPI×OpenMP, keep
+ranks-per-node × threads = physical cores.</p>
+<h2 id="read-the-timing-breakdown-first">Read the timing breakdown first</h2>
+<p>The timing block at the end of the output is where parallelization strategy
+starts.</p>
 <pre><code>     init_run     :    ...
-     electrons    :    ...      ← SCF 전체
-     c_bands      :    ...      ← 대각화 (크면 -nd, diagonalization 조정)
+     electrons    :    ...      ← the whole SCF
+     c_bands      :    ...      ← diagonalization (if large: -nd, diagonalization)
      sum_band     :    ...
-     fft + ffts   :    ...      ← FFT (크면 G-벡터 분산/-nt)
+     fft + ffts   :    ...      ← FFT (if large: G-vector split, -nt)
 </code></pre>
-<p><code>PWSCF : ... CPU ... WALL</code>에서 CPU ≫ WALL이면 스레드가, WALL ≫ CPU이면
-I/O나 통신이 병목입니다.</p>
-<h2 id="hpc">HPC 운영 습관</h2>
+<p>In <code>PWSCF : ... CPU ... WALL</code>, CPU much larger than WALL points at thread
+spin; WALL much larger than CPU points at I/O or communication.</p>
+<h2 id="hpc-habits">HPC habits</h2>
 <ul>
-<li><strong><code>max_seconds</code>를 걸어 두세요.</strong> 큐 시간 초과 직전에 안전하게 저장하고
-  종료합니다. <code>restart_mode='restart'</code>로 이어받습니다.</li>
-<li><code>outdir</code>은 스크래치(고속 병렬 파일시스템)로. 홈 디렉터리에 파동함수를
-  쓰면 본인도 시스템도 느려집니다.</li>
-<li>배치 스크립트에 <strong>QE 버전, 유사퍼텐셜 경로·이름, 커밋 로그</strong>를 함께
-  기록하세요. "이 데이터가 어떤 설정으로 계산됐는가"는 몇 달 뒤의 자신이
-  가장 자주 묻는 질문입니다.</li>
-<li>큰 스캔(수렴 테스트, U 스캔, MD 프레임 재계산)은 셸 루프보다 AiiDA·ASE
-  같은 워크플로 도구가 재현성 면에서 안전합니다.</li>
+<li><strong>Always set <code>max_seconds</code>.</strong> The run saves state and exits cleanly just
+  before the queue limit; continue with <code>restart_mode='restart'</code>.</li>
+<li>Point <code>outdir</code> at scratch (the fast parallel filesystem). Writing
+  wavefunctions into your home directory slows you and everyone else down.</li>
+<li>Record the QE version, pseudopotential paths and names, and the commit of
+  your scripts inside the batch script. "What settings produced this data?"
+  is the question your future self asks most often.</li>
+<li>For large scans (convergence tests, U scans, MD frame recomputation),
+  workflow tools like AiiDA and ASE beat shell loops on reproducibility.</li>
 </ul>
-<p>전형적인 PBS/Slurm 한 줄:</p>
+<p>A typical PBS/Slurm line:</p>
 <pre><code class="language-bash">mpirun -np $SLURM_NTASKS pw.x -nk 8 -nd 4 -in feo.scf.in &gt; feo.scf.out
 </code></pre>
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    <code>npool must divide nproc</code> — <code>-nk</code>가 전체 랭크 수의
-    약수가 아닐 때. <code>some processors have no planes</code> — 랭크가 FFT
-    격자 z-평면 수보다 많을 때(작은 셀에 랭크 과다). 이런 병렬 설정 오류는
-    <a href="ref-errors.html">R3 · 오류 사전</a> 4절에 모아 두었습니다.
+    <code>npool must divide nproc</code>: your <code>-nk</code> does not
+    divide the total rank count.
+    <code>some processors have no planes</code>: more ranks than FFT
+    z-planes (too many ranks for a small cell). Parallel setup errors are
+    collected in section 4 of the
+    <a href="ref-errors.html">R3 error dictionary</a>.
   </p>
 </div>
 
-<h2 id="_4">관련 예제</h2>
+<h2 id="related-examples">Related examples</h2>
 <ul>
-<li>모든 예제 페이지의 "실행" 절에 이 장의 규칙으로 정한 실측 명령이 있습니다.
-  hp.x의 q-점 분할은 <a href="ex-12-feo-hp.html">예제 E12</a>를 참고하세요.</li>
+<li>Every example page's "Run" section uses commands chosen by this chapter's
+  rules. For splitting hp.x over q-points, see
+  <a href="ex-12-feo-hp.html">Example E12</a>.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="17-phonons-neb.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">포논과 반응 경로</div></a><a class="next" href="ref-keywords.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">키워드 사전</div></a></nav>
+<nav class="page-nav"><a class="prev" href="17-phonons-neb.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">Phonons and reaction paths</div></a><a class="next" href="ref-keywords.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">Keyword dictionary</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

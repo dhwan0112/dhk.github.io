@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>시작하기 · QE 가이드</title>
-  <meta name="description" content="평면파 DFT의 큰 그림, 설치 경로 선택(conda/소스), 설치 검증, 유사퍼텐셜 확보." />
+  <title>Getting started · QE Guide</title>
+  <meta name="description" content="The minimum background for plane-wave DFT, choosing an install route (conda or source), verifying the install, and getting pseudopotentials." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,254 +29,259 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html" class="active" aria-current="page"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html" class="active" aria-current="page"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 01 · 입문 · 시작</div>
-        <h1 class="page-title">시작하기</h1>
-        <p class="page-lede">평면파 DFT의 큰 그림, 설치 경로 선택(conda/소스), 설치 검증, 유사퍼텐셜 확보.</p>
+        <div class="page-eyebrow">CHAPTER 01 · BASICS · GETTING STARTED</div>
+        <h1 class="page-title">Getting started</h1>
+        <p class="page-lede">The minimum background for plane-wave DFT, choosing an install route (conda or source), verifying the install, and getting pseudopotentials.</p>
       </header>
       <article class="content">
-<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<div class="toc"><div class="toc-title">On this page</div>
 <ul>
-<li><a href="#qe">QE를 만지기 전에 — 최소 배경 이론</a></li>
-<li><a href="#_1">설치 경로 선택</a></li>
-<li><a href="#_2">환경 변수와 디렉터리 구조</a></li>
-<li><a href="#_3">설치 검증 — 여기서 반드시 해야 할 것</a></li>
-<li><a href="#_4">유사퍼텐셜 확보</a></li>
-<li><a href="#_5">관련 예제</a></li>
+<li><a href="#before-touching-qe-the-minimum-theory">Before touching QE: the minimum theory</a></li>
+<li><a href="#choosing-an-install-route">Choosing an install route</a></li>
+<li><a href="#environment-variables-and-directory-layout">Environment variables and directory layout</a></li>
+<li><a href="#verifying-the-install-do-not-skip-this">Verifying the install (do not skip this)</a></li>
+<li><a href="#getting-pseudopotentials">Getting pseudopotentials</a></li>
+<li><a href="#related-examples">Related examples</a></li>
 </ul>
 </div>
-<h2 id="qe">QE를 만지기 전에 — 최소 배경 이론</h2>
-<p>배경 이론을 전부 이해하고 코드를 만지겠다는 계획은 대부분 실패합니다.
-아래 여섯 개념의 <strong>정성적 의미</strong>만 잡고 바로 설치로 넘어가는 편이 훨씬
-빠릅니다. 각 개념이 어느 입력 변수와 연결되는지가 핵심입니다.</p>
+<h2 id="before-touching-qe-the-minimum-theory">Before touching QE: the minimum theory</h2>
+<p>The plan of "first I will understand all the theory, then touch the code"
+almost always fails. Grasp the qualitative meaning of the six concepts below
+and go straight to the install. What matters is knowing which input variable
+each concept connects to.</p>
 <table>
 <thead>
 <tr>
-<th>개념</th>
-<th>왜 필요한가</th>
-<th>QE에서 대응되는 입력</th>
+<th>Concept</th>
+<th>Why you need it</th>
+<th>Corresponding input</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Kohn–Sham DFT와 SCF 루프</td>
-<td>출력의 "estimated scf accuracy"를 읽으려면 필수</td>
+<td>Kohn–Sham DFT and the SCF loop</td>
+<td>Required to read "estimated scf accuracy" in the output</td>
 <td><code>conv_thr</code>, <code>mixing_beta</code>, <code>electron_maxstep</code></td>
 </tr>
 <tr>
-<td>평면파 기저와 컷오프</td>
-<td>기저 크기 = 정확도 = 비용</td>
+<td>Plane-wave basis and cutoffs</td>
+<td>Basis size = accuracy = cost</td>
 <td><code>ecutwfc</code>, <code>ecutrho</code></td>
 </tr>
 <tr>
-<td>주기 경계조건 / Bloch 정리 / Brillouin zone</td>
-<td>왜 k-점을 샘플링하는가</td>
+<td>Periodic boundary conditions, Bloch's theorem, the Brillouin zone</td>
+<td>Why k-points are sampled at all</td>
 <td><code>K_POINTS</code></td>
 </tr>
 <tr>
-<td>유사퍼텐셜 (NC / US / PAW)</td>
-<td>컷오프와 정확도를 동시에 지배</td>
+<td>Pseudopotentials (NC / US / PAW)</td>
+<td>Control both the required cutoff and the accuracy</td>
 <td><code>ATOMIC_SPECIES</code>, <code>pseudo_dir</code></td>
 </tr>
 <tr>
-<td>교환-상관 범함수 계층</td>
-<td>LDA/GGA의 한계가 곧 DFT+U의 존재 이유</td>
-<td>유사퍼텐셜 파일에 내장, <code>input_dft</code>로 override</td>
+<td>The exchange-correlation ladder</td>
+<td>The limits of LDA/GGA are the reason DFT+U exists</td>
+<td>Built into the pseudopotential file; override with <code>input_dft</code></td>
 </tr>
 <tr>
-<td>금속의 부분 점유와 smearing</td>
-<td>금속·자성계 수렴의 90%</td>
+<td>Partial occupations and smearing in metals</td>
+<td>90% of convergence trouble in metals and magnets</td>
 <td><code>occupations</code>, <code>smearing</code>, <code>degauss</code></td>
 </tr>
 </tbody>
 </table>
-<p>이론 자료로는 <a href="https://compmatphys.epotentia.com/">Cottenier의 온라인 DFT 강좌</a>
-(QE 실습이 이론과 함께 붙어 있어 입문 효율이 가장 좋습니다),
-<a href="http://www.fisica.uniud.it/~giannozz/QE-Tutorial/">Giannozzi의 Hands-on Tutorial</a>
-(QE 개발 주역이 직접 만든 자료), MIT OCW 3.320, 그리고 책으로는
-Sholl &amp; Steckel(입문용)과 R. Martin(레퍼런스용)을 권합니다.</p>
-<h2 id="_1">설치 경로 선택</h2>
+<p>For theory, good starting points are
+<a href="https://compmatphys.epotentia.com/">Cottenier's online DFT course</a>
+(QE exercises come bundled with the theory, the most efficient entry point),
+<a href="http://www.fisica.uniud.it/~giannozz/QE-Tutorial/">Giannozzi's hands-on tutorial</a>
+(by one of the main QE authors), MIT OCW 3.320, and as books
+Sholl &amp; Steckel (introductory) and R. Martin (reference).</p>
+<h2 id="choosing-an-install-route">Choosing an install route</h2>
 <table>
 <thead>
 <tr>
-<th>방법</th>
-<th>장점</th>
-<th>단점</th>
-<th>추천 상황</th>
+<th>Route</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>When</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>소스 빌드 (<code>./configure &amp;&amp; make all</code>)</td>
-<td>MKL/ScaLAPACK 최적화, GPU 빌드 가능</td>
-<td>의존성 지옥</td>
-<td>HPC, 성능이 중요한 경우</td>
+<td>Source build (<code>./configure &amp;&amp; make all</code>)</td>
+<td>MKL/ScaLAPACK tuning, GPU builds</td>
+<td>Dependency hell</td>
+<td>HPC, performance-critical work</td>
 </tr>
 <tr>
 <td>conda (<code>conda install -c conda-forge qe</code>)</td>
-<td>5분 설치</td>
-<td>성능 최적화 제한</td>
-<td>로컬 학습·테스트</td>
+<td>Installed in 5 minutes</td>
+<td>Limited performance tuning</td>
+<td>Local learning and testing</td>
 </tr>
 <tr>
-<td>deb 패키지 / 배포판</td>
-<td>가장 쉬움</td>
-<td>버전이 뒤처질 수 있음</td>
-<td>로컬 학습</td>
+<td>Distribution packages (deb etc.)</td>
+<td>Easiest</td>
+<td>Often outdated</td>
+<td>Local learning</td>
 </tr>
 </tbody>
 </table>
-<p>로컬 워크스테이션에서는 <strong>conda로 먼저 깔고 학습을 시작</strong>한 뒤, HPC에서
-소스 빌드를 익히는 순서를 권합니다. 설치에서 며칠을 태우는 것이 가장 흔한
-이탈 지점입니다. GPU 빌드(<code>--with-cuda</code>)는 NVHPC 컴파일러가 필요하고
-12GB급 VRAM으로는 스핀 편극된 전이금속 산화물의 큰 셀을 담기 어려우므로,
-초기 학습에는 CPU 빌드로 충분합니다.</p>
-<p>본 가이드의 모든 실측은 conda-forge <code>qe 7.5</code> 빌드(WSL Ubuntu, 16코어)에서
-실행했습니다. 작은 셀은 이 환경으로도 수 초~수 분이면 돕니다.</p>
-<pre><code class="language-bash"># micromamba/conda 어느 쪽이든 동일합니다
+<p>On a local workstation, install with conda first and start learning; pick up
+source builds later on the HPC system. Burning days on the install is the
+single most common place where people give up. GPU builds (<code>--with-cuda</code>)
+need the NVHPC compiler, and a 12 GB GPU will not hold a large spin-polarized
+transition-metal oxide cell anyway, so a CPU build is plenty for learning.</p>
+<p>Every measured number in this guide comes from the conda-forge <code>qe 7.5</code>
+build running under WSL Ubuntu on 16 cores. Small cells finish in seconds to
+minutes in this setup.</p>
+<pre><code class="language-bash"># micromamba or conda, either works the same way
 conda create -n qe -c conda-forge qe python numpy matplotlib
 conda activate qe
-pw.x -in /dev/null 2&gt;&amp;1 | head -5     # 버전 배너 확인
+pw.x -in /dev/null 2&gt;&amp;1 | head -5     # check the version banner
 </code></pre>
-<h2 id="_2">환경 변수와 디렉터리 구조</h2>
-<pre><code class="language-bash">export ESPRESSO_PSEUDO=$HOME/pseudo     # 유사퍼텐셜 저장소
-export ESPRESSO_TMPDIR=/scratch/$USER   # 대용량 임시파일 (반드시 빠른 디스크)
+<h2 id="environment-variables-and-directory-layout">Environment variables and directory layout</h2>
+<pre><code class="language-bash">export ESPRESSO_PSEUDO=$HOME/pseudo     # pseudopotential store
+export ESPRESSO_TMPDIR=/scratch/$USER   # large temporaries (use a fast disk)
 </code></pre>
-<p>권장 작업 디렉터리 구조:</p>
+<p>A directory layout that works well:</p>
 <pre><code>project/
-├── pseudo/          # UPF 파일
-├── 01_convergence/  # 수렴 테스트
+├── pseudo/          # UPF files
+├── 01_convergence/  # convergence tests
 ├── 02_relax/
 ├── 03_scf/
 └── scripts/
 </code></pre>
-<p><code>outdir</code>(임시 파일)과 <code>pseudo_dir</code>은 입력에서 명시할 수도 있고, 위 환경
-변수를 기본값으로 쓸 수도 있습니다. <code>outdir</code>은 파동함수·전하밀도가 쌓이는
-곳이므로 <strong>반드시 빠른 디스크</strong>를 가리키게 하세요.</p>
-<h2 id="_3">설치 검증 — 여기서 반드시 해야 할 것</h2>
-<p>먼저 배너를 확인합니다.</p>
+<p><code>outdir</code> (temporaries) and <code>pseudo_dir</code> can be given in the input or fall
+back to these environment variables. <code>outdir</code> is where wavefunctions and
+charge densities accumulate, so make sure it points at a <strong>fast disk</strong>.</p>
+<h2 id="verifying-the-install-do-not-skip-this">Verifying the install (do not skip this)</h2>
+<p>Check the banner first.</p>
 <pre><code class="language-bash">which pw.x
 pw.x -in /dev/null 2&gt;&amp;1 | head -20
 </code></pre>
-<p>확인 포인트:</p>
+<p>What to confirm:</p>
 <ul>
-<li>배너에 <code>Parallel version (MPI), running on N processors</code>가 뜨는가</li>
-<li><code>Number of MPI processes</code> / <code>Threads/MPI process</code>가 의도한 값인가</li>
+<li>The banner says <code>Parallel version (MPI), running on N processors</code>.</li>
+<li><code>Number of MPI processes</code> and <code>Threads/MPI process</code> are what you intended.</li>
 </ul>
-<p>QE 소스 트리가 있다면 <strong><code>PW/examples/</code>와 <code>test-suite/</code></strong>를 여세요.
-이것은 단순한 테스트가 아니라 <strong>가장 좋은 교재</strong>입니다.</p>
+<p>If you have the QE source tree, open <strong><code>PW/examples/</code> and <code>test-suite/</code></strong>.
+These are not mere tests; they are <strong>the best textbook you have</strong>.</p>
 <pre><code class="language-bash">cd PW/examples/example01
 ./run_example
-ls results/            # 생성된 입출력 파일을 전부 열어볼 것
+ls results/            # open every generated input and output
 </code></pre>
-<p><code>example01</code>부터 순서대로 입력 파일을 열어 각 예제가 무엇을 시연하는지
-확인하세요. 버전 정합성 면에서 서드파티 튜토리얼보다 이쪽이 안전합니다.</p>
-<h2 id="_4">유사퍼텐셜 확보</h2>
-<p>원소별 UPF 파일이 있어야 첫 계산이 돕니다. 어디서 받고 어떻게 고르는지는
-<a href="04-pseudopotentials.html">04장</a>에서 자세히 다루며, 본 가이드의 예제는
-PSlibrary PAW(<code>*.pbe-*-kjpaw_psl.1.0.0.UPF</code>)를 씁니다.
-<a href="https://pseudopotentials.quantum-espresso.org/">QE 공식 유사퍼텐셜 페이지</a>에서
-원소별로 내려받을 수 있습니다.</p>
+<p>Work through <code>example01</code> onward and see what each example demonstrates. For
+version consistency these beat any third-party tutorial.</p>
+<h2 id="getting-pseudopotentials">Getting pseudopotentials</h2>
+<p>You need one UPF file per element before the first run. Where to get them
+and how to choose is covered in <a href="04-pseudopotentials.html">Chapter 04</a>; the
+examples in this guide use PSlibrary PAW files
+(<code>*.pbe-*-kjpaw_psl.1.0.0.UPF</code>), downloadable per element from the
+<a href="https://pseudopotentials.quantum-espresso.org/">official QE pseudopotential site</a>.</p>
 <pre><code class="language-bash">mkdir -p pseudo tmp
-# 예: Si PAW
+# example: the Si PAW file
 curl -O https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-kjpaw_psl.1.0.0.UPF
 mv *.UPF pseudo/
 </code></pre>
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    OpenMP 스레드와 MPI를 동시에 과다 설정하면 작은 계에서 오히려 수십 배
-    느려집니다. 본 가이드의 2원자 Si SCF는 스레드 16개 설정에서 약 2분,
-    <code>OMP_NUM_THREADS=1</code> + <code>mpirun -np 6 pw.x -nk 6</code>
-    설정에서 2.8초가 걸렸습니다. 병렬 설정은
-    <a href="18-parallel-hpc.html">18장</a>을 참고하세요.
+    Oversubscribing OpenMP threads and MPI at the same time can make small
+    systems tens of times slower. The two-atom Si SCF in this guide took
+    about 2 minutes with 16 OpenMP threads, and 2.8 seconds with
+    <code>OMP_NUM_THREADS=1</code> plus
+    <code>mpirun -np 6 pw.x -nk 6</code>. See
+    <a href="18-parallel-hpc.html">Chapter 18</a> for parallel settings.
   </p>
 </div>
 
-<h2 id="_5">관련 예제</h2>
+<h2 id="related-examples">Related examples</h2>
 <ul>
-<li><a href="ex-01-si-scf.html">E1 · Si SCF</a> — 설치가 끝났다면 바로 첫 계산으로.</li>
-<li><a href="ex-03-convergence.html">E3 · 수렴 테스트 자동화</a> — 첫 계산 다음에 반드시.</li>
+<li><a href="ex-01-si-scf.html">E1 · Si SCF</a>: go straight to your first calculation.</li>
+<li><a href="ex-03-convergence.html">E3 · Automating convergence tests</a>: do this right
+  after the first run.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="index.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">개요</div></a><a class="next" href="02-input-structure.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">입력 파일 구조</div></a></nav>
+<nav class="page-nav"><a class="prev" href="index.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">Overview</div></a><a class="next" href="02-input-structure.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">Input file structure</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

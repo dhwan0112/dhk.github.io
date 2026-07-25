@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>포논과 반응 경로 · QE 가이드</title>
-  <meta name="description" content="ph.x 포논과 neb.x 반응 경로의 큰 그림 — 언제 필요하고 어디서 시작하는지." />
+  <title>Phonons and reaction paths · QE Guide</title>
+  <meta name="description" content="The big picture of ph.x phonons and neb.x reaction paths: when you need them and where to start." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,122 +29,128 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html" class="active" aria-current="page"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html" class="active" aria-current="page"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 17 · 심화 · 응용과 운영</div>
-        <h1 class="page-title">포논과 반응 경로</h1>
-        <p class="page-lede">ph.x 포논과 neb.x 반응 경로의 큰 그림 — 언제 필요하고 어디서 시작하는지.</p>
+        <div class="page-eyebrow">CHAPTER 17 · ADVANCED · APPLICATIONS</div>
+        <h1 class="page-title">Phonons and reaction paths</h1>
+        <p class="page-lede">The big picture of ph.x phonons and neb.x reaction paths: when you need them and where to start.</p>
       </header>
       <article class="content">
-<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<div class="toc"><div class="toc-title">On this page</div>
 <ul>
-<li><a href="#phx-dfpt">ph.x — 포논 (DFPT)</a></li>
-<li><a href="#nebx">neb.x — 반응 경로와 활성화 장벽</a></li>
-<li><a href="#_1">그 밖의 확장 지도</a></li>
+<li><a href="#phx-phonons-dfpt">ph.x: phonons (DFPT)</a></li>
+<li><a href="#nebx-reaction-paths-and-barriers">neb.x: reaction paths and barriers</a></li>
+<li><a href="#the-wider-map">The wider map</a></li>
 </ul>
 </div>
-<p>이 장은 상세 가이드가 아니라 <strong>지도</strong>입니다. <code>ph.x</code>와 <code>neb.x</code>는 각각 책
-한 권 분량의 주제이므로, 언제 필요해지고 어디서 시작하면 되는지만
-정리합니다.</p>
-<h2 id="phx-dfpt">ph.x — 포논 (DFPT)</h2>
-<p>밀도범함수 섭동이론(DFPT)으로 동역학 행렬을 계산합니다. 필요해지는 순간:</p>
+<p>This chapter is a <strong>map, not a manual</strong>. <code>ph.x</code> and <code>neb.x</code> are each a
+book-sized topic, so here we only fix when you will need them and where to
+start.</p>
+<h2 id="phx-phonons-dfpt">ph.x: phonons (DFPT)</h2>
+<p>Computes dynamical matrices by density-functional perturbation theory. You
+will need it when:</p>
 <ul>
-<li><strong>구조 안정성 검증</strong> — 최적화된 구조가 진짜 극소인지(허수 진동수가 없는지)</li>
-<li>진동 스펙트럼, 열역학량(자유에너지, 엔트로피), 열팽창(<code>thermo_pw</code>와 조합)</li>
-<li>전자-포논 결합</li>
+<li><strong>Validating structural stability</strong>: is the optimized structure a true
+  minimum (no imaginary frequencies)?</li>
+<li>Vibrational spectra, thermodynamic quantities (free energy, entropy),
+  thermal expansion (with <code>thermo_pw</code>).</li>
+<li>Electron-phonon coupling.</li>
 </ul>
-<p>워크플로의 뼈대:</p>
-<pre><code>pw.x (scf, 매우 엄격한 conv_thr) → ph.x (&amp;INPUTPH, ldisp=.true., nq 격자)
-  → q2r.x (실공간 힘상수) → matdyn.x (임의 q 분산·DOS)
+<p>The skeleton of the workflow:</p>
+<pre><code>pw.x (scf, very tight conv_thr) → ph.x (&amp;INPUTPH, ldisp=.true., nq grid)
+  → q2r.x (real-space force constants) → matdyn.x (dispersion and DOS at any q)
 </code></pre>
-<p><code>&amp;INPUTPH</code>의 핵심: <code>tr2_ph</code>(응답 수렴, 보통 1.0d-14), <code>ldisp</code>와
-<code>nq1/nq2/nq3</code>(q-격자), <code>epsil</code>(유전 텐서, 극성 절연체의 LO-TO 분리에 필요),
-<code>fildyn</code>. 계산량이 크므로 <code>-ni</code>(이미지 병렬)와 <code>start_q</code>/<code>last_q</code> 분할이
-실전 필수입니다.</p>
-<p>시작점: <code>PHonon/examples/</code>, 그리고 <a href="ex-06-si-vcrelax.html">예제 E6</a>처럼
-잘 수렴된 구조. <strong>최적화가 덜 된 구조의 포논은 허수 모드 투성이가 되며,
-그것은 물리가 아니라 미수렴의 신호</strong>일 수 있습니다.</p>
-<h2 id="nebx">neb.x — 반응 경로와 활성화 장벽</h2>
-<p>Nudged Elastic Band로 초기·최종 상태 사이의 최소 에너지 경로(MEP)와 전이
-상태를 찾습니다. 산화 메커니즘, 확산 장벽, 표면 반응 연구의 핵심 도구입니다.</p>
-<p>입력 구조가 <code>pw.x</code>와 다릅니다 — <code>BEGIN</code>/<code>END</code> 블록 안에 경로 설정(<code>&amp;PATH</code>)과
-엔진 입력(pw.x 입력과 동일)이 함께 들어갑니다.</p>
+<p>The essentials of <code>&amp;INPUTPH</code>: <code>tr2_ph</code> (response threshold, typically
+1.0d-14), <code>ldisp</code> with <code>nq1/nq2/nq3</code> (the q-grid), <code>epsil</code> (dielectric
+tensor, needed for LO-TO splitting in polar insulators), <code>fildyn</code>. The cost
+is heavy, so image parallelism (<code>-ni</code>) and <code>start_q</code>/<code>last_q</code> splitting are
+standard practice.</p>
+<p>Start with <code>PHonon/examples/</code> and a thoroughly converged structure, as in
+<a href="ex-06-si-vcrelax.html">Example E6</a>. <strong>Phonons on an under-optimized
+structure are full of imaginary modes, and those are a symptom of
+non-convergence, not physics.</strong></p>
+<h2 id="nebx-reaction-paths-and-barriers">neb.x: reaction paths and barriers</h2>
+<p>Nudged Elastic Band finds the minimum-energy path and transition state
+between two structures. It is the central tool for oxidation mechanisms,
+diffusion barriers, and surface reactions.</p>
+<p>Its input format differs from <code>pw.x</code>: path settings (<code>&amp;PATH</code>) and an engine
+input (identical to a pw.x input) sit together inside <code>BEGIN</code>/<code>END</code> blocks.</p>
 <pre><code>BEGIN
 BEGIN_PATH_INPUT
 &amp;PATH
@@ -152,13 +158,13 @@ BEGIN_PATH_INPUT
   num_of_images = 7
   nstep_path    = 100
   opt_scheme    = 'broyden'
-  CI_scheme     = 'auto'      ! climbing image — 장벽 정점을 정확히
+  CI_scheme     = 'auto'      ! climbing image: nails the saddle point
   path_thr      = 0.05        ! eV/Å
 /
 END_PATH_INPUT
 BEGIN_ENGINE_INPUT
 &amp;CONTROL
- ...                          ! pw.x 입력과 동일
+ ...                          ! same as a pw.x input
 /
 BEGIN_POSITIONS
 FIRST_IMAGE
@@ -171,56 +177,58 @@ END_POSITIONS
 END_ENGINE_INPUT
 END
 </code></pre>
-<p>실전 요령:</p>
+<p>Practical notes:</p>
 <ul>
-<li>초기·최종 상태를 <strong>각각 먼저 완전히 최적화</strong>한 뒤 NEB에 넣습니다.</li>
-<li>이미지 수는 홀수로 시작(5~9), <code>-ni</code>로 이미지 병렬.</li>
-<li><code>CI_scheme='auto'</code>(climbing image)를 켜야 장벽 꼭대기가 정확해집니다.</li>
+<li><strong>Fully optimize both endpoints first</strong>, then hand them to NEB.</li>
+<li>Start with an odd number of images (5–9) and parallelize over images with
+  <code>-ni</code>.</li>
+<li>Turn on <code>CI_scheme='auto'</code> (climbing image) if you care about the barrier
+  height.</li>
 </ul>
-<h2 id="_1">그 밖의 확장 지도</h2>
+<h2 id="the-wider-map">The wider map</h2>
 <table>
 <thead>
 <tr>
-<th>목표</th>
-<th>도구</th>
-<th>비고</th>
+<th>Goal</th>
+<th>Tool</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>국소화 궤도 / d-band 해석</td>
+<td>Localized orbitals, d-band analysis</td>
 <td><code>pw2wannier90.x</code> + Wannier90</td>
-<td>밴드 내삽에도 사용</td>
+<td>Also used for band interpolation</td>
 </tr>
 <tr>
-<td>워크플로 자동화</td>
+<td>Workflow automation</td>
 <td>AiiDA + aiida-quantumespresso, ASE, pymatgen</td>
-<td><strong>대량 데이터 생성 시 사실상 필수</strong></td>
+<td><strong>Effectively mandatory for bulk data generation</strong></td>
 </tr>
 <tr>
-<td>유한온도 열역학</td>
+<td>Finite-temperature thermodynamics</td>
 <td><code>thermo_pw</code></td>
-<td>ph.x 기반</td>
+<td>Built on ph.x</td>
 </tr>
 <tr>
 <td>Car-Parrinello MD</td>
 <td><code>cp.x</code></td>
-<td>BOMD(<a href="16-molecular-dynamics.html">16장</a>)와 별개 코드</td>
+<td>A separate code from the BOMD of <a href="16-molecular-dynamics.html">Chapter 16</a></td>
 </tr>
 </tbody>
 </table>
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    포논·NEB를 <strong>수렴 테스트가 끝나지 않은 설정</strong> 위에 쌓는 것.
-    두 방법 모두 미세한 힘·에너지 차이를 다루므로, 바탕 SCF의 품질
-    (<code>conv_thr</code>, 컷오프, k-점)이 조금만 느슨해도 허수 모드나
-    들쭉날쭉한 경로로 돌아옵니다. 항상 <a href="05-convergence.html">05장</a>
-    체계를 먼저 통과시키세요.
+    Building phonons or NEB on top of <strong>unconverged settings</strong>.
+    Both methods live off tiny force and energy differences, so any
+    looseness in the underlying SCF (its <code>conv_thr</code>, cutoffs,
+    k-points) comes back as imaginary modes or jagged paths. Pass the
+    program of <a href="05-convergence.html">Chapter 05</a> first.
   </p>
 </div>
       </article>
-<nav class="page-nav"><a class="prev" href="16-molecular-dynamics.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">분자동역학</div></a><a class="next" href="18-parallel-hpc.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">병렬 실행과 HPC 운영</div></a></nav>
+<nav class="page-nav"><a class="prev" href="16-molecular-dynamics.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">Molecular dynamics</div></a><a class="next" href="18-parallel-hpc.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">Parallel execution and HPC</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

@@ -1,52 +1,55 @@
 ---
-title: "02. 입력 파일 구조"
+title: "02. Input file structure"
 ---
 
-# 02. 입력 파일 구조
+# 02. Input file structure
 
-## 목차
+## Contents
 {:.toc-title}
 
 1. TOC
 {:toc}
 
-## 입력은 네임리스트와 카드, 두 층입니다
+## Two layers: namelists and cards
 
-`pw.x` 입력 파일은 두 종류의 블록으로 구성됩니다.
+A `pw.x` input consists of two kinds of blocks.
 
-- **네임리스트(namelist)** — `&CONTROL`, `&SYSTEM`, `&ELECTRONS`처럼 `&이름`으로
-  시작해 `/`로 닫는 Fortran 네임리스트. `변수 = 값` 형태이며 순서는
-  `&CONTROL → &SYSTEM → &ELECTRONS → (&IONS) → (&CELL)` 로 고정입니다.
-- **카드(card)** — `ATOMIC_SPECIES`, `ATOMIC_POSITIONS`, `K_POINTS`,
-  `CELL_PARAMETERS`, `HUBBARD`처럼 대문자 제목 아래 표 형태의 데이터가 오는
-  블록. 네임리스트 뒤에 옵니다. 일부 카드는 괄호로 단위/옵션을 받습니다
-  (예: `ATOMIC_POSITIONS (crystal)`).
+- **Namelists**: Fortran namelists such as `&CONTROL`, `&SYSTEM`,
+  `&ELECTRONS`, opened with `&NAME` and closed with `/`. Entries are
+  `variable = value`, and the order is fixed:
+  `&CONTROL → &SYSTEM → &ELECTRONS → (&IONS) → (&CELL)`.
+- **Cards**: blocks such as `ATOMIC_SPECIES`, `ATOMIC_POSITIONS`,
+  `K_POINTS`, `CELL_PARAMETERS`, and `HUBBARD`, with an uppercase title
+  followed by tabular data. They come after the namelists, and some take a
+  unit or option in parentheses, as in `ATOMIC_POSITIONS (crystal)`.
 
-문자열은 작은따옴표(`'scf'`), 논리값은 `.true.`/`.false.`, 주석은 `!`입니다.
+Strings use single quotes (`'scf'`), logicals are `.true.`/`.false.`, and
+comments start with `!`.
 
-## 최소 입력 해부 — 실리콘 SCF
+## A minimal input, dissected: the silicon SCF
 
-첫 계산은 **반드시 실리콘 같은 단순 반도체**로 하세요. Fe 계로 바로 뛰어들면
-수렴 실패의 원인이 물리 문제인지 설정 문제인지 구별할 수 없습니다.
+Make your first calculation a **simple semiconductor like silicon**. If you
+jump straight to an Fe system, you cannot tell whether a convergence failure
+is physics or a setup error.
 
 ```fortran
 &CONTROL
   calculation  = 'scf'        ! scf / nscf / bands / relax / vc-relax / md
-  prefix       = 'si'         ! 출력 파일 접두어 (후속 계산과 반드시 일치)
+  prefix       = 'si'         ! output prefix (must match follow-up runs)
   outdir       = './tmp/'
   pseudo_dir   = './pseudo/'
-  verbosity    = 'high'       ! 학습 단계에서는 무조건 high
-  tprnfor      = .true.       ! 힘 출력
-  tstress      = .true.       ! 응력 출력
+  verbosity    = 'high'       ! always 'high' while learning
+  tprnfor      = .true.       ! print forces
+  tstress      = .true.       ! print stress
 /
 &SYSTEM
-  ibrav        = 2            ! fcc. 0이면 CELL_PARAMETERS로 직접 지정
-  celldm(1)    = 10.26        ! bohr 단위 (= 5.43 Å)
+  ibrav        = 2            ! fcc; 0 means CELL_PARAMETERS given explicitly
+  celldm(1)    = 10.26        ! bohr (= 5.43 Å)
   nat          = 2
   ntyp         = 1
-  ecutwfc      = 30           ! Ry — 파동함수 컷오프
-  ecutrho      = 240          ! Ry — 전하밀도 컷오프 (PAW/US는 8배)
-  occupations  = 'fixed'      ! 절연체/반도체
+  ecutwfc      = 30           ! Ry, wavefunction cutoff
+  ecutrho      = 240          ! Ry, density cutoff (8x for PAW/US)
+  occupations  = 'fixed'      ! insulator/semiconductor
 /
 &ELECTRONS
   conv_thr     = 1.0d-8       ! Ry
@@ -64,43 +67,46 @@ K_POINTS (automatic)
   8 8 8  0 0 0
 ```
 
-각 블록의 역할:
+What each block is responsible for:
 
-| 블록 | 담당 | 자세히 |
+| Block | Role | Details |
 |---|---|---|
-| `&CONTROL` | 무엇을 계산하고 어디에 쓸 것인가 | 계산 종류는 [08장](08-scf-nscf.html)·[09장](09-relaxation.html) |
-| `&SYSTEM` | 계가 무엇인가 (셀, 원자 수, 기저, 점유) | 단위·좌표는 [03장](03-units-coordinates.html), 점유는 [06장](06-occupations.html) |
-| `&ELECTRONS` | SCF를 어떻게 수렴시킬 것인가 | [07장](07-scf-control.html) |
-| `ATOMIC_SPECIES` | 라벨·질량·유사퍼텐셜 파일 | [04장](04-pseudopotentials.html) |
-| `ATOMIC_POSITIONS` | 원자 좌표 (+선택적 `if_pos` 고정 플래그) | [03장](03-units-coordinates.html) |
-| `K_POINTS` | Brillouin zone 샘플링 | [05장](05-convergence.html) |
+| `&CONTROL` | What to compute and where to write it | Calculation types: [Chapter 08](08-scf-nscf.html), [Chapter 09](09-relaxation.html) |
+| `&SYSTEM` | What the system is (cell, atoms, basis, occupations) | Units and coordinates: [Chapter 03](03-units-coordinates.html); occupations: [Chapter 06](06-occupations.html) |
+| `&ELECTRONS` | How to converge the SCF | [Chapter 07](07-scf-control.html) |
+| `ATOMIC_SPECIES` | Label, mass, pseudopotential file | [Chapter 04](04-pseudopotentials.html) |
+| `ATOMIC_POSITIONS` | Atomic coordinates (plus optional `if_pos` flags) | [Chapter 03](03-units-coordinates.html) |
+| `K_POINTS` | Brillouin-zone sampling | [Chapter 05](05-convergence.html) |
 
-카드별 전체 문법은 [R2 · 카드 레퍼런스](ref-cards.html)에 정리했습니다.
+Full card syntax is collected in the
+[R2 card reference](ref-cards.html).
 
-## 실행 명령
+## Running it
 
 ```bash
-pw.x -in si.scf.in > si.scf.out                       # 직렬
-mpirun -np 8 pw.x -nk 4 -in si.scf.in > si.scf.out    # 병렬 (k-점 풀 4개)
+pw.x -in si.scf.in > si.scf.out                       # serial
+mpirun -np 8 pw.x -nk 4 -in si.scf.in > si.scf.out    # parallel, 4 k-point pools
 ```
 
-출력은 표준출력으로 나오므로 리다이렉트(`>`)로 저장합니다. 계산 중간 파일은
-`outdir/prefix.save/`에 쌓이고, 후속 계산(nscf, 후처리)은 **같은 `prefix`와
-`outdir`**로 이 디렉터리를 찾아갑니다.
+Output goes to standard output, so redirect it with `>`. Intermediate files
+accumulate in `outdir/prefix.save/`, and follow-up runs (nscf,
+post-processing) locate that directory through the **same `prefix` and
+`outdir`**.
 
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    네임리스트를 <code>/</code>로 닫지 않으면
-    <code>namelist not found</code> 에러가 납니다. 문자열을 큰따옴표로 쓰거나
-    논리값을 <code>true</code>로 쓰는 것도 파싱 실패의 단골 원인입니다.
-    카드 이름 오타는 <code>Error in routine card_xxx</code>로 나타납니다.
-    입력 문법 오류 전반은 <a href="ref-errors.html">R3 · 오류 사전</a>을
-    참고하세요.
+    Forgetting the closing <code>/</code> of a namelist raises
+    <code>namelist not found</code>. Double quotes around strings and bare
+    <code>true</code> for logicals are classic parse failures. A typo in a
+    card name shows up as <code>Error in routine card_xxx</code>. Input
+    syntax errors in general are collected in the
+    <a href="ref-errors.html">R3 error dictionary</a>.
   </p>
 </div>
 
-## 관련 예제
+## Related examples
 
-- [E1 · Si SCF](ex-01-si-scf.html) — 이 입력을 그대로 실행하고 출력을 읽습니다.
-- [E2 · ibrav=0 다시 쓰기](ex-02-si-ibrav0.html) — 같은 계를 다른 문법으로.
+- [E1 · Si SCF](ex-01-si-scf.html): run exactly this input and read the output.
+- [E2 · Rewriting with ibrav=0](ex-02-si-ibrav0.html): the same system in a
+  different syntax.

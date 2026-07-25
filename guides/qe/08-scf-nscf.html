@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SCF와 NSCF · QE 가이드</title>
-  <meta name="description" content="자기일관(scf)과 비자기일관(nscf/bands) 계산의 역할 분담, 출력 파일 읽는 법." />
+  <title>SCF and NSCF · QE Guide</title>
+  <meta name="description" content="The division of labor between scf and nscf/bands runs, and how to read the output file." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,185 +29,187 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html" class="active" aria-current="page"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html" class="active" aria-current="page"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 08 · 입문 · 계산 종류</div>
-        <h1 class="page-title">SCF와 NSCF</h1>
-        <p class="page-lede">자기일관(scf)과 비자기일관(nscf/bands) 계산의 역할 분담, 출력 파일 읽는 법.</p>
+        <div class="page-eyebrow">CHAPTER 08 · BASICS · CALCULATION TYPES</div>
+        <h1 class="page-title">SCF and NSCF</h1>
+        <p class="page-lede">The division of labor between scf and nscf/bands runs, and how to read the output file.</p>
       </header>
       <article class="content">
-<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<div class="toc"><div class="toc-title">On this page</div>
 <ul>
-<li><a href="#_1">역할 분담</a></li>
-<li><a href="#_2">출력 파일 읽는 법 — 이 절을 건너뛰지 마세요</a></li>
-<li><a href="#_3">관련 예제</a></li>
+<li><a href="#division-of-labor">Division of labor</a></li>
+<li><a href="#how-to-read-the-output-do-not-skip-this">How to read the output (do not skip this)</a></li>
+<li><a href="#related-examples">Related examples</a></li>
 </ul>
 </div>
-<p>QE는 하나의 프로그램이 아니라 <strong>실행 파일들의 모음</strong>이고, 그 사이를
-<code>prefix</code>/<code>outdir</code>로 연결된 파이프라인이 흐릅니다. 그 출발점이 <code>scf</code>와
-<code>nscf</code>의 역할 분담입니다.</p>
-<h2 id="_1">역할 분담</h2>
+<p>QE is not one program but a <strong>suite of executables</strong>, connected by a
+pipeline that flows through <code>prefix</code> and <code>outdir</code>. The starting point of
+that pipeline is the division of labor between <code>scf</code> and <code>nscf</code>.</p>
+<h2 id="division-of-labor">Division of labor</h2>
 <table>
 <thead>
 <tr>
 <th>calculation</th>
-<th>무엇을 하나</th>
-<th>밀도</th>
-<th>용도</th>
+<th>What it does</th>
+<th>Density</th>
+<th>Use</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>'scf'</code></td>
-<td>전하밀도를 자기일관적으로 수렴</td>
-<td>만든다</td>
-<td>모든 것의 출발점. 에너지·힘·응력</td>
+<td>Converges the charge density self-consistently</td>
+<td>Produces it</td>
+<td>The starting point of everything: energies, forces, stress</td>
 </tr>
 <tr>
 <td><code>'nscf'</code></td>
-<td><strong>고정된 밀도</strong> 위에서 고유값만 계산</td>
-<td>scf 것을 읽음</td>
-<td>조밀한 k-격자의 DOS, 페르미 면</td>
+<td>Eigenvalues on a <strong>frozen density</strong></td>
+<td>Reads the scf one</td>
+<td>Dense-grid DOS, Fermi surfaces</td>
 </tr>
 <tr>
 <td><code>'bands'</code></td>
-<td>nscf의 변형 — 임의의 k-경로에서 고유값</td>
-<td>scf 것을 읽음</td>
-<td>밴드 구조</td>
+<td>An nscf variant on an arbitrary k-path</td>
+<td>Reads the scf one</td>
+<td>Band structures</td>
 </tr>
 </tbody>
 </table>
-<p>nscf/bands는 SCF가 만들어 둔 <code>outdir/prefix.save/</code>의 전하밀도를 읽으므로,
-<strong><code>prefix</code>와 <code>outdir</code>이 scf와 정확히 일치</strong>해야 하고, 같은 디렉터리에서
-실행해야 합니다. 불일치하면
-<code>cannot open file ... .save/charge-density.dat</code> 에러가 납니다.</p>
-<pre><code>scf (성긴 k, 밀도 수렴) ─→ nscf (조밀한 k, tetrahedra_opt) ─→ dos.x / projwfc.x
-                        └→ bands (k-경로)                  ─→ bands.x
+<p>nscf and bands read the charge density that scf left in
+<code>outdir/prefix.save/</code>, so the <strong><code>prefix</code> and <code>outdir</code> must match the scf
+exactly</strong> and the run must happen in the same directory. A mismatch gives
+<code>cannot open file ... .save/charge-density.dat</code>.</p>
+<pre><code>scf (coarse k, converge density) ─→ nscf (dense k, tetrahedra) ─→ dos.x / projwfc.x
+                                 └→ bands (k-path)             ─→ bands.x
 </code></pre>
-<p>nscf에서 흔히 바꾸는 것: k-격자를 조밀하게, <code>occupations='tetrahedra_opt'</code>,
-<code>nbnd</code>를 전도대까지 넉넉하게.</p>
-<h2 id="_2">출력 파일 읽는 법 — 이 절을 건너뛰지 마세요</h2>
-<p><code>.out</code> 파일에서 매번 확인해야 할 항목:</p>
-<pre><code>!    total energy              =     -93.45 Ry      ← &quot;!&quot; 가 붙은 줄이 최종 수렴값
-     estimated scf accuracy    &lt;       1.0E-09 Ry   ← conv_thr 아래로 내려갔는가
-     the Fermi energy is       6.2 ev               ← 금속인 경우
-     highest occupied, lowest unoccupied level (ev):← 절연체인 경우 (밴드갭 추정)
-     total magnetization       =     4.00 Bohr mag/cell  ← 스핀 계산 시
-     absolute magnetization    =     4.12 Bohr mag/cell  ← 위와 크게 다르면 AFM 성분
+<p>Typical changes in the nscf step: densify the k-grid, switch
+<code>occupations='tetrahedra'</code>, raise <code>nbnd</code> to cover the conduction bands.</p>
+<h2 id="how-to-read-the-output-do-not-skip-this">How to read the output (do not skip this)</h2>
+<p>Check these items in every <code>.out</code> file:</p>
+<pre><code>!    total energy              =     -93.45 Ry      ← lines marked &quot;!&quot; are converged values
+     estimated scf accuracy    &lt;       1.0E-09 Ry   ← below conv_thr?
+     the Fermi energy is       6.2 ev               ← printed for metals
+     highest occupied, lowest unoccupied level (ev):← printed for insulators (gap estimate)
+     total magnetization       =     4.00 Bohr mag/cell  ← spin runs
+     absolute magnetization    =     4.12 Bohr mag/cell  ← large difference means AFM components
      Total force               =     0.001 Ry/au
      convergence has been achieved in  12 iterations
 </code></pre>
 <ul>
-<li><code>!</code> 표시가 붙은 총에너지 줄만 수렴된 값입니다. SCF 도중의 <code>total energy</code>
-  줄은 중간값입니다.</li>
-<li><strong>total vs absolute magnetization의 차이는 자기 배열 정보입니다.</strong>
-  FM이면 두 값이 거의 같고, AFM이면 total ≈ 0인데 absolute는 큽니다
-  (<a href="12-magnetism.html">12장</a>).</li>
-<li>절연체는 <code>highest occupied, lowest unoccupied level</code>에서 갭을 추정할 수
-  있고, 금속은 대신 <code>the Fermi energy is</code>가 출력됩니다. <strong>이 둘 중 무엇이
-  나오는지 자체가 계의 진단</strong>입니다 — <a href="ex-10-feo-afm.html">예제 E10</a>에서
-  FeO가 GGA로 "금속"이 되는 것을 이 줄로 확인합니다.</li>
-<li>에너지 분해 블록(<code>one-electron contribution</code>, <code>hartree contribution</code>,
-  <code>xc contribution</code>, <code>ewald contribution</code>)은 이상값 진단에 유용합니다.</li>
+<li>Only the total-energy line marked <code>!</code> is the converged value; the
+  unmarked <code>total energy</code> lines are intermediate.</li>
+<li><strong>The gap between total and absolute magnetization is physical
+  information.</strong> For FM they nearly coincide; for AFM the total is near zero
+  while the absolute stays large (<a href="12-magnetism.html">Chapter 12</a>).</li>
+<li>Insulators print <code>highest occupied, lowest unoccupied level</code> (a gap
+  estimate); metals print <code>the Fermi energy is</code> instead. <strong>Which of the two
+  appears is itself a diagnosis.</strong> <a href="ex-10-feo-afm.html">Example E10</a> uses
+  exactly this line to catch GGA calling FeO a metal.</li>
+<li>The energy decomposition block (<code>one-electron contribution</code>,
+  <code>hartree contribution</code>, <code>xc contribution</code>, <code>ewald contribution</code>) is useful
+  when hunting anomalies.</li>
 </ul>
-<p>출력 맨 아래의 <strong>timing 분해</strong>(<code>init_run</code>, <code>electrons</code>, <code>c_bands</code>,
-<code>sum_band</code>)는 어디서 시간을 쓰는지 알려 주므로, 병렬화 전략을 세울 때 첫
-번째로 보는 곳입니다(<a href="18-parallel-hpc.html">18장</a>).</p>
+<p>The <strong>timing breakdown</strong> at the bottom (<code>init_run</code>, <code>electrons</code>, <code>c_bands</code>,
+<code>sum_band</code>) tells you where the time goes, and is the first thing to read
+when planning parallelization (<a href="18-parallel-hpc.html">Chapter 18</a>).</p>
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    nscf를 scf와 <strong>다른 디렉터리</strong>에서 돌리거나, 사이에
-    <code>outdir</code>을 지우는 것. nscf는 밀도를 새로 만들지 않으므로 scf의
-    산출물이 없으면 시작조차 못 합니다. 또 하나 — verbosity를
-    <code>'low'</code>로 두고 학습하는 것. <code>'high'</code>여야 대칭 연산
-    목록, k-점 목록, (DFT+U라면) ns 행렬까지 출력에 남습니다.
+    Running the nscf in a <strong>different directory</strong> from the scf,
+    or deleting <code>outdir</code> in between. The nscf does not build a
+    density; without the scf products it cannot even start. One more:
+    learning with <code>verbosity='low'</code>. With <code>'high'</code>
+    the output keeps the symmetry operations, the k-point list, and (for
+    DFT+U) the ns occupation matrices.
   </p>
 </div>
 
-<h2 id="_3">관련 예제</h2>
+<h2 id="related-examples">Related examples</h2>
 <ul>
-<li><a href="ex-01-si-scf.html">E1 · Si SCF</a> — 출력의 모든 블록을 실측으로 읽습니다.</li>
-<li><a href="ex-07-si-dos.html">E7 · Si DOS·PDOS</a> — scf → nscf 연결의 실전.</li>
-<li><a href="ex-08-si-bands.html">E8 · Si 밴드 구조</a> — scf → bands 연결의 실전.</li>
+<li><a href="ex-01-si-scf.html">E1 · Si SCF</a>: read every output block on a measured run.</li>
+<li><a href="ex-07-si-dos.html">E7 · Si DOS and PDOS</a>: the scf → nscf handoff in practice.</li>
+<li><a href="ex-08-si-bands.html">E8 · Si band structure</a>: the scf → bands handoff in practice.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="07-scf-control.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">SCF 수렴 제어</div></a><a class="next" href="09-relaxation.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">구조 최적화</div></a></nav>
+<nav class="page-nav"><a class="prev" href="07-scf-control.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">Controlling SCF convergence</div></a><a class="next" href="09-relaxation.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">Structure optimization</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

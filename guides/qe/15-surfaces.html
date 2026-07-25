@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>표면·슬랩과 일함수 · QE 가이드</title>
-  <meta name="description" content="슬랩 모델 만들기, 쌍극자 보정, 평면평균 퍼텐셜과 일함수." />
+  <title>Surfaces, slabs, work function · QE Guide</title>
+  <meta name="description" content="Building slab models, dipole corrections, planar-averaged potentials, and the work function." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,185 +29,194 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html" class="active" aria-current="page"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html" class="active" aria-current="page"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 15 · 심화 · 응용과 운영</div>
-        <h1 class="page-title">표면·슬랩과 일함수</h1>
-        <p class="page-lede">슬랩 모델 만들기, 쌍극자 보정, 평면평균 퍼텐셜과 일함수.</p>
+        <div class="page-eyebrow">CHAPTER 15 · ADVANCED · APPLICATIONS</div>
+        <h1 class="page-title">Surfaces, slabs, work function</h1>
+        <p class="page-lede">Building slab models, dipole corrections, planar-averaged potentials, and the work function.</p>
       </header>
       <article class="content">
-<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<div class="toc"><div class="toc-title">On this page</div>
 <ul>
-<li><a href="#_1">슬랩 만들기 — 손으로 쓰지 마세요</a></li>
-<li><a href="#_2">쌍극자 보정</a></li>
-<li><a href="#_3">일함수</a></li>
-<li><a href="#_4">관련 예제</a></li>
+<li><a href="#building-slabs-never-by-hand">Building slabs: never by hand</a></li>
+<li><a href="#the-dipole-correction">The dipole correction</a></li>
+<li><a href="#the-work-function">The work function</a></li>
+<li><a href="#related-examples">Related examples</a></li>
 </ul>
 </div>
-<p>표면은 주기 경계조건 안에서 <strong>슬랩(slab)</strong> — 몇 개의 원자층 + 진공층 —
-으로 모델링합니다. 흡착 에너지, 표면 에너지, 일함수가 모두 여기서 나옵니다.</p>
-<h2 id="_1">슬랩 만들기 — 손으로 쓰지 마세요</h2>
-<p>슬랩 좌표를 손으로 쓰는 것은 오류의 온상입니다. ASE나 pymatgen 같은
-생성기를 쓰세요.</p>
+<p>Inside periodic boundary conditions, a surface is modeled as a <strong>slab</strong>: a
+few atomic layers plus a vacuum layer. Adsorption energies, surface
+energies, and work functions all start here.</p>
+<h2 id="building-slabs-never-by-hand">Building slabs: never by hand</h2>
+<p>Writing slab coordinates by hand is an error factory. Use a generator such
+as ASE or pymatgen.</p>
 <pre><code class="language-python">from ase.build import surface, bulk
 from ase.io import write
 
 feo = bulk('FeO', 'rocksalt', a=4.33)
-slab = surface(feo, (1, 0, 0), layers=4, vacuum=8.0)   # 진공 8 Å (양쪽 합 16 Å)
+slab = surface(feo, (1, 0, 0), layers=4, vacuum=8.0)   # 8 Å vacuum each side
 slab.center(axis=2)
 write('feo100.scf.in', slab, format='espresso-in',
       pseudopotentials={'Fe': 'Fe.pbe-spn-kjpaw_psl.1.0.0.UPF',
                         'O':  'O.pbe-n-kjpaw_psl.1.0.0.UPF'},
-      kpts=(6, 6, 1),                                   # 진공 방향 k는 1
+      kpts=(6, 6, 1),                                   # 1 along the vacuum
       input_data={'system': {'ecutwfc': 70, 'ecutrho': 700,
                              'occupations': 'smearing', 'degauss': 0.01}})
 </code></pre>
-<p>생성된 파일을 열어 <strong><code>CELL_PARAMETERS</code>와 <code>ATOMIC_POSITIONS</code>가 어떻게
-쓰였는지 직접 읽어 보세요.</strong> 자동 생성기의 출력을 읽을 수 있는 것이
-<a href="03-units-coordinates.html">03장</a>을 배운 이유입니다.</p>
-<p>자기 배열에 관한 주의 — 1×1 (100) 셀은 FeO의 AFM-II 배열(교대하는 (111)
-스핀 면)을 <strong>기하적으로 담을 수 없습니다</strong>. 그래서 이 시연은 비자성으로
-단순화했습니다. 실제 자성 표면 연구라면 자기 배열을 담을 수 있는 더 큰
-셀과 <code>starting_magnetization</code> 시드가 필요합니다.</p>
-<p>슬랩 계산의 관례들:</p>
+<p>Open the generated file and <strong>read the <code>CELL_PARAMETERS</code> and
+<code>ATOMIC_POSITIONS</code> yourself</strong>. Being able to read generator output is what
+<a href="03-units-coordinates.html">Chapter 03</a> was for.</p>
+<p>A note on magnetism: a 1×1 (100) cell <strong>cannot geometrically hold</strong> the
+AFM-II order of FeO (alternating (111) spin planes), which is why this demo
+is nonmagnetic. Real magnetic-surface work needs a larger cell that fits
+the ordering, plus <code>starting_magnetization</code> seeds.</p>
+<p>Slab conventions:</p>
 <ul>
-<li>진공 방향 k-점은 1 (분산이 없으므로).</li>
-<li>하단 1~2층은 벌크 위치에 고정(<code>if_pos 0 0 0</code>)하고 위쪽만 풉니다.</li>
-<li>셀 최적화는 <code>cell_dofree='2Dxy'</code>로 진공 방향을 고정합니다.</li>
-<li>진공 두께와 층 수는 그 자체가 <strong>수렴 파라미터</strong>입니다.</li>
+<li>One k-point along the vacuum direction (there is no dispersion there).</li>
+<li>Pin the bottom one or two layers at bulk positions (<code>if_pos 0 0 0</code>) and
+  relax the top.</li>
+<li>For cell optimization use <code>cell_dofree='2Dxy'</code> to freeze the vacuum
+  direction.</li>
+<li>Vacuum thickness and layer count are themselves <strong>convergence
+  parameters</strong>.</li>
 </ul>
-<h2 id="_2">쌍극자 보정</h2>
-<p>비대칭 슬랩(한쪽 면만 흡착·재배열)은 셀 양단에 퍼텐셜 차이가 생기고, 주기
-경계 때문에 <strong>인공 전기장</strong>이 걸립니다. 톱니 퍼텐셜로 상쇄하는 것이 쌍극자
-보정입니다.</p>
+<h2 id="the-dipole-correction">The dipole correction</h2>
+<p>An asymmetric slab (adsorbate or reconstruction on one face) builds a
+potential difference across the cell, and the periodic images then impose a
+spurious electric field. The dipole correction cancels it with a sawtooth
+potential.</p>
 <pre><code class="language-fortran">&amp;CONTROL
   ...
-  tefield   = .true.     ! 스위치 두 개는 &amp;CONTROL 소속
+  tefield   = .true.     ! the two switches live in &amp;CONTROL
   dipfield  = .true.
 /
 &amp;SYSTEM
   ...
-  edir      = 3          ! z 방향
-  emaxpos   = 0.90       ! 진공 한가운데 (분수 좌표)
+  edir      = 3          ! along z
+  emaxpos   = 0.90       ! middle of the vacuum (fractional)
   eopreg    = 0.05
-  eamp      = 0.0        ! 외부 전기장 없이 보정만
+  eamp      = 0.0        ! correction only, no external field
 /
 </code></pre>
-<p>변수 소속에 주의하세요 — <strong><code>tefield</code>/<code>dipfield</code>는 <code>&amp;CONTROL</code></strong>,
-<code>edir</code>/<code>emaxpos</code>/<code>eopreg</code>/<code>eamp</code>는 <code>&amp;SYSTEM</code>입니다. <code>tefield</code>를 <code>&amp;SYSTEM</code>에
-넣으면 <code>read_namelists ... bad line</code> 에러로 즉시 멈춥니다 (실측으로 확인한,
-튜토리얼들이 자주 틀리는 지점입니다). <code>emaxpos</code>(톱니의 꼭짓점)는 반드시
-<strong>진공 안</strong>에 놓아야 합니다. 슬랩을 가로지르면 비물리적 결과가 나옵니다.</p>
-<h2 id="_3">일함수</h2>
+<p>Mind the namelist assignment: <strong><code>tefield</code> and <code>dipfield</code> belong to
+<code>&amp;CONTROL</code></strong>, while <code>edir</code>, <code>emaxpos</code>, <code>eopreg</code>, <code>eamp</code> belong to
+<code>&amp;SYSTEM</code>. Putting <code>tefield</code> into <code>&amp;SYSTEM</code> stops the run immediately with
+<code>read_namelists ... bad line</code> (measured; tutorials get this wrong
+regularly). And <code>emaxpos</code>, the sawtooth peak, must sit <strong>inside the
+vacuum</strong>; letting it cross the slab produces nonsense.</p>
+<h2 id="the-work-function">The work function</h2>
 <p>$$\Phi = V_{\mathrm{vacuum}} - E_F$$</p>
-<p>절차: SCF → <code>pp.x</code>(<code>plot_num=11</code>, bare + Hartree 퍼텐셜) →
-표면 평행 평면 평균(<code>average.x</code> 또는 직접 파싱) → 진공 평탄 구간의 값에서
-Fermi 준위를 뺍니다.</p>
+<p>Procedure: SCF, then <code>pp.x</code> with <code>plot_num=11</code> (bare + Hartree potential),
+then a planar average parallel to the surface (<code>average.x</code> or your own
+parser), then subtract the Fermi level from the flat vacuum plateau.</p>
 <figure>
   <img src="assets/images/qe-e13-workfunction.png"
-       alt="Planar-averaged electrostatic potential of FeO(100) slab" />
+       alt="Planar-averaged electrostatic potential of a FeO(100) slab" />
   <figcaption>
-    FeO(100) 슬랩의 평면평균 정전 퍼텐셜 실측 (QE 7.5). 진공 구간의 평탄한
-    준위와 Fermi 준위의 차이가 일함수입니다. 절차 전체는
-    <a href="ex-13-slab-md.html">예제 E13</a>.
+    Measured planar-averaged electrostatic potential of the FeO(100) slab
+    (QE 7.5). The work function is the difference between the flat vacuum
+    level and the Fermi level. Full procedure in
+    <a href="ex-13-slab-md.html">Example E13</a>.
   </figcaption>
 </figure>
 
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    슬랩 에너지가 진공 두께에 민감하게 흔들린다면 쌍극자 상호작용이
-    남아 있다는 신호입니다 — <code>dipfield</code>를 켜고 진공을 늘리세요.
-    또, 평면평균 퍼텐셜이 진공에서 평탄해지지 않으면(기울기가 남으면)
-    보정 위치(<code>emaxpos</code>)가 잘못됐거나 진공이 부족한 것입니다.
-    일함수는 <strong>진공이 평탄해진 것을 눈으로 확인한 뒤</strong> 읽어야
-    합니다.
+    If the slab energy is sensitive to the vacuum thickness, dipole
+    interactions survive: enable <code>dipfield</code> and add vacuum. If
+    the planar-averaged potential does not flatten in the vacuum (a slope
+    remains), the correction position (<code>emaxpos</code>) is wrong or
+    the vacuum is too thin. Read the work function <strong>only after you
+    have seen the vacuum plateau flatten</strong>.
   </p>
 </div>
 
-<h2 id="_4">관련 예제</h2>
+<h2 id="related-examples">Related examples</h2>
 <ul>
-<li><a href="ex-13-slab-md.html">E13 · 슬랩과 AIMD</a> — 생성 → relax → 일함수 실측 전체.</li>
-<li><a href="ex-09-fe-bcc.html">E9</a>/<a href="ex-10-feo-afm.html">E10</a> — 슬랩으로 가기 전의 벌크 기준.</li>
+<li><a href="ex-13-slab-md.html">E13 · Slabs and AIMD</a>: generation, relaxation, and a
+  measured work function.</li>
+<li><a href="ex-09-fe-bcc.html">E9</a> / <a href="ex-10-feo-afm.html">E10</a>: the bulk references
+  to compute before any slab.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="14-hubbard-hp.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">hp.x 로 U 계산하기</div></a><a class="next" href="16-molecular-dynamics.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">분자동역학</div></a></nav>
+<nav class="page-nav"><a class="prev" href="14-hubbard-hp.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">Computing U with hp.x</div></a><a class="next" href="16-molecular-dynamics.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">Molecular dynamics</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DFT+U와 HUBBARD 카드 · QE 가이드</title>
-  <meta name="description" content="자기상호작용 오류와 DFT+U, v7.1+ HUBBARD 카드 문법, FeO에서 갭이 열리는 이유." />
+  <title>DFT+U and the HUBBARD card · QE Guide</title>
+  <meta name="description" content="Self-interaction error and DFT+U, the v7.1+ HUBBARD card syntax, and why (and how) a gap opens in FeO." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,213 +29,222 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html" class="active" aria-current="page"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html" class="active" aria-current="page"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 13 · 심화 · 자성과 강상관</div>
-        <h1 class="page-title">DFT+U와 HUBBARD 카드</h1>
-        <p class="page-lede">자기상호작용 오류와 DFT+U, v7.1+ HUBBARD 카드 문법, FeO에서 갭이 열리는 이유.</p>
+        <div class="page-eyebrow">CHAPTER 13 · ADVANCED · MAGNETISM</div>
+        <h1 class="page-title">DFT+U and the HUBBARD card</h1>
+        <p class="page-lede">Self-interaction error and DFT+U, the v7.1+ HUBBARD card syntax, and why (and how) a gap opens in FeO.</p>
       </header>
       <article class="content">
-<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<div class="toc"><div class="toc-title">On this page</div>
 <ul>
-<li><a href="#_1">왜 필요한가</a></li>
-<li><a href="#hubbard-v71">신문법 — HUBBARD 카드 (v7.1+)</a></li>
-<li><a href="#feo-u">실측 — FeO에서 U가 하는 일 (그리고 다 못 하는 일)</a></li>
-<li><a href="#u">U를 켰는데도 금속이라면 — 점유 패턴 함정</a></li>
-<li><a href="#u_1">U 값은 투영자와 세트입니다</a></li>
-<li><a href="#_2">관련 예제</a></li>
+<li><a href="#why-it-is-needed">Why it is needed</a></li>
+<li><a href="#the-new-syntax-the-hubbard-card-v71">The new syntax: the HUBBARD card (v7.1+)</a></li>
+<li><a href="#measured-what-u-does-in-feo-and-what-it-cannot-do-alone">Measured: what U does in FeO, and what it cannot do alone</a></li>
+<li><a href="#if-it-is-still-metallic-with-u-on-the-occupation-pattern-trap">If it is still metallic with U on: the occupation-pattern trap</a></li>
+<li><a href="#u-comes-as-a-package-with-its-projector">U comes as a package with its projector</a></li>
+<li><a href="#related-examples">Related examples</a></li>
 </ul>
 </div>
-<h2 id="_1">왜 필요한가</h2>
-<p>GGA는 국소화된 3d 전자의 자기상호작용(self-interaction) 오차를 제대로 다루지
-못합니다. 전자가 자기 자신과 상호작용하는 가짜 항이 국소화된 궤도를
-비물리적으로 퍼뜨리고, 그 결과 FeO 같은 계에서 <strong>실험적으로는 절연체(갭
-~2.4 eV)인데 계산은 금속</strong>으로 나옵니다. <a href="ex-10-feo-afm.html">예제 E10</a>에서
-이 실패를 직접 확인할 수 있습니다.</p>
-<p>DFT+U는 선택한 궤도 매니폴드(예: Fe-3d)에 Hubbard 보정 항을 더해 이 오차를
-바로잡는, 비용이 거의 들지 않는 처방입니다.</p>
-<h2 id="hubbard-v71">신문법 — HUBBARD 카드 (v7.1+)</h2>
-<p>U 파라미터는 <code>&amp;SYSTEM</code>이 아니라 <strong>입력 맨 끝의 <code>HUBBARD</code> 카드</strong>에 씁니다.</p>
+<h2 id="why-it-is-needed">Why it is needed</h2>
+<p>GGA mishandles the self-interaction error of localized 3d electrons. The
+spurious interaction of an electron with itself delocalizes orbitals that
+should be localized, and in systems like FeO the result is a computed metal
+where experiment sees an insulator (gap ≈ 2.4 eV). You can watch this
+failure happen in <a href="ex-10-feo-afm.html">Example E10</a>.</p>
+<p>DFT+U adds a Hubbard correction on a chosen orbital manifold (Fe-3d, say)
+and repairs the error at nearly zero extra cost.</p>
+<h2 id="the-new-syntax-the-hubbard-card-v71">The new syntax: the HUBBARD card (v7.1+)</h2>
+<p>U parameters go in a <strong><code>HUBBARD</code> card at the end of the input</strong>, not in
+<code>&amp;SYSTEM</code>.</p>
 <pre><code class="language-fortran">HUBBARD (ortho-atomic)
 U Fe1-3d 4.6
 U Fe2-3d 4.6
 </code></pre>
-<p>문법 구조:</p>
-<pre><code>HUBBARD (&lt;투영자&gt;)
-&lt;파라미터&gt; &lt;원자라벨&gt;-&lt;매니폴드&gt; &lt;값(eV)&gt;
+<p>The grammar:</p>
+<pre><code>HUBBARD (&lt;projector&gt;)
+&lt;parameter&gt; &lt;label&gt;-&lt;manifold&gt; &lt;value(eV)&gt;
 </code></pre>
 <table>
 <thead>
 <tr>
-<th>항목</th>
-<th>선택지</th>
-<th>비고</th>
+<th>Field</th>
+<th>Options</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>투영자</td>
+<td>Projector</td>
 <td><code>atomic</code>, <code>ortho-atomic</code>, <code>norm-atomic</code>, <code>wf</code>, <code>pseudo</code></td>
-<td><strong><code>ortho-atomic</code> 권장</strong> — <code>atomic</code>은 궤도 겹침 영역에서 보정이 두 번 적용되는 문제가 있음</td>
+<td><strong><code>ortho-atomic</code> recommended.</strong> With <code>atomic</code>, the correction double-counts in orbital-overlap regions</td>
 </tr>
 <tr>
-<td>파라미터</td>
+<td>Parameter</td>
 <td><code>U</code>, <code>J0</code>, <code>J</code>, <code>B</code>, <code>E2</code>, <code>E3</code>, <code>V</code>, <code>alpha</code></td>
 <td></td>
 </tr>
 <tr>
-<td>매니폴드</td>
-<td><code>3d</code>, <code>2p</code>, <code>4f</code> ...</td>
-<td>원자 타입당 최대 3개 채널</td>
+<td>Manifold</td>
+<td><code>3d</code>, <code>2p</code>, <code>4f</code>, ...</td>
+<td>Up to 3 channels per atomic type</td>
 </tr>
 </tbody>
 </table>
-<p>사이트 간 상호작용(DFT+U+V)은 이웃 원자 인덱스까지 지정합니다
-(인덱스는 <code>ATOMIC_POSITIONS</code>에서의 순서).</p>
+<p>Inter-site interactions (DFT+U+V) also take neighbor indices (numbered by
+order in <code>ATOMIC_POSITIONS</code>):</p>
 <pre><code class="language-fortran">HUBBARD (ortho-atomic)
 U Fe1-3d 4.6
 U Fe2-3d 4.6
 V Fe1-3d O-2p  1 3  0.8
 </code></pre>
-<p>정본 문서는 <code>Doc/Hubbard_input.pdf</code>
-(<a href="https://www.quantum-espresso.org/Doc/user_guide_PDF/Hubbard_input.pdf">온라인판</a>)입니다.</p>
+<p>The authoritative document is <code>Doc/Hubbard_input.pdf</code>
+(<a href="https://www.quantum-espresso.org/Doc/user_guide_PDF/Hubbard_input.pdf">online</a>).</p>
 <div class="warning">
-  <div class="note-title">구버전 문법은 쓰지 마세요</div>
+  <div class="note-title">Do not use the old syntax</div>
   <p>
-    <code>lda_plus_u = .true.</code> / <code>Hubbard_U(1) = 4.6</code> /
-    <code>U_projection_type</code> 방식은 v7.1 이후 폐기되었습니다. 인터넷 예제
-    상당수가 아직 옛 문법이며, 그대로 쓰면 조용히 무시되거나 에러가 납니다.
-    <code>&amp;SYSTEM</code>에 남아 있는 DFT+U 관련 변수는
-    <code>starting_ns_eigenvalue</code>와 <code>Hubbard_occ</code> 정도입니다.
+    The <code>lda_plus_u = .true.</code> / <code>Hubbard_U(1) = 4.6</code> /
+    <code>U_projection_type</code> style was retired in v7.1. Much of the
+    internet still shows it, and pasting it gets you input that is silently
+    ignored or fails. The only DFT+U variables left in
+    <code>&amp;SYSTEM</code> are <code>starting_ns_eigenvalue</code> and
+    <code>Hubbard_occ</code>.
   </p>
 </div>
 
-<h2 id="feo-u">실측 — FeO에서 U가 하는 일 (그리고 다 못 하는 일)</h2>
-<p>같은 FeO AFM-II 셀에 <code>HUBBARD</code> 카드 세 줄만 추가한 것이
-<a href="ex-11-feo-hubbard.html">예제 E11</a>입니다.</p>
+<h2 id="measured-what-u-does-in-feo-and-what-it-cannot-do-alone">Measured: what U does in FeO, and what it cannot do alone</h2>
+<p><a href="ex-11-feo-hubbard.html">Example E11</a> is the same FeO AFM-II cell with just
+the three HUBBARD lines added.</p>
 <figure>
   <img src="assets/images/qe-e10-e11-feo-dos.png"
        alt="FeO DOS: GGA (metallic) vs GGA+U (Hubbard splitting)" />
   <figcaption>
-    FeO 스핀 분해 DOS 실측 (QE 7.5, PBE, AFM-II). 왼쪽: GGA — Fermi 준위에
-    Fe-3d 상태가 걸려 금속으로 나옵니다(실험은 절연체). 오른쪽: GGA+U
-    (U = 4.6 eV, ortho-atomic) — Hubbard 분리로 위아래에 갭이 열리지만,
-    이상적 큐빅 셀에서는 소수 스핀 t2g 유래의 좁은 띠가 Fermi 준위에
-    남습니다. 이 마지막 함정은 아래와 E11에서 다룹니다.
+    Measured spin-resolved DOS of FeO (QE 7.5, PBE, AFM-II). Left, GGA:
+    Fe-3d states sit at the Fermi level and the system is metallic
+    (experiment: an insulator). Right, GGA+U (4.6 eV, ortho-atomic): the
+    Hubbard splitting opens gaps above and below, but in the ideal cubic
+    cell a narrow band derived from the minority-spin t2g states survives at
+    the Fermi level. That last trap is treated below and in E11.
   </figcaption>
 </figure>
 
-<h2 id="u">U를 켰는데도 금속이라면 — 점유 패턴 함정</h2>
-<p>U를 켜고도 금속으로 수렴하는 경우가 많습니다. 원인은 d 궤도의 <strong>점유
-패턴</strong>입니다. QE 7.1부터 Fe-3d의 초기 점유수를 유사퍼텐셜에서 읽도록
-바뀌었고(이전에는 코드에 하드코딩), 그 결과 같은 입력이 버전에 따라 서로
-다른 금속 해로 수렴할 수 있습니다. <strong>둘 다 틀린 바닥상태입니다.</strong></p>
-<p>올바른 절연체 상태로 유도하려면 <code>starting_ns_eigenvalue</code>로 점유를 명시적으로
-지정합니다.</p>
+<h2 id="if-it-is-still-metallic-with-u-on-the-occupation-pattern-trap">If it is still metallic with U on: the occupation-pattern trap</h2>
+<p>It is common to switch U on and still converge to a metal. The culprit is
+the <strong>occupation pattern</strong> of the d orbitals. Since QE 7.1 the initial d
+occupations are read from the pseudopotential (they used to be hardcoded),
+so the same input can converge to different metallic solutions on different
+versions. <strong>Both are wrong ground states</strong> (this is the mailing-list case
+the community knows well).</p>
+<p>The prescription is to steer the occupations explicitly with
+<code>starting_ns_eigenvalue</code>:</p>
 <pre><code class="language-fortran">&amp;SYSTEM
   ...
-  starting_ns_eigenvalue(5, 2, 1) = 0.0d0   ! (궤도 index, 스핀, 원자타입)
+  starting_ns_eigenvalue(5, 2, 1) = 0.0d0   ! (orbital index, spin, atom type)
 /
 </code></pre>
-<p>이 변수는 첫 몇 번의 SCF 반복 동안만 강제되고 이후 풀립니다 — "올바른
-극소값의 유역(basin)으로 밀어 넣는" 장치입니다. 수렴 후에는 출력의
-<code>Tr[ns(na)]</code>와 ns 고유값 블록에서 점유 패턴을 확인하세요
-(<code>verbosity='high'</code> 필요). "계산이 수렴했다 ≠ 물리적으로 맞다"의 전형적인
-사례입니다.</p>
-<h2 id="u_1">U 값은 투영자와 세트입니다</h2>
-<p>같은 U = 4.6 eV라도 투영자가 <code>atomic</code>이냐 <code>ortho-atomic</code>이냐에 따라 결과가
-달라집니다. <strong>U 값은 투영자(그리고 유사퍼텐셜)와 세트로만 의미가 있으므로</strong>,
-문헌의 U를 빌릴 때는 그 문헌의 투영자 설정까지 확인해야 하고, 논문에 쓸 때는
-자신의 설정을 함께 기록해야 합니다. 문헌값 대신 자기 계에 맞는 U를 직접
-계산하는 방법이 <a href="14-hubbard-hp.html">14장 hp.x</a>입니다.</p>
-<p>QE 7.5에는 <strong>궤도 분해(orbital-resolved) DFT+U</strong>가 새로 들어갔습니다
-(Macke &amp; Timrov, <em>JCTC</em> 2024). 같은 3d 매니폴드 안에서 t2g/eg를 구분해
-U를 다르게 주는 방식으로, 팔면체 배위의 전이금속 산화물에서 유용할 수
-있습니다.</p>
-<h2 id="_2">관련 예제</h2>
+<p>The constraint holds only for the first few SCF iterations and is then
+released; think of it as a device that pushes the run into the basin of the
+correct minimum. After convergence, inspect the <code>Tr[ns(na)]</code> values and the
+ns eigenvalue blocks in the output (<code>verbosity='high'</code> required) to confirm
+the occupation pattern is physical. This is the canonical example of
+"converged does not mean correct".</p>
+<h2 id="u-comes-as-a-package-with-its-projector">U comes as a package with its projector</h2>
+<p>The same U = 4.6 eV gives different results under <code>atomic</code> and
+<code>ortho-atomic</code> projectors. <strong>A U value has meaning only together with its
+projector (and pseudopotential)</strong>, so when borrowing U from a paper, check
+the projector conventions, and when publishing, record your own. The way to
+avoid borrowing altogether is to compute U for your own system:
+<a href="14-hubbard-hp.html">Chapter 14, hp.x</a>.</p>
+<p>QE 7.5 adds <strong>orbital-resolved DFT+U</strong> (Macke &amp; Timrov, <em>JCTC</em> 2024),
+which can assign different U values to t2g and eg within one 3d manifold. It
+was designed for octahedral transition-metal oxides, exactly the FeO
+situation.</p>
+<h2 id="related-examples">Related examples</h2>
 <ul>
-<li><a href="ex-10-feo-afm.html">E10 · FeO AFM (GGA 실패)</a> — U 없이 금속으로 나오는 것 확인.</li>
-<li><a href="ex-11-feo-hubbard.html">E11 · FeO DFT+U</a> — HUBBARD 카드로 갭 열기.</li>
-<li><a href="ex-12-feo-hp.html">E12 · hp.x 로 U 계산</a> — U를 제일원리로 결정.</li>
+<li><a href="ex-10-feo-afm.html">E10 · FeO AFM (where GGA fails)</a>: confirm the metal
+  without U.</li>
+<li><a href="ex-11-feo-hubbard.html">E11 · FeO with DFT+U</a>: the HUBBARD card and the
+  trap, measured.</li>
+<li><a href="ex-12-feo-hp.html">E12 · Computing U with hp.x</a>: first-principles U.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="12-magnetism.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">스핀 편극과 자성</div></a><a class="next" href="14-hubbard-hp.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">hp.x 로 U 계산하기</div></a></nav>
+<nav class="page-nav"><a class="prev" href="12-magnetism.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">Spin polarization and magnetism</div></a><a class="next" href="14-hubbard-hp.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">Computing U with hp.x</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

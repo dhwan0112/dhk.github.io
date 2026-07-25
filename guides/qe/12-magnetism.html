@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>스핀 편극과 자성 · QE 가이드</title>
-  <meta name="description" content="nspin·starting_magnetization, FM/AFM 초기화 요령, bcc Fe와 FeO 실측." />
+  <title>Spin polarization and magnetism · QE Guide</title>
+  <meta name="description" content="nspin and starting_magnetization, setting up AFM order with atom labels, and measured runs on bcc Fe and FeO." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,137 +29,140 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html" class="active" aria-current="page"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html" class="active" aria-current="page"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">CHAPTER 12 · 심화 · 자성과 강상관</div>
-        <h1 class="page-title">스핀 편극과 자성</h1>
-        <p class="page-lede">nspin·starting_magnetization, FM/AFM 초기화 요령, bcc Fe와 FeO 실측.</p>
+        <div class="page-eyebrow">CHAPTER 12 · ADVANCED · MAGNETISM</div>
+        <h1 class="page-title">Spin polarization and magnetism</h1>
+        <p class="page-lede">nspin and starting_magnetization, setting up AFM order with atom labels, and measured runs on bcc Fe and FeO.</p>
       </header>
       <article class="content">
-<div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
+<div class="toc"><div class="toc-title">On this page</div>
 <ul>
-<li><a href="#_1">기본 설정</a></li>
-<li><a href="#afm">AFM은 라벨 분리로 만듭니다</a></li>
-<li><a href="#bcc-fe-feo">실측 — bcc Fe와 FeO</a></li>
-<li><a href="#_2">수렴 요령 — 자성계가 말을 안 들을 때</a></li>
-<li><a href="#_3">관련 예제</a></li>
+<li><a href="#basic-setup">Basic setup</a></li>
+<li><a href="#afm-order-is-built-with-labels">AFM order is built with labels</a></li>
+<li><a href="#measured-bcc-fe-and-feo">Measured: bcc Fe and FeO</a></li>
+<li><a href="#when-a-magnet-will-not-converge">When a magnet will not converge</a></li>
+<li><a href="#related-examples">Related examples</a></li>
 </ul>
 </div>
-<p>전이금속 산화물로 가는 관문입니다. 공선(collinear) 스핀 편극은 <code>nspin = 2</code>
-하나로 켜지지만, <strong>어떤 자성 해로 수렴시킬 것인가</strong>가 진짜 문제입니다.</p>
-<h2 id="_1">기본 설정</h2>
+<p>This is the gateway to transition-metal oxides. Collinear spin polarization
+is switched on by <code>nspin = 2</code>; the real problem is <strong>which magnetic solution
+the SCF converges to</strong>.</p>
+<h2 id="basic-setup">Basic setup</h2>
 <pre><code class="language-fortran">&amp;SYSTEM
   nspin = 2
   starting_magnetization(1) =  0.6   ! Fe1 (up)
-  starting_magnetization(2) = -0.6   ! Fe2 (down) — AFM
+  starting_magnetization(2) = -0.6   ! Fe2 (down), AFM
   starting_magnetization(3) =  0.0   ! O
   occupations = 'smearing'
   smearing    = 'mv'
   degauss     = 0.01
 /
 &amp;ELECTRONS
-  mixing_beta = 0.2                  ! 자성계는 낮게
+  mixing_beta = 0.2                  ! keep it low for magnets
   mixing_mode = 'local-TF'
 /
 
 ATOMIC_SPECIES
   Fe1  55.845  Fe.pbe-spn-kjpaw_psl.1.0.0.UPF
-  Fe2  55.845  Fe.pbe-spn-kjpaw_psl.1.0.0.UPF   ! 같은 파일, 다른 라벨
+  Fe2  55.845  Fe.pbe-spn-kjpaw_psl.1.0.0.UPF   ! same file, different label
   O    15.999  O.pbe-n-kjpaw_psl.1.0.0.UPF
 </code></pre>
 <ul>
-<li><code>starting_magnetization</code>은 <strong>−1~1의 무차원 비율</strong>(μB 아님)이고, 어디까지나
-  <strong>초기 추측</strong>입니다. SCF가 자유롭게 바꿉니다.</li>
-<li>특정 총 자화를 <strong>구속</strong>하고 싶으면 <code>tot_magnetization</code>을 씁니다 (up/down에
-  별도 Fermi 준위 사용). <a href="ex-04-o2-molecule.html">예제 E4</a>의 O₂ 삼중항이
-  그 예입니다.</li>
+<li><code>starting_magnetization</code> is a <strong>dimensionless ratio between −1 and 1</strong>
+  (not μB), and it is only an <strong>initial guess</strong>. The SCF is free to change
+  it.</li>
+<li>To <strong>constrain</strong> the total magnetization, use <code>tot_magnetization</code>
+  (separate Fermi levels for up and down). The O₂ triplet in
+  <a href="ex-04-o2-molecule.html">Example E4</a> does exactly this.</li>
 </ul>
-<h2 id="afm">AFM은 라벨 분리로 만듭니다</h2>
-<p>반강자성 배열의 핵심 요령: <strong>같은 유사퍼텐셜을 서로 다른 라벨(<code>Fe1</code>,
-<code>Fe2</code>)로 등록</strong>하고 각각 반대 부호의 초기 자화를 줍니다. 라벨 분리 없이는
-QE가 두 Fe를 대칭 등가로 보고 <strong>AFM 배열을 만들 수 없습니다</strong>. 이 라벨
-분리는 뒤의 DFT+U와 <code>hp.x</code>에서도 그대로 필요합니다.</p>
-<p>수렴 후 판별은 출력의 두 줄로 합니다.</p>
+<h2 id="afm-order-is-built-with-labels">AFM order is built with labels</h2>
+<p>The key trick for antiferromagnetic order: <strong>register the same
+pseudopotential under two labels</strong> (<code>Fe1</code>, <code>Fe2</code>) and give them opposite
+initial magnetizations. Without the label split, QE treats the two Fe atoms
+as symmetry-equivalent and <strong>cannot form an AFM state at all</strong>. The same
+label split is needed later by DFT+U and <code>hp.x</code>.</p>
+<p>Classify the converged state from two output lines:</p>
 <table>
 <thead>
 <tr>
-<th>배열</th>
+<th>Order</th>
 <th>total magnetization</th>
 <th>absolute magnetization</th>
 </tr>
@@ -167,66 +170,73 @@ QE가 두 Fe를 대칭 등가로 보고 <strong>AFM 배열을 만들 수 없습�
 <tbody>
 <tr>
 <td>FM</td>
-<td>큰 값</td>
-<td>total과 거의 같음</td>
+<td>Large</td>
+<td>About equal to total</td>
 </tr>
 <tr>
 <td>AFM</td>
 <td><strong>≈ 0</strong></td>
-<td><strong>큰 값</strong></td>
+<td><strong>Large</strong></td>
 </tr>
 <tr>
-<td>비자성 붕괴</td>
+<td>Collapsed (nonmagnetic)</td>
 <td>≈ 0</td>
 <td>≈ 0</td>
 </tr>
 </tbody>
 </table>
-<h2 id="bcc-fe-feo">실측 — bcc Fe와 FeO</h2>
-<p><a href="ex-09-fe-bcc.html">예제 E9</a>의 bcc Fe(강자성 금속)와
-<a href="ex-10-feo-afm.html">예제 E10</a>의 FeO(반강자성 산화물)가 이 장의 실전입니다.</p>
+<h2 id="measured-bcc-fe-and-feo">Measured: bcc Fe and FeO</h2>
+<p><a href="ex-09-fe-bcc.html">Example E9</a> (ferromagnetic metal) and
+<a href="ex-10-feo-afm.html">Example E10</a> (antiferromagnetic oxide) are this
+chapter in practice.</p>
 <figure>
   <img src="assets/images/qe-e09-fe-dos.png"
        alt="bcc Fe spin-resolved DOS" />
   <figcaption>
-    bcc Fe의 스핀 분해 DOS 실측 (QE 7.5, PBE). 교환 상호작용이 up/down
-    d-밴드를 분리시켜 강자성 모멘트(실측 2.2 μB/원자, 실험 2.22)가 생기는
-    것이 그대로 보입니다.
+    Measured spin-resolved DOS of bcc Fe (QE 7.5, PBE). Exchange splits the
+    up and down d bands; the occupation difference is the ferromagnetic
+    moment (measured 2.19 μB per atom, experiment 2.22).
   </figcaption>
 </figure>
 
-<h2 id="_2">수렴 요령 — 자성계가 말을 안 들을 때</h2>
-<p><code>starting_magnetization</code>이 SCF 도중 0으로 붕괴하는 일이 흔합니다. 순서대로:</p>
+<h2 id="when-a-magnet-will-not-converge">When a magnet will not converge</h2>
+<p>It is common for the magnetization to collapse to zero during the SCF. In
+order:</p>
 <ol>
 <li><code>mixing_beta</code> 0.7 → 0.3 → 0.1</li>
 <li><code>mixing_mode = 'local-TF'</code></li>
-<li><code>starting_magnetization</code>을 더 크게 (0.4~0.9)</li>
-<li><code>degauss</code>를 줄이기 (과한 smearing이 모멘트를 지웁니다). 반대로 수렴 자체가
-   안 되면 일시적으로 키워 수렴시킨 뒤 <code>startingpot='file'</code>로 재시작하며 줄이기</li>
-<li><code>diagonalization = 'cg'</code> 또는 <code>'ppcg'</code></li>
+<li>Larger <code>starting_magnetization</code> (0.4–0.9)</li>
+<li>Smaller <code>degauss</code> (excess smearing erases moments). If the SCF itself
+   fails, temporarily raise it, converge, then restart with
+   <code>startingpot='file'</code> while lowering it</li>
+<li><code>diagonalization = 'cg'</code> or <code>'ppcg'</code></li>
 </ol>
-<p>그리고 근본적인 주의 —</p>
+<p>And the fundamental caution:</p>
 <div class="warning">
-  <div class="note-title">자성계는 국소 최소가 여러 개입니다</div>
+  <div class="note-title">Magnets have multiple local minima</div>
   <p>
-    자성계는 서로 다른 자기 배열마다 <strong>준안정 해(metastable state)</strong>가
-    존재합니다. 한 번 수렴했다고 그것이 바닥상태라는 보장이 없습니다. 서로
-    다른 초기 자화(FM, AFM, 비자성)에서 출발해 여러 해를 얻은 뒤
-    <strong>에너지를 비교해 가장 낮은 것을 고르는 것</strong>이 정석입니다.
+    Every magnetic ordering is its own <strong>metastable
+    solution</strong>. One converged answer is not evidence of the ground
+    state. The standard practice is to start from several initial
+    magnetizations (FM, AFM, nonmagnetic), converge each, and pick the
+    lowest energy.
   </p>
 </div>
 
-<p>비공선(noncollinear) 자성과 스핀궤도결합은 <code>noncolin=.true.</code>,
-<code>lspinorb=.true.</code>로 켜지만 비용이 크게 뜁니다(완전상대론적 유사퍼텐셜 필요).
-필요해질 때 배우면 됩니다.</p>
-<h2 id="_3">관련 예제</h2>
+<p>Noncollinear magnetism and spin-orbit coupling exist behind
+<code>noncolin=.true.</code> and <code>lspinorb=.true.</code> (with fully relativistic
+pseudopotentials), at a much higher cost. Learn them when you need them.</p>
+<h2 id="related-examples">Related examples</h2>
 <ul>
-<li><a href="ex-09-fe-bcc.html">E9 · bcc Fe 강자성</a> — FM 금속, 모멘트 2.2 μB 실측.</li>
-<li><a href="ex-10-feo-afm.html">E10 · FeO AFM</a> — 라벨 분리로 AFM-II 배열 실측.</li>
-<li><a href="ex-04-o2-molecule.html">E4 · O₂ 분자</a> — <code>tot_magnetization</code>으로 삼중항 구속.</li>
+<li><a href="ex-09-fe-bcc.html">E9 · Ferromagnetic bcc Fe</a>: FM metal, measured moment
+  2.19 μB.</li>
+<li><a href="ex-10-feo-afm.html">E10 · FeO AFM</a>: the AFM-II state built by the label
+  trick, measured.</li>
+<li><a href="ex-04-o2-molecule.html">E4 · O₂ molecule</a>: constraining the triplet with
+  <code>tot_magnetization</code>.</li>
 </ul>
       </article>
-<nav class="page-nav"><a class="prev" href="11-postprocessing.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">전하밀도와 퍼텐셜</div></a><a class="next" href="13-dft-plus-u.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">DFT+U와 HUBBARD 카드</div></a></nav>
+<nav class="page-nav"><a class="prev" href="11-postprocessing.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">Densities and potentials</div></a><a class="next" href="13-dft-plus-u.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">DFT+U and the HUBBARD card</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>
