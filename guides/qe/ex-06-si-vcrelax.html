@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Si SCF · QE 가이드</title>
-  <meta name="description" content="가장 단순한 실리콘 SCF를 한 번 돌리고 출력의 모든 블록을 읽어보는 첫 예제." />
+  <title>Si vc-relax · QE 가이드</title>
+  <meta name="description" content="셀까지 함께 푸는 vc-relax로 실리콘 평형 격자상수를 찾습니다." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -88,12 +88,12 @@
     <div class="nav-section">
       <div class="nav-section-title">예제 · 따라 하기</div>
       <ul class="nav-list">
-        <li><a href="ex-01-si-scf.html" class="active" aria-current="page"><span class="nav-num">E1</span>Si SCF</a></li>
+        <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
         <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
         <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
         <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
         <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
-        <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
+        <li><a href="ex-06-si-vcrelax.html" class="active" aria-current="page"><span class="nav-num">E6</span>Si vc-relax</a></li>
         <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
         <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
         <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
@@ -107,14 +107,15 @@
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">예제 · E1</div>
-        <h1 class="page-title">Si SCF</h1>
-        <p class="page-lede">가장 단순한 실리콘 SCF를 한 번 돌리고 출력의 모든 블록을 읽어보는 첫 예제.</p>
+        <div class="page-eyebrow">예제 · E6</div>
+        <h1 class="page-title">Si vc-relax</h1>
+        <p class="page-lede">셀까지 함께 푸는 vc-relax로 실리콘 평형 격자상수를 찾습니다.</p>
       </header>
       <article class="content">
 <h2 id="_1">목적</h2>
-<p>가장 단순한 계(다이아몬드 구조 실리콘, 2원자)로 SCF를 한 번 돌리고, 출력의
-모든 블록을 읽어봅니다. 이 예제의 입력이 이후 모든 예제의 뼈대입니다.</p>
+<p><strong>일부러 틀린 격자상수(10.00 bohr)에서 출발</strong>해, 셀까지 함께 푸는
+<code>vc-relax</code>로 실리콘의 PBE 평형 격자상수를 찾습니다. BFGS 궤적을 읽는 법과
+Pulay stress 재계산 원칙까지 확인합니다.</p>
 <h2 id="_2">새로 나오는 카드·변수</h2>
 <table>
 <thead>
@@ -125,46 +126,55 @@
 </thead>
 <tbody>
 <tr>
-<td><code>&amp;CONTROL</code> / <code>&amp;SYSTEM</code> / <code>&amp;ELECTRONS</code></td>
-<td>필수 네임리스트 3종 (<a href="02-input-structure.html">02장</a>)</td>
+<td><code>calculation='vc-relax'</code></td>
+<td>원자 + 셀 최적화</td>
 </tr>
 <tr>
-<td><code>ibrav=2</code> + <code>celldm(1)</code></td>
-<td>fcc 격자를 관례로 정의 (<a href="03-units-coordinates.html">03장</a>)</td>
+<td><code>&amp;IONS</code> / <code>&amp;CELL</code></td>
+<td>BFGS 설정, <code>press_conv_thr</code></td>
 </tr>
 <tr>
-<td><code>ATOMIC_SPECIES</code> / <code>ATOMIC_POSITIONS</code> / <code>K_POINTS</code></td>
-<td>필수 카드 3종</td>
+<td><code>cell_dofree='ibrav'</code></td>
+<td>큐빅 대칭을 유지한 채 셀 크기만</td>
 </tr>
 <tr>
-<td><code>verbosity='high'</code>, <code>tprnfor</code>, <code>tstress</code></td>
-<td>학습용 상세 출력 + 힘·응력</td>
+<td><code>etot_conv_thr</code> / <code>forc_conv_thr</code></td>
+<td>이온 스텝 수렴 기준</td>
 </tr>
 </tbody>
 </table>
 <h2 id="_3">입력 파일</h2>
-<p><a href="files/E01-si-scf/si.scf.in">si.scf.in 내려받기</a></p>
+<p><a href="files/E06-si-vcrelax/si.vcrelax.in">si.vcrelax.in 내려받기</a></p>
 <pre><code class="language-fortran">&amp;CONTROL
-  calculation  = 'scf'
-  prefix       = 'si'
-  outdir       = './tmp/'
-  pseudo_dir   = './pseudo/'
-  verbosity    = 'high'
-  tprnfor      = .true.
-  tstress      = .true.
+  calculation   = 'vc-relax'
+  prefix        = 'si_vc'
+  outdir        = './tmp/'
+  pseudo_dir    = './pseudo/'
+  etot_conv_thr = 1.0d-5      ! Ry
+  forc_conv_thr = 1.0d-4      ! Ry/bohr
+  nstep         = 100
+  tprnfor       = .true.
+  tstress       = .true.
 /
 &amp;SYSTEM
-  ibrav        = 2
-  celldm(1)    = 10.26
-  nat          = 2
-  ntyp         = 1
-  ecutwfc      = 30
-  ecutrho      = 240
-  occupations  = 'fixed'
+  ibrav       = 2
+  celldm(1)   = 10.00         ! 일부러 틀린 값에서 출발
+  nat         = 2
+  ntyp        = 1
+  ecutwfc     = 40
+  ecutrho     = 320
+  occupations = 'fixed'
 /
 &amp;ELECTRONS
-  conv_thr     = 1.0d-8
-  mixing_beta  = 0.7
+  conv_thr    = 1.0d-10       ! vc-relax는 더 엄격하게
+/
+&amp;IONS
+  ion_dynamics   = 'bfgs'
+/
+&amp;CELL
+  cell_dynamics  = 'bfgs'
+  press_conv_thr = 0.1        ! kbar
+  cell_dofree    = 'ibrav'    ! 큐빅 대칭 유지
 /
 
 ATOMIC_SPECIES
@@ -178,101 +188,76 @@ K_POINTS (automatic)
   8 8 8  0 0 0
 </code></pre>
 <h2 id="_4">실행</h2>
-<pre><code class="language-bash">mkdir -p pseudo tmp        # pseudo/ 에 Si PAW UPF를 받아 두세요 (01장)
-pw.x -in si.scf.in &gt; si.scf.out                     # 직렬
-mpirun -np 6 pw.x -nk 6 -in si.scf.in &gt; si.scf.out  # 실측에 쓴 병렬 설정
+<pre><code class="language-bash">mpirun -np 6 pw.x -nk 6 -in si.vcrelax.in &gt; si.vcrelax.out
 </code></pre>
-<h2 id="_5">출력에서 확인할 것</h2>
+<h2 id="_5">출력·그림 — 실측</h2>
+<figure>
+  <img src="assets/images/qe-e06-vcrelax.png"
+       alt="Si vc-relax: energy and pressure vs BFGS step" />
+  <figcaption>
+    BFGS 스텝별 에너지·압력 실측 (QE 7.5, PBE). 압축 상태(+109 kbar)에서
+    출발해 6 스텝 만에 압력이 0.1 kbar 아래로 떨어지며 수렴합니다.
+  </figcaption>
+</figure>
+
 <table>
 <thead>
 <tr>
-<th>찾을 것</th>
-<th>검색어</th>
-<th>실측값 (QE 7.5, PAW)</th>
+<th>항목</th>
+<th>실측값</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>최종 총에너지</td>
-<td><code>!    total</code></td>
-<td><strong>−93.45273690 Ry</strong></td>
+<td>BFGS 수렴</td>
+<td>6 SCF 사이클</td>
 </tr>
 <tr>
-<td>수렴</td>
-<td><code>convergence has been achieved</code></td>
-<td>6회 반복</td>
+<td>최종 부피</td>
+<td>275.989 bohr³ = 40.897 Å³ (원시셀, V = a³/4)</td>
 </tr>
 <tr>
-<td>기약 k-점 수</td>
-<td><code>number of k points</code></td>
-<td>29 (8×8×8에서 대칭으로 축소)</td>
+<td><strong>평형 격자상수</strong></td>
+<td><strong>a = 5.469 Å</strong></td>
 </tr>
 <tr>
-<td>대칭 연산</td>
-<td><code>Sym. Ops.</code></td>
-<td>48 (반전 포함)</td>
-</tr>
-<tr>
-<td>최고 점유 준위</td>
-<td><code>highest occupied level</code></td>
-<td>6.2124 eV</td>
-</tr>
-<tr>
-<td>힘</td>
-<td><code>Total force</code></td>
-<td>0.000000 (대칭 위치이므로 정확히 0)</td>
-</tr>
-<tr>
-<td>응력</td>
-<td><code>total   stress</code></td>
-<td>P = 20.28 kbar</td>
-</tr>
-<tr>
-<td>소요 시간</td>
-<td><code>PWSCF ... WALL</code></td>
-<td>2.75 s (6랭크)</td>
+<td>실험값</td>
+<td>5.431 Å → <strong>PBE가 +0.70% 과대평가</strong></td>
 </tr>
 </tbody>
 </table>
-<p>읽는 법 몇 가지 —</p>
-<ul>
-<li><code>!</code>가 붙은 총에너지 줄만 수렴된 최종값입니다. PAW라 절대값이 US
-  유사퍼텐셜과 크게 다른데, <a href="04-pseudopotentials.html">총에너지 절대값은 원래 비교 대상이
-  아닙니다</a>.</li>
-<li><code>occupations='fixed'</code>에 기본 <code>nbnd</code>(점유 밴드만)라서
-  <code>highest occupied level</code>만 나오고 갭 추정(<code>lowest unoccupied</code>)은 나오지
-  않습니다. 갭까지 보려면 <code>nbnd</code>를 늘리세요 (직접 써보기 3).</li>
-<li>P = +20 kbar는 이 격자상수(5.43 Å, 실험값)가 PBE 평형보다 압축되어
-  있다는 뜻입니다. PBE 평형 격자상수는 <a href="ex-06-si-vcrelax.html">E6</a>에서
-  구합니다.</li>
-</ul>
+<p>출력 끝의 <code>Begin final coordinates</code> 블록에 최종 셀
+(<code>CELL_PARAMETERS (alat= 10.0)</code>의 스케일 0.5168)이 정리됩니다. GGA(PBE)가
+격자상수를 ~1% 부풀리는 것은 잘 알려진 체계적 경향이며, 그대로
+실측됐습니다.</p>
+<p><strong>마무리 원칙</strong> — 최종 구조로 <code>scf</code>를 새로 한 번 더 돌리세요. 셀이 변하면
+평면파 기저가 변하므로(Pulay stress) 마지막 스텝의 에너지는 옛 기저의
+값입니다 (<a href="09-relaxation.html">09장</a>).</p>
 <h2 id="_6">직접 써보기</h2>
 <ol>
-<li><code>verbosity</code>를 <code>'low'</code>로 바꿔 출력이 얼마나 줄어드는지 확인하고, 학습
-   중에는 왜 <code>'high'</code>를 써야 하는지 설명해 보세요.</li>
-<li><code>occupations</code>를 <code>'smearing'</code>으로 바꾸면 에너지가 어떻게 변하나요? 왜
-   반도체에 smearing을 쓰면 안 되는지 서술해 보세요.</li>
-<li><code>nbnd = 8</code>을 추가해 <code>highest occupied, lowest unoccupied level</code>이
-   출력되게 하고, 그 차이(갭 추정)를 읽어 보세요.</li>
-<li><code>ecutrho</code>를 지우면(기본값 = 4×<code>ecutwfc</code>) 어떤 일이 생기는지 확인하세요.</li>
+<li><code>cell_dofree='ibrav'</code> 대신 <code>'all'</code>로 바꿔 보세요. 최종 셀이 큐빅을
+   유지하나요?</li>
+<li>원자 하나를 (0.25, 0.25, 0.25) → (0.26, 0.26, 0.26)으로 옮기고
+   <code>relax</code>(셀 고정)로 되돌아오는지 확인하세요.</li>
+<li>위 2번 구조에서 두 원자 모두에 <code>if_pos 0 0 0</code>을 걸면 어떻게 되나요?</li>
+<li>최적화된 구조로 <code>scf</code>를 재실행해 마지막 스텝 에너지와 비교해 보세요 —
+   차이가 Pulay 오염의 크기입니다.</li>
 </ol>
 <div class="warning">
   <div class="note-title">흔한 실수</div>
   <p>
-    <code>pseudo_dir</code>에 UPF 파일이 없거나 파일명이
-    <code>ATOMIC_SPECIES</code>와 다르면 <code>Error in routine readpp</code>로
-    멈춥니다. 그리고 이 계산의 <code>outdir</code>(<code>./tmp/</code>)을
-    지우면 후속 예제(E7·E8)의 nscf가 시작하지 못합니다 —
-    <a href="08-scf-nscf.html">08장</a>.
+    <code>vc-relax</code>에 느슨한 <code>conv_thr</code>(1.0d-6)를 쓰는 것 —
+    힘·응력에 잡음이 실려 BFGS가 진동합니다. 응력은 컷오프에도 민감하므로,
+    응력 기준 수렴(<a href="05-convergence.html">05장</a>)을 먼저 통과한
+    컷오프를 쓰세요.
   </p>
 </div>
 
 <h2 id="_7">관련 챕터</h2>
-<p><a href="02-input-structure.html">02 입력 파일 구조</a> ·
-<a href="03-units-coordinates.html">03 단위계와 좌표계</a> ·
-<a href="08-scf-nscf.html">08 SCF와 NSCF</a></p>
+<p><a href="09-relaxation.html">09 구조 최적화</a> ·
+<a href="05-convergence.html">05 컷오프와 k-점 수렴</a></p>
       </article>
-<nav class="page-nav"><a class="prev" href="ref-executables.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">실행 파일 목록</div></a><a class="next" href="ex-02-si-ibrav0.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">ibrav=0 다시 쓰기</div></a></nav>
+<nav class="page-nav"><a class="prev" href="ex-05-al-metal.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">fcc Al 금속</div></a><a class="next" href="ex-07-si-dos.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">Si DOS·PDOS</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

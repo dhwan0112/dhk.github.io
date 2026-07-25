@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Si SCF · QE 가이드</title>
-  <meta name="description" content="가장 단순한 실리콘 SCF를 한 번 돌리고 출력의 모든 블록을 읽어보는 첫 예제." />
+  <title>O₂ 분자 (삼중항) · QE 가이드</title>
+  <meta name="description" content="고립계 보정과 스핀 고정으로 O₂ 삼중항 분자를 계산하고 결합 에너지를 구합니다." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -88,10 +88,10 @@
     <div class="nav-section">
       <div class="nav-section-title">예제 · 따라 하기</div>
       <ul class="nav-list">
-        <li><a href="ex-01-si-scf.html" class="active" aria-current="page"><span class="nav-num">E1</span>Si SCF</a></li>
+        <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
         <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
         <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
+        <li><a href="ex-04-o2-molecule.html" class="active" aria-current="page"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
         <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
         <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
@@ -107,14 +107,16 @@
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">예제 · E1</div>
-        <h1 class="page-title">Si SCF</h1>
-        <p class="page-lede">가장 단순한 실리콘 SCF를 한 번 돌리고 출력의 모든 블록을 읽어보는 첫 예제.</p>
+        <div class="page-eyebrow">예제 · E4</div>
+        <h1 class="page-title">O₂ 분자 (삼중항)</h1>
+        <p class="page-lede">고립계 보정과 스핀 고정으로 O₂ 삼중항 분자를 계산하고 결합 에너지를 구합니다.</p>
       </header>
       <article class="content">
 <h2 id="_1">목적</h2>
-<p>가장 단순한 계(다이아몬드 구조 실리콘, 2원자)로 SCF를 한 번 돌리고, 출력의
-모든 블록을 읽어봅니다. 이 예제의 입력이 이후 모든 예제의 뼈대입니다.</p>
+<p>주기 코드로 <strong>고립 분자</strong>를 다루는 법을 배웁니다 — 진공 상자, Γ점 계산,
+주기 이미지 보정, 그리고 스핀 상태 고정. O₂의 바닥상태는 삼중항(S=1)이며,
+Fe–O 계를 다룬다면 O₂는 반드시 한 번 거쳐야 하는 기준계입니다. GGA가 O₂
+결합에너지를 크게 과대평가하는 유명한 사례를 직접 확인합니다.</p>
 <h2 id="_2">새로 나오는 카드·변수</h2>
 <table>
 <thead>
@@ -125,154 +127,151 @@
 </thead>
 <tbody>
 <tr>
-<td><code>&amp;CONTROL</code> / <code>&amp;SYSTEM</code> / <code>&amp;ELECTRONS</code></td>
-<td>필수 네임리스트 3종 (<a href="02-input-structure.html">02장</a>)</td>
+<td><code>K_POINTS gamma</code></td>
+<td>Γ 한 점 — 분자는 분산이 없고, 실수 파동함수 최적화 사용</td>
 </tr>
 <tr>
-<td><code>ibrav=2</code> + <code>celldm(1)</code></td>
-<td>fcc 격자를 관례로 정의 (<a href="03-units-coordinates.html">03장</a>)</td>
+<td><code>assume_isolated='mt'</code></td>
+<td>Martyna-Tuckerman 주기 이미지 보정</td>
 </tr>
 <tr>
-<td><code>ATOMIC_SPECIES</code> / <code>ATOMIC_POSITIONS</code> / <code>K_POINTS</code></td>
-<td>필수 카드 3종</td>
+<td><code>nspin=2</code> + <code>tot_magnetization</code></td>
+<td>스핀 편극 + 총 자화 <strong>구속</strong> (삼중항 강제)</td>
 </tr>
 <tr>
-<td><code>verbosity='high'</code>, <code>tprnfor</code>, <code>tstress</code></td>
-<td>학습용 상세 출력 + 힘·응력</td>
+<td><code>ibrav=1</code> + 큰 <code>celldm(1)</code></td>
+<td>진공 상자 (20 bohr)</td>
 </tr>
 </tbody>
 </table>
 <h2 id="_3">입력 파일</h2>
-<p><a href="files/E01-si-scf/si.scf.in">si.scf.in 내려받기</a></p>
+<p><a href="files/E04-o2-molecule/o2.scf.in">o2.scf.in</a> ·
+<a href="files/E04-o2-molecule/o_atom.scf.in">o_atom.scf.in</a></p>
 <pre><code class="language-fortran">&amp;CONTROL
-  calculation  = 'scf'
-  prefix       = 'si'
-  outdir       = './tmp/'
-  pseudo_dir   = './pseudo/'
-  verbosity    = 'high'
-  tprnfor      = .true.
-  tstress      = .true.
+  calculation       = 'scf'
+  prefix            = 'o2'
+  outdir            = './tmp/'
+  pseudo_dir        = './pseudo/'
+  verbosity         = 'high'
+  tprnfor           = .true.
 /
 &amp;SYSTEM
-  ibrav        = 2
-  celldm(1)    = 10.26
-  nat          = 2
-  ntyp         = 1
-  ecutwfc      = 30
-  ecutrho      = 240
-  occupations  = 'fixed'
+  ibrav             = 1
+  celldm(1)         = 20.0        ! bohr — 진공 상자
+  nat               = 2
+  ntyp              = 1
+  ecutwfc           = 60
+  ecutrho           = 480
+  assume_isolated   = 'mt'        ! Martyna-Tuckerman 주기 이미지 보정
+  nspin             = 2
+  tot_magnetization = 2.0         ! 삼중항 강제 (2개의 Fermi 준위 사용)
+  occupations       = 'smearing'
+  smearing          = 'gaussian'
+  degauss           = 0.001
 /
 &amp;ELECTRONS
-  conv_thr     = 1.0d-8
-  mixing_beta  = 0.7
+  conv_thr          = 1.0d-8
+  mixing_beta       = 0.3
 /
 
 ATOMIC_SPECIES
-  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
+  O  15.9994  O.pbe-n-kjpaw_psl.1.0.0.UPF
 
-ATOMIC_POSITIONS (alat)
-  Si  0.00  0.00  0.00
-  Si  0.25  0.25  0.25
+ATOMIC_POSITIONS (angstrom)
+  O  0.000  0.000  0.000
+  O  0.000  0.000  1.210
 
-K_POINTS (automatic)
-  8 8 8  0 0 0
+K_POINTS gamma
 </code></pre>
+<p>원자 O 입력(<code>o_atom.scf.in</code>)은 <code>nat=1</code>, 같은 상자·컷오프에
+<code>tot_magnetization=2.0</code>(원자 O의 바닥상태 ³P)입니다.</p>
 <h2 id="_4">실행</h2>
-<pre><code class="language-bash">mkdir -p pseudo tmp        # pseudo/ 에 Si PAW UPF를 받아 두세요 (01장)
-pw.x -in si.scf.in &gt; si.scf.out                     # 직렬
-mpirun -np 6 pw.x -nk 6 -in si.scf.in &gt; si.scf.out  # 실측에 쓴 병렬 설정
+<pre><code class="language-bash">mpirun -np 6 pw.x -in o2.scf.in     &gt; o2.scf.out
+mpirun -np 6 pw.x -in o_atom.scf.in &gt; o_atom.scf.out
 </code></pre>
-<h2 id="_5">출력에서 확인할 것</h2>
+<p>Γ점 하나뿐이므로 <code>-nk</code> 풀 병렬은 의미가 없고 G-벡터 분산만 씁니다.</p>
+<h2 id="_5">출력에서 확인할 것 — 실측</h2>
 <table>
 <thead>
 <tr>
-<th>찾을 것</th>
-<th>검색어</th>
+<th>항목</th>
 <th>실측값 (QE 7.5, PAW)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>최종 총에너지</td>
-<td><code>!    total</code></td>
-<td><strong>−93.45273690 Ry</strong></td>
+<td>E(O₂)</td>
+<td>−83.03824491 Ry</td>
 </tr>
 <tr>
-<td>수렴</td>
-<td><code>convergence has been achieved</code></td>
-<td>6회 반복</td>
+<td>E(O 원자)</td>
+<td>−41.26799048 Ry</td>
 </tr>
 <tr>
-<td>기약 k-점 수</td>
-<td><code>number of k points</code></td>
-<td>29 (8×8×8에서 대칭으로 축소)</td>
+<td>total magnetization</td>
+<td>2.00 μB (구속값 그대로)</td>
 </tr>
 <tr>
-<td>대칭 연산</td>
-<td><code>Sym. Ops.</code></td>
-<td>48 (반전 포함)</td>
+<td>absolute magnetization</td>
+<td>2.05 μB (스핀 밀도가 공간 분포하므로 2보다 약간 큼 — 정상)</td>
 </tr>
 <tr>
-<td>최고 점유 준위</td>
-<td><code>highest occupied level</code></td>
-<td>6.2124 eV</td>
-</tr>
-<tr>
-<td>힘</td>
-<td><code>Total force</code></td>
-<td>0.000000 (대칭 위치이므로 정확히 0)</td>
-</tr>
-<tr>
-<td>응력</td>
-<td><code>total   stress</code></td>
-<td>P = 20.28 kbar</td>
-</tr>
-<tr>
-<td>소요 시간</td>
-<td><code>PWSCF ... WALL</code></td>
-<td>2.75 s (6랭크)</td>
+<td><strong>결합 에너지 D = 2E(O) − E(O₂)</strong></td>
+<td><strong>0.50226 Ry = 6.83 eV</strong></td>
 </tr>
 </tbody>
 </table>
-<p>읽는 법 몇 가지 —</p>
-<ul>
-<li><code>!</code>가 붙은 총에너지 줄만 수렴된 최종값입니다. PAW라 절대값이 US
-  유사퍼텐셜과 크게 다른데, <a href="04-pseudopotentials.html">총에너지 절대값은 원래 비교 대상이
-  아닙니다</a>.</li>
-<li><code>occupations='fixed'</code>에 기본 <code>nbnd</code>(점유 밴드만)라서
-  <code>highest occupied level</code>만 나오고 갭 추정(<code>lowest unoccupied</code>)은 나오지
-  않습니다. 갭까지 보려면 <code>nbnd</code>를 늘리세요 (직접 써보기 3).</li>
-<li>P = +20 kbar는 이 격자상수(5.43 Å, 실험값)가 PBE 평형보다 압축되어
-  있다는 뜻입니다. PBE 평형 격자상수는 <a href="ex-06-si-vcrelax.html">E6</a>에서
-  구합니다.</li>
-</ul>
+<p>실험 결합에너지는 5.12 eV(D₀)입니다. <strong>PBE가 1.7 eV나 과대평가</strong>하는 것이
+그대로 실측됩니다 — O₂를 기준으로 산화물 형성에너지를 계산할 때 보정이
+필요한 이유이며, 문헌에서 "O₂ 보정"이 등장하는 배경입니다.</p>
+<p><code>tot_magnetization</code> vs <code>starting_magnetization</code>:</p>
+<table>
+<thead>
+<tr>
+<th>변수</th>
+<th>의미</th>
+<th>언제 쓰나</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>starting_magnetization(i)</code></td>
+<td><strong>초기 추측</strong>. SCF가 자유롭게 바꿈</td>
+<td>대부분의 경우</td>
+</tr>
+<tr>
+<td><code>tot_magnetization</code></td>
+<td>셀 전체 자화를 <strong>구속</strong>. up/down 별도 Fermi 준위</td>
+<td>특정 스핀 상태를 강제할 때</td>
+</tr>
+</tbody>
+</table>
 <h2 id="_6">직접 써보기</h2>
 <ol>
-<li><code>verbosity</code>를 <code>'low'</code>로 바꿔 출력이 얼마나 줄어드는지 확인하고, 학습
-   중에는 왜 <code>'high'</code>를 써야 하는지 설명해 보세요.</li>
-<li><code>occupations</code>를 <code>'smearing'</code>으로 바꾸면 에너지가 어떻게 변하나요? 왜
-   반도체에 smearing을 쓰면 안 되는지 서술해 보세요.</li>
-<li><code>nbnd = 8</code>을 추가해 <code>highest occupied, lowest unoccupied level</code>이
-   출력되게 하고, 그 차이(갭 추정)를 읽어 보세요.</li>
-<li><code>ecutrho</code>를 지우면(기본값 = 4×<code>ecutwfc</code>) 어떤 일이 생기는지 확인하세요.</li>
+<li><code>tot_magnetization = 0.0</code>(단일항)으로 바꿔 에너지를 비교하세요. 삼중항이
+   얼마나 더 안정한가요?</li>
+<li>상자를 20 → 25 bohr로 키우면 에너지가 얼마나 변하나요 (진공 수렴)?</li>
+<li><code>assume_isolated</code>를 빼면 에너지가 얼마나 달라지나요? 주기 이미지
+   상호작용의 크기를 직접 재 보세요.</li>
+<li>결합 길이를 1.16 → 1.26 Å로 스캔해 평형 길이를 구하고 실험값 1.21 Å과
+   비교하세요.</li>
 </ol>
 <div class="warning">
   <div class="note-title">흔한 실수</div>
   <p>
-    <code>pseudo_dir</code>에 UPF 파일이 없거나 파일명이
-    <code>ATOMIC_SPECIES</code>와 다르면 <code>Error in routine readpp</code>로
-    멈춥니다. 그리고 이 계산의 <code>outdir</code>(<code>./tmp/</code>)을
-    지우면 후속 예제(E7·E8)의 nscf가 시작하지 못합니다 —
-    <a href="08-scf-nscf.html">08장</a>.
+    분자를 <code>occupations='fixed'</code>로 돌리는 것 — O₂처럼 부분 점유
+    (축퇴된 π* 궤도)가 본질인 계는 스핀 상태를 고정해도 미세한 smearing이
+    있어야 수렴이 안정합니다(여기서는 degauss 0.001 Ry). 또, 진공 상자가
+    작으면 <code>assume_isolated</code>로도 다 못 걷어내는 이미지 상호작용이
+    남습니다 — 상자 크기도 수렴 파라미터입니다.
   </p>
 </div>
 
 <h2 id="_7">관련 챕터</h2>
-<p><a href="02-input-structure.html">02 입력 파일 구조</a> ·
-<a href="03-units-coordinates.html">03 단위계와 좌표계</a> ·
-<a href="08-scf-nscf.html">08 SCF와 NSCF</a></p>
+<p><a href="06-occupations.html">06 점유수와 smearing</a> ·
+<a href="12-magnetism.html">12 스핀 편극과 자성</a></p>
       </article>
-<nav class="page-nav"><a class="prev" href="ref-executables.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">실행 파일 목록</div></a><a class="next" href="ex-02-si-ibrav0.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">ibrav=0 다시 쓰기</div></a></nav>
+<nav class="page-nav"><a class="prev" href="ex-03-convergence.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">수렴 테스트 자동화</div></a><a class="next" href="ex-05-al-metal.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">fcc Al 금속</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

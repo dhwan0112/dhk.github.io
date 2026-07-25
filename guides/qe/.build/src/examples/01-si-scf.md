@@ -1,61 +1,58 @@
 ---
-layout: default
-title: "1. Si SCF"
+title: "E1. Si SCF"
 ---
 
-# 1. Si SCF — 첫 SCF와 수렴 확인
-{: .no_toc }
+# E1. Si SCF
 
-## 목차
-{: .no_toc .text-delta }
+## 목적
 
-1. TOC
-{:toc}
+가장 단순한 계(다이아몬드 구조 실리콘, 2원자)로 SCF를 한 번 돌리고, 출력의
+모든 블록을 읽어봅니다. 이 예제의 입력이 이후 모든 예제의 뼈대입니다.
 
----
+## 새로 나오는 카드·변수
 
-## 무엇을 하는 예제인가
+| 항목 | 역할 |
+|---|---|
+| `&CONTROL` / `&SYSTEM` / `&ELECTRONS` | 필수 네임리스트 3종 ([02장](02-input-structure.html)) |
+| `ibrav=2` + `celldm(1)` | fcc 격자를 관례로 정의 ([03장](03-units-coordinates.html)) |
+| `ATOMIC_SPECIES` / `ATOMIC_POSITIONS` / `K_POINTS` | 필수 카드 3종 |
+| `verbosity='high'`, `tprnfor`, `tstress` | 학습용 상세 출력 + 힘·응력 |
 
-다이아몬드 구조 실리콘의 원시 셀(원자 2개)로 전체 에너지를 SCF로 구하고,
-파동함수 컷오프(`ecutwfc`)와 k점 격자를 바꿔 가며 에너지가 어떻게 수렴하는지
-확인합니다. QE의 가장 기본 흐름과 "수렴은 시험으로 정한다"는 감각을 익히는
-예제입니다.
+## 입력 파일
 
-관련 개념은 [01 시작하기](01-getting-started.html),
-[03 유사퍼텐셜](03-pseudopotentials.html), [04 k점 샘플링](04-kpoints.html)에서
-다룹니다.
-
-## 준비 — 유사퍼텐셜
-
-PBE 초연질 유사퍼텐셜을 `pseudo/` 에 둡니다. 본 예제는
-`Si.pbe-n-rrkjus_psl.1.0.0.UPF`(pslibrary 1.0.0, SSSP efficiency 계열)를 씁니다.
-
-## 전체 입력 스크립트 — `si.scf.in`
+[si.scf.in 내려받기](files/E01-si-scf/si.scf.in)
 
 ```fortran
-&control
-  calculation = 'scf'
-  prefix      = 'si'
-  outdir      = './out'
-  pseudo_dir  = './pseudo'
+&CONTROL
+  calculation  = 'scf'
+  prefix       = 'si'
+  outdir       = './tmp/'
+  pseudo_dir   = './pseudo/'
+  verbosity    = 'high'
+  tprnfor      = .true.
+  tstress      = .true.
 /
-&system
-  ibrav     = 2
-  celldm(1) = 10.26
-  nat       = 2
-  ntyp      = 1
-  ecutwfc   = 40.0
-  ecutrho   = 320.0
+&SYSTEM
+  ibrav        = 2
+  celldm(1)    = 10.26
+  nat          = 2
+  ntyp         = 1
+  ecutwfc      = 30
+  ecutrho      = 240
+  occupations  = 'fixed'
 /
-&electrons
-  conv_thr    = 1.0d-8
-  mixing_beta = 0.7
+&ELECTRONS
+  conv_thr     = 1.0d-8
+  mixing_beta  = 0.7
 /
+
 ATOMIC_SPECIES
-  Si  28.0855  Si.pbe-n-rrkjus_psl.1.0.0.UPF
+  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
+
 ATOMIC_POSITIONS (alat)
-  Si  0.00 0.00 0.00
-  Si  0.25 0.25 0.25
+  Si  0.00  0.00  0.00
+  Si  0.25  0.25  0.25
+
 K_POINTS (automatic)
   8 8 8  0 0 0
 ```
@@ -63,62 +60,59 @@ K_POINTS (automatic)
 ## 실행
 
 ```bash
-export OMP_NUM_THREADS=1
-mpirun -np 8 pw.x -nk 8 -in si.scf.in > si.scf.out
+mkdir -p pseudo tmp        # pseudo/ 에 Si PAW UPF를 받아 두세요 (01장)
+pw.x -in si.scf.in > si.scf.out                     # 직렬
+mpirun -np 6 pw.x -nk 6 -in si.scf.in > si.scf.out  # 실측에 쓴 병렬 설정
 ```
 
-작은 계라 스레드를 끄고 k점을 8개 풀로 병렬화하면 몇 초 만에 끝납니다.
+## 출력에서 확인할 것
 
-## 출력 — 전체 에너지
+| 찾을 것 | 검색어 | 실측값 (QE 7.5, PAW) |
+|---|---|---|
+| 최종 총에너지 | `!    total` | **−93.45273690 Ry** |
+| 수렴 | `convergence has been achieved` | 6회 반복 |
+| 기약 k-점 수 | `number of k points` | 29 (8×8×8에서 대칭으로 축소) |
+| 대칭 연산 | `Sym. Ops.` | 48 (반전 포함) |
+| 최고 점유 준위 | `highest occupied level` | 6.2124 eV |
+| 힘 | `Total force` | 0.000000 (대칭 위치이므로 정확히 0) |
+| 응력 | `total   stress` | P = 20.28 kbar |
+| 소요 시간 | `PWSCF ... WALL` | 2.75 s (6랭크) |
 
-`si.scf.out` 끝부분(QE 7.5, PBE US 실제 실행):
+읽는 법 몇 가지 —
 
-```text
-!    total energy              =     -22.83941780 Ry
-     estimated scf accuracy    <          2.8E-09 Ry
+- `!`가 붙은 총에너지 줄만 수렴된 최종값입니다. PAW라 절대값이 US
+  유사퍼텐셜과 크게 다른데, [총에너지 절대값은 원래 비교 대상이
+  아닙니다](04-pseudopotentials.html).
+- `occupations='fixed'`에 기본 `nbnd`(점유 밴드만)라서
+  `highest occupied level`만 나오고 갭 추정(`lowest unoccupied`)은 나오지
+  않습니다. 갭까지 보려면 `nbnd`를 늘리세요 (직접 써보기 3).
+- P = +20 kbar는 이 격자상수(5.43 Å, 실험값)가 PBE 평형보다 압축되어
+  있다는 뜻입니다. PBE 평형 격자상수는 [E6](ex-06-si-vcrelax.html)에서
+  구합니다.
 
-     one-electron contribution =       5.17095299 Ry
-     hartree contribution      =       1.10074142 Ry
-     xc contribution           =     -12.31018265 Ry
-     ewald contribution        =     -16.80092957 Ry
+## 직접 써보기
 
-     highest occupied level (ev):     6.2117
-```
+1. `verbosity`를 `'low'`로 바꿔 출력이 얼마나 줄어드는지 확인하고, 학습
+   중에는 왜 `'high'`를 써야 하는지 설명해 보세요.
+2. `occupations`를 `'smearing'`으로 바꾸면 에너지가 어떻게 변하나요? 왜
+   반도체에 smearing을 쓰면 안 되는지 서술해 보세요.
+3. `nbnd = 8`을 추가해 `highest occupied, lowest unoccupied level`이
+   출력되게 하고, 그 차이(갭 추정)를 읽어 보세요.
+4. `ecutrho`를 지우면(기본값 = 4×`ecutwfc`) 어떤 일이 생기는지 확인하세요.
 
-느낌표가 붙은 −22.8394 Ry 가 수렴한 전체 에너지입니다. 반도체라 페르미 준위 대신
-최고 점유 준위(6.21 eV)가 찍힙니다.
+<div class="warning">
+  <div class="note-title">흔한 실수</div>
+  <p>
+    <code>pseudo_dir</code>에 UPF 파일이 없거나 파일명이
+    <code>ATOMIC_SPECIES</code>와 다르면 <code>Error in routine readpp</code>로
+    멈춥니다. 그리고 이 계산의 <code>outdir</code>(<code>./tmp/</code>)을
+    지우면 후속 예제(E7·E8)의 nscf가 시작하지 못합니다 —
+    <a href="08-scf-nscf.html">08장</a>.
+  </p>
+</div>
 
-## 수렴 확인 — ecutwfc와 k점
+## 관련 챕터
 
-`ecutwfc`(그리고 US이므로 `ecutrho = 8×ecutwfc`)를 15→50 Ry, k점을 2→12로 바꿔
-가며 전체 에너지를 모았습니다.
-
-<figure>
-  <img src="assets/images/qe-si-conv.png" alt="실리콘 전체 에너지의 ecutwfc·k점 수렴 그래프" style="width:100%;max-width:940px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
-  <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
-    세로축은 가장 촘촘한 값과의 차이(원자당 meV, 로그 눈금). 왼쪽 ecutwfc는 30~35 Ry,
-    오른쪽 k점은 8×8×8 부근에서 1 meV/atom(주황 점선) 아래로 수렴합니다.
-    2×2×2 k점은 오차가 1 eV/atom을 넘습니다.
-  </figcaption>
-</figure>
-
-| ecutwfc (Ry) | E (Ry) | | k-grid | E (Ry) |
-|---|---|---|---|---|
-| 15 | −22.83468 | | 2×2×2 | −22.65178 |
-| 25 | −22.83880 | | 4×4×4 | −22.82587 |
-| 35 | −22.83937 | | 6×6×6 | −22.83794 |
-| 45 | −22.83947 | | 8×8×8 | −22.83942 |
-
-## 요점
-
-- 느낌표(`!`) 줄이 수렴 전체 에너지입니다.
-- `ecutwfc`·k점 모두 "관심 물리량이 수렴할 때까지" 시험으로 정합니다.
-- US 유사퍼텐셜은 `ecutrho` 를 `ecutwfc` 의 8~12배로 함께 올립니다.
-- 성긴 k점은 오차가 매우 크므로(2×2×2 → 1 eV/atom 이상) 조심합니다.
-
-## 관련 개념 챕터
-
-- [01 시작하기](01-getting-started.html) · [03 유사퍼텐셜](03-pseudopotentials.html) · [04 k점 샘플링](04-kpoints.html)
-
-다음 예제 [E2 — Si 밴드 + DOS](ex-02-si-bands.html) 에서는 이 SCF 결과를 이어받아
-밴드구조와 상태밀도를 구합니다.
+[02 입력 파일 구조](02-input-structure.html) ·
+[03 단위계와 좌표계](03-units-coordinates.html) ·
+[08 SCF와 NSCF](08-scf-nscf.html)

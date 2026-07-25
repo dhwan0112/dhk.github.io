@@ -1,3 +1,0 @@
-     bfgs converged in   5 scf cycles and   4 bfgs steps
-     Final enthalpy           =     -22.8398121912 Ry
-     new unit-cell volume =    276.03530 a.u.^3 (    40.90421 Ang^3 )

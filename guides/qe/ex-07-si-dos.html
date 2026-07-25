@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Si SCF · QE 가이드</title>
-  <meta name="description" content="가장 단순한 실리콘 SCF를 한 번 돌리고 출력의 모든 블록을 읽어보는 첫 예제." />
+  <title>Si DOS·PDOS · QE 가이드</title>
+  <meta name="description" content="scf → nscf → dos.x → projwfc.x 상태밀도 파이프라인과 Löwdin 전하." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -88,13 +88,13 @@
     <div class="nav-section">
       <div class="nav-section-title">예제 · 따라 하기</div>
       <ul class="nav-list">
-        <li><a href="ex-01-si-scf.html" class="active" aria-current="page"><span class="nav-num">E1</span>Si SCF</a></li>
+        <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
         <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
         <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
         <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
         <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
+        <li><a href="ex-07-si-dos.html" class="active" aria-current="page"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
         <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
         <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
         <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
@@ -107,14 +107,18 @@
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">예제 · E1</div>
-        <h1 class="page-title">Si SCF</h1>
-        <p class="page-lede">가장 단순한 실리콘 SCF를 한 번 돌리고 출력의 모든 블록을 읽어보는 첫 예제.</p>
+        <div class="page-eyebrow">예제 · E7</div>
+        <h1 class="page-title">Si DOS·PDOS</h1>
+        <p class="page-lede">scf → nscf → dos.x → projwfc.x 상태밀도 파이프라인과 Löwdin 전하.</p>
       </header>
       <article class="content">
 <h2 id="_1">목적</h2>
-<p>가장 단순한 계(다이아몬드 구조 실리콘, 2원자)로 SCF를 한 번 돌리고, 출력의
-모든 블록을 읽어봅니다. 이 예제의 입력이 이후 모든 예제의 뼈대입니다.</p>
+<p>상태밀도 파이프라인 — scf → nscf → <code>dos.x</code> → <code>projwfc.x</code> — 를 처음부터
+끝까지 실행합니다. <strong>순서와 <code>prefix</code>/<code>outdir</code> 일치가 전부</strong>라는 것을 몸으로
+익히고, Löwdin 전하까지 읽습니다.</p>
+<pre><code>scf (8³ k) ─→ nscf (16³ k, tetrahedra) ─┬─→ dos.x       (총 DOS)
+                                         └─→ projwfc.x   (PDOS + Löwdin)
+</code></pre>
 <h2 id="_2">새로 나오는 카드·변수</h2>
 <table>
 <thead>
@@ -125,154 +129,112 @@
 </thead>
 <tbody>
 <tr>
-<td><code>&amp;CONTROL</code> / <code>&amp;SYSTEM</code> / <code>&amp;ELECTRONS</code></td>
-<td>필수 네임리스트 3종 (<a href="02-input-structure.html">02장</a>)</td>
+<td><code>calculation='nscf'</code> + <code>occupations='tetrahedra'</code></td>
+<td>고정 밀도 위 조밀 k 고유값 (<a href="08-scf-nscf.html">08장</a>)</td>
 </tr>
 <tr>
-<td><code>ibrav=2</code> + <code>celldm(1)</code></td>
-<td>fcc 격자를 관례로 정의 (<a href="03-units-coordinates.html">03장</a>)</td>
+<td><code>nbnd=12</code></td>
+<td>전도대까지 넉넉히</td>
 </tr>
 <tr>
-<td><code>ATOMIC_SPECIES</code> / <code>ATOMIC_POSITIONS</code> / <code>K_POINTS</code></td>
-<td>필수 카드 3종</td>
+<td><code>&amp;DOS</code> (dos.x)</td>
+<td>Emin/Emax/DeltaE</td>
 </tr>
 <tr>
-<td><code>verbosity='high'</code>, <code>tprnfor</code>, <code>tstress</code></td>
-<td>학습용 상세 출력 + 힘·응력</td>
+<td><code>&amp;PROJWFC</code> (projwfc.x)</td>
+<td>PDOS 분해, Löwdin</td>
 </tr>
 </tbody>
 </table>
 <h2 id="_3">입력 파일</h2>
-<p><a href="files/E01-si-scf/si.scf.in">si.scf.in 내려받기</a></p>
-<pre><code class="language-fortran">&amp;CONTROL
-  calculation  = 'scf'
-  prefix       = 'si'
-  outdir       = './tmp/'
-  pseudo_dir   = './pseudo/'
-  verbosity    = 'high'
-  tprnfor      = .true.
-  tstress      = .true.
+<p><a href="files/E07-si-dos/si.scf.in">si.scf.in</a> ·
+<a href="files/E07-si-dos/si.nscf.in">si.nscf.in</a> ·
+<a href="files/E07-si-dos/si.dos.in">si.dos.in</a> ·
+<a href="files/E07-si-dos/si.projwfc.in">si.projwfc.in</a> ·
+<a href="files/E07-si-dos/run.sh">run.sh</a></p>
+<p>nscf 입력의 핵심 부분:</p>
+<pre><code class="language-fortran">&amp;SYSTEM
+  ...
+  nbnd = 12                   ! 전도대까지 넉넉히
+  occupations = 'tetrahedra'  ! 사면체법 (아래 실측 노트 참고)
 /
-&amp;SYSTEM
-  ibrav        = 2
-  celldm(1)    = 10.26
-  nat          = 2
-  ntyp         = 1
-  ecutwfc      = 30
-  ecutrho      = 240
-  occupations  = 'fixed'
-/
-&amp;ELECTRONS
-  conv_thr     = 1.0d-8
-  mixing_beta  = 0.7
-/
-
-ATOMIC_SPECIES
-  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
-
-ATOMIC_POSITIONS (alat)
-  Si  0.00  0.00  0.00
-  Si  0.25  0.25  0.25
-
 K_POINTS (automatic)
-  8 8 8  0 0 0
+  16 16 16  0 0 0             ! 사면체법은 반드시 Γ 중심 (shift 0 0 0)
+</code></pre>
+<div class="warning">
+  <div class="note-title">실측 노트 — tetrahedra_opt와 projwfc.x</div>
+  <p>
+    처음에는 최적화 사면체법 <code>occupations='tetrahedra_opt'</code>로
+    돌렸는데, <strong>QE 7.5에서 dos.x(총 DOS)와 Löwdin 전하는 정상인데
+    projwfc.x의 PDOS 파일이 전부 0으로 나오는 문제</strong>를 확인했습니다
+    (직렬/병렬, lsym 유무 무관). 고전 사면체법 <code>'tetrahedra'</code>로
+    nscf를 다시 돌리면 PDOS가 정상적으로 나옵니다. 이 예제의 입력 파일은
+    그래서 <code>'tetrahedra'</code>로 배포합니다.
+  </p>
+</div>
+
+<p><code>dos.x</code> 입력:</p>
+<pre><code class="language-fortran">&amp;DOS
+  prefix = 'si'
+  outdir = './tmp/'
+  fildos = 'si.dos'
+  Emin   = -10.0
+  Emax   =  20.0
+  DeltaE =  0.05
+/
 </code></pre>
 <h2 id="_4">실행</h2>
-<pre><code class="language-bash">mkdir -p pseudo tmp        # pseudo/ 에 Si PAW UPF를 받아 두세요 (01장)
-pw.x -in si.scf.in &gt; si.scf.out                     # 직렬
-mpirun -np 6 pw.x -nk 6 -in si.scf.in &gt; si.scf.out  # 실측에 쓴 병렬 설정
+<pre><code class="language-bash">pw.x       -in si.scf.in     &gt; si.scf.out
+pw.x       -in si.nscf.in    &gt; si.nscf.out
+dos.x      -in si.dos.in     &gt; si.dos.out
+projwfc.x  -in si.projwfc.in &gt; si.projwfc.out
+grep -A20 'Lowdin Charges' si.projwfc.out
 </code></pre>
-<h2 id="_5">출력에서 확인할 것</h2>
-<table>
-<thead>
-<tr>
-<th>찾을 것</th>
-<th>검색어</th>
-<th>실측값 (QE 7.5, PAW)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>최종 총에너지</td>
-<td><code>!    total</code></td>
-<td><strong>−93.45273690 Ry</strong></td>
-</tr>
-<tr>
-<td>수렴</td>
-<td><code>convergence has been achieved</code></td>
-<td>6회 반복</td>
-</tr>
-<tr>
-<td>기약 k-점 수</td>
-<td><code>number of k points</code></td>
-<td>29 (8×8×8에서 대칭으로 축소)</td>
-</tr>
-<tr>
-<td>대칭 연산</td>
-<td><code>Sym. Ops.</code></td>
-<td>48 (반전 포함)</td>
-</tr>
-<tr>
-<td>최고 점유 준위</td>
-<td><code>highest occupied level</code></td>
-<td>6.2124 eV</td>
-</tr>
-<tr>
-<td>힘</td>
-<td><code>Total force</code></td>
-<td>0.000000 (대칭 위치이므로 정확히 0)</td>
-</tr>
-<tr>
-<td>응력</td>
-<td><code>total   stress</code></td>
-<td>P = 20.28 kbar</td>
-</tr>
-<tr>
-<td>소요 시간</td>
-<td><code>PWSCF ... WALL</code></td>
-<td>2.75 s (6랭크)</td>
-</tr>
-</tbody>
-</table>
-<p>읽는 법 몇 가지 —</p>
+<h2 id="_5">출력·그림 — 실측</h2>
+<figure>
+  <img src="assets/images/qe-e07-dos-pdos.png"
+       alt="Si total DOS with s/p projected DOS" />
+  <figcaption>
+    실리콘 총 DOS와 s/p 분해 PDOS 실측 (QE 7.5, nscf 16×16×16, tetrahedra).
+    가전자대 하단(-12~-8 eV)은 s, 상단은 p가 지배하고, 갭이 열려 있습니다.
+  </figcaption>
+</figure>
+
+<p>출력 파일 해독:</p>
 <ul>
-<li><code>!</code>가 붙은 총에너지 줄만 수렴된 최종값입니다. PAW라 절대값이 US
-  유사퍼텐셜과 크게 다른데, <a href="04-pseudopotentials.html">총에너지 절대값은 원래 비교 대상이
-  아닙니다</a>.</li>
-<li><code>occupations='fixed'</code>에 기본 <code>nbnd</code>(점유 밴드만)라서
-  <code>highest occupied level</code>만 나오고 갭 추정(<code>lowest unoccupied</code>)은 나오지
-  않습니다. 갭까지 보려면 <code>nbnd</code>를 늘리세요 (직접 써보기 3).</li>
-<li>P = +20 kbar는 이 격자상수(5.43 Å, 실험값)가 PBE 평형보다 압축되어
-  있다는 뜻입니다. PBE 평형 격자상수는 <a href="ex-06-si-vcrelax.html">E6</a>에서
-  구합니다.</li>
+<li><code>si.dos</code> — 1열 E(eV), 2열 DOS, 3열 적분 DOS. 적분 DOS는 가전자대 꼭대기에서
+  정확히 8(원자가 전자 수)이어야 합니다 — 검산 포인트.</li>
+<li><code>si.pdos.pdos_atm#1(Si)_wfc#2(p)</code> — 원자 1의 p 궤도 분해 DOS.</li>
+<li><strong>Löwdin 전하 실측</strong>: 원자당 총 3.9637 e (s 1.1617 + p 2.8020),
+  spilling parameter 0.0091. 원자가 전자 4개와의 차이(스필링)는 원자 궤도
+  기저가 평면파 상태를 완전히 담지 못하는 몫입니다 — Fe의 d 점유·모멘트를
+  읽을 때도 같은 한계를 염두에 두세요.</li>
 </ul>
 <h2 id="_6">직접 써보기</h2>
 <ol>
-<li><code>verbosity</code>를 <code>'low'</code>로 바꿔 출력이 얼마나 줄어드는지 확인하고, 학습
-   중에는 왜 <code>'high'</code>를 써야 하는지 설명해 보세요.</li>
-<li><code>occupations</code>를 <code>'smearing'</code>으로 바꾸면 에너지가 어떻게 변하나요? 왜
-   반도체에 smearing을 쓰면 안 되는지 서술해 보세요.</li>
-<li><code>nbnd = 8</code>을 추가해 <code>highest occupied, lowest unoccupied level</code>이
-   출력되게 하고, 그 차이(갭 추정)를 읽어 보세요.</li>
-<li><code>ecutrho</code>를 지우면(기본값 = 4×<code>ecutwfc</code>) 어떤 일이 생기는지 확인하세요.</li>
+<li>nscf의 k-격자를 8³ → 24³으로 바꿔가며 DOS가 얼마나 매끄러워지는지
+   관찰하세요.</li>
+<li><code>occupations='tetrahedra'</code> 대신 <code>'smearing'</code>으로 하면 DOS가 어떻게
+   뭉개지나요? <code>'tetrahedra_opt'</code>로 바꾸면 PDOS에 무슨 일이 생기나요?</li>
+<li><code>si.dos</code>의 3열(적분 DOS)이 가전자대 꼭대기에서 8과 일치하는지 확인하세요.</li>
+<li>Löwdin 전하의 총합과 원자가 전자수의 차이(스필링)의 의미를 생각해 보세요.</li>
 </ol>
 <div class="warning">
   <div class="note-title">흔한 실수</div>
   <p>
-    <code>pseudo_dir</code>에 UPF 파일이 없거나 파일명이
-    <code>ATOMIC_SPECIES</code>와 다르면 <code>Error in routine readpp</code>로
-    멈춥니다. 그리고 이 계산의 <code>outdir</code>(<code>./tmp/</code>)을
-    지우면 후속 예제(E7·E8)의 nscf가 시작하지 못합니다 —
-    <a href="08-scf-nscf.html">08장</a>.
+    nscf의 <code>K_POINTS</code>에 시프트(<code>1 1 1</code>)를 남겨 두는 것 —
+    사면체법은 Γ 중심 그리드를 요구하므로 에러가 나거나 조용히 다른 결과가
+    나옵니다. 그리고 <code>prefix</code>/<code>outdir</code>이 한 글자라도
+    다르면 <code>cannot open file ... .save</code>로 파이프라인이 끊깁니다
+    (<a href="ref-errors.html">R3</a>).
   </p>
 </div>
 
 <h2 id="_7">관련 챕터</h2>
-<p><a href="02-input-structure.html">02 입력 파일 구조</a> ·
-<a href="03-units-coordinates.html">03 단위계와 좌표계</a> ·
+<p><a href="10-dos-bands.html">10 상태밀도와 밴드</a> ·
 <a href="08-scf-nscf.html">08 SCF와 NSCF</a></p>
       </article>
-<nav class="page-nav"><a class="prev" href="ref-executables.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">실행 파일 목록</div></a><a class="next" href="ex-02-si-ibrav0.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">ibrav=0 다시 쓰기</div></a></nav>
+<nav class="page-nav"><a class="prev" href="ex-06-si-vcrelax.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">Si vc-relax</div></a><a class="next" href="ex-08-si-bands.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">Si 밴드 구조</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

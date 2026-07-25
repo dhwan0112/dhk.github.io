@@ -1,0 +1,62 @@
+&CONTROL
+  nstep = 25
+   calculation      = 'relax'
+   tprnfor          = .true.
+   outdir           = './tmp/'
+   prefix           = 'feo100'
+   forc_conv_thr    = 0.0001
+   pseudo_dir       = './pseudo/'
+   tefield          = .true.
+   dipfield         = .true.
+/
+&SYSTEM
+   ecutwfc          = 70
+   ecutrho          = 700
+   occupations      = 'smearing'
+   degauss          = 0.01
+   smearing         = 'mv'
+   edir             = 3
+   emaxpos          = 0.9
+   eopreg           = 0.05
+   eamp             = 0.0
+   ntyp             = 2
+   nat              = 8
+   ibrav            = 0
+/
+&ELECTRONS
+   electron_maxstep = 200
+   conv_thr         = 1e-08
+   mixing_mode      = 'local-TF'
+   mixing_beta      = 0.2
+/
+&IONS
+   ion_dynamics     = 'bfgs'
+/
+&CELL
+/
+&FCP
+/
+&RISM
+/
+ATOMIC_SPECIES
+Fe 55.845 Fe.pbe-spn-kjpaw_psl.1.0.0.UPF
+O 15.999 O.pbe-n-kjpaw_psl.1.0.0.UPF
+
+K_POINTS automatic
+6 6 1  0 0 0
+
+CELL_PARAMETERS angstrom
+3.06177236253775 0.00000000000000 0.00000000000000
+1.53088618126888 2.65157264656279 0.00000000000000
+0.00000000000000 0.00000000000000 24.74974332956878
+
+ATOMIC_POSITIONS angstrom
+Fe 0.0000000000 0.0000000000 8.0000000000   0 0 0
+O 3.0617723625 1.7677150977 9.2499633328   0 0 0
+Fe 1.5308861813 0.8838575489 10.4999266656   0 0 0
+O 0.0000000000 0.0000000000 11.7498899984   0 0 0
+Fe 3.0617723625 1.7677150977 12.9998533312  
+O 1.5308861813 0.8838575489 14.2498166640  
+Fe 0.0000000000 0.0000000000 15.4997799968  
+O 3.0617723625 1.7677150977 16.7497433296  
+

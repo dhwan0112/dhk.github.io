@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Si SCF · QE 가이드</title>
-  <meta name="description" content="가장 단순한 실리콘 SCF를 한 번 돌리고 출력의 모든 블록을 읽어보는 첫 예제." />
+  <title>수렴 테스트 자동화 · QE 가이드</title>
+  <meta name="description" content="ecutwfc·k점·힘 수렴 테스트를 셸 스크립트로 자동화하는 표준 절차." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -88,9 +88,9 @@
     <div class="nav-section">
       <div class="nav-section-title">예제 · 따라 하기</div>
       <ul class="nav-list">
-        <li><a href="ex-01-si-scf.html" class="active" aria-current="page"><span class="nav-num">E1</span>Si SCF</a></li>
+        <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
         <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
+        <li><a href="ex-03-convergence.html" class="active" aria-current="page"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
         <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
         <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
@@ -107,15 +107,17 @@
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">예제 · E1</div>
-        <h1 class="page-title">Si SCF</h1>
-        <p class="page-lede">가장 단순한 실리콘 SCF를 한 번 돌리고 출력의 모든 블록을 읽어보는 첫 예제.</p>
+        <div class="page-eyebrow">예제 · E3</div>
+        <h1 class="page-title">수렴 테스트 자동화</h1>
+        <p class="page-lede">ecutwfc·k점·힘 수렴 테스트를 셸 스크립트로 자동화하는 표준 절차.</p>
       </header>
       <article class="content">
 <h2 id="_1">목적</h2>
-<p>가장 단순한 계(다이아몬드 구조 실리콘, 2원자)로 SCF를 한 번 돌리고, 출력의
-모든 블록을 읽어봅니다. 이 예제의 입력이 이후 모든 예제의 뼈대입니다.</p>
-<h2 id="_2">새로 나오는 카드·변수</h2>
+<p><strong>여기가 QE 실력의 분기점입니다.</strong> ecutwfc, k-점, 그리고 힘의 수렴 테스트를
+셸 스크립트로 자동화하는 표준 절차를 익힙니다. 판정 기준을 meV/atom과
+meV/Å로 환산하는 감각까지가 이 예제의 목표입니다. 배경은
+<a href="05-convergence.html">05장</a>.</p>
+<h2 id="_2">새로 나오는 것</h2>
 <table>
 <thead>
 <tr>
@@ -125,154 +127,148 @@
 </thead>
 <tbody>
 <tr>
-<td><code>&amp;CONTROL</code> / <code>&amp;SYSTEM</code> / <code>&amp;ELECTRONS</code></td>
-<td>필수 네임리스트 3종 (<a href="02-input-structure.html">02장</a>)</td>
+<td><code>sed</code>로 입력 파생</td>
+<td>하나의 기준 입력에서 스캔 입력들을 생성</td>
 </tr>
 <tr>
-<td><code>ibrav=2</code> + <code>celldm(1)</code></td>
-<td>fcc 격자를 관례로 정의 (<a href="03-units-coordinates.html">03장</a>)</td>
+<td><code>grep '^!'</code></td>
+<td>수렴된 총에너지만 추출</td>
 </tr>
 <tr>
-<td><code>ATOMIC_SPECIES</code> / <code>ATOMIC_POSITIONS</code> / <code>K_POINTS</code></td>
-<td>필수 카드 3종</td>
-</tr>
-<tr>
-<td><code>verbosity='high'</code>, <code>tprnfor</code>, <code>tstress</code></td>
-<td>학습용 상세 출력 + 힘·응력</td>
+<td>meV/atom 환산</td>
+<td>ΔE × 13605.7 / nat</td>
 </tr>
 </tbody>
 </table>
 <h2 id="_3">입력 파일</h2>
-<p><a href="files/E01-si-scf/si.scf.in">si.scf.in 내려받기</a></p>
-<pre><code class="language-fortran">&amp;CONTROL
-  calculation  = 'scf'
-  prefix       = 'si'
-  outdir       = './tmp/'
-  pseudo_dir   = './pseudo/'
-  verbosity    = 'high'
-  tprnfor      = .true.
-  tstress      = .true.
-/
-&amp;SYSTEM
-  ibrav        = 2
-  celldm(1)    = 10.26
-  nat          = 2
-  ntyp         = 1
-  ecutwfc      = 30
-  ecutrho      = 240
-  occupations  = 'fixed'
-/
-&amp;ELECTRONS
-  conv_thr     = 1.0d-8
-  mixing_beta  = 0.7
-/
-
-ATOMIC_SPECIES
-  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
-
-ATOMIC_POSITIONS (alat)
-  Si  0.00  0.00  0.00
-  Si  0.25  0.25  0.25
-
-K_POINTS (automatic)
-  8 8 8  0 0 0
+<p>기준 입력은 <a href="ex-01-si-scf.html">E1</a>과 동일합니다
+(<a href="files/E03-convergence/si.scf.in">si.scf.in</a>).</p>
+<p><a href="files/E03-convergence/conv_ecut.sh">conv_ecut.sh</a> ·
+<a href="files/E03-convergence/conv_kpts.sh">conv_kpts.sh</a> ·
+<a href="files/E03-convergence/conv_force.sh">conv_force.sh</a></p>
+<pre><code class="language-bash">#!/bin/bash
+# conv_ecut.sh — ecutwfc 수렴. ecutrho 는 8배로 함께 올린다 (PAW/US 기준).
+NAT=2
+printf &quot;# ecutwfc(Ry)  E_total(Ry)   dE_vs_last(meV/atom)\n&quot; &gt; conv_ecut.dat
+LAST=&quot;&quot;
+for E in 20 25 30 35 40 45 50 60 70 80; do
+  sed -e &quot;s/ecutwfc *=.*/ecutwfc      = $E/&quot; \
+      -e &quot;s/ecutrho *=.*/ecutrho      = $((E*8))/" si.scf.in > tmp_e$E.in
+  pw.x -in tmp_e$E.in > tmp_e$E.out
+  EN=$(grep '^!' tmp_e$E.out | tail -1 | awk '{print $5}')
+  echo &quot;$E  $EN&quot; &gt;&gt; conv_ecut.dat
+  LAST=$EN
+done
+awk -v nat=$NAT -v ref="$LAST&quot; '!/^#/{printf &quot;%6s  %16s  %10.3f\n&quot;,$1,$2,($2-ref)*13605.7/nat}' conv_ecut.dat
 </code></pre>
+<p>k-점 스캔(<code>conv_kpts.sh</code>)은 <code>K_POINTS</code> 줄을, 힘 스캔(<code>conv_force.sh</code>)은
+대칭을 깬 구조(Si를 0.25 → 0.26으로 변위)의 첫 원자 힘을 같은 방식으로
+추출합니다.</p>
 <h2 id="_4">실행</h2>
-<pre><code class="language-bash">mkdir -p pseudo tmp        # pseudo/ 에 Si PAW UPF를 받아 두세요 (01장)
-pw.x -in si.scf.in &gt; si.scf.out                     # 직렬
-mpirun -np 6 pw.x -nk 6 -in si.scf.in &gt; si.scf.out  # 실측에 쓴 병렬 설정
+<pre><code class="language-bash">bash conv_ecut.sh
+bash conv_kpts.sh  &gt; conv_kpts.dat
+bash conv_force.sh &gt; conv_force.dat
 </code></pre>
-<h2 id="_5">출력에서 확인할 것</h2>
+<h2 id="_5">출력·그림 — 실측</h2>
+<figure>
+  <img src="assets/images/qe-e03-convergence.png"
+       alt="Si convergence: dE vs ecutwfc, dE vs k-grid, force vs ecutwfc" />
+  <figcaption>
+    실리콘 수렴 실측 (QE 7.5, PAW, ecutrho = 8×ecutwfc 동시 스캔).
+    왼쪽: 컷오프 — 변분 원리 덕분에 위에서 아래로 단조 수렴합니다.
+    가운데: k-격자 — 단조가 아니어도 정상입니다. 오른쪽: 변위 구조의 힘 —
+    이 계에서는 40 Ry면 힘도 0.03 meV/Å 수준으로 수렴합니다.
+  </figcaption>
+</figure>
+
+<p>숫자로 보는 판정 (기준: 최밀 스캔 값):</p>
 <table>
 <thead>
 <tr>
-<th>찾을 것</th>
-<th>검색어</th>
-<th>실측값 (QE 7.5, PAW)</th>
+<th>ecutwfc</th>
+<th>ΔE (meV/atom)</th>
+<th></th>
+<th>k-격자</th>
+<th>ΔE (meV/atom)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>최종 총에너지</td>
-<td><code>!    total</code></td>
-<td><strong>−93.45273690 Ry</strong></td>
+<td>20</td>
+<td>13.72</td>
+<td></td>
+<td>2³</td>
+<td>1279</td>
 </tr>
 <tr>
-<td>수렴</td>
-<td><code>convergence has been achieved</code></td>
-<td>6회 반복</td>
+<td>25</td>
+<td>5.03</td>
+<td></td>
+<td>4³</td>
+<td>94.2</td>
 </tr>
 <tr>
-<td>기약 k-점 수</td>
-<td><code>number of k points</code></td>
-<td>29 (8×8×8에서 대칭으로 축소)</td>
+<td>30</td>
+<td>1.76</td>
+<td></td>
+<td>6³</td>
+<td>12.0</td>
 </tr>
 <tr>
-<td>대칭 연산</td>
-<td><code>Sym. Ops.</code></td>
-<td>48 (반전 포함)</td>
+<td><strong>40</strong></td>
+<td><strong>0.91</strong></td>
+<td></td>
+<td><strong>8³</strong></td>
+<td><strong>1.95</strong></td>
 </tr>
 <tr>
-<td>최고 점유 준위</td>
-<td><code>highest occupied level</code></td>
-<td>6.2124 eV</td>
+<td>50</td>
+<td>0.27</td>
+<td></td>
+<td>10³</td>
+<td>0.36</td>
 </tr>
 <tr>
-<td>힘</td>
-<td><code>Total force</code></td>
-<td>0.000000 (대칭 위치이므로 정확히 0)</td>
-</tr>
-<tr>
-<td>응력</td>
-<td><code>total   stress</code></td>
-<td>P = 20.28 kbar</td>
-</tr>
-<tr>
-<td>소요 시간</td>
-<td><code>PWSCF ... WALL</code></td>
-<td>2.75 s (6랭크)</td>
+<td>60</td>
+<td>0.14</td>
+<td></td>
+<td>12³</td>
+<td>0.073</td>
 </tr>
 </tbody>
 </table>
-<p>읽는 법 몇 가지 —</p>
 <ul>
-<li><code>!</code>가 붙은 총에너지 줄만 수렴된 최종값입니다. PAW라 절대값이 US
-  유사퍼텐셜과 크게 다른데, <a href="04-pseudopotentials.html">총에너지 절대값은 원래 비교 대상이
-  아닙니다</a>.</li>
-<li><code>occupations='fixed'</code>에 기본 <code>nbnd</code>(점유 밴드만)라서
-  <code>highest occupied level</code>만 나오고 갭 추정(<code>lowest unoccupied</code>)은 나오지
-  않습니다. 갭까지 보려면 <code>nbnd</code>를 늘리세요 (직접 써보기 3).</li>
-<li>P = +20 kbar는 이 격자상수(5.43 Å, 실험값)가 PBE 평형보다 압축되어
-  있다는 뜻입니다. PBE 평형 격자상수는 <a href="ex-06-si-vcrelax.html">E6</a>에서
-  구합니다.</li>
+<li>총에너지 1 meV/atom 기준이면 <strong>ecutwfc 40 Ry, k 10×10×10</strong> 부근이
+  합격선입니다. E1의 30 Ry / 8³은 학습용 잠정값이었던 셈입니다.</li>
+<li>힘(변위 구조의 Fx ≈ 0.0288 Ry/bohr = 0.741 eV/Å)은 30 → 40 Ry에서
+  0.5 meV/Å 변하고 이후 0.03 meV/Å 이내로 안정됩니다. ML 퍼텐셜 학습
+  데이터라면 이 힘 기준(~1 meV/Å)으로 판정하세요.</li>
 </ul>
 <h2 id="_6">직접 써보기</h2>
 <ol>
-<li><code>verbosity</code>를 <code>'low'</code>로 바꿔 출력이 얼마나 줄어드는지 확인하고, 학습
-   중에는 왜 <code>'high'</code>를 써야 하는지 설명해 보세요.</li>
-<li><code>occupations</code>를 <code>'smearing'</code>으로 바꾸면 에너지가 어떻게 변하나요? 왜
-   반도체에 smearing을 쓰면 안 되는지 서술해 보세요.</li>
-<li><code>nbnd = 8</code>을 추가해 <code>highest occupied, lowest unoccupied level</code>이
-   출력되게 하고, 그 차이(갭 추정)를 읽어 보세요.</li>
-<li><code>ecutrho</code>를 지우면(기본값 = 4×<code>ecutwfc</code>) 어떤 일이 생기는지 확인하세요.</li>
+<li><code>ecutrho</code>를 <code>ecutwfc</code>의 4배로 고정한 채 같은 테스트를 반복하고, PAW에서
+   무슨 일이 생기는지 관찰하세요 (<a href="04-pseudopotentials.html">04장</a>의 함정).</li>
+<li>에너지가 수렴한 컷오프와 힘이 수렴한 컷오프를 비교하세요. 어느 쪽이 더
+   높은가요?</li>
+<li>스캔 결과를 그림으로 그리는 파이썬 스크립트를 직접 써 보세요 (본
+   가이드의 그림 스크립트는 저장소 <code>.build/plot_qe.py</code>에 있습니다).</li>
 </ol>
 <div class="warning">
   <div class="note-title">흔한 실수</div>
   <p>
-    <code>pseudo_dir</code>에 UPF 파일이 없거나 파일명이
-    <code>ATOMIC_SPECIES</code>와 다르면 <code>Error in routine readpp</code>로
-    멈춥니다. 그리고 이 계산의 <code>outdir</code>(<code>./tmp/</code>)을
-    지우면 후속 예제(E7·E8)의 nscf가 시작하지 못합니다 —
-    <a href="08-scf-nscf.html">08장</a>.
+    힘을 추출할 때 <code>grep 'atom    1 ... force' | tail -1</code>처럼
+    <strong>마지막 매치</strong>를 집으면 총힘이 아니라 출력 뒤쪽의 기여 분해
+    블록(SCF correction, ~10⁻⁶)을 잡습니다. 총힘은 <code>Forces acting on
+    atoms</code> 직후의 <strong>첫 매치</strong>입니다. 실제로 이 예제를
+    처음 실측할 때 이 함정에 걸렸고, 위 스크립트는 수정된 판입니다.
   </p>
 </div>
 
 <h2 id="_7">관련 챕터</h2>
-<p><a href="02-input-structure.html">02 입력 파일 구조</a> ·
-<a href="03-units-coordinates.html">03 단위계와 좌표계</a> ·
-<a href="08-scf-nscf.html">08 SCF와 NSCF</a></p>
+<p><a href="05-convergence.html">05 컷오프와 k-점 수렴</a> ·
+<a href="04-pseudopotentials.html">04 유사퍼텐셜</a></p>
       </article>
-<nav class="page-nav"><a class="prev" href="ref-executables.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">실행 파일 목록</div></a><a class="next" href="ex-02-si-ibrav0.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">ibrav=0 다시 쓰기</div></a></nav>
+<nav class="page-nav"><a class="prev" href="ex-02-si-ibrav0.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">ibrav=0 다시 쓰기</div></a><a class="next" href="ex-04-o2-molecule.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">O₂ 분자 (삼중항)</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

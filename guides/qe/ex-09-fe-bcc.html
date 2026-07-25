@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Si SCF · QE 가이드</title>
-  <meta name="description" content="가장 단순한 실리콘 SCF를 한 번 돌리고 출력의 모든 블록을 읽어보는 첫 예제." />
+  <title>bcc Fe 강자성 · QE 가이드</title>
+  <meta name="description" content="스핀 편극 SCF로 bcc Fe의 강자성 바닥상태와 자기모멘트를 계산합니다." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -88,7 +88,7 @@
     <div class="nav-section">
       <div class="nav-section-title">예제 · 따라 하기</div>
       <ul class="nav-list">
-        <li><a href="ex-01-si-scf.html" class="active" aria-current="page"><span class="nav-num">E1</span>Si SCF</a></li>
+        <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
         <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
         <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
         <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
@@ -96,7 +96,7 @@
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
         <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
         <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
+        <li><a href="ex-09-fe-bcc.html" class="active" aria-current="page"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
         <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
         <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
         <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
@@ -107,14 +107,15 @@
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">예제 · E1</div>
-        <h1 class="page-title">Si SCF</h1>
-        <p class="page-lede">가장 단순한 실리콘 SCF를 한 번 돌리고 출력의 모든 블록을 읽어보는 첫 예제.</p>
+        <div class="page-eyebrow">예제 · E9</div>
+        <h1 class="page-title">bcc Fe 강자성</h1>
+        <p class="page-lede">스핀 편극 SCF로 bcc Fe의 강자성 바닥상태와 자기모멘트를 계산합니다.</p>
       </header>
       <article class="content">
 <h2 id="_1">목적</h2>
-<p>가장 단순한 계(다이아몬드 구조 실리콘, 2원자)로 SCF를 한 번 돌리고, 출력의
-모든 블록을 읽어봅니다. 이 예제의 입력이 이후 모든 예제의 뼈대입니다.</p>
+<p>첫 <strong>자성</strong> 계산입니다. 스핀 편극 SCF(<code>nspin=2</code>)로 bcc Fe의 강자성
+바닥상태를 얻고, 자기모멘트를 실험과 비교합니다. 금속 + 자성이라는, 수렴이
+까다로워지는 조합을 다루는 요령(<a href="12-magnetism.html">12장</a>)의 실전입니다.</p>
 <h2 id="_2">새로 나오는 카드·변수</h2>
 <table>
 <thead>
@@ -125,154 +126,132 @@
 </thead>
 <tbody>
 <tr>
-<td><code>&amp;CONTROL</code> / <code>&amp;SYSTEM</code> / <code>&amp;ELECTRONS</code></td>
-<td>필수 네임리스트 3종 (<a href="02-input-structure.html">02장</a>)</td>
+<td><code>nspin=2</code> + <code>starting_magnetization</code></td>
+<td>공선 스핀 편극, 초기 자화 (−1~1 비율)</td>
 </tr>
 <tr>
-<td><code>ibrav=2</code> + <code>celldm(1)</code></td>
-<td>fcc 격자를 관례로 정의 (<a href="03-units-coordinates.html">03장</a>)</td>
+<td><code>mixing_beta=0.3</code> + <code>mixing_mode='local-TF'</code></td>
+<td>자성 금속의 mixing 처방</td>
 </tr>
 <tr>
-<td><code>ATOMIC_SPECIES</code> / <code>ATOMIC_POSITIONS</code> / <code>K_POINTS</code></td>
-<td>필수 카드 3종</td>
-</tr>
-<tr>
-<td><code>verbosity='high'</code>, <code>tprnfor</code>, <code>tstress</code></td>
-<td>학습용 상세 출력 + 힘·응력</td>
+<td><code>ecutrho = 10×ecutwfc</code></td>
+<td>Fe PAW의 큰 밀도 컷오프 요구</td>
 </tr>
 </tbody>
 </table>
 <h2 id="_3">입력 파일</h2>
-<p><a href="files/E01-si-scf/si.scf.in">si.scf.in 내려받기</a></p>
+<p><a href="files/E09-fe-bcc/fe.scf.in">fe.scf.in 내려받기</a></p>
 <pre><code class="language-fortran">&amp;CONTROL
-  calculation  = 'scf'
-  prefix       = 'si'
-  outdir       = './tmp/'
-  pseudo_dir   = './pseudo/'
-  verbosity    = 'high'
-  tprnfor      = .true.
-  tstress      = .true.
+  calculation = 'scf'
+  prefix      = 'fe'
+  outdir      = './tmp/'
+  pseudo_dir  = './pseudo/'
+  verbosity   = 'high'
 /
 &amp;SYSTEM
-  ibrav        = 2
-  celldm(1)    = 10.26
-  nat          = 2
-  ntyp         = 1
-  ecutwfc      = 30
-  ecutrho      = 240
-  occupations  = 'fixed'
+  ibrav       = 3               ! bcc
+  celldm(1)   = 5.42            ! bohr (= 2.87 Å)
+  nat         = 1
+  ntyp        = 1
+  ecutwfc     = 70
+  ecutrho     = 700             ! Fe는 10배 이상 권장
+  occupations = 'smearing'
+  smearing    = 'mv'
+  degauss     = 0.02
+  nspin       = 2
+  starting_magnetization(1) = 0.7
 /
 &amp;ELECTRONS
-  conv_thr     = 1.0d-8
-  mixing_beta  = 0.7
+  conv_thr    = 1.0d-8
+  mixing_beta = 0.3             ! 자성 금속은 낮게
+  mixing_mode = 'local-TF'
+  electron_maxstep = 200
 /
 
 ATOMIC_SPECIES
-  Si  28.0855  Si.pbe-n-kjpaw_psl.1.0.0.UPF
+  Fe  55.845  Fe.pbe-spn-kjpaw_psl.1.0.0.UPF
 
 ATOMIC_POSITIONS (alat)
-  Si  0.00  0.00  0.00
-  Si  0.25  0.25  0.25
+  Fe  0.00  0.00  0.00
 
 K_POINTS (automatic)
-  8 8 8  0 0 0
+  16 16 16  0 0 0
 </code></pre>
 <h2 id="_4">실행</h2>
-<pre><code class="language-bash">mkdir -p pseudo tmp        # pseudo/ 에 Si PAW UPF를 받아 두세요 (01장)
-pw.x -in si.scf.in &gt; si.scf.out                     # 직렬
-mpirun -np 6 pw.x -nk 6 -in si.scf.in &gt; si.scf.out  # 실측에 쓴 병렬 설정
+<pre><code class="language-bash">mpirun -np 6 pw.x -nk 6 -in fe.scf.in &gt; fe.scf.out
 </code></pre>
-<h2 id="_5">출력에서 확인할 것</h2>
+<h2 id="_5">출력에서 확인할 것 — 실측</h2>
 <table>
 <thead>
 <tr>
-<th>찾을 것</th>
-<th>검색어</th>
+<th>항목</th>
 <th>실측값 (QE 7.5, PAW)</th>
+<th>비고</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>최종 총에너지</td>
-<td><code>!    total</code></td>
-<td><strong>−93.45273690 Ry</strong></td>
+<td>총에너지</td>
+<td>−329.26290531 Ry</td>
+<td></td>
 </tr>
 <tr>
-<td>수렴</td>
-<td><code>convergence has been achieved</code></td>
-<td>6회 반복</td>
+<td><strong>total magnetization</strong></td>
+<td><strong>2.19 μB/cell</strong></td>
+<td>실험 2.22 μB — PBE가 거의 정확</td>
 </tr>
 <tr>
-<td>기약 k-점 수</td>
-<td><code>number of k points</code></td>
-<td>29 (8×8×8에서 대칭으로 축소)</td>
+<td>absolute magnetization</td>
+<td>2.32 μB/cell</td>
+<td>total과 근접 → FM 배열</td>
 </tr>
 <tr>
-<td>대칭 연산</td>
-<td><code>Sym. Ops.</code></td>
-<td>48 (반전 포함)</td>
-</tr>
-<tr>
-<td>최고 점유 준위</td>
-<td><code>highest occupied level</code></td>
-<td>6.2124 eV</td>
-</tr>
-<tr>
-<td>힘</td>
-<td><code>Total force</code></td>
-<td>0.000000 (대칭 위치이므로 정확히 0)</td>
-</tr>
-<tr>
-<td>응력</td>
-<td><code>total   stress</code></td>
-<td>P = 20.28 kbar</td>
-</tr>
-<tr>
-<td>소요 시간</td>
-<td><code>PWSCF ... WALL</code></td>
-<td>2.75 s (6랭크)</td>
+<td>페르미 준위</td>
+<td>17.4481 eV</td>
+<td>금속</td>
 </tr>
 </tbody>
 </table>
-<p>읽는 법 몇 가지 —</p>
-<ul>
-<li><code>!</code>가 붙은 총에너지 줄만 수렴된 최종값입니다. PAW라 절대값이 US
-  유사퍼텐셜과 크게 다른데, <a href="04-pseudopotentials.html">총에너지 절대값은 원래 비교 대상이
-  아닙니다</a>.</li>
-<li><code>occupations='fixed'</code>에 기본 <code>nbnd</code>(점유 밴드만)라서
-  <code>highest occupied level</code>만 나오고 갭 추정(<code>lowest unoccupied</code>)은 나오지
-  않습니다. 갭까지 보려면 <code>nbnd</code>를 늘리세요 (직접 써보기 3).</li>
-<li>P = +20 kbar는 이 격자상수(5.43 Å, 실험값)가 PBE 평형보다 압축되어
-  있다는 뜻입니다. PBE 평형 격자상수는 <a href="ex-06-si-vcrelax.html">E6</a>에서
-  구합니다.</li>
-</ul>
+<p>total ≈ absolute라는 것이 강자성의 표지입니다. AFM이라면 total ≈ 0에
+absolute만 큽니다 — 그 경우가 <a href="ex-10-feo-afm.html">E10</a>입니다.</p>
+<h2 id="dos">스핀 분해 DOS — 추가 실측</h2>
+<p>같은 밀도 위에 nscf(20³, <code>tetrahedra_opt</code>) + <code>dos.x</code>를 얹어 스핀별 DOS를
+뽑았습니다 (dos.x는 스핀 계에서 up/down 두 열을 출력합니다).</p>
+<figure>
+  <img src="assets/images/qe-e09-fe-dos.png"
+       alt="bcc Fe spin-resolved DOS" />
+  <figcaption>
+    bcc Fe 스핀 분해 DOS 실측 (QE 7.5, PBE). 교환 분리(exchange splitting)로
+    다수 스핀(up) d-밴드가 아래로 내려앉아 거의 채워지고, 소수 스핀(down)
+    d-밴드가 Fermi 준위에 걸립니다 — 그 점유 차이가 곧 2.2 μB의 모멘트입니다.
+  </figcaption>
+</figure>
+
 <h2 id="_6">직접 써보기</h2>
 <ol>
-<li><code>verbosity</code>를 <code>'low'</code>로 바꿔 출력이 얼마나 줄어드는지 확인하고, 학습
-   중에는 왜 <code>'high'</code>를 써야 하는지 설명해 보세요.</li>
-<li><code>occupations</code>를 <code>'smearing'</code>으로 바꾸면 에너지가 어떻게 변하나요? 왜
-   반도체에 smearing을 쓰면 안 되는지 서술해 보세요.</li>
-<li><code>nbnd = 8</code>을 추가해 <code>highest occupied, lowest unoccupied level</code>이
-   출력되게 하고, 그 차이(갭 추정)를 읽어 보세요.</li>
-<li><code>ecutrho</code>를 지우면(기본값 = 4×<code>ecutwfc</code>) 어떤 일이 생기는지 확인하세요.</li>
+<li><code>starting_magnetization = 0.0</code>으로 두면 어떻게 되나요? 비자성 해로
+   붕괴하는지 확인하세요.</li>
+<li>비자성(<code>nspin=1</code>) 계산과 에너지를 비교해 자성 안정화 에너지를 구하세요.</li>
+<li>PDOS(<a href="ex-07-si-dos.html">E7</a> 절차)를 뽑아 스핀 up/down d-밴드의 교환
+   분리를 관찰하고, Löwdin 전하로부터 국소 모멘트를 읽어 셀 전체 자화와
+   비교하세요.</li>
+<li><code>degauss</code>를 0.05로 키우면 모멘트가 어떻게 변하나요?</li>
 </ol>
 <div class="warning">
   <div class="note-title">흔한 실수</div>
   <p>
-    <code>pseudo_dir</code>에 UPF 파일이 없거나 파일명이
-    <code>ATOMIC_SPECIES</code>와 다르면 <code>Error in routine readpp</code>로
-    멈춥니다. 그리고 이 계산의 <code>outdir</code>(<code>./tmp/</code>)을
-    지우면 후속 예제(E7·E8)의 nscf가 시작하지 못합니다 —
-    <a href="08-scf-nscf.html">08장</a>.
+    자성계에서 한 번 수렴한 해를 바닥상태로 단정하는 것 — 자성계는 준안정
+    해가 여럿입니다. 초기 자화를 바꿔(0.3 / 0.7 / −0.7) 여러 번 수렴시키고
+    에너지를 비교하세요. 그리고 <code>starting_magnetization</code>은 μB가
+    아니라 <strong>비율</strong>입니다 (<a href="03-units-coordinates.html">03장</a>).
   </p>
 </div>
 
 <h2 id="_7">관련 챕터</h2>
-<p><a href="02-input-structure.html">02 입력 파일 구조</a> ·
-<a href="03-units-coordinates.html">03 단위계와 좌표계</a> ·
-<a href="08-scf-nscf.html">08 SCF와 NSCF</a></p>
+<p><a href="12-magnetism.html">12 스핀 편극과 자성</a> ·
+<a href="07-scf-control.html">07 SCF 수렴 제어</a></p>
       </article>
-<nav class="page-nav"><a class="prev" href="ref-executables.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">실행 파일 목록</div></a><a class="next" href="ex-02-si-ibrav0.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">ibrav=0 다시 쓰기</div></a></nav>
+<nav class="page-nav"><a class="prev" href="ex-08-si-bands.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">Si 밴드 구조</div></a><a class="next" href="ex-10-feo-afm.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">FeO AFM (GGA 실패)</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>
