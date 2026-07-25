@@ -68,29 +68,31 @@ permalink: /guides/
             <article class="post-preview">
                 <div class="post-header">
                     <h2 class="post-title">
-                        <a href="{{ '/guides/qe/' | relative_url }}">Quantum ESPRESSO 한국어 입문 가이드</a>
+                        <a href="{{ '/guides/qe/' | relative_url }}">Quantum ESPRESSO: A Practical Guide</a>
                     </h2>
                     <div class="post-meta">
-                        <span class="post-category"><i class="fas fa-wave-square"></i> DFT · 제일원리</span>
-                        <span class="post-category"><i class="fas fa-book"></i> QE 7.5 · 입문 + 심화</span>
+                        <span class="post-category"><i class="fas fa-wave-square"></i> DFT · First principles</span>
+                        <span class="post-category"><i class="fas fa-book"></i> QE 7.5 · English</span>
                     </div>
                 </div>
                 <div class="post-excerpt">
                     <p>
-                        실리콘 SCF 한 예제에서 출발해 입력 문법, 수렴 테스트, 구조 최적화,
-                        밴드·DOS 후처리를 거쳐 스핀 편극과 반강자성, DFT+U의 HUBBARD 카드,
-                        hp.x에 의한 U 계산, 슬랩·ab initio MD까지 다루는 한국어 가이드입니다
-                        (본문 18장 + 레퍼런스 4). Si부터 bcc Fe, FeO(AFM)까지 예제 13종을
-                        QE 7.5로 전부 실제 실행해 실측 수치·그림과 함께 정리했고, 입력
-                        파일도 내려받을 수 있습니다.
+                        An English-language guide that starts from a single silicon SCF and
+                        works through input syntax, convergence testing, structure
+                        optimization, and band/DOS post-processing, then continues into spin
+                        polarization and antiferromagnetism, the HUBBARD card for DFT+U,
+                        computing U with hp.x, and slabs with ab initio MD (18 chapters plus
+                        4 reference pages). All 13 examples, from Si to bcc Fe and
+                        antiferromagnetic FeO, were actually executed with QE 7.5; the pages
+                        include the measured numbers, figures, and downloadable inputs.
                     </p>
-                    <a href="{{ '/guides/qe/' | relative_url }}" class="read-more">가이드 열기 →</a>
+                    <a href="{{ '/guides/qe/' | relative_url }}" class="read-more">Open the guide →</a>
                 </div>
                 <div class="post-tags">
                     <span class="tag">Quantum ESPRESSO</span>
                     <span class="tag">DFT+U</span>
                     <span class="tag">Band Structure · DOS</span>
-                    <span class="tag">FeO · 자성</span>
+                    <span class="tag">FeO · Magnetism</span>
                     <span class="tag">AIMD</span>
                 </div>
             </article>
