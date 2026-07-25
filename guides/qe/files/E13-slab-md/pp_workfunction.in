@@ -1,0 +1,14 @@
+&INPUTPP
+  prefix   = 'feo100'
+  outdir   = './tmp/'
+  filplot  = 'feo100.pot.dat'
+  plot_num = 11
+/
+&PLOT
+  nfile         = 1
+  filepp(1)     = 'feo100.pot.dat'
+  weight(1)     = 1.0
+  iflag         = 3
+  output_format = 6
+  fileout       = 'feo100.pot.cube'
+/

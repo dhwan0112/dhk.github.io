@@ -1,0 +1,7 @@
+&INPUTHP
+  prefix       = 'FeO'
+  outdir       = './tmp/'
+  nq1 = 2, nq2 = 2, nq3 = 2
+  conv_thr_chi = 1.0d-6      ! 금속성(GGA) 바닥상태에선 1.0d-8 이 잔차 노이즈에 걸린다 (실측)
+  iverbosity   = 2
+/

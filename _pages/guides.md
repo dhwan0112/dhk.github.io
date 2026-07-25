@@ -72,24 +72,26 @@ permalink: /guides/
                     </h2>
                     <div class="post-meta">
                         <span class="post-category"><i class="fas fa-wave-square"></i> DFT · 제일원리</span>
-                        <span class="post-category"><i class="fas fa-book"></i> QE 7.5</span>
+                        <span class="post-category"><i class="fas fa-book"></i> QE 7.5 · 입문 + 심화</span>
                     </div>
                 </div>
                 <div class="post-excerpt">
                     <p>
-                        실리콘 SCF 한 예제부터 시작해 pw.x 입력의 네임리스트 구조, 유사퍼텐셜,
-                        k점 샘플링, SCF 수렴과 smearing, 구조 최적화, 밴드구조·상태밀도까지
-                        단계별로 풀어쓴 한국어 입문 가이드입니다(8장). 이어 Si SCF·밴드/DOS,
-                        금속 Al smearing, vc-relax 구조 최적화 네 예제를 QE 7.5로 실제 실행해
-                        실측 결과와 함께 정리했습니다.
+                        실리콘 SCF 한 예제에서 출발해 입력 문법, 수렴 테스트, 구조 최적화,
+                        밴드·DOS 후처리를 거쳐 스핀 편극과 반강자성, DFT+U의 HUBBARD 카드,
+                        hp.x에 의한 U 계산, 슬랩·ab initio MD까지 다루는 한국어 가이드입니다
+                        (본문 18장 + 레퍼런스 4). Si부터 bcc Fe, FeO(AFM)까지 예제 13종을
+                        QE 7.5로 전부 실제 실행해 실측 수치·그림과 함께 정리했고, 입력
+                        파일도 내려받을 수 있습니다.
                     </p>
                     <a href="{{ '/guides/qe/' | relative_url }}" class="read-more">가이드 열기 →</a>
                 </div>
                 <div class="post-tags">
                     <span class="tag">Quantum ESPRESSO</span>
-                    <span class="tag">DFT</span>
+                    <span class="tag">DFT+U</span>
                     <span class="tag">Band Structure · DOS</span>
-                    <span class="tag">Pseudopotential</span>
+                    <span class="tag">FeO · 자성</span>
+                    <span class="tag">AIMD</span>
                 </div>
             </article>
         </div>

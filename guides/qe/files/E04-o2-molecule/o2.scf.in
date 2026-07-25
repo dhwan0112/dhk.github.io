@@ -1,0 +1,35 @@
+&CONTROL
+  calculation       = 'scf'
+  prefix            = 'o2'
+  outdir            = './tmp/'
+  pseudo_dir        = './pseudo/'
+  verbosity         = 'high'
+  tprnfor           = .true.
+/
+&SYSTEM
+  ibrav             = 1
+  celldm(1)         = 20.0
+  nat               = 2
+  ntyp              = 1
+  ecutwfc           = 60
+  ecutrho           = 480
+  assume_isolated   = 'mt'
+  nspin             = 2
+  tot_magnetization = 2.0
+  occupations       = 'smearing'
+  smearing          = 'gaussian'
+  degauss           = 0.001
+/
+&ELECTRONS
+  conv_thr          = 1.0d-8
+  mixing_beta       = 0.3
+/
+
+ATOMIC_SPECIES
+  O  15.9994  O.pbe-n-kjpaw_psl.1.0.0.UPF
+
+ATOMIC_POSITIONS (angstrom)
+  O  0.000  0.000  0.000
+  O  0.000  0.000  1.210
+
+K_POINTS gamma
