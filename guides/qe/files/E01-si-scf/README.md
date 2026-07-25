@@ -1,13 +1,13 @@
 # E01-si-scf
 
-가장 단순한 SCF. 네임리스트 3개와 카드 3개, ibrav+celldm 방식.
+The simplest SCF: three namelists, three cards, the ibrav+celldm way.
 
-## 포함 파일
+## Files
 
 - `si.scf.in`
 
-## 실행 전
+## Before running
 
 ```bash
-mkdir -p pseudo tmp   # pseudo/ 에 UPF 파일을 넣어 두세요
+mkdir -p pseudo tmp   # put the UPF files in pseudo/
 ```

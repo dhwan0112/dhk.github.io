@@ -1,5 +1,5 @@
-! FeO rocksalt, AFM-II (교대하는 (111) 면)
-! 능면체 자기 단위셀: 2 Fe + 2 O, 부피 = 0.5 a^3
+! FeO rocksalt, AFM-II (alternating (111) planes)
+! rhombohedral magnetic cell: 2 Fe + 2 O, volume = 0.5 a^3
 &CONTROL
   calculation = 'scf'
   prefix      = 'FeO'

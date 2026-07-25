@@ -1,14 +1,14 @@
 # E08-si-bands
 
-밴드 구조. K_POINTS tpiba_b 경로 + bands.x.
+Band structure: a K_POINTS tpiba_b path plus bands.x.
 
-## 포함 파일
+## Files
 
 - `si.bands.in`
 - `si.bandspp.in`
 
-## 실행 전
+## Before running
 
 ```bash
-mkdir -p pseudo tmp   # pseudo/ 에 UPF 파일을 넣어 두세요
+mkdir -p pseudo tmp   # put the UPF files in pseudo/
 ```

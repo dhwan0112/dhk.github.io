@@ -1,16 +1,16 @@
 # E03-convergence
 
-ecutwfc / k-점 / 힘 기준 수렴 테스트 스크립트.
+Convergence-test scripts: ecutwfc, k-points, and forces.
 
-## 포함 파일
+## Files
 
 - `conv_ecut.sh`
 - `conv_force.sh`
 - `conv_kpts.sh`
 - `si.scf.in`
 
-## 실행 전
+## Before running
 
 ```bash
-mkdir -p pseudo tmp   # pseudo/ 에 UPF 파일을 넣어 두세요
+mkdir -p pseudo tmp   # put the UPF files in pseudo/
 ```

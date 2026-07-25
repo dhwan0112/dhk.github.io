@@ -1,5 +1,5 @@
-"""FeO(100) 슬랩 생성 후 QE 입력으로 저장.
-슬랩 좌표를 손으로 쓰는 것은 오류의 온상이므로 반드시 생성기를 쓴다."""
+"""Generate a FeO(100) slab and write it as a QE input.
+Never write slab coordinates by hand; always use a generator."""
 from ase.build import bulk, surface
 from ase.io import write
 from ase.constraints import FixAtoms
@@ -8,7 +8,7 @@ feo = bulk("FeO", "rocksalt", a=4.33)
 slab = surface(feo, (1, 0, 0), layers=4, vacuum=8.0)
 slab.center(axis=2)
 
-# 하단 2개 층 고정 -> QE 의 if_pos 플래그로 변환된다
+# pin the bottom half of the layers -> becomes QE if_pos flags
 zs = sorted(set(round(z, 3) for z in slab.positions[:, 2]))
 fixed_z = set(zs[: len(zs) // 2])
 slab.set_constraint(FixAtoms(
@@ -20,13 +20,13 @@ write(
                       "O":  "O.pbe-n-kjpaw_psl.1.0.0.UPF"},
     kpts=(6, 6, 1),
     input_data={
-        # tefield/dipfield 는 &CONTROL 변수다 (&SYSTEM 에 넣으면 read_namelists 에러)
+        # tefield/dipfield are &CONTROL variables (&SYSTEM placement raises read_namelists)
         "control": {"calculation": "relax", "prefix": "feo100",
                     "outdir": "./tmp/", "pseudo_dir": "./pseudo/",
                     "tprnfor": True, "forc_conv_thr": 1.0e-4,
                     "tefield": True, "dipfield": True},
-        # 비자성 시연: 1x1 (100) 셀은 AFM-II 배열을 담을 수 없다.
-        # 실제 연구라면 자기 배열을 담는 더 큰 셀 + starting_magnetization 필요.
+        # nonmagnetic demo: a 1x1 (100) cell cannot hold the AFM-II order.
+        # real magnetic-surface work needs a larger cell plus starting_magnetization.
         "system": {"ecutwfc": 70, "ecutrho": 700,
                    "occupations": "smearing", "smearing": "mv", "degauss": 0.01,
                    "edir": 3, "emaxpos": 0.90, "eopreg": 0.05, "eamp": 0.0},
@@ -35,4 +35,4 @@ write(
         "ions": {"ion_dynamics": "bfgs"},
     },
 )
-print("feo100.scf.in 생성 완료 — 생성된 CELL_PARAMETERS/ATOMIC_POSITIONS 를 직접 읽어볼 것")
+print("wrote feo100.scf.in; open it and read CELL_PARAMETERS/ATOMIC_POSITIONS yourself")

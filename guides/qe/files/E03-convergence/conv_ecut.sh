@@ -1,5 +1,5 @@
 #!/bin/bash
-# ecutwfc 수렴 테스트. ecutrho 는 8배로 함께 올린다 (PAW/US 기준).
+# ecutwfc convergence scan; ecutrho follows at 8x (PAW/US convention).
 NAT=2
 printf "# ecutwfc(Ry)  E_total(Ry)   dE_vs_last(meV/atom)\n" > conv_ecut.dat
 LAST=""

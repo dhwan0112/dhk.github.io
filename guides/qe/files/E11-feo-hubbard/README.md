@@ -1,14 +1,14 @@
 # E11-feo-hubbard
 
-HUBBARD 카드로 DFT+U 적용. U 스캔 스크립트 포함.
+DFT+U via the HUBBARD card. Includes a U-scan script.
 
-## 포함 파일
+## Files
 
 - `feo_u.scf.in`
 - `scan_U.sh`
 
-## 실행 전
+## Before running
 
 ```bash
-mkdir -p pseudo tmp   # pseudo/ 에 UPF 파일을 넣어 두세요
+mkdir -p pseudo tmp   # put the UPF files in pseudo/
 ```

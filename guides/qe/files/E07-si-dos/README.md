@@ -1,8 +1,8 @@
 # E07-si-dos
 
-scf -> nscf -> dos.x / projwfc.x 파이프라인. Lowdin 전하.
+The scf -> nscf -> dos.x / projwfc.x pipeline. Lowdin charges.
 
-## 포함 파일
+## Files
 
 - `run.sh`
 - `si.dos.in`
@@ -10,8 +10,8 @@ scf -> nscf -> dos.x / projwfc.x 파이프라인. Lowdin 전하.
 - `si.projwfc.in`
 - `si.scf.in`
 
-## 실행 전
+## Before running
 
 ```bash
-mkdir -p pseudo tmp   # pseudo/ 에 UPF 파일을 넣어 두세요
+mkdir -p pseudo tmp   # put the UPF files in pseudo/
 ```

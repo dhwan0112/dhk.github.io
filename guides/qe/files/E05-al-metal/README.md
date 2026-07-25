@@ -1,13 +1,13 @@
 # E05-al-metal
 
-금속. occupations='smearing', smearing='mv', degauss.
+A metal: occupations='smearing', smearing='mv', degauss.
 
-## 포함 파일
+## Files
 
 - `al.scf.in`
 
-## 실행 전
+## Before running
 
 ```bash
-mkdir -p pseudo tmp   # pseudo/ 에 UPF 파일을 넣어 두세요
+mkdir -p pseudo tmp   # put the UPF files in pseudo/
 ```

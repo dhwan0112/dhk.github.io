@@ -1,5 +1,5 @@
 #!/bin/bash
-# k-점 수렴 테스트
+# k-point convergence scan
 NAT=2
 for K in 2 4 6 8 10 12 14 16; do
   sed "s/^ *[0-9]* [0-9]* [0-9]*  0 0 0/  $K $K $K  0 0 0/" si.scf.in > tmp_k$K.in
