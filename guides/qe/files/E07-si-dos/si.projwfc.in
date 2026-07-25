@@ -1,0 +1,11 @@
+&PROJWFC
+  prefix  = 'si'
+  outdir  = './tmp/'
+  filpdos = 'si.pdos'
+  ngauss  = 0
+  degauss = 0.01
+  Emin    = -10.0
+  Emax    =  20.0
+  DeltaE  =  0.05
+  lsym    = .true.
+/

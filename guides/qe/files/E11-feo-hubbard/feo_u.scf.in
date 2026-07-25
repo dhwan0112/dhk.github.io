@@ -1,0 +1,55 @@
+! FeO rocksalt, AFM-II (교대하는 (111) 면)
+! 능면체 자기 단위셀: 2 Fe + 2 O, 부피 = 0.5 a^3
+&CONTROL
+  calculation = 'scf'
+  prefix      = 'FeO_U'
+  outdir      = './tmp/'
+  pseudo_dir  = './pseudo/'
+  verbosity   = 'high'
+  tprnfor     = .true.
+  tstress     = .true.
+/
+&SYSTEM
+  ibrav       = 0
+  celldm(1)   = 8.18
+  nat         = 4
+  ntyp        = 3
+  ecutwfc     = 70
+  ecutrho     = 700
+  occupations = 'smearing'
+  smearing    = 'mv'
+  degauss     = 0.01
+  nspin       = 2
+  starting_magnetization(1) =  0.6
+  starting_magnetization(2) = -0.6
+  starting_magnetization(3) =  0.0
+/
+&ELECTRONS
+  conv_thr         = 1.0d-8
+  mixing_beta      = 0.2
+  mixing_mode      = 'local-TF'
+  electron_maxstep = 300
+/
+
+ATOMIC_SPECIES
+  Fe1  55.845  Fe.pbe-spn-kjpaw_psl.1.0.0.UPF
+  Fe2  55.845  Fe.pbe-spn-kjpaw_psl.1.0.0.UPF
+  O    15.999  O.pbe-n-kjpaw_psl.1.0.0.UPF
+
+CELL_PARAMETERS (alat)
+  0.5  0.5  1.0
+  0.5  1.0  0.5
+  1.0  0.5  0.5
+
+ATOMIC_POSITIONS (crystal)
+  Fe1  0.00  0.00  0.00
+  Fe2  0.50  0.50  0.50
+  O    0.25  0.25  0.25
+  O    0.75  0.75  0.75
+
+K_POINTS (automatic)
+  6 6 6  0 0 0
+
+HUBBARD (ortho-atomic)
+U Fe1-3d 4.6
+U Fe2-3d 4.6
