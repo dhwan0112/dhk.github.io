@@ -1,6 +1,9 @@
+! E08 step 3: bands.x reorders the raw eigenvalues into continuous bands.
+! Products: si.bands.dat (+ .gnu for plotting, .rap with symmetry labels),
+! and 'high-symmetry point' lines on stdout that give the x-axis ticks.
 &BANDS
   prefix  = 'si'
   outdir  = './tmp/'
-  filband = 'si.bands.dat'
-  lsym    = .true.
+  filband = 'si.bands.dat'   ! output basename
+  lsym    = .true.           ! classify states by symmetry (writes the .rap file)
 /

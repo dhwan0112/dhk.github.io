@@ -1,19 +1,23 @@
-! Born-Oppenheimer MD: the starting point for sampling ML training data.
+! E13: Born-Oppenheimer MD on the bulk FeO(+U) cell, the starting point for
+! sampling ML training data. Every step converges an SCF and moves the ions
+! on the resulting forces.
 ! dt is in Rydberg atomic units: 20.0 a.u. = 0.968 fs
+
 &CONTROL
   calculation = 'md'
   prefix      = 'feo_md'
   outdir      = './tmp/'
   pseudo_dir  = './pseudo/'
-  nstep       = 2000
-  dt          = 20.0
-  tprnfor     = .true.
-  tstress     = .false.      ! Hubbard stress dies with stres_hub under nosym+U (measured on QE 7.5)
-  disk_io     = 'none'
+  nstep       = 2000         ! 2000 steps x 0.968 fs ~ 1.9 ps
+  dt          = 20.0         ! TIME STEP IN RYDBERG A.U., not femtoseconds
+  tprnfor     = .true.       ! forces on every step: that is the training data
+  tstress     = .false.      ! Hubbard stress dies with stres_hub under nosym+U (measured on QE 7.5);
+                             ! if you need stress, recompute it on extracted frames with scf runs
+  disk_io     = 'none'       ! do not write wavefunctions every step: I/O kills MD
 /
 &SYSTEM
   ibrav       = 0
-  celldm(1)   = 8.18
+  celldm(1)   = 8.18         ! bohr (= 4.33 Angstrom)
   nat         = 4
   ntyp        = 3
   ecutwfc     = 70
@@ -25,20 +29,23 @@
   starting_magnetization(1) =  0.6
   starting_magnetization(2) = -0.6
   starting_magnetization(3) =  0.0
-  nosym       = .true.       ! mandatory for MD: thermal motion breaks the initial symmetry (checkallsym)
+  nosym       = .true.       ! mandatory for MD: thermal motion breaks the initial
+                             ! symmetry in step 1 (checkallsym error without this)
 /
 &ELECTRONS
   conv_thr    = 1.0d-6       ! BOMD-level threshold; nosym+U struggles below this (measured)
   mixing_beta = 0.2
   mixing_mode = 'local-TF'
   electron_maxstep = 300
-  mixing_fixed_ns  = 30      ! nosym+U stalls without freezing ns first (measured)
+  mixing_fixed_ns  = 30      ! freeze the DFT+U ns matrix for the first 30 iterations:
+                             ! without symmetry the degenerate t2g orbitals rotate freely
+                             ! and the SCF stalls otherwise (measured)
 /
 &IONS
-  ion_dynamics    = 'verlet'
-  ion_temperature = 'svr'
-  tempw           = 300.0
-  nraise          = 100
+  ion_dynamics    = 'verlet' ! velocity-Verlet integrator
+  ion_temperature = 'svr'    ! stochastic velocity rescaling thermostat (canonical sampling)
+  tempw           = 300.0    ! target temperature in K
+  nraise          = 100      ! thermostat coupling period, in steps (~0.1 ps here)
 /
 
 ATOMIC_SPECIES
@@ -57,9 +64,12 @@ ATOMIC_POSITIONS (crystal)
   O    0.25  0.25  0.25
   O    0.75  0.75  0.75
 
+! MD needs less k-resolution than a static DOS; with nosym this 4^3 grid
+! is not symmetry-reduced, which is part of the per-step cost
 K_POINTS (automatic)
   4 4 4  0 0 0
 
+! keep U identical across every frame of a training set
 HUBBARD (ortho-atomic)
 U Fe1-3d 4.6
 U Fe2-3d 4.6

@@ -1,14 +1,20 @@
+! E13: extract the electrostatic potential of the relaxed slab for the
+! work function. Two namelists: WHAT to extract, then HOW to write it.
 &INPUTPP
-  prefix   = 'feo100'
+  prefix   = 'feo100'          ! the slab relaxation's prefix
   outdir   = './tmp/'
-  filplot  = 'feo100.pot.dat'
-  plot_num = 11
+  filplot  = 'feo100.pot.dat'  ! intermediate file
+  plot_num = 11                ! 11 = bare + Hartree potential (no XC), the
+                               ! standard choice for vacuum-level alignment
 /
 &PLOT
   nfile         = 1
   filepp(1)     = 'feo100.pot.dat'
   weight(1)     = 1.0
-  iflag         = 3
-  output_format = 6
+  iflag         = 3            ! 3 = full 3D grid
+  output_format = 6            ! 6 = Gaussian cube
   fileout       = 'feo100.pot.cube'
 /
+! afterwards: planar-average the cube over x,y (average.x or a few lines of
+! Python), check the vacuum plateau is FLAT, then
+! work function = V_vacuum - E_Fermi (E_F from the relaxation output)

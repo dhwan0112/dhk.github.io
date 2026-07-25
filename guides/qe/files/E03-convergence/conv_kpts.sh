@@ -1,5 +1,7 @@
 #!/bin/bash
-# k-point convergence scan
+# k-point convergence scan.
+# sed rewrites only the "8 8 8  0 0 0" grid line of the reference input;
+# the cutoffs stay fixed so the scan isolates the k-grid error.
 NAT=2
 for K in 2 4 6 8 10 12 14 16; do
   sed "s/^ *[0-9]* [0-9]* [0-9]*  0 0 0/  $K $K $K  0 0 0/" si.scf.in > tmp_k$K.in

@@ -1,5 +1,14 @@
 #!/bin/bash
-# ecutwfc convergence scan; ecutrho follows at 8x (PAW/US convention).
+# ecutwfc convergence scan; ecutrho follows at 8x (the PAW/US convention).
+#
+# For each cutoff E:
+#   1. sed derives a scan input from si.scf.in, rewriting the two cutoff lines
+#   2. pw.x runs it
+#   3. grep '^!' picks the line "!    total energy = ..." (the converged value;
+#      unmarked "total energy" lines are intermediate SCF iterations)
+# Finally awk converts to meV/atom relative to the densest point:
+#   dE [meV/atom] = (E - E_ref) * 13605.7 / nat     (1 Ry = 13605.7 meV)
+
 NAT=2
 printf "# ecutwfc(Ry)  E_total(Ry)   dE_vs_last(meV/atom)\n" > conv_ecut.dat
 LAST=""

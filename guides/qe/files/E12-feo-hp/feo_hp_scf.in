@@ -1,5 +1,9 @@
-! FeO rocksalt, AFM-II (alternating (111) planes)
-! rhombohedral magnetic cell: 2 Fe + 2 O, volume = 0.5 a^3
+! E12 step 1: the ground state that hp.x will perturb.
+! Same FeO AFM-II cell as E10, with two changes:
+!   - conv_thr tightened to 1e-12 (linear response is noise-sensitive)
+!   - a HUBBARD card with a negligible U (1e-8), whose only job is to tell
+!     hp.x WHICH atoms and manifolds to perturb.
+
 &CONTROL
   calculation = 'scf'
   prefix      = 'FeO'
@@ -11,7 +15,7 @@
 /
 &SYSTEM
   ibrav       = 0
-  celldm(1)   = 8.18
+  celldm(1)   = 8.18          ! bohr (= 4.33 Angstrom)
   nat         = 4
   ntyp        = 3
   ecutwfc     = 70
@@ -25,7 +29,7 @@
   starting_magnetization(3) =  0.0
 /
 &ELECTRONS
-  conv_thr         = 1.0d-12
+  conv_thr         = 1.0d-12    ! very tight: the response matrix inherits this quality
   mixing_beta      = 0.2
   mixing_mode      = 'local-TF'
   electron_maxstep = 300
@@ -50,6 +54,8 @@ ATOMIC_POSITIONS (crystal)
 K_POINTS (automatic)
   6 6 6  0 0 0
 
+! effectively-zero U: registers the Fe-3d manifolds with hp.x without
+! biasing the ground state
 HUBBARD (ortho-atomic)
 U Fe1-3d 1.0d-8
 U Fe2-3d 1.0d-8

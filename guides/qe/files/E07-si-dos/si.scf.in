@@ -1,3 +1,7 @@
+! E07 step 1: the ground-state SCF that anchors the DOS pipeline.
+! Identical to E01. The nscf and the post-processors find this run
+! through the SAME prefix ('si') and outdir ('./tmp/').
+
 &CONTROL
   calculation  = 'scf'
   prefix       = 'si'

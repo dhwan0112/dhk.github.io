@@ -1,7 +1,11 @@
+! E07 step 2: non-self-consistent run on a dense grid.
+! Reads the frozen charge density of the scf (same prefix/outdir) and
+! only recomputes eigenvalues, which is what a smooth DOS needs.
+
 &CONTROL
   calculation = 'nscf'
-  prefix      = 'si'
-  outdir      = './tmp/'
+  prefix      = 'si'          ! MUST match the scf
+  outdir      = './tmp/'      ! MUST match the scf
   pseudo_dir  = './pseudo/'
   verbosity   = 'high'
 /
@@ -12,8 +16,9 @@
   ntyp        = 1
   ecutwfc     = 30
   ecutrho     = 240
-  nbnd        = 12
-  occupations = 'tetrahedra'      ! 'tetrahedra_opt' makes projwfc.x write zero PDOS on QE 7.5
+  nbnd        = 12                ! extra empty bands so the conduction DOS exists
+  occupations = 'tetrahedra'      ! exact BZ integration for the DOS.
+                                  ! ('tetrahedra_opt' makes projwfc.x write zero PDOS on QE 7.5)
 /
 &ELECTRONS
   conv_thr    = 1.0d-8
@@ -26,5 +31,7 @@ ATOMIC_POSITIONS (alat)
   Si  0.00  0.00  0.00
   Si  0.25  0.25  0.25
 
+! the tetrahedron method requires a Gamma-centered, UNSHIFTED grid;
+! 16^3 is dense enough for a smooth Si DOS
 K_POINTS (automatic)
   16 16 16  0 0 0

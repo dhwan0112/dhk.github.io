@@ -1,8 +1,10 @@
+! E07 step 3: dos.x sums the nscf eigenvalues into the total DOS.
+! Output columns of 'si.dos': E (eV) | DOS | integrated DOS.
 &DOS
-  prefix = 'si'
+  prefix = 'si'      ! same chain as before
   outdir = './tmp/'
-  fildos = 'si.dos'
-  Emin   = -10.0
-  Emax   =  20.0
-  DeltaE =  0.05
+  fildos = 'si.dos'  ! output file
+  Emin   = -10.0     ! energy window in ABSOLUTE eV (not relative to E_F!);
+  Emax   =  20.0     ! Si's valence bands sit near -6..+6 eV here, so this covers them
+  DeltaE =  0.05     ! energy grid spacing in eV
 /

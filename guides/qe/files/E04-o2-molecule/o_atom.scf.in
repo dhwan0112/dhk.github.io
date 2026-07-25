@@ -1,3 +1,7 @@
+! E04: the isolated O atom, for the binding energy D = 2 E(O) - E(O2).
+! Same box, same cutoffs, same pseudopotential as the molecule:
+! only same-condition energies may be subtracted.
+
 &CONTROL
   calculation       = 'scf'
   prefix            = 'o_atom'
@@ -8,14 +12,14 @@
 /
 &SYSTEM
   ibrav             = 1
-  celldm(1)         = 20.0
+  celldm(1)         = 20.0        ! identical box to o2.scf.in
   nat               = 1
   ntyp              = 1
   ecutwfc           = 60
   ecutrho           = 480
   assume_isolated   = 'mt'
   nspin             = 2
-  tot_magnetization = 2.0
+  tot_magnetization = 2.0         ! atomic oxygen is a triplet too (2p4, Hund's rules)
   occupations       = 'smearing'
   smearing          = 'gaussian'
   degauss           = 0.001
