@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>fcc Al 금속 · QE 가이드</title>
-  <meta name="description" content="금속 fcc Al의 smearing SCF, 페르미 준위, degauss 선택의 실측 근거." />
+  <title>fcc Al metal · QE Guide</title>
+  <meta name="description" content="A smearing SCF on metallic fcc Al: the Fermi level, and measured evidence for choosing degauss." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,122 +29,122 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html" class="active" aria-current="page"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html" class="active" aria-current="page"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">예제 · E5</div>
-        <h1 class="page-title">fcc Al 금속</h1>
-        <p class="page-lede">금속 fcc Al의 smearing SCF, 페르미 준위, degauss 선택의 실측 근거.</p>
+        <div class="page-eyebrow">EXAMPLE · E5</div>
+        <h1 class="page-title">fcc Al metal</h1>
+        <p class="page-lede">A smearing SCF on metallic fcc Al: the Fermi level, and measured evidence for choosing degauss.</p>
       </header>
       <article class="content">
-<h2 id="_1">목적</h2>
-<p>첫 <strong>금속</strong> 계산입니다. <code>occupations='smearing'</code>이 왜 필요한지, 페르미
-준위가 어디에 찍히는지, 그리고 smearing 종류와 <code>degauss</code>가 에너지에 어떤
-흔적을 남기는지 실측으로 확인합니다.</p>
-<h2 id="_2">새로 나오는 카드·변수</h2>
+<h2 id="goal">Goal</h2>
+<p>Your first <strong>metal</strong>. See why <code>occupations='smearing'</code> is required, where
+the Fermi level shows up, and measure how the smearing type and <code>degauss</code>
+leave their fingerprints on the energy.</p>
+<h2 id="new-cards-and-variables">New cards and variables</h2>
 <table>
 <thead>
 <tr>
-<th>항목</th>
-<th>역할</th>
+<th>Item</th>
+<th>Role</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>occupations='smearing'</code></td>
-<td>금속의 부분 점유</td>
+<td>Partial occupations for a metal</td>
 </tr>
 <tr>
 <td><code>smearing='mv'</code></td>
-<td>Marzari-Vanderbilt (cold) — 금속 권장</td>
+<td>Marzari-Vanderbilt (cold): the metal default</td>
 </tr>
 <tr>
 <td><code>degauss</code></td>
-<td>smearing 폭 (Ry)</td>
+<td>Smearing width (Ry)</td>
 </tr>
 <tr>
 <td><code>nbnd=8</code></td>
-<td>기본값보다 넉넉한 밴드 수</td>
+<td>A generous band count</td>
 </tr>
 </tbody>
 </table>
-<h2 id="_3">입력 파일</h2>
-<p><a href="files/E05-al-metal/al.scf.in">al.scf.in 내려받기</a></p>
+<h2 id="input-file">Input file</h2>
+<p><a href="files/E05-al-metal/al.scf.in">Download al.scf.in</a></p>
 <pre><code class="language-fortran">&amp;CONTROL
   calculation = 'scf'
   prefix      = 'al'
@@ -160,9 +160,9 @@
   ecutwfc     = 40
   ecutrho     = 320
   occupations = 'smearing'
-  smearing    = 'mv'        ! Marzari-Vanderbilt (cold) — 금속에 권장
+  smearing    = 'mv'        ! Marzari-Vanderbilt (cold), recommended for metals
   degauss     = 0.02        ! Ry
-  nbnd        = 8           ! 기본값보다 넉넉하게
+  nbnd        = 8           ! more generous than the default
 /
 &amp;ELECTRONS
   conv_thr    = 1.0d-8
@@ -178,78 +178,79 @@ ATOMIC_POSITIONS (alat)
 K_POINTS (automatic)
   12 12 12  0 0 0
 </code></pre>
-<h2 id="_4">실행</h2>
+<h2 id="run">Run</h2>
 <pre><code class="language-bash">mpirun -np 6 pw.x -nk 6 -in al.scf.in &gt; al.scf.out
 </code></pre>
-<h2 id="_5">출력에서 확인할 것 — 실측</h2>
+<h2 id="what-to-check-measured">What to check: measured</h2>
 <table>
 <thead>
 <tr>
-<th>항목</th>
-<th>실측값 (QE 7.5, PAW)</th>
+<th>Item</th>
+<th>Measured (QE 7.5, PAW)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>총에너지</td>
+<td>Total energy</td>
 <td>−39.50323368 Ry</td>
 </tr>
 <tr>
-<td><strong>페르미 준위</strong></td>
-<td><code>the Fermi energy is 7.7450 ev</code> — 금속의 표지</td>
+<td><strong>Fermi level</strong></td>
+<td><code>the Fermi energy is 7.7450 ev</code>: the badge of a metal</td>
 </tr>
 <tr>
 <td><code>smearing contrib. (-TS)</code></td>
-<td>smearing이 남긴 오염의 크기</td>
+<td>The size of the smearing contamination</td>
 </tr>
 </tbody>
 </table>
-<p>절연체(<a href="ex-01-si-scf.html">E1</a>)에서는 <code>highest occupied level</code>이 나오던
-자리에, 금속에서는 <code>the Fermi energy is</code>가 나옵니다. <strong>이 줄이 곧 "이 계는
-금속으로 수렴했다"는 진단</strong>입니다 — <a href="ex-10-feo-afm.html">E10</a>에서 이 진단을
-다시 만나게 됩니다.</p>
-<h2 id="smearing-degauss">smearing 종류별 degauss 스캔 — 실측</h2>
-<p>같은 계에서 smearing 종류(gaussian/mv/fd) × degauss(0.005~0.05 Ry)를
-스캔했습니다.</p>
+<p>Where the insulator (<a href="ex-01-si-scf.html">E1</a>) printed
+<code>highest occupied level</code>, the metal prints <code>the Fermi energy is</code>.
+<strong>This line is itself the diagnosis "the run converged to a metal"</strong>, and
+you will meet it again with a twist in <a href="ex-10-feo-afm.html">E10</a>.</p>
+<h2 id="the-degauss-scan-by-smearing-type-measured">The degauss scan by smearing type: measured</h2>
+<p>The same system, scanned over smearing types (gaussian/mv/fd) and degauss
+(0.005 to 0.05 Ry):</p>
 <figure>
   <img src="assets/images/qe-e05-smearing.png"
        alt="Al total energy vs degauss for three smearing types" />
   <figcaption>
-    fcc Al 실측 (QE 7.5, 12×12×12 k). cold smearing(mv)은 0.01→0.05 Ry에서
-    에너지가 0.3 mRy만 움직여 사실상 평탄한 반면, gaussian은 3 mRy,
-    Fermi-Dirac은 22 mRy나 흘러갑니다. "mv는 외삽이 필요 없다"는 말의
-    실측 근거입니다.
+    Measured fcc Al (QE 7.5, 12×12×12 k). Cold smearing (mv) moves by only
+    0.3 mRy from 0.01 to 0.05 Ry, while gaussian drifts 3 mRy and
+    Fermi-Dirac 22 mRy. This is the measured meaning of "mv needs no
+    extrapolation".
   </figcaption>
 </figure>
 
-<p>한 가지 실전 사고도 있었습니다 — <code>mv</code>에 <code>degauss=0.005</code>를 주자 12³ 격자로는
-적분 전하가 3.003으로 어긋나며 <strong><code>charge is wrong</code>으로 정지</strong>했습니다.
-smearing 폭을 줄이면 그만큼 조밀한 k-격자가 필요합니다. degauss와 k-격자는
-<strong>함께 수렴</strong>시키는 짝입니다 (<a href="06-occupations.html">06장</a>).</p>
-<h2 id="_6">직접 써보기</h2>
+<p>One real accident happened during the scan: <code>mv</code> at <code>degauss=0.005</code> on the
+12³ grid integrated the charge to 3.003 instead of 3 and <strong>stopped with
+<code>charge is wrong</code></strong>. Narrower smearing demands denser k-grids: degauss and
+the k-grid are a <strong>coupled pair</strong> to converge together
+(<a href="06-occupations.html">Chapter 06</a>).</p>
+<h2 id="exercises">Exercises</h2>
 <ol>
-<li>k-격자를 8³ → 16³으로 바꿔가며 degauss별 에너지 요동을 관찰하세요.
-   degauss가 작을수록 k 요구가 커지는 것을 확인할 수 있습니다.</li>
-<li><code>nbnd</code>를 지우면 QE가 몇 개를 잡는지 출력에서 확인하세요.</li>
-<li><code>occupations='fixed'</code>로 바꾸면 어떤 에러가 나는지 직접 겪어 보세요
-   (<a href="ref-errors.html">R3</a>에 있는 바로 그 메시지입니다).</li>
+<li>Sweep the k-grid from 8³ to 16³ and watch the energy scatter per
+   degauss. Smaller degauss should demand denser grids.</li>
+<li>Remove <code>nbnd</code> and find in the output how many bands QE picks by itself.</li>
+<li>Set <code>occupations='fixed'</code> and collect the error message in person (the
+   exact one listed in <a href="ref-errors.html">R3</a>).</li>
 </ol>
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    degauss를 크게 두고 "수렴 잘 된다"며 만족하는 것.
-    <code>smearing contrib. (-TS)</code>가 크면 결과가 σ→0 극한에서 멀리
-    있다는 뜻입니다. 목표 물성이 degauss에 둔감한지 항상 확인하세요.
-    자성 금속에서는 과한 degauss가 자기모멘트를 지웁니다
-    (<a href="ex-09-fe-bcc.html">E9</a>).
+    Leaving degauss large because "it converges so nicely". A large
+    <code>smearing contrib. (-TS)</code> means your result sits far from
+    the σ→0 limit. Always check that the property you care about is
+    insensitive to degauss. In magnetic metals an oversized degauss erases
+    the moment (<a href="ex-09-fe-bcc.html">E9</a>).
   </p>
 </div>
 
-<h2 id="_7">관련 챕터</h2>
-<p><a href="06-occupations.html">06 점유수와 smearing</a> ·
-<a href="05-convergence.html">05 컷오프와 k-점 수렴</a></p>
+<h2 id="related-chapters">Related chapters</h2>
+<p><a href="06-occupations.html">06 Occupations and smearing</a> ·
+<a href="05-convergence.html">05 Cutoff and k-point convergence</a></p>
       </article>
-<nav class="page-nav"><a class="prev" href="ex-04-o2-molecule.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">O₂ 분자 (삼중항)</div></a><a class="next" href="ex-06-si-vcrelax.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">Si vc-relax</div></a></nav>
+<nav class="page-nav"><a class="prev" href="ex-04-o2-molecule.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">O₂ molecule (triplet)</div></a><a class="next" href="ex-06-si-vcrelax.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">Si vc-relax</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

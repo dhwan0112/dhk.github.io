@@ -1,26 +1,27 @@
 ---
-title: "E9. bcc Fe 강자성"
+title: "E9. Ferromagnetic bcc Fe"
 ---
 
-# E9. bcc Fe 강자성
+# E9. Ferromagnetic bcc Fe
 
-## 목적
+## Goal
 
-첫 **자성** 계산입니다. 스핀 편극 SCF(`nspin=2`)로 bcc Fe의 강자성
-바닥상태를 얻고, 자기모멘트를 실험과 비교합니다. 금속 + 자성이라는, 수렴이
-까다로워지는 조합을 다루는 요령([12장](12-magnetism.html))의 실전입니다.
+Your first **magnetic** calculation. Converge the ferromagnetic ground
+state of bcc Fe with a spin-polarized SCF (`nspin=2`) and compare the
+moment with experiment. This is the hands-on version of the metal-plus-
+magnetism convergence craft of [Chapter 12](12-magnetism.html).
 
-## 새로 나오는 카드·변수
+## New cards and variables
 
-| 항목 | 역할 |
+| Item | Role |
 |---|---|
-| `nspin=2` + `starting_magnetization` | 공선 스핀 편극, 초기 자화 (−1~1 비율) |
-| `mixing_beta=0.3` + `mixing_mode='local-TF'` | 자성 금속의 mixing 처방 |
-| `ecutrho = 10×ecutwfc` | Fe PAW의 큰 밀도 컷오프 요구 |
+| `nspin=2` + `starting_magnetization` | Collinear polarization with an initial guess (a ratio, −1 to 1) |
+| `mixing_beta=0.3` + `mixing_mode='local-TF'` | The mixing prescription for magnetic metals |
+| `ecutrho = 10×ecutwfc` | The heavy density cutoff Fe PAW demands |
 
-## 입력 파일
+## Input file
 
-[fe.scf.in 내려받기](files/E09-fe-bcc/fe.scf.in)
+[Download fe.scf.in](files/E09-fe-bcc/fe.scf.in)
 
 ```fortran
 &CONTROL
@@ -36,7 +37,7 @@ title: "E9. bcc Fe 강자성"
   nat         = 1
   ntyp        = 1
   ecutwfc     = 70
-  ecutrho     = 700             ! Fe는 10배 이상 권장
+  ecutrho     = 700             ! 10x or more for Fe
   occupations = 'smearing'
   smearing    = 'mv'
   degauss     = 0.02
@@ -45,7 +46,7 @@ title: "E9. bcc Fe 강자성"
 /
 &ELECTRONS
   conv_thr    = 1.0d-8
-  mixing_beta = 0.3             ! 자성 금속은 낮게
+  mixing_beta = 0.3             ! keep it low for magnetic metals
   mixing_mode = 'local-TF'
   electron_maxstep = 200
 /
@@ -60,60 +61,65 @@ K_POINTS (automatic)
   16 16 16  0 0 0
 ```
 
-## 실행
+## Run
 
 ```bash
 mpirun -np 6 pw.x -nk 6 -in fe.scf.in > fe.scf.out
 ```
 
-## 출력에서 확인할 것 — 실측
+## What to check: measured
 
-| 항목 | 실측값 (QE 7.5, PAW) | 비고 |
+| Item | Measured (QE 7.5, PAW) | Note |
 |---|---|---|
-| 총에너지 | −329.26290531 Ry | |
-| **total magnetization** | **2.19 μB/cell** | 실험 2.22 μB — PBE가 거의 정확 |
-| absolute magnetization | 2.32 μB/cell | total과 근접 → FM 배열 |
-| 페르미 준위 | 17.4481 eV | 금속 |
+| Total energy | −329.26290531 Ry | |
+| **total magnetization** | **2.19 μB/cell** | Experiment 2.22 μB: PBE nearly nails it |
+| absolute magnetization | 2.32 μB/cell | Close to total, so FM |
+| Fermi level | 17.4481 eV | A metal |
 
-total ≈ absolute라는 것이 강자성의 표지입니다. AFM이라면 total ≈ 0에
-absolute만 큽니다 — 그 경우가 [E10](ex-10-feo-afm.html)입니다.
+Total ≈ absolute is the badge of ferromagnetism. For AFM the total is near
+zero while the absolute stays large; that case is
+[E10](ex-10-feo-afm.html).
 
-## 스핀 분해 DOS — 추가 실측
+## Spin-resolved DOS: an extra measurement
 
-같은 밀도 위에 nscf(20³, `tetrahedra_opt`) + `dos.x`를 얹어 스핀별 DOS를
-뽑았습니다 (dos.x는 스핀 계에서 up/down 두 열을 출력합니다).
+On top of the same density we ran an nscf (20³, tetrahedra) plus `dos.x`
+to get the spin-resolved DOS (dos.x prints up and down columns for
+polarized runs).
 
 <figure>
   <img src="assets/images/qe-e09-fe-dos.png"
        alt="bcc Fe spin-resolved DOS" />
   <figcaption>
-    bcc Fe 스핀 분해 DOS 실측 (QE 7.5, PBE). 교환 분리(exchange splitting)로
-    다수 스핀(up) d-밴드가 아래로 내려앉아 거의 채워지고, 소수 스핀(down)
-    d-밴드가 Fermi 준위에 걸립니다 — 그 점유 차이가 곧 2.2 μB의 모멘트입니다.
+    Measured spin-resolved DOS of bcc Fe (QE 7.5, PBE). Exchange splitting
+    pushes the majority (up) d band down to near-full occupation while the
+    minority (down) d band straddles the Fermi level. The occupation
+    difference is exactly the 2.2 μB moment.
   </figcaption>
 </figure>
 
-## 직접 써보기
+## Exercises
 
-1. `starting_magnetization = 0.0`으로 두면 어떻게 되나요? 비자성 해로
-   붕괴하는지 확인하세요.
-2. 비자성(`nspin=1`) 계산과 에너지를 비교해 자성 안정화 에너지를 구하세요.
-3. PDOS([E7](ex-07-si-dos.html) 절차)를 뽑아 스핀 up/down d-밴드의 교환
-   분리를 관찰하고, Löwdin 전하로부터 국소 모멘트를 읽어 셀 전체 자화와
-   비교하세요.
-4. `degauss`를 0.05로 키우면 모멘트가 어떻게 변하나요?
+1. Set `starting_magnetization = 0.0`. Does the run collapse to the
+   nonmagnetic solution?
+2. Compare with a `nspin=1` run and extract the magnetic stabilization
+   energy.
+3. Run the PDOS pipeline of [E7](ex-07-si-dos.html), observe the exchange
+   splitting of the up/down d bands, read the local moment from the Löwdin
+   charges, and compare with the cell magnetization.
+4. Raise `degauss` to 0.05. What happens to the moment?
 
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    자성계에서 한 번 수렴한 해를 바닥상태로 단정하는 것 — 자성계는 준안정
-    해가 여럿입니다. 초기 자화를 바꿔(0.3 / 0.7 / −0.7) 여러 번 수렴시키고
-    에너지를 비교하세요. 그리고 <code>starting_magnetization</code>은 μB가
-    아니라 <strong>비율</strong>입니다 (<a href="03-units-coordinates.html">03장</a>).
+    Declaring the first converged solution the ground state. Magnets hold
+    several metastable solutions; converge from several initial
+    magnetizations (0.3 / 0.7 / −0.7) and compare energies. And remember,
+    <code>starting_magnetization</code> is a <strong>ratio</strong>, not
+    μB (<a href="03-units-coordinates.html">Chapter 03</a>).
   </p>
 </div>
 
-## 관련 챕터
+## Related chapters
 
-[12 스핀 편극과 자성](12-magnetism.html) ·
-[07 SCF 수렴 제어](07-scf-control.html)
+[12 Spin polarization and magnetism](12-magnetism.html) ·
+[07 Controlling SCF convergence](07-scf-control.html)

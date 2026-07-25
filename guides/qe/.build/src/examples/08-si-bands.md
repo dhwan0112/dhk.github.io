@@ -1,33 +1,34 @@
 ---
-title: "E8. Si 밴드 구조"
+title: "E8. Si band structure"
 ---
 
-# E8. Si 밴드 구조
+# E8. Si band structure
 
-## 목적
+## Goal
 
-고대칭 경로(L–Γ–X–W–K–Γ)를 따라 실리콘 밴드 구조를 계산하고, 간접 밴드갭을
-직접 읽습니다. `tpiba_b` 경로 지정과 `bands.x` 후처리를 익힙니다.
+Compute the silicon band structure along the high-symmetry path
+L–Γ–X–W–K–Γ and read the indirect gap yourself. Learn `tpiba_b` path input
+and the `bands.x` post-processor.
 
 ```
-scf ─→ calculation='bands' (K_POINTS tpiba_b) ─→ bands.x ─→ 플롯
+scf ─→ calculation='bands' (K_POINTS tpiba_b) ─→ bands.x ─→ plot
 ```
 
-## 새로 나오는 카드·변수
+## New cards and variables
 
-| 항목 | 역할 |
+| Item | Role |
 |---|---|
-| `calculation='bands'` | 고정 밀도에서 임의 k-경로 고유값 |
-| `K_POINTS (tpiba_b)` | 2π/a 직교 좌표의 밴드 경로 |
-| `bands.x` (`&BANDS`) | 밴드 재정렬, `.gnu` 파일과 대칭 라벨 |
+| `calculation='bands'` | Eigenvalues along an arbitrary k-path on a frozen density |
+| `K_POINTS (tpiba_b)` | The path in Cartesian 2π/a units |
+| `bands.x` (`&BANDS`) | Reorders bands, writes the `.gnu` file and symmetry labels |
 
-## 입력 파일
+## Input files
 
 [si.bands.in](files/E08-si-bands/si.bands.in) ·
 [si.bandspp.in](files/E08-si-bands/si.bandspp.in)
-(선행 scf는 [E1의 si.scf.in](files/E01-si-scf/si.scf.in))
+(the preceding scf is [E1's si.scf.in](files/E01-si-scf/si.scf.in))
 
-경로 카드:
+The path card:
 
 ```fortran
 K_POINTS (tpiba_b)
@@ -40,61 +41,65 @@ K_POINTS (tpiba_b)
   0.000 0.000 0.000   0   ! Gamma
 ```
 
-`tpiba_b`는 2π/a 단위의 직교 좌표입니다. QE의 `ibrav=2` 원시벡터 관례가
-문헌의 fcc 정의와 다를 수 있어, 문헌의 분수좌표를 `crystal_b`에 그대로
-넣으면 틀린 경로가 됩니다 — **헷갈리면 `tpiba_b`가 안전합니다**
-([10장](10-dos-bands.html)).
+`tpiba_b` is Cartesian in 2π/a. QE's primitive-vector convention for
+`ibrav=2` can differ from the textbook fcc setting, so literature
+fractional coordinates pasted into `crystal_b` produce a wrong path.
+**When unsure, `tpiba_b` is the safe choice**
+([Chapter 10](10-dos-bands.html)).
 
-## 실행
+## Run
 
 ```bash
-pw.x    -in si.scf.in     > si.scf.out      # 선행 scf (prefix='si')
+pw.x    -in si.scf.in     > si.scf.out      # the prerequisite scf (prefix='si')
 pw.x    -in si.bands.in   > si.bands.out
 bands.x -in si.bandspp.in > si.bandspp.out
 ```
 
-`si.bandspp.out`의 `high-symmetry point` 줄들이 경로 위 눈금 위치(x 좌표)를
-알려 줍니다 — 실측: 0.000(L), 0.866(Γ), 1.866(X), 2.366(W), 2.720(K),
-3.780(Γ).
+The `high-symmetry point` lines in `si.bandspp.out` give the tick
+positions along the path. Measured: 0.000 (L), 0.866 (Γ), 1.866 (X),
+2.366 (W), 2.720 (K), 3.780 (Γ).
 
-## 출력·그림 — 실측
+## Output and figure: measured
 
 <figure>
   <img src="assets/images/qe-e08-bands.png"
        alt="Si band structure along L-Gamma-X-W-K-Gamma" />
   <figcaption>
-    실리콘 밴드 구조 실측 (QE 7.5, PBE). 가전자대 꼭대기(VBM)는 Γ, 전도대
-    바닥(CBM)은 Γ–X 경로 위(~0.85X)에 있는 <strong>간접갭</strong>
-    반도체입니다.
+    Measured silicon band structure (QE 7.5, PBE). The valence maximum sits
+    at Γ and the conduction minimum on the Γ–X line (at about 0.85 of the
+    way to X): an <strong>indirect-gap</strong> semiconductor.
   </figcaption>
 </figure>
 
-- VBM(= scf의 `highest occupied level`, 실측 6.212 eV)을 0으로 놓고
-  그렸습니다.
-- **실측 간접갭 0.57 eV** (VBM Γ → CBM은 Γ–X 경로의 0.83 지점),
-  **Γ 직접갭 2.56 eV**. 실험 간접갭은 1.12 eV — PBE의 체계적 갭
-  과소평가가 그대로 보입니다.
+- The zero is the VBM (the scf `highest occupied level`, measured
+  6.212 eV).
+- **Measured indirect gap: 0.57 eV** (VBM at Γ, CBM at 0.83 of Γ–X), and a
+  **direct gap at Γ of 2.56 eV**. The experimental indirect gap is
+  1.12 eV: the systematic PBE underestimate, on display.
 
-## 직접 써보기
+## Exercises
 
-1. Γ에서의 직접갭과 간접갭을 각각 읽어 비교하세요.
-2. 경로 마지막 점의 분할 개수를 `0`이 아닌 값으로 두면 어떤 경고가 나오나요?
-3. 같은 경로를 `crystal_b`로 다시 써서 결과가 달라지는지(또는 같은지) 직접
-   확인하세요. QE의 fcc 관례에서 L점의 `crystal_b` 좌표는 무엇인가요?
-4. `nbnd`를 20으로 늘려 높은 전도대까지 그려 보세요.
+1. Read both the direct gap at Γ and the indirect gap, and compare.
+2. Put a nonzero division count on the last path point. What warning do
+   you get?
+3. Rewrite the same path in `crystal_b` and check whether the result
+   changes. What is the `crystal_b` coordinate of the L point in QE's fcc
+   convention?
+4. Raise `nbnd` to 20 and plot the higher conduction bands.
 
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    <code>calculation='bands'</code>를 scf 없이 바로 돌리는 것 — bands는
-    밀도를 만들지 않으므로 반드시 같은 <code>prefix</code>/<code>outdir</code>의
-    scf가 선행되어야 합니다. 그리고 PBE 갭이 실험보다 작다고 계산이 틀린
-    것이 아닙니다 — <strong>범함수의 알려진 한계</strong>이며, 갭이 중요하면
-    하이브리드·GW로 가야 합니다.
+    Launching <code>calculation='bands'</code> without the scf: a bands run
+    builds no density and needs the scf products under the same
+    <code>prefix</code>/<code>outdir</code>. And a PBE gap below experiment
+    does not mean your run is broken; it is a
+    <strong>known limitation of the functional</strong>. If the gap itself
+    is the target, move to hybrids or GW.
   </p>
 </div>
 
-## 관련 챕터
+## Related chapters
 
-[10 상태밀도와 밴드](10-dos-bands.html) ·
-[08 SCF와 NSCF](08-scf-nscf.html)
+[10 DOS and band structure](10-dos-bands.html) ·
+[08 SCF and NSCF](08-scf-nscf.html)

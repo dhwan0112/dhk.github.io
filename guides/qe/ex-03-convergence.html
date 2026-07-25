@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>수렴 테스트 자동화 · QE 가이드</title>
-  <meta name="description" content="ecutwfc·k점·힘 수렴 테스트를 셸 스크립트로 자동화하는 표준 절차." />
+  <title>Automating convergence tests · QE Guide</title>
+  <meta name="description" content="Automate cutoff, k-point and force convergence tests with shell scripts." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,125 +29,125 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html" class="active" aria-current="page"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html" class="active" aria-current="page"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">예제 · E3</div>
-        <h1 class="page-title">수렴 테스트 자동화</h1>
-        <p class="page-lede">ecutwfc·k점·힘 수렴 테스트를 셸 스크립트로 자동화하는 표준 절차.</p>
+        <div class="page-eyebrow">EXAMPLE · E3</div>
+        <h1 class="page-title">Automating convergence tests</h1>
+        <p class="page-lede">Automate cutoff, k-point and force convergence tests with shell scripts.</p>
       </header>
       <article class="content">
-<h2 id="_1">목적</h2>
-<p><strong>여기가 QE 실력의 분기점입니다.</strong> ecutwfc, k-점, 그리고 힘의 수렴 테스트를
-셸 스크립트로 자동화하는 표준 절차를 익힙니다. 판정 기준을 meV/atom과
-meV/Å로 환산하는 감각까지가 이 예제의 목표입니다. 배경은
-<a href="05-convergence.html">05장</a>.</p>
-<h2 id="_2">새로 나오는 것</h2>
+<h2 id="goal">Goal</h2>
+<p><strong>This is where QE skill forks.</strong> Learn the standard procedure of scripted
+convergence tests for <code>ecutwfc</code>, the k-grid, and forces, including the habit
+of judging in meV/atom and meV/Å. Background in
+<a href="05-convergence.html">Chapter 05</a>.</p>
+<h2 id="new-here">New here</h2>
 <table>
 <thead>
 <tr>
-<th>항목</th>
-<th>역할</th>
+<th>Item</th>
+<th>Role</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>sed</code>로 입력 파생</td>
-<td>하나의 기준 입력에서 스캔 입력들을 생성</td>
+<td>Deriving inputs with <code>sed</code></td>
+<td>One reference input generates the whole scan</td>
 </tr>
 <tr>
 <td><code>grep '^!'</code></td>
-<td>수렴된 총에너지만 추출</td>
+<td>Extracts only the converged total energies</td>
 </tr>
 <tr>
-<td>meV/atom 환산</td>
+<td>meV/atom conversion</td>
 <td>ΔE × 13605.7 / nat</td>
 </tr>
 </tbody>
 </table>
-<h2 id="_3">입력 파일</h2>
-<p>기준 입력은 <a href="ex-01-si-scf.html">E1</a>과 동일합니다
+<h2 id="input-files">Input files</h2>
+<p>The reference input is the same as <a href="ex-01-si-scf.html">E1</a>
 (<a href="files/E03-convergence/si.scf.in">si.scf.in</a>).</p>
 <p><a href="files/E03-convergence/conv_ecut.sh">conv_ecut.sh</a> ·
 <a href="files/E03-convergence/conv_kpts.sh">conv_kpts.sh</a> ·
 <a href="files/E03-convergence/conv_force.sh">conv_force.sh</a></p>
 <pre><code class="language-bash">#!/bin/bash
-# conv_ecut.sh — ecutwfc 수렴. ecutrho 는 8배로 함께 올린다 (PAW/US 기준).
+# conv_ecut.sh: ecutwfc scan; ecutrho follows at 8x (PAW/US convention)
 NAT=2
 printf &quot;# ecutwfc(Ry)  E_total(Ry)   dE_vs_last(meV/atom)\n&quot; &gt; conv_ecut.dat
 LAST=&quot;&quot;
@@ -161,34 +161,35 @@ for E in 20 25 30 35 40 45 50 60 70 80; do
 done
 awk -v nat=$NAT -v ref="$LAST&quot; '!/^#/{printf &quot;%6s  %16s  %10.3f\n&quot;,$1,$2,($2-ref)*13605.7/nat}' conv_ecut.dat
 </code></pre>
-<p>k-점 스캔(<code>conv_kpts.sh</code>)은 <code>K_POINTS</code> 줄을, 힘 스캔(<code>conv_force.sh</code>)은
-대칭을 깬 구조(Si를 0.25 → 0.26으로 변위)의 첫 원자 힘을 같은 방식으로
-추출합니다.</p>
-<h2 id="_4">실행</h2>
+<p>The k-point scan (<code>conv_kpts.sh</code>) rewrites the <code>K_POINTS</code> line the same
+way. The force scan (<code>conv_force.sh</code>) breaks the symmetry (moving one Si
+from 0.25 to 0.26) and extracts the force on atom 1.</p>
+<h2 id="run">Run</h2>
 <pre><code class="language-bash">bash conv_ecut.sh
 bash conv_kpts.sh  &gt; conv_kpts.dat
 bash conv_force.sh &gt; conv_force.dat
 </code></pre>
-<h2 id="_5">출력·그림 — 실측</h2>
+<h2 id="output-and-figure-measured">Output and figure: measured</h2>
 <figure>
   <img src="assets/images/qe-e03-convergence.png"
        alt="Si convergence: dE vs ecutwfc, dE vs k-grid, force vs ecutwfc" />
   <figcaption>
-    실리콘 수렴 실측 (QE 7.5, PAW, ecutrho = 8×ecutwfc 동시 스캔).
-    왼쪽: 컷오프 — 변분 원리 덕분에 위에서 아래로 단조 수렴합니다.
-    가운데: k-격자 — 단조가 아니어도 정상입니다. 오른쪽: 변위 구조의 힘 —
-    이 계에서는 40 Ry면 힘도 0.03 meV/Å 수준으로 수렴합니다.
+    Measured silicon convergence (QE 7.5, PAW, ecutrho = 8×ecutwfc scanned
+    together). Left: the cutoff scan is monotonic thanks to the variational
+    principle. Center: the k-grid scan, where non-monotonic behavior would
+    also be normal. Right: forces on the distorted structure; here 40 Ry
+    already puts the force within 0.03 meV/Å.
   </figcaption>
 </figure>
 
-<p>숫자로 보는 판정 (기준: 최밀 스캔 값):</p>
+<p>The verdict in numbers (reference: the densest scan point):</p>
 <table>
 <thead>
 <tr>
 <th>ecutwfc</th>
 <th>ΔE (meV/atom)</th>
 <th></th>
-<th>k-격자</th>
+<th>k-grid</th>
 <th>ΔE (meV/atom)</th>
 </tr>
 </thead>
@@ -238,37 +239,41 @@ bash conv_force.sh &gt; conv_force.dat
 </tbody>
 </table>
 <ul>
-<li>총에너지 1 meV/atom 기준이면 <strong>ecutwfc 40 Ry, k 10×10×10</strong> 부근이
-  합격선입니다. E1의 30 Ry / 8³은 학습용 잠정값이었던 셈입니다.</li>
-<li>힘(변위 구조의 Fx ≈ 0.0288 Ry/bohr = 0.741 eV/Å)은 30 → 40 Ry에서
-  0.5 meV/Å 변하고 이후 0.03 meV/Å 이내로 안정됩니다. ML 퍼텐셜 학습
-  데이터라면 이 힘 기준(~1 meV/Å)으로 판정하세요.</li>
+<li>Against a 1 meV/atom criterion, the passing line is around
+  <strong>ecutwfc 40 Ry with a 10×10×10 grid</strong>. The 30 Ry / 8³ of E1 was a
+  provisional teaching value.</li>
+<li>The force on the distorted structure (Fx ≈ 0.0288 Ry/bohr = 0.741 eV/Å)
+  moves by 0.5 meV/Å between 30 and 40 Ry, then stays within 0.03 meV/Å.
+  For ML training data, judge with this force criterion (~1 meV/Å).</li>
 </ul>
-<h2 id="_6">직접 써보기</h2>
+<h2 id="exercises">Exercises</h2>
 <ol>
-<li><code>ecutrho</code>를 <code>ecutwfc</code>의 4배로 고정한 채 같은 테스트를 반복하고, PAW에서
-   무슨 일이 생기는지 관찰하세요 (<a href="04-pseudopotentials.html">04장</a>의 함정).</li>
-<li>에너지가 수렴한 컷오프와 힘이 수렴한 컷오프를 비교하세요. 어느 쪽이 더
-   높은가요?</li>
-<li>스캔 결과를 그림으로 그리는 파이썬 스크립트를 직접 써 보세요 (본
-   가이드의 그림 스크립트는 저장소 <code>.build/plot_qe.py</code>에 있습니다).</li>
+<li>Repeat the scan with <code>ecutrho</code> pinned at 4x and watch what PAW does (the
+   trap of <a href="04-pseudopotentials.html">Chapter 04</a>).</li>
+<li>Compare the cutoff at which the energy converges with the cutoff at
+   which the force converges. Which is higher?</li>
+<li>Write your own Python script to plot the scans (the one used for this
+   guide is in the repository at <code>.build/plot_qe.py</code>).</li>
 </ol>
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    힘을 추출할 때 <code>grep 'atom    1 ... force' | tail -1</code>처럼
-    <strong>마지막 매치</strong>를 집으면 총힘이 아니라 출력 뒤쪽의 기여 분해
-    블록(SCF correction, ~10⁻⁶)을 잡습니다. 총힘은 <code>Forces acting on
-    atoms</code> 직후의 <strong>첫 매치</strong>입니다. 실제로 이 예제를
-    처음 실측할 때 이 함정에 걸렸고, 위 스크립트는 수정된 판입니다.
+    Extracting forces with
+    <code>grep 'atom    1 ... force' | tail -1</code>. The
+    <strong>last</strong> match is not the total force; it is the SCF
+    correction term (~10⁻⁶) from the contribution breakdown further down
+    the output. The total force is the <strong>first</strong> match after
+    <code>Forces acting on atoms</code>. We fell into exactly this hole
+    when first measuring this example; the script above is the corrected
+    version.
   </p>
 </div>
 
-<h2 id="_7">관련 챕터</h2>
-<p><a href="05-convergence.html">05 컷오프와 k-점 수렴</a> ·
-<a href="04-pseudopotentials.html">04 유사퍼텐셜</a></p>
+<h2 id="related-chapters">Related chapters</h2>
+<p><a href="05-convergence.html">05 Cutoff and k-point convergence</a> ·
+<a href="04-pseudopotentials.html">04 Pseudopotentials</a></p>
       </article>
-<nav class="page-nav"><a class="prev" href="ex-02-si-ibrav0.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">ibrav=0 다시 쓰기</div></a><a class="next" href="ex-04-o2-molecule.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">O₂ 분자 (삼중항)</div></a></nav>
+<nav class="page-nav"><a class="prev" href="ex-02-si-ibrav0.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">Rewriting with ibrav=0</div></a><a class="next" href="ex-04-o2-molecule.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">O₂ molecule (triplet)</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Si vc-relax · QE 가이드</title>
-  <meta name="description" content="셀까지 함께 푸는 vc-relax로 실리콘 평형 격자상수를 찾습니다." />
+  <title>Si vc-relax · QE Guide</title>
+  <meta name="description" content="Find the equilibrium lattice constant of silicon with a variable-cell relaxation." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -29,122 +29,122 @@
   <a href="../../" class="sidebar-back">← Donghwan KIM</a>
   <a href="index.html" class="sidebar-brand">
     <div class="brand-title">Quantum ESPRESSO</div>
-    <div class="brand-subtitle">한국어 가이드</div>
+    <div class="brand-subtitle">A Practical Guide</div>
   </a>
   <nav>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 시작</div>
+      <div class="nav-section-title">Basics · Getting started</div>
       <ul class="nav-list">
-        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
-        <li><a href="01-getting-started.html"><span class="nav-num">01</span>시작하기</a></li>
-        <li><a href="02-input-structure.html"><span class="nav-num">02</span>입력 파일 구조</a></li>
-        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>단위계와 좌표계</a></li>
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="01-getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="02-input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="03-units-coordinates.html"><span class="nav-num">03</span>Units and coordinates</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 핵심 개념</div>
+      <div class="nav-section-title">Basics · Core concepts</div>
       <ul class="nav-list">
-        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>유사퍼텐셜</a></li>
-        <li><a href="05-convergence.html"><span class="nav-num">05</span>컷오프와 k-점 수렴</a></li>
-        <li><a href="06-occupations.html"><span class="nav-num">06</span>점유수와 smearing</a></li>
-        <li><a href="07-scf-control.html"><span class="nav-num">07</span>SCF 수렴 제어</a></li>
+        <li><a href="04-pseudopotentials.html"><span class="nav-num">04</span>Pseudopotentials</a></li>
+        <li><a href="05-convergence.html"><span class="nav-num">05</span>Cutoff and k-point convergence</a></li>
+        <li><a href="06-occupations.html"><span class="nav-num">06</span>Occupations and smearing</a></li>
+        <li><a href="07-scf-control.html"><span class="nav-num">07</span>Controlling SCF convergence</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">입문 · 계산 종류</div>
+      <div class="nav-section-title">Basics · Calculation types</div>
       <ul class="nav-list">
-        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF와 NSCF</a></li>
-        <li><a href="09-relaxation.html"><span class="nav-num">09</span>구조 최적화</a></li>
-        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>상태밀도와 밴드</a></li>
-        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>전하밀도와 퍼텐셜</a></li>
+        <li><a href="08-scf-nscf.html"><span class="nav-num">08</span>SCF and NSCF</a></li>
+        <li><a href="09-relaxation.html"><span class="nav-num">09</span>Structure optimization</a></li>
+        <li><a href="10-dos-bands.html"><span class="nav-num">10</span>DOS and band structure</a></li>
+        <li><a href="11-postprocessing.html"><span class="nav-num">11</span>Densities and potentials</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 자성과 강상관</div>
+      <div class="nav-section-title">Advanced · Magnetism and correlation</div>
       <ul class="nav-list">
-        <li><a href="12-magnetism.html"><span class="nav-num">12</span>스핀 편극과 자성</a></li>
-        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U와 HUBBARD 카드</a></li>
-        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>hp.x 로 U 계산하기</a></li>
+        <li><a href="12-magnetism.html"><span class="nav-num">12</span>Spin polarization and magnetism</a></li>
+        <li><a href="13-dft-plus-u.html"><span class="nav-num">13</span>DFT+U and the HUBBARD card</a></li>
+        <li><a href="14-hubbard-hp.html"><span class="nav-num">14</span>Computing U with hp.x</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">심화 · 응용과 운영</div>
+      <div class="nav-section-title">Advanced · Applications and operations</div>
       <ul class="nav-list">
-        <li><a href="15-surfaces.html"><span class="nav-num">15</span>표면·슬랩과 일함수</a></li>
-        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>분자동역학</a></li>
-        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>포논과 반응 경로</a></li>
-        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>병렬 실행과 HPC 운영</a></li>
+        <li><a href="15-surfaces.html"><span class="nav-num">15</span>Surfaces, slabs, work function</a></li>
+        <li><a href="16-molecular-dynamics.html"><span class="nav-num">16</span>Molecular dynamics</a></li>
+        <li><a href="17-phonons-neb.html"><span class="nav-num">17</span>Phonons and reaction paths</a></li>
+        <li><a href="18-parallel-hpc.html"><span class="nav-num">18</span>Parallel execution and HPC</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">레퍼런스</div>
+      <div class="nav-section-title">Reference</div>
       <ul class="nav-list">
-        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>키워드 사전</a></li>
-        <li><a href="ref-cards.html"><span class="nav-num">R2</span>카드 레퍼런스</a></li>
-        <li><a href="ref-errors.html"><span class="nav-num">R3</span>오류 메시지 사전</a></li>
-        <li><a href="ref-executables.html"><span class="nav-num">R4</span>실행 파일 목록</a></li>
+        <li><a href="ref-keywords.html"><span class="nav-num">R1</span>Keyword dictionary</a></li>
+        <li><a href="ref-cards.html"><span class="nav-num">R2</span>Card reference</a></li>
+        <li><a href="ref-errors.html"><span class="nav-num">R3</span>Error message dictionary</a></li>
+        <li><a href="ref-executables.html"><span class="nav-num">R4</span>Executables</a></li>
       </ul>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">예제 · 따라 하기</div>
+      <div class="nav-section-title">Examples · Hands-on</div>
       <ul class="nav-list">
         <li><a href="ex-01-si-scf.html"><span class="nav-num">E1</span>Si SCF</a></li>
-        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>ibrav=0 다시 쓰기</a></li>
-        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>수렴 테스트 자동화</a></li>
-        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ 분자 (삼중항)</a></li>
-        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al 금속</a></li>
+        <li><a href="ex-02-si-ibrav0.html"><span class="nav-num">E2</span>Rewriting with ibrav=0</a></li>
+        <li><a href="ex-03-convergence.html"><span class="nav-num">E3</span>Automating convergence tests</a></li>
+        <li><a href="ex-04-o2-molecule.html"><span class="nav-num">E4</span>O₂ molecule (triplet)</a></li>
+        <li><a href="ex-05-al-metal.html"><span class="nav-num">E5</span>fcc Al metal</a></li>
         <li><a href="ex-06-si-vcrelax.html" class="active" aria-current="page"><span class="nav-num">E6</span>Si vc-relax</a></li>
-        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS·PDOS</a></li>
-        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si 밴드 구조</a></li>
-        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>bcc Fe 강자성</a></li>
-        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (GGA 실패)</a></li>
-        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO DFT+U</a></li>
-        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>hp.x 로 U 계산</a></li>
-        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>슬랩과 AIMD</a></li>
+        <li><a href="ex-07-si-dos.html"><span class="nav-num">E7</span>Si DOS and PDOS</a></li>
+        <li><a href="ex-08-si-bands.html"><span class="nav-num">E8</span>Si band structure</a></li>
+        <li><a href="ex-09-fe-bcc.html"><span class="nav-num">E9</span>Ferromagnetic bcc Fe</a></li>
+        <li><a href="ex-10-feo-afm.html"><span class="nav-num">E10</span>FeO AFM (where GGA fails)</a></li>
+        <li><a href="ex-11-feo-hubbard.html"><span class="nav-num">E11</span>FeO with DFT+U</a></li>
+        <li><a href="ex-12-feo-hp.html"><span class="nav-num">E12</span>Computing U with hp.x</a></li>
+        <li><a href="ex-13-slab-md.html"><span class="nav-num">E13</span>Slabs and AIMD</a></li>
       </ul>
     </div>
   </nav>
 </aside>
     <main class="main">
       <header class="page-header">
-        <div class="page-eyebrow">예제 · E6</div>
+        <div class="page-eyebrow">EXAMPLE · E6</div>
         <h1 class="page-title">Si vc-relax</h1>
-        <p class="page-lede">셀까지 함께 푸는 vc-relax로 실리콘 평형 격자상수를 찾습니다.</p>
+        <p class="page-lede">Find the equilibrium lattice constant of silicon with a variable-cell relaxation.</p>
       </header>
       <article class="content">
-<h2 id="_1">목적</h2>
-<p><strong>일부러 틀린 격자상수(10.00 bohr)에서 출발</strong>해, 셀까지 함께 푸는
-<code>vc-relax</code>로 실리콘의 PBE 평형 격자상수를 찾습니다. BFGS 궤적을 읽는 법과
-Pulay stress 재계산 원칙까지 확인합니다.</p>
-<h2 id="_2">새로 나오는 카드·변수</h2>
+<h2 id="goal">Goal</h2>
+<p>Start from a <strong>deliberately wrong lattice constant</strong> (10.00 bohr) and let a
+variable-cell relaxation find the PBE equilibrium. Learn to read a BFGS
+trajectory, and close with the Pulay-stress rerun rule.</p>
+<h2 id="new-cards-and-variables">New cards and variables</h2>
 <table>
 <thead>
 <tr>
-<th>항목</th>
-<th>역할</th>
+<th>Item</th>
+<th>Role</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>calculation='vc-relax'</code></td>
-<td>원자 + 셀 최적화</td>
+<td>Atoms plus cell</td>
 </tr>
 <tr>
 <td><code>&amp;IONS</code> / <code>&amp;CELL</code></td>
-<td>BFGS 설정, <code>press_conv_thr</code></td>
+<td>BFGS settings, <code>press_conv_thr</code></td>
 </tr>
 <tr>
 <td><code>cell_dofree='ibrav'</code></td>
-<td>큐빅 대칭을 유지한 채 셀 크기만</td>
+<td>Cell size only, cubic symmetry kept</td>
 </tr>
 <tr>
 <td><code>etot_conv_thr</code> / <code>forc_conv_thr</code></td>
-<td>이온 스텝 수렴 기준</td>
+<td>Ionic-step convergence criteria</td>
 </tr>
 </tbody>
 </table>
-<h2 id="_3">입력 파일</h2>
-<p><a href="files/E06-si-vcrelax/si.vcrelax.in">si.vcrelax.in 내려받기</a></p>
+<h2 id="input-file">Input file</h2>
+<p><a href="files/E06-si-vcrelax/si.vcrelax.in">Download si.vcrelax.in</a></p>
 <pre><code class="language-fortran">&amp;CONTROL
   calculation   = 'vc-relax'
   prefix        = 'si_vc'
@@ -158,7 +158,7 @@ Pulay stress 재계산 원칙까지 확인합니다.</p>
 /
 &amp;SYSTEM
   ibrav       = 2
-  celldm(1)   = 10.00         ! 일부러 틀린 값에서 출발
+  celldm(1)   = 10.00         ! deliberately wrong starting point
   nat         = 2
   ntyp        = 1
   ecutwfc     = 40
@@ -166,7 +166,7 @@ Pulay stress 재계산 원칙까지 확인합니다.</p>
   occupations = 'fixed'
 /
 &amp;ELECTRONS
-  conv_thr    = 1.0d-10       ! vc-relax는 더 엄격하게
+  conv_thr    = 1.0d-10       ! tighter SCF for vc-relax
 /
 &amp;IONS
   ion_dynamics   = 'bfgs'
@@ -174,7 +174,7 @@ Pulay stress 재계산 원칙까지 확인합니다.</p>
 &amp;CELL
   cell_dynamics  = 'bfgs'
   press_conv_thr = 0.1        ! kbar
-  cell_dofree    = 'ibrav'    ! 큐빅 대칭 유지
+  cell_dofree    = 'ibrav'    ! keep cubic symmetry
 /
 
 ATOMIC_SPECIES
@@ -187,77 +187,81 @@ ATOMIC_POSITIONS (alat)
 K_POINTS (automatic)
   8 8 8  0 0 0
 </code></pre>
-<h2 id="_4">실행</h2>
+<h2 id="run">Run</h2>
 <pre><code class="language-bash">mpirun -np 6 pw.x -nk 6 -in si.vcrelax.in &gt; si.vcrelax.out
 </code></pre>
-<h2 id="_5">출력·그림 — 실측</h2>
+<h2 id="output-and-figure-measured">Output and figure: measured</h2>
 <figure>
   <img src="assets/images/qe-e06-vcrelax.png"
        alt="Si vc-relax: energy and pressure vs BFGS step" />
   <figcaption>
-    BFGS 스텝별 에너지·압력 실측 (QE 7.5, PBE). 압축 상태(+109 kbar)에서
-    출발해 6 스텝 만에 압력이 0.1 kbar 아래로 떨어지며 수렴합니다.
+    Measured energy and pressure per BFGS step (QE 7.5, PBE). From a
+    compressed start (+109 kbar) the pressure falls below 0.1 kbar within
+    six steps.
   </figcaption>
 </figure>
 
 <table>
 <thead>
 <tr>
-<th>항목</th>
-<th>실측값</th>
+<th>Item</th>
+<th>Measured</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>BFGS 수렴</td>
-<td>6 SCF 사이클</td>
+<td>BFGS convergence</td>
+<td>6 SCF cycles</td>
 </tr>
 <tr>
-<td>최종 부피</td>
-<td>275.989 bohr³ = 40.897 Å³ (원시셀, V = a³/4)</td>
+<td>Final volume</td>
+<td>275.989 bohr³ = 40.897 Å³ (primitive cell, V = a³/4)</td>
 </tr>
 <tr>
-<td><strong>평형 격자상수</strong></td>
+<td><strong>Equilibrium lattice constant</strong></td>
 <td><strong>a = 5.469 Å</strong></td>
 </tr>
 <tr>
-<td>실험값</td>
-<td>5.431 Å → <strong>PBE가 +0.70% 과대평가</strong></td>
+<td>Experiment</td>
+<td>5.431 Å, so <strong>PBE overestimates by +0.70%</strong></td>
 </tr>
 </tbody>
 </table>
-<p>출력 끝의 <code>Begin final coordinates</code> 블록에 최종 셀
-(<code>CELL_PARAMETERS (alat= 10.0)</code>의 스케일 0.5168)이 정리됩니다. GGA(PBE)가
-격자상수를 ~1% 부풀리는 것은 잘 알려진 체계적 경향이며, 그대로
-실측됐습니다.</p>
-<p><strong>마무리 원칙</strong> — 최종 구조로 <code>scf</code>를 새로 한 번 더 돌리세요. 셀이 변하면
-평면파 기저가 변하므로(Pulay stress) 마지막 스텝의 에너지는 옛 기저의
-값입니다 (<a href="09-relaxation.html">09장</a>).</p>
-<h2 id="_6">직접 써보기</h2>
+<p>The final cell appears in the <code>Begin final coordinates</code> block at the end of
+the output (a <code>CELL_PARAMETERS (alat= 10.0)</code> matrix with scale 0.5168). The
+roughly 1% lattice overestimate of PBE is a well-known systematic trend,
+and here it is, measured.</p>
+<p><strong>The closing rule</strong>: run a fresh <code>scf</code> on the final structure. The
+plane-wave basis changes with the cell (Pulay stress), so the energy of the
+last vc-relax step was computed in the old basis
+(<a href="09-relaxation.html">Chapter 09</a>).</p>
+<h2 id="exercises">Exercises</h2>
 <ol>
-<li><code>cell_dofree='ibrav'</code> 대신 <code>'all'</code>로 바꿔 보세요. 최종 셀이 큐빅을
-   유지하나요?</li>
-<li>원자 하나를 (0.25, 0.25, 0.25) → (0.26, 0.26, 0.26)으로 옮기고
-   <code>relax</code>(셀 고정)로 되돌아오는지 확인하세요.</li>
-<li>위 2번 구조에서 두 원자 모두에 <code>if_pos 0 0 0</code>을 걸면 어떻게 되나요?</li>
-<li>최적화된 구조로 <code>scf</code>를 재실행해 마지막 스텝 에너지와 비교해 보세요 —
-   차이가 Pulay 오염의 크기입니다.</li>
+<li>Replace <code>cell_dofree='ibrav'</code> with <code>'all'</code>. Does the final cell stay
+   cubic?</li>
+<li>Move one atom from (0.25, 0.25, 0.25) to (0.26, 0.26, 0.26) and check
+   that a fixed-cell <code>relax</code> pulls it back.</li>
+<li>In that distorted structure, pin both atoms with <code>if_pos 0 0 0</code>. What
+   happens?</li>
+<li>Rerun <code>scf</code> on the optimized structure and compare with the last
+   vc-relax step energy; the difference is the size of the Pulay
+   contamination.</li>
 </ol>
 <div class="warning">
-  <div class="note-title">흔한 실수</div>
+  <div class="note-title">Common mistakes</div>
   <p>
-    <code>vc-relax</code>에 느슨한 <code>conv_thr</code>(1.0d-6)를 쓰는 것 —
-    힘·응력에 잡음이 실려 BFGS가 진동합니다. 응력은 컷오프에도 민감하므로,
-    응력 기준 수렴(<a href="05-convergence.html">05장</a>)을 먼저 통과한
-    컷오프를 쓰세요.
+    Running <code>vc-relax</code> with an everyday <code>conv_thr</code>
+    of 1.0d-6: the noisy forces and stress make BFGS oscillate. Stress is
+    also more cutoff-sensitive than the energy, so pass a
+    <a href="05-convergence.html">stress-based convergence test</a> first.
   </p>
 </div>
 
-<h2 id="_7">관련 챕터</h2>
-<p><a href="09-relaxation.html">09 구조 최적화</a> ·
-<a href="05-convergence.html">05 컷오프와 k-점 수렴</a></p>
+<h2 id="related-chapters">Related chapters</h2>
+<p><a href="09-relaxation.html">09 Structure optimization</a> ·
+<a href="05-convergence.html">05 Cutoff and k-point convergence</a></p>
       </article>
-<nav class="page-nav"><a class="prev" href="ex-05-al-metal.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">fcc Al 금속</div></a><a class="next" href="ex-07-si-dos.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">Si DOS·PDOS</div></a></nav>
+<nav class="page-nav"><a class="prev" href="ex-05-al-metal.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">fcc Al metal</div></a><a class="next" href="ex-07-si-dos.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">Si DOS and PDOS</div></a></nav>
     </main>
   </div>
   <script src="assets/js/main.js"></script>
