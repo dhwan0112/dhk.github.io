@@ -350,6 +350,19 @@ section {
     align-items: start;
 }
 
+.about-text a,
+.contact-subtitle a {
+    color: var(--accent-color);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease;
+}
+
+.about-text a:hover,
+.contact-subtitle a:hover {
+    color: var(--secondary-color);
+}
+
 .about-text p {
     margin-bottom: 1rem;
     color: var(--text-light);

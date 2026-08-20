@@ -58,7 +58,7 @@ permalink: /research/
 <section class="current-research">
     <div class="container">
         <h2 class="section-title">Research Projects</h2>
-        <p class="contact-subtitle" style="text-align:center;margin-bottom:2rem;">Three consecutive UROPS under A/P Liviu Ungur, Department of Chemistry, NUS.</p>
+        <p class="contact-subtitle" style="text-align:center;margin-bottom:2rem;">Three consecutive UROPS under A/P Liviu Ungur (<a href="https://ungur-group.github.io/website/" target="_blank" rel="noopener">Ungur Group</a>), Department of Chemistry, NUS.</p>
         <div class="research-list">
 
             <div class="research-item">
