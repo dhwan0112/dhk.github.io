@@ -277,14 +277,16 @@ body {
 
 /* Hero Section */
 .hero {
-    min-height: 60vh;
+    min-height: 70vh;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
-    background-color: var(--bg-white);
+    background:
+        linear-gradient(180deg, rgba(13, 20, 33, 0.30) 0%, rgba(13, 20, 33, 0.68) 100%),
+        url('../../images/hero-nus.jpg') center 15% / cover no-repeat;
     border-bottom: 1px solid var(--border-color);
     position: relative;
-    padding: 80px 20px;
+    padding: 80px 20px 72px;
 }
 
 .hero-content {
@@ -296,26 +298,40 @@ body {
     font-size: 3rem;
     margin-bottom: 1.5rem;
     font-weight: 600;
-    color: var(--text-dark);
+    color: #f8fafc;
     letter-spacing: -0.02em;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
 }
 
 .highlight {
-    color: var(--primary-color);
+    color: #8ec9ff;
     font-weight: 700;
 }
 
 .hero-subtitle {
     font-size: 1.25rem;
     margin-bottom: 2.5rem;
-    color: var(--text-light);
+    color: rgba(237, 242, 247, 0.92);
     font-weight: 400;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
 }
 
 .hero-buttons {
     display: flex;
     gap: 1rem;
     justify-content: center;
+}
+
+.hero .btn-secondary {
+    color: #f8fafc;
+    border-color: rgba(248, 250, 252, 0.75);
+    background-color: rgba(13, 20, 33, 0.25);
+}
+
+.hero .btn-secondary:hover {
+    background-color: rgba(248, 250, 252, 0.15);
+    border-color: #f8fafc;
+    color: #ffffff;
 }
 
 .btn {
