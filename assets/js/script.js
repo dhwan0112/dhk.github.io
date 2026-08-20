@@ -139,27 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Form submission handler
-const contactForm = document.querySelector('.contact-form');
-if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        // Get form data
-        const formData = new FormData(contactForm);
-        const name = contactForm.querySelector('input[type="text"]').value;
-        const email = contactForm.querySelector('input[type="email"]').value;
-        const message = contactForm.querySelector('textarea').value;
-
-        // Here you would typically send the data to a server
-        // For now, we'll just show an alert
-        alert(`Message sent successfully!\n\nName: ${name}\nEmail: ${email}\nMessage: ${message}`);
-
-        // Reset form
-        contactForm.reset();
-    });
-}
-
 // Removed typing effect for cleaner professional look
 
 // Subtle fade-in for sections (minimal animation)
@@ -181,5 +160,3 @@ revealSections.forEach(section => {
         revealObserver.observe(section);
     }
 });
-
-console.log('Portfolio website loaded successfully.');
