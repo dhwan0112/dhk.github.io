@@ -53,6 +53,7 @@ exclude:
   - vendor
   - README.md
   - CONTENT_GUIDE.md
+  - BLOG_GUIDE.md
   - templates/
 
 # Plugins
