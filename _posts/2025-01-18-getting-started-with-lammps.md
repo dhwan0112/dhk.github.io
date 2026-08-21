@@ -3,6 +3,7 @@ title: "LAMMPS 시뮬레이션 시작하기"
 date: 2025-01-18
 category: Computation
 tags: [LAMMPS, MD, Tutorial]
+description: "LAMMPS 설치, 입력 파일의 기본 구조(초기화 · 시스템 정의 · 힘장 · 실행), 그리고 총 에너지를 구성하는 운동/퍼텐셜 에너지 항까지 — 처음 LAMMPS를 여는 사람을 위한 짧은 메모."
 ---
 
 LAMMPS를 처음 시작하는 분들을 위한 간단한 가이드입니다.

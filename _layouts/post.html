@@ -2,48 +2,45 @@
 layout: default
 ---
 
-<article class="blog-post">
-    <section class="research-header">
-        <div class="container">
-            <h1 class="page-title">{{ page.title }}</h1>
-            <div class="post-meta">
-                <span class="post-date"><i class="far fa-calendar"></i> {{ page.date | date: "%Y-%m-%d" }}</span>
-                {% if page.category %}
-                <span class="post-category"><i class="fas fa-tag"></i> {{ page.category }}</span>
-                {% endif %}
-                {% if page.tags %}
-                <span class="post-tags">
+<div class="post-page">
+    <article class="post">
+        <header class="post-header">
+            <a href="{{ '/blog/' | relative_url }}" class="post-crumb">&larr; Blog</a>
+            <h1 class="post-title">{{ page.title }}</h1>
+            <div class="post-info">
+                <div class="post-item-tags">
                     {% for tag in page.tags %}
-                    <span class="tag">{{ tag }}</span>
+                    <a href="{{ '/blog/' | relative_url }}?tag={{ tag | uri_escape }}" class="tag">{{ tag }}</a>
                     {% endfor %}
-                </span>
-                {% endif %}
+                </div>
+                <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%b %-d, %Y" }}</time>
             </div>
-        </div>
-    </section>
+        </header>
 
-    <section class="post-content">
-        <div class="container">
-            <div class="content-wrapper">
-                {{ content }}
-            </div>
+        <div class="post-body" id="post-body">
+            {{ content }}
         </div>
-    </section>
 
-    <section class="post-navigation">
-        <div class="container">
-            <div class="nav-links">
+        <footer class="post-footer">
+            <nav class="post-pager" aria-label="Adjacent posts">
                 {% if page.previous.url %}
-                <a href="{{ page.previous.url | relative_url }}" class="nav-prev">
-                    <i class="fas fa-arrow-left"></i> {{ page.previous.title }}
+                <a href="{{ page.previous.url | relative_url }}" class="pager-prev">
+                    <span class="pager-label">Older</span>
+                    <span class="pager-title">{{ page.previous.title }}</span>
                 </a>
-                {% endif %}
+                {% else %}<span></span>{% endif %}
                 {% if page.next.url %}
-                <a href="{{ page.next.url | relative_url }}" class="nav-next">
-                    {{ page.next.title }} <i class="fas fa-arrow-right"></i>
+                <a href="{{ page.next.url | relative_url }}" class="pager-next">
+                    <span class="pager-label">Newer</span>
+                    <span class="pager-title">{{ page.next.title }}</span>
                 </a>
                 {% endif %}
-            </div>
-        </div>
-    </section>
-</article>
+            </nav>
+        </footer>
+    </article>
+
+    <aside class="post-toc" id="post-toc" hidden>
+        <p class="post-toc-heading">On this page</p>
+        <nav class="post-toc-nav" aria-label="Table of contents"></nav>
+    </aside>
+</div>
