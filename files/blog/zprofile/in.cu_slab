@@ -1,0 +1,37 @@
+# Cu(100) slab demonstration — slab+vacuum geometry (illustrates cu-01 §1.2)
+units           metal
+atom_style      atomic
+boundary        p p f
+
+lattice         fcc 3.615
+region          sim   block 0 8 0 8 0 12 units lattice
+create_box      1 sim
+region          slab  block 0 8 0 8 0 6  units lattice
+create_atoms    1 region slab
+mass            1 63.546
+
+pair_style      eam/alloy
+pair_coeff      * * Cu_mishin1.eam.alloy Cu
+
+# pin the bottom layer; thermostat the rest
+region          bot   block INF INF INF INF 0 0.6 units lattice
+group           bottom region bot
+group           mobile subtract all bottom
+
+velocity        mobile create 300.0 4928459 mom yes rot yes dist gaussian
+fix             freeze bottom setforce 0.0 0.0 0.0
+fix             integ  mobile nvt temp 300.0 300.0 0.1
+
+timestep        0.002
+thermo          500
+thermo_style    custom step temp pe etotal press
+run             10000
+
+# z number-density profile (time-averaged over production window)
+reset_timestep  0
+compute         cc all chunk/atom bin/1d z lower 0.25 units box
+fix             zd all ave/chunk 100 50 5000 cc density/number file zdens.dat
+run             5000
+
+write_dump      all custom slab_final.dump id type x y z modify sort id
+print           "SLAB_NATOMS $(count(all))"
