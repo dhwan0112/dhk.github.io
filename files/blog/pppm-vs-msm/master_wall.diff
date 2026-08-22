@@ -1,0 +1,24 @@
+1c1
+< # sim_03_opls-aa_msm
+---
+> # sim_01_opls-aa_pppm
+13c13
+< pair_style        hybrid eam/alloy lj/cut/coul/msm 14.0
+---
+> pair_style        hybrid eam/alloy lj/cut/coul/long 14.0
+18,20c18,19
+< kspace_style      msm 1.0e-5
+< kspace_modify pressure/scalar no
+< # kspace_modify     slab 3.0
+---
+> kspace_style      pppm 1.0e-5
+> kspace_modify     slab 3.0
+79,82c78,80
+< pair_style        hybrid eam/alloy lj/cut/coul/msm 14.0
+< kspace_style      msm 1.0e-5
+< kspace_modify pressure/scalar no
+< # kspace_modify     slab 3.0
+---
+> pair_style        hybrid eam/alloy lj/cut/coul/long 14.0
+> kspace_style      pppm 1.0e-5
+> kspace_modify     slab 3.0

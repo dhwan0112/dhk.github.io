@@ -1,0 +1,233 @@
+# sim_03_opls-aa_msm
+# Master workflow - PPPM version with MSM-inspired stability improvements
+# Maintains original workflow structure with targeted enhancements
+units             real
+dimension         3
+processors        4 5 2
+boundary          p p f
+atom_style        full
+
+log               master_wall.log
+
+# ===== PPPM configuration =====
+pair_style        hybrid eam/alloy lj/cut/coul/msm 14.0
+bond_style        harmonic
+angle_style       harmonic
+dihedral_style    opls
+improper_style    harmonic
+kspace_style      msm 1.0e-5
+kspace_modify pressure/scalar no
+# kspace_modify     slab 3.0
+
+read_data         opls.data
+
+# === EAM potential for Cu-Cu interactions ===
+pair_coeff        * * eam/alloy Cu_mishin1.eam.alloy NULL NULL NULL NULL NULL NULL NULL NULL NULL NULL NULL Cu
+
+# === Include force field parameters ===
+include           ff_params.in
+
+pair_modify       mix geometric
+special_bonds     lj/coul 0.0 0.0 0.5
+comm_modify       mode single cutoff 30.0 vel yes
+neighbor          10.0 bin
+neigh_modify      delay 0 every 1 check yes one 50000 page 1000000
+
+# === Group definitions ===
+group             cu type 12
+group             organic subtract all cu
+group             benzene type 1 2
+group             ethanol type 3 4 5 6 7 8 9 10 11
+region            cu_bottom block INF INF INF INF INF 8.0 units box
+group             cu_bottom region cu_bottom
+group             cu_fixed intersect cu cu_bottom
+group             cu_mobile subtract cu cu_fixed
+group             mobile union organic cu_mobile
+
+variable          zmax_org equal bound(organic,zmax)
+variable          zhi_box  equal bound(all,zmax)
+print             "Initial organic z-max: ${zmax_org}"
+print             "Initial box zhi: ${zhi_box}"
+
+# Wall potential at top boundary
+fix               wall_top organic wall/lj126 zhi EDGE 1.0 3.0 2.5
+fix               fix_force cu_fixed setforce 0.0 0.0 0.0
+
+#=======================================================================
+#=== STAGE 0: Soft Overlap Relaxation ===
+#=======================================================================
+print             "== Stage 0: Soft Overlap Relaxation =="
+velocity          all set 0.0 0.0 0.0
+kspace_style      none  # Disable electrostatics during soft potential
+pair_style        soft 2.0
+pair_coeff        * * 100.0  # Gentle soft potential
+fix               limit_all all nve/limit 0.001  # Conservative limit
+thermo            1000
+thermo_style      custom step temp press pe
+fix               temp_control mobile langevin 10.0 10.0 10.0 12345
+timestep          1.0e-05
+run               20000
+velocity          mobile set 0.0 0.0 0.0
+variable          prefactor equal ramp(0.0,1.0)
+fix               adapt_soft all adapt 1 pair soft a * * v_prefactor
+run               50000
+unfix             adapt_soft
+unfix             limit_all
+unfix             temp_control
+
+print             "--- Restoring full force field ---"
+pair_style        hybrid eam/alloy lj/cut/coul/msm 14.0
+kspace_style      msm 1.0e-5
+kspace_modify pressure/scalar no
+# kspace_modify     slab 3.0
+
+# Re-apply force field after soft potential
+pair_coeff        * * eam/alloy Cu_mishin1.eam.alloy NULL NULL NULL NULL NULL NULL NULL NULL NULL NULL NULL Cu
+include           ff_params.in
+pair_modify       mix geometric
+special_bonds     lj/coul 0.0 0.0 0.5
+comm_modify       mode single cutoff 25.0 vel yes
+neighbor          10.0 bin
+neigh_modify      delay 0 every 1 check yes one 50000 page 1000000
+
+print             "---> Minimization sequence (SD + CG)"
+min_style         sd
+minimize          1.0e-8 1.0e-6 2000 20000
+min_style         cg
+minimize          1.0e-10 1.0e-8 20000 200000
+velocity          mobile set 0.0 0.0 0.0
+
+print             "---> Gentle NVT thermalization from 1K to 10K"
+# FIX: Added velocity create command to initialize thermostat.
+velocity          mobile create 1.0 54321 dist gaussian mom yes rot yes
+timestep          0.001
+fix               nvt_gentle mobile nvt temp 1.0 10.0 $(1000.0*dt)
+thermo            20000
+thermo_style      custom step temp pe ke etotal
+run               200000    
+unfix             nvt_gentle
+
+# Stage 5 removed - unnecessary and causes EAM potential overflow
+# The minimization in Stage 1 (SD + CG) is sufficient for system preparation
+
+print             "== Stage 6: Heating (Keep protocol for pi-pi stacking) =="
+neighbor          3.0 bin
+neigh_modify      delay 0 every 1 check yes one 5000 page 100000
+set               type * image 0 0 0
+velocity          mobile create 0.1 12345 dist gaussian mom yes rot yes
+fix               momentum_heat mobile momentum 10 linear 1 1 1 angular
+fix               shake_OH ethanol shake 0.0001 20 0 b 8 a 6
+compute           temp_cu cu_mobile temp
+compute           temp_org organic temp
+thermo_style      custom step temp c_temp_cu c_temp_org pe ke etotal press vol
+thermo            2000
+dump              heat_dump all custom 10000 02_heating.lammpstrj id type x y z
+variable          zmax_monitor equal bound(organic,zmax)
+fix               zmax_track all print 10000 "${zmax_monitor}" file interface_position_heat.dat
+
+# Step 1: 0.1K to 10K
+# FIX: Reduced timestep to prevent SHAKE error during initial heating.
+print "--> Step 1: 0.1K to 10K with very small timestep"
+timestep         0.005
+fix              nvt_heat mobile nvt temp 0.1 10.0 $(100.0*dt)
+run              2000000
+unfix            nvt_heat
+write_restart    checkpoint_heat1_wall.restart
+
+# Step 2: 10K to 100K
+print "--> Step 2: 10K to 100K"
+timestep         0.1
+fix              nvt_heat mobile nvt temp 10.0 100.0 $(100.0*dt)
+run              900000
+unfix            nvt_heat
+write_restart    checkpoint_heat2_wall.restart
+
+# Step 3: 100K to 200K
+print "--> Step 3: 100K to 200K"
+timestep         0.25
+fix              nvt_heat mobile nvt temp 100.0 200.0 $(100.0*dt)
+run              400000
+unfix            nvt_heat
+write_restart    checkpoint_heat3_wall.restart
+
+# Step 4: 200K to 300K
+print "--> Step 4: 200K to 300K"
+timestep         0.25
+fix              nvt_heat mobile nvt temp 200.0 300.0 $(100.0*dt)
+run              400000
+unfix            nvt_heat
+undump           heat_dump
+unfix            momentum_heat
+unfix            shake_OH
+unfix            zmax_track
+write_restart    checkpoint_stage6_wall.restart
+print "==> Heating protocol completed."
+
+print             "== Stage 7: Extended 300K equilibration =="
+fix               shake_OH ethanol shake 0.0001 20 0 b 8 a 6
+fix               momentum_eq mobile momentum 100 linear 1 1 1 angular
+dump              eq_dump all custom 5000 03_equilibration.lammpstrj id type x y z
+timestep          0.5
+fix               nvt_eq mobile nvt temp 300.0 300.0 $(100.0*dt)
+run               1000000
+write_restart     checkpoint_equil1.restart
+run               1000000
+write_restart     checkpoint_equil2.restart
+undump            eq_dump
+unfix             nvt_eq
+unfix             momentum_eq
+unfix             shake_OH
+write_restart     checkpoint_stage7.restart
+
+print             "== Stage 8: Production at 300K =="
+uncompute         temp_cu
+uncompute         temp_org
+variable          n_cu_mobile equal count(cu_mobile)
+if "${n_cu_mobile} > 0" then "compute temp_cu cu_mobile temp"
+compute           temp_org  organic temp
+compute           temp_bz   benzene temp
+compute           temp_et   ethanol temp
+compute           stress_bulk organic stress/atom NULL
+compute           stress_all  all     stress/atom NULL
+compute           pxx_bulk organic reduce ave c_stress_bulk[1]
+compute           pyy_bulk organic reduce ave c_stress_bulk[2]
+compute           pzz_bulk organic reduce ave c_stress_bulk[3]
+compute           pxx all reduce ave c_stress_all[1]
+compute           pyy all reduce ave c_stress_all[2]
+compute           pzz all reduce ave c_stress_all[3]
+variable          lz equal lz
+variable          pN equal c_pzz_bulk
+variable          pT equal 0.5*(c_pxx_bulk+c_pyy_bulk)
+variable          gamma equal v_lz*(v_pN-v_pT)*0.01
+variable          zmax_cutoff equal ${zmax_org}-5.0
+compute           chunks organic chunk/atom bin/1d z lower 1.0 bound z 0 ${zmax_cutoff} units box
+fix               pz_prof organic ave/chunk 100 10 1000 chunks c_stress_bulk[3] file pz_profile.dat
+variable          zmax_current equal bound(organic,zmax)
+variable          wall_distance equal ${zhi_box}-${zmax_current}
+fix               interface_track all print 1000 "${zmax_current} ${wall_distance}" file interface_distance.dat
+fix               phys_ave all ave/time 100 10 1000 v_pN v_pT v_gamma file interfacial_properties.dat
+fix               shake_OH ethanol shake 0.0001 20 0 b 8 a 6
+fix               momentum_prod mobile momentum 100 linear 1 1 1
+timestep          0.5
+fix               nvt_prod mobile nvt temp 300.0 300.0 $(100.0*dt)
+dump              prod_dump all custom 2000 04_production.lammpstrj id type x y z
+thermo_style      custom step time temp c_temp_bz c_temp_et press pxx pyy pzz pe etotal v_gamma v_wall_distance
+thermo            1000
+restart           100000 production_*.restart
+
+run               4000000
+variable          gamma_avg equal f_phys_ave[3]
+print             "Final averaged interfacial tension: $(v_gamma_avg:%.4f) mJ/m^2"
+unfix             pz_prof
+unfix             phys_ave
+unfix             nvt_prod
+unfix             momentum_prod
+unfix             shake_OH
+unfix             interface_track
+undump            prod_dump
+uncompute         chunks
+unfix             wall_top
+unfix             fix_force
+print             "== Workflow complete =="
+write_data        final_configuration.data
+write_restart     final_configuration.restart
