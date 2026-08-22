@@ -1,0 +1,40 @@
+Loop time of 31987.6 on 40 procs for 4000000 steps with 2471 atoms
+
+Performance: 5.402 ns/day, 4.443 hours/ns, 125.048 timesteps/s, 308.995 katom-step/s
+83.5% CPU use with 40 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 3535.5     | 4477.1     | 5244.5     | 876.0 | 14.00
+Bond    | 130.99     | 162.25     | 199.49     | 207.7 |  0.51
+Kspace  | 20321      | 20837      | 21515      | 246.6 | 65.14
+Neigh   | 75.606     | 79.969     | 84.38      |  44.3 |  0.25
+Comm    | 3755.9     | 4259.3     | 4702       | 617.6 | 13.32
+Output  | 5.44       | 5.7401     | 6.0376     |   6.8 |  0.02
+Modify  | 1827.1     | 1937.1     | 2046.5     | 243.4 |  6.06
+Other   |            | 228.7      |            |       |  0.72
+
+Nlocal:         61.775 ave          95 max          39 min
+Histogram: 2 2 5 9 11 8 2 0 0 1
+Nghost:        8783.17 ave        8869 max        8693 min
+Histogram: 1 0 4 6 11 3 8 3 2 2
+Neighs:              0 ave           0 max           0 min
+Histogram: 40 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Ave special neighs/atom = 6.7988669
+Neighbor list builds = 35478
+Dangerous builds = 0
+variable          gamma_avg equal f_phys_ave[3]
+print             "Final averaged interfacial tension: $(v_gamma_avg:%.4f) mJ/m^2"
+Final averaged interfacial tension: 387.5349 mJ/m^2
+unfix             pz_prof
+unfix             phys_ave
+unfix             nvt_prod
+unfix             momentum_prod
+unfix             shake_OH
+unfix             interface_track
+undump            prod_dump
+uncompute         chunks
