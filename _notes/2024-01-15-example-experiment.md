@@ -2,6 +2,7 @@
 title: "Example Experiment Title"
 date: 2024-01-15
 category: Synthesis
+published: false
 attachments:
   - name: image_001.jpg
     type: image

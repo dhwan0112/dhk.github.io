@@ -3,6 +3,7 @@ layout: page
 title: Research Results
 description: Collection of experimental data, visualizations, and research outputs
 permalink: /research-results/
+published: false
 ---
 
 <section class="results-gallery">
