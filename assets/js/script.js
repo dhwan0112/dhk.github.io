@@ -71,33 +71,34 @@ sidebarLinks.forEach(link => {
     });
 });
 
-// Update active sidebar link on scroll
-window.addEventListener('scroll', () => {
-    const sections = document.querySelectorAll('section');
-    const scrollPosition = window.pageYOffset + 200;
+// Update active sidebar link on scroll (home page only)
+const isSamePage = (link) => link.pathname === location.pathname && link.hash;
+const spySections = Array.from(document.querySelectorAll('section[id]'));
 
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.offsetHeight;
-        const sectionId = section.getAttribute('id');
+if (spySections.length && Array.from(sidebarLinks).some(isSamePage)) {
+    window.addEventListener('scroll', () => {
+        const scrollPosition = window.pageYOffset + 200;
 
-        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-            sidebarLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === `#${sectionId}`) {
-                    link.classList.add('active');
-                }
-            });
-        }
-    });
-});
+        spySections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
 
-// Smooth scrolling for navigation links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                sidebarLinks.forEach(link => {
+                    link.classList.toggle('active', isSamePage(link) && link.hash === `#${section.id}`);
+                });
+            }
+        });
+    }, { passive: true });
+}
+
+// Smooth scrolling for in-page links (including "/#section" links on the home page)
+document.querySelectorAll('a[href*="#"]').forEach(anchor => {
+    if (!isSamePage(anchor)) return;
     anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
+        const target = document.getElementById(decodeURIComponent(this.hash.slice(1)));
         if (target) {
+            e.preventDefault();
             const headerOffset = 80;
             const elementPosition = target.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
