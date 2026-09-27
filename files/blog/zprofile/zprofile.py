@@ -17,7 +17,7 @@ def z_profile(dumpfile, dz=0.25):
         if edges is None:                       # bins fixed by the first frame
             edges = np.arange(0.0, lz + dz, dz)
             area = lx * ly
-        z = atoms.positions[:, 2]
+        z = atoms.positions[:, 2] - atoms.get_celldisp()[2]   # measure from zlo
         types = atoms.arrays["type"]            # ASE keeps the LAMMPS type here
         for t in np.unique(types):
             h, _ = np.histogram(z[types == t], bins=edges)

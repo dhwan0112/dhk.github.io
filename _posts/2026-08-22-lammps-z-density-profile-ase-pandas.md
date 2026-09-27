@@ -36,7 +36,7 @@ def z_profile(dumpfile, dz=0.25):
         if edges is None:                       # bins fixed by the first frame
             edges = np.arange(0.0, lz + dz, dz)
             area = lx * ly
-        z = atoms.positions[:, 2]
+        z = atoms.positions[:, 2] - atoms.get_celldisp()[2]   # measure from zlo
         types = atoms.arrays["type"]            # ASE keeps the LAMMPS type here
         for t in np.unique(types):
             h, _ = np.histogram(z[types == t], bins=edges)
@@ -63,7 +63,7 @@ if __name__ == "__main__":
 처음 짤 때 걸렸던 부분 두 가지:
 
 - **ASE는 type을 원소로 읽지 않는다.** `specorder`를 안 주면 모든 원자가 `H`로 들어온다. 원소 기호가 필요하면 `iread(..., specorder=["Cu"])`처럼 type 순서대로 넘겨야 하고, 그냥 type 번호만 쓸 거면 위처럼 `atoms.arrays["type"]`을 읽는 게 가장 덜 헷갈린다.
-- **빈의 원점을 LAMMPS와 맞춰야 비교가 된다.** `compute chunk/atom bin/1d z lower 0.25 units box`는 박스 하단(`zlo`)에서 시작하는 0.25 Å 빈이다. 위 코드의 `np.arange(0.0, lz + dz, dz)`는 좌표가 `zlo = 0`인 경우에만 같은 빈이 된다. `zlo`가 0이 아니면 `atoms.cell`이 아니라 덤프의 `BOX BOUNDS`를 직접 읽어서 원점을 맞춰야 한다. NPT처럼 박스가 변하는 궤적이면 "첫 프레임 빈 고정"도 다시 생각해야 한다.
+- **빈의 원점을 LAMMPS와 맞춰야 비교가 된다.** `compute chunk/atom bin/1d z lower 0.25 units box`는 박스 하단(`zlo`)에서 시작하는 0.25 Å 빈이다. ASE는 좌표를 덤프 값 그대로 두고 `zlo`는 `atoms.get_celldisp()`에 따로 넣어 두기 때문에, `z`에서 이걸 빼 줘야 `np.arange(0.0, lz + dz, dz)`가 LAMMPS와 같은 빈이 된다(빼지 않으면 `zlo = 0`일 때만 맞고, `zlo < 0`이면 아래쪽 원자가 히스토그램 범위 밖으로 조용히 빠진다). NPT처럼 박스가 변하는 궤적이면 "첫 프레임 빈 고정"도 다시 생각해야 한다.
 
 ## fix ave/chunk와 대조
 
