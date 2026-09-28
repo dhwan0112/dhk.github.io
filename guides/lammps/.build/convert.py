@@ -264,7 +264,7 @@ HEAD_TMPL = """<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
   <meta name="description" content="{description}" />
-  <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+  <link rel="icon" type="image/x-icon" href="../../images/icons/favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>

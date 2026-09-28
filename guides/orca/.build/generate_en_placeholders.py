@@ -138,7 +138,7 @@ TEMPLATE = """<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title_plain} · ORCA User Guide</title>
   <meta name="description" content="{lede_plain}" />
-  <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
 <body>
