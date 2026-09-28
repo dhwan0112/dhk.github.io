@@ -9,15 +9,7 @@ html.setAttribute('data-theme', currentTheme);
 // Update button text and icon based on current theme
 function updateThemeButton(theme) {
     if (!themeToggle) return;
-    const icon = themeToggle.querySelector('i');
-    const text = themeToggle.querySelector('span');
-    if (theme === 'dark') {
-        icon.className = 'fas fa-sun';
-        text.textContent = 'Light Mode';
-    } else {
-        icon.className = 'fas fa-moon';
-        text.textContent = 'Dark Mode';
-    }
+    themeToggle.textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
 }
 
 // Theme toggle event listener
