@@ -1,64 +1,14 @@
 ---
 layout: page
 title: Research
-description: Exploring the fundamental principles of chemistry through computational and experimental approaches
+description: Undergraduate research in computational chemistry, Department of Chemistry, NUS
 permalink: /research/
 ---
-
-<section class="research-interests">
-    <div class="container">
-        <h2 class="section-title">Research Interests</h2>
-        <div class="research-grid">
-            <div class="research-card">
-                <div class="research-icon">
-                    <i class="fas fa-atom"></i>
-                </div>
-                <h3>Inorganic Chemistry</h3>
-                <p>Investigating transition metal complexes, coordination chemistry, and metal-organic frameworks for catalytic applications.</p>
-            </div>
-            <div class="research-card">
-                <div class="research-icon">
-                    <i class="fas fa-fire"></i>
-                </div>
-                <h3>Physical Chemistry</h3>
-                <p>Studying thermodynamics, kinetics, and spectroscopy to understand molecular behavior and reaction mechanisms.</p>
-            </div>
-            <div class="research-card">
-                <div class="research-icon">
-                    <i class="fas fa-calculator"></i>
-                </div>
-                <h3>Computational Chemistry</h3>
-                <p>Using quantum mechanical calculations and molecular dynamics simulations to predict molecular properties and reactions.</p>
-            </div>
-            <div class="research-card">
-                <div class="research-icon">
-                    <i class="fas fa-cube"></i>
-                </div>
-                <h3>Materials Chemistry</h3>
-                <p>Designing and synthesizing novel materials with tailored properties for energy storage and conversion applications.</p>
-            </div>
-            <div class="research-card">
-                <div class="research-icon">
-                    <i class="fas fa-magnet"></i>
-                </div>
-                <h3>Magnetochemistry</h3>
-                <p>Exploring magnetic properties of lanthanide coordination compounds using ORCA DFT calculations. Focus on dysprosium triangle complexes and anisotropic magnetism for applications in single-molecule magnets.</p>
-            </div>
-            <div class="research-card">
-                <div class="research-icon">
-                    <i class="fas fa-microscope"></i>
-                </div>
-                <h3>Quantum Chemistry</h3>
-                <p>Applying quantum mechanical principles to understand electronic structure and chemical bonding at the molecular level.</p>
-            </div>
-        </div>
-    </div>
-</section>
 
 <section class="current-research">
     <div class="container">
         <h2 class="section-title">Research Projects</h2>
-        <p class="contact-subtitle" style="text-align:center;margin-bottom:2rem;">Three consecutive UROPS under A/P Liviu Ungur (<a href="https://ungur-group.github.io/website/" target="_blank" rel="noopener">Ungur Group</a>), Department of Chemistry, NUS.</p>
+        <p class="contact-subtitle" style="text-align:center;margin-bottom:2rem;">Two UROPS projects and a final-year project under A/P Liviu Ungur (<a href="https://ungur-group.github.io/website/" target="_blank" rel="noopener">Ungur Group</a>).</p>
         <div class="research-list">
 
             <div class="research-item">

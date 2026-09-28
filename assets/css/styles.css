@@ -773,54 +773,6 @@ section {
     font-size: 1.1rem;
 }
 
-/* Research Interests Section */
-.research-interests {
-    background-color: var(--bg-light);
-}
-
-.research-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-}
-
-.research-card {
-    background-color: var(--bg-white);
-    padding: 2rem;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-    transition: border-color 0.2s ease;
-}
-
-.research-card:hover {
-    border-color: var(--primary-color);
-}
-
-.research-icon {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.75rem;
-    margin-bottom: 1.5rem;
-}
-
-.research-card h3 {
-    font-size: 1.5rem;
-    color: var(--text-dark);
-    margin-bottom: 0.75rem;
-    font-weight: 600;
-}
-
-.research-card p {
-    color: var(--text-light);
-    line-height: 1.7;
-}
-
 /* Current Research Section */
 .current-research {
     background-color: var(--bg-white);
