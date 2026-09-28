@@ -68,25 +68,25 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 08 · 자주 쓰는 계산</div>
         <h1 class="page-title">들뜬 상태 · TD-DFT</h1>
-        <p class="page-lede">UV-Vis 흡수 스펙트럼과 형광. 광물리·광화학이 여기서 시작된다.</p>
+        <p class="page-lede">TD-DFT로 UV-Vis 흡수 스펙트럼과 형광 에너지를 계산하는 법.</p>
       </header>
 
       <article class="content">
         <div class="toc">
-          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
           <ul>
-            <li><a href="#methods">들뜬 상태 방법 — TDA · TD-DFT · CIS</a></li>
+            <li><a href="#methods">들뜬 상태 방법: TDA · TD-DFT · CIS</a></li>
             <li><a href="#basic">기본 사용법</a></li>
             <li><a href="#interpret">출력 해석</a></li>
             <li><a href="#triplets-sf">삼중항과 스핀-플립</a></li>
-            <li><a href="#opt-excited">들뜬 상태 최적화 — 형광 계산</a></li>
+            <li><a href="#opt-excited">들뜬 상태 최적화와 형광 계산</a></li>
             <li><a href="#nacme">비단열 결합과 ETF</a></li>
             <li><a href="#xray">X-선 흡수 스펙트럼</a></li>
             <li><a href="#tips">함수 선택과 주의 사항</a></li>
           </ul>
         </div>
 
-        <h2 id="methods">들뜬 상태 방법 — TDA · TD-DFT · CIS</h2>
+        <h2 id="methods">들뜬 상태 방법: TDA · TD-DFT · CIS</h2>
         <p>
           ORCA는 들뜬 상태 방법을 여럿 지원한다. 아래는 단일참조(single-reference) 계열이다.
           다중참조(CASSCF, NEVPT2, MRCI)는 매뉴얼의 별도 장을 참고하면 된다.
@@ -192,7 +192,7 @@ States    Energy   Wavelength   fosc     T2         TX        TY        TZ
 
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 3</span> mol.xyz</code></pre>
 
-        <h2 id="opt-excited">들뜬 상태 최적화 — 형광 계산</h2>
+        <h2 id="opt-excited">들뜬 상태 최적화와 형광 계산</h2>
         <p>
           형광(emission) 파장을 얻으려면 들뜬 상태에서 구조를 다시 최적화해야 한다.
           그 구조에서 들뜬 상태 에너지를 다시 계산하면, 그 값이 형광의 0-0 전이 에너지에 가깝다.
@@ -230,7 +230,7 @@ States    Energy   Wavelength   fosc     T2         TX        TY        TZ
         <h2 id="xray">X-선 흡수 스펙트럼</h2>
         <p>
           K-edge X-선 흡수 스펙트럼의 pre-edge 영역은 TD-DFT로 정성적으로도, 정량적으로도 모사할 수 있다.
-          매뉴얼은 TiCl<sub>4</sub>의 Ti K-edge를 예로 든다.
+          아래는 TiCl<sub>4</sub>의 Ti K-edge 예다.
         </p>
 
         <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">BP86 ZORA ZORA-def2-TZVP(-f) SARC/J TightSCF</span>
@@ -277,7 +277,7 @@ States    Energy   Wavelength   fosc     T2         TX        TY        TZ
             <tr><td>로컬 들뜸(국소 π → π*)</td><td>B3LYP, PBE0, M06-2X</td></tr>
             <tr><td>전하 이동, 큰 컨주게이션</td><td>CAM-B3LYP, ωB97X-V, ωB97M-V</td></tr>
             <tr><td>전이금속 d-d 전이</td><td>TPSSh, B3LYP, BP86</td></tr>
-            <tr><td>리이드버그 상태</td><td>장범위 분리 + diffuse 함수 (def2-TZVPD 등)</td></tr>
+            <tr><td>리드베리 상태</td><td>장범위 분리 + diffuse 함수 (def2-TZVPD 등)</td></tr>
           </tbody>
         </table>
 

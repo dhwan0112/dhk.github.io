@@ -28,7 +28,7 @@ comments start with `!`.
 
 ## A minimal input, dissected: the silicon SCF
 
-Make your first calculation a **simple semiconductor like silicon**. If you
+Make your first calculation a simple semiconductor like silicon. If you
 jump straight to an Fe system, you cannot tell whether a convergence failure
 is physics or a setup error.
 
@@ -98,7 +98,7 @@ post-processing) locate that directory through the **same `prefix` and
   <p>
     Forgetting the closing <code>/</code> of a namelist raises
     <code>namelist not found</code>. Double quotes around strings and bare
-    <code>true</code> for logicals are classic parse failures. A typo in a
+    <code>true</code> for logicals are common parse failures. A typo in a
     card name shows up as <code>Error in routine card_xxx</code>. Input
     syntax errors in general are collected in the
     <a href="ref-errors.html">R3 error dictionary</a>.

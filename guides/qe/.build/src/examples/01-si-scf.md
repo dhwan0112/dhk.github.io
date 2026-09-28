@@ -90,7 +90,7 @@ mpirun -np 6 pw.x -nk 6 -in si.scf.in > si.scf.out  # the parallel setup used fo
 A few reading notes:
 
 - Only the total-energy line marked `!` is the converged value. The
-  absolute number differs wildly from ultrasoft results because this is
+  absolute number differs a lot from ultrasoft results because this is
   PAW, and
   [absolute total energies are not comparable anyway](04-pseudopotentials.html).
 - With `occupations='fixed'` and the default `nbnd` (occupied bands only),

@@ -68,14 +68,14 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 12 · 방법론 선택</div>
         <h1 class="page-title">DFT 함수 선택</h1>
-        <p class="page-lede">B3LYP를 넘어, 2020년대 양자화학이 권하는 함수들. 그리고 상황별 선택의 기준.</p>
+        <p class="page-lede">DFT 함수의 분류와 작업·시스템별 선택 기준.</p>
       </header>
 
       <article class="content">
         <div class="toc">
-          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
           <ul>
-            <li><a href="#hierarchy">함수의 위계 — 야곱의 사다리</a></li>
+            <li><a href="#hierarchy">함수의 위계: 야곱의 사다리</a></li>
             <li><a href="#dispersion">분산력 보정은 거의 필수</a></li>
             <li><a href="#by-task">작업별 추천</a></li>
             <li><a href="#composite">합성 방법 (3c 시리즈)</a></li>
@@ -85,19 +85,19 @@
           </ul>
         </div>
 
-        <h2 id="hierarchy">함수의 위계 — 야곱의 사다리</h2>
+        <h2 id="hierarchy">함수의 위계: 야곱의 사다리</h2>
         <p>
           DFT 함수는 “야곱의 사다리(Jacob's ladder)”라는 비유로 분류되곤 한다. 사다리를 오를수록 정확도와 비용이 함께 올라간다.
         </p>
 
-        <img src="../assets/img/jacobs-ladder.png" alt="DFT 함수의 야곱의 사다리 — LDA부터 이중 하이브리드까지, 각 단이 재료 하나씩 추가" style="max-width:100%;height:auto;margin:1rem 0;" />
+        <img src="../assets/img/jacobs-ladder.png" alt="DFT 함수의 야곱의 사다리: LDA부터 이중 하이브리드까지, 각 단이 재료 하나씩 추가" style="max-width:100%;height:auto;margin:1rem 0;" />
 
         <table>
           <thead>
             <tr><th>층</th><th>이름</th><th>의존성</th><th>대표 예</th></tr>
           </thead>
           <tbody>
-            <tr><td>1</td><td>LDA</td><td>밀도 ρ만</td><td>SVWN — 거의 사용 안 함</td></tr>
+            <tr><td>1</td><td>LDA</td><td>밀도 ρ만</td><td>SVWN (거의 사용 안 함)</td></tr>
             <tr><td>2</td><td>GGA</td><td>ρ + ∇ρ</td><td>BP86, BLYP, PBE</td></tr>
             <tr><td>3</td><td>메타-GGA</td><td>+ ∇²ρ 또는 τ</td><td>TPSS, M06-L, r²SCAN</td></tr>
             <tr><td>4</td><td>하이브리드</td><td>+ HF 교환 일부</td><td>B3LYP, PBE0, M06-2X</td></tr>
@@ -152,7 +152,7 @@
             <tr><th>작업</th><th>추천 함수</th><th>비고</th></tr>
           </thead>
           <tbody>
-            <tr><td>구조 최적화 (유기, 일반)</td><td><code>r²SCAN-3c</code>, <code>B97-3c</code></td><td>합성 방법 — 기저집합 자동.</td></tr>
+            <tr><td>구조 최적화 (유기, 일반)</td><td><code>r²SCAN-3c</code>, <code>B97-3c</code></td><td>합성 방법. 기저집합 자동.</td></tr>
             <tr><td>구조 최적화 (전이금속 착물)</td><td><code>TPSS D4</code>, <code>BP86 D4</code></td><td>순수 GGA가 발산을 잘 견딤.</td></tr>
             <tr><td>반응 장벽</td><td><code>M06-2X D4</code>, <code>ωB97X-V</code></td><td>높은 HF 비율이 장벽을 잘 묘사.</td></tr>
             <tr><td>비공유 결합 (수소결합·π-π)</td><td><code>ωB97M-V</code>, <code>DSD-PBEP86 D4</code></td><td>이중 하이브리드가 가장 정확.</td></tr>
@@ -177,7 +177,7 @@
             <tr><td><code>HF-3c</code></td><td>HF + minix(작은 DZ) + 3개 보정</td><td>거대 분자의 빠른 스크리닝</td></tr>
             <tr><td><code>PBEh-3c</code></td><td>PBEh 하이브리드 + def2-mSVP</td><td>중대형 분자 최적화·진동수</td></tr>
             <tr><td><code>B97-3c</code></td><td>수정 B97 GGA + def2-mTZVP</td><td>중대형 분자, 빠른 구조 최적화</td></tr>
-            <tr><td><code>r²SCAN-3c</code></td><td>r²SCAN 메타-GGA + def2-mTZVPP</td><td><strong>가성비 최강 추천</strong>. 자유에너지·구조 모두.</td></tr>
+            <tr><td><code>r²SCAN-3c</code></td><td>r²SCAN 메타-GGA + def2-mTZVPP</td><td>비용 대비 정확도가 좋음. 자유에너지·구조 모두.</td></tr>
             <tr><td><code>ωB97X-3c</code></td><td>장범위 분리 하이브리드 + valence DZ</td><td>유기·들뜸 상태에 강점</td></tr>
           </tbody>
         </table>
@@ -188,10 +188,9 @@
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
 
         <div class="tip">
-          <div class="note-title">r²SCAN-3c는 거의 어디서나 잘 통한다</div>
+          <div class="note-title">r²SCAN-3c로 시작하기</div>
           <p>
-            매뉴얼과 여러 외부 벤치마크에서 r²SCAN-3c는
-            B3LYP D4/def2-TZVP 수준의 정확도를 절반도 안 되는 시간에 낸다고 보고됐다.
+            r²SCAN-3c는 B3LYP D4/def2-TZVP 수준의 정확도를 절반도 안 되는 시간에 내는 경우가 많다.
             일단 r²SCAN-3c로 시작하고, 필요할 때만 더 비싼 방법으로 정밀화하는 워크플로우가 효율적이다.
           </p>
         </div>
@@ -245,11 +244,11 @@
         <ul>
           <li>국소 π → π*: <code>B3LYP</code>, <code>PBE0</code>.</li>
           <li>전하 이동: <code>CAM-B3LYP</code>, <code>ωB97X-V</code>가 필수.</li>
-          <li>리이드버그 상태: 장범위 분리 + 확산 함수.</li>
+          <li>리드베리 상태: 장범위 분리 + 확산 함수.</li>
         </ul>
 
         <h2 id="avoid">선택을 피해야 할 함수</h2>
-        <p>아래 함수들은 역사적 이유로 자주 보이지만, 2020년대 양자화학에서는 권하지 않는다.</p>
+        <p>아래 함수들은 역사적 이유로 자주 보이지만, 요즘은 권하지 않는다.</p>
 
         <table>
           <thead>

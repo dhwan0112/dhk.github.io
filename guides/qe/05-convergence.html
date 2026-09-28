@@ -121,13 +121,13 @@
 <li><a href="#related-examples">Related examples</a></li>
 </ul>
 </div>
-<p><strong>This chapter is half of QE.</strong> A number that has not passed a convergence
-test is not a number, and QE will print physically wrong results in a
-perfectly clean format.</p>
+<p>Every result in this guide depends on converged cutoffs and k-grids. QE
+will print physically wrong results in a perfectly clean format, so run these
+tests before trusting any number.</p>
 <h2 id="the-standard-procedure">The standard procedure</h2>
 <ol>
 <li><strong>Converge <code>ecutwfc</code>.</strong> Fix a reasonable k-grid and scan the cutoff from
-   20 to 80 Ry. Judge by the <strong>energy change per atom</strong> (typically within
+   20 to 80 Ry. Judge by the energy change per atom (typically within
    1–5 meV/atom), not by the absolute total energy.</li>
 <li><strong>Converge <code>ecutrho</code>.</strong> For US/PAW, fix <code>ecutwfc</code> and scan from 4x to 12x.</li>
 <li><strong>Converge the k-grid.</strong> Fix the cutoffs and densify the grid. Metals need
@@ -177,23 +177,22 @@ scanned together).</p>
 
 <h2 id="common-misconceptions">Common misconceptions</h2>
 <ul>
-<li><strong>Absolute total energies have a different zero for every pseudopotential,
-  so comparing them is meaningless.</strong> Only differences computed under
-  identical conditions matter.</li>
-<li><strong>A converged energy does not imply converged forces, stress, or DOS.</strong>
+<li>Absolute total energies cannot be compared across pseudopotentials or
+  cutoffs; only differences computed under identical conditions matter (see
+  <a href="04-pseudopotentials.html">Chapter 04</a>).</li>
+<li>A converged energy does not imply converged forces, stress, or DOS.
   Verify convergence for the property you actually care about (an energy
-  difference? forces? a band gap? a magnetic moment?). For ML training data,
-  converge on <strong>forces</strong>.</li>
-<li><strong>Monotonic convergence in the cutoff is guaranteed by the variational
-  principle; monotonic convergence in the k-grid is not.</strong> Non-monotonic
-  k-point behavior is normal.</li>
+  difference, forces, a band gap, a magnetic moment). For ML training data,
+  converge on forces.</li>
+<li>The variational principle guarantees monotonic convergence in the cutoff,
+  but not in the k-grid. Non-monotonic k-point behavior is normal.</li>
 </ul>
 <div class="warning">
   <div class="note-title">Common mistakes</div>
   <p>
     Running one convergence test and declaring "this element needs 40 Ry"
-    forever. Cutoff requirements attach to the <strong>pseudopotential
-    file</strong>, not to the element. New potential, new test. And if a
+    forever. Cutoff requirements attach to the pseudopotential
+    file, not to the element. New potential, new test. And if a
     project mixes very different structures (bulk, surface, molecule),
     standardize on the settings demanded by the most demanding one.
   </p>

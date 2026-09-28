@@ -212,10 +212,10 @@ Namelist variables are in <a href="ref-keywords.html">R1</a>.</p>
   Fe2  55.845  Fe.pbe-spn-kjpaw_psl.1.0.0.UPF   ! same file, second label: for AFM
   O    15.999  O.pbe-n-kjpaw_psl.1.0.0.UPF
 </code></pre>
-<p>The number of lines must equal <code>ntyp</code>. <strong>The same pseudopotential may be
-registered under several labels</strong>; antiferromagnetic order
+<p>The number of lines must equal <code>ntyp</code>. The same pseudopotential may be
+registered under several labels; antiferromagnetic order
 (<a href="12-magnetism.html">Chapter 12</a>) and per-atom U
-(<a href="13-dft-plus-u.html">Chapter 13</a>) rely on exactly this. The mass matters
+(<a href="13-dft-plus-u.html">Chapter 13</a>) depend on this. The mass matters
 physically only in MD and phonons.</p>
 <h2 id="atomic_positions">ATOMIC_POSITIONS</h2>
 <pre><code class="language-fortran">ATOMIC_POSITIONS (crystal)
@@ -268,7 +268,7 @@ K_POINTS (crystal)        ! explicit list with weights
 <ul>
 <li>The difference between <code>tpiba_b</code> (Cartesian, 2π/a) and <code>crystal_b</code>
   (fractional, reciprocal basis) is explained in
-  <a href="10-dos-bands.html">Chapter 10</a>. When in doubt, <code>tpiba_b</code> is safe.</li>
+  <a href="10-dos-bands.html">Chapter 10</a>. When in doubt, use <code>tpiba_b</code>.</li>
 <li>An nscf feeding the tetrahedron method must use an <strong>unshifted,
   Γ-centered automatic grid</strong>.</li>
 </ul>
@@ -299,7 +299,7 @@ V Fe1-3d O-2p  1 3  0.8    ! DFT+U+V; site indices follow ATOMIC_POSITIONS order
 <tbody>
 <tr>
 <td>Projector</td>
-<td><code>atomic</code> / <code>ortho-atomic</code> (<strong>recommended</strong>) / <code>norm-atomic</code> / <code>wf</code> / <code>pseudo</code></td>
+<td><code>atomic</code> / <code>ortho-atomic</code> (recommended) / <code>norm-atomic</code> / <code>wf</code> / <code>pseudo</code></td>
 </tr>
 <tr>
 <td>Parameter</td>
@@ -326,7 +326,7 @@ needed outside constrained or excited-state tricks.</p>
 constraints, then one per line (<code>'distance'</code>, <code>'planar_angle'</code>,
 <code>'torsional_angle'</code>, ...).</p>
 <h2 id="the-nebx-input-layout-for-reference">The neb.x input layout (for reference)</h2>
-<p><code>neb.x</code> uses a <strong>block structure</strong> rather than cards:</p>
+<p><code>neb.x</code> uses a block structure rather than cards:</p>
 <pre><code>BEGIN
 BEGIN_PATH_INPUT
 &amp;PATH

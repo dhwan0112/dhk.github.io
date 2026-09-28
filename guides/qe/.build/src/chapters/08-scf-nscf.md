@@ -10,8 +10,8 @@ title: "08. SCF and NSCF"
 1. TOC
 {:toc}
 
-QE is not one program but a **suite of executables**, connected by a
-pipeline that flows through `prefix` and `outdir`. The starting point of
+QE is a suite of executables, connected by a pipeline that flows through
+`prefix` and `outdir`. The starting point of
 that pipeline is the division of labor between `scf` and `nscf`.
 
 ## Division of labor
@@ -52,25 +52,25 @@ Check these items in every `.out` file:
 
 - Only the total-energy line marked `!` is the converged value; the
   unmarked `total energy` lines are intermediate.
-- **The gap between total and absolute magnetization is physical
-  information.** For FM they nearly coincide; for AFM the total is near zero
+- The difference between total and absolute magnetization tells you the
+  magnetic order. For FM they nearly coincide; for AFM the total is near zero
   while the absolute stays large ([Chapter 12](12-magnetism.html)).
 - Insulators print `highest occupied, lowest unoccupied level` (a gap
-  estimate); metals print `the Fermi energy is` instead. **Which of the two
-  appears is itself a diagnosis.** [Example E10](ex-10-feo-afm.html) uses
+  estimate); metals print `the Fermi energy is` instead, so the line that appears
+  tells you which one pw.x found. [Example E10](ex-10-feo-afm.html) uses
   exactly this line to catch GGA calling FeO a metal.
 - The energy decomposition block (`one-electron contribution`,
   `hartree contribution`, `xc contribution`, `ewald contribution`) is useful
   when hunting anomalies.
 
-The **timing breakdown** at the bottom (`init_run`, `electrons`, `c_bands`,
+The timing breakdown at the bottom (`init_run`, `electrons`, `c_bands`,
 `sum_band`) tells you where the time goes, and is the first thing to read
 when planning parallelization ([Chapter 18](18-parallel-hpc.html)).
 
 <div class="warning">
   <div class="note-title">Common mistakes</div>
   <p>
-    Running the nscf in a <strong>different directory</strong> from the scf,
+    Running the nscf in a different directory from the scf,
     or deleting <code>outdir</code> in between. The nscf does not build a
     density; without the scf products it cannot even start. One more:
     learning with <code>verbosity='low'</code>. With <code>'high'</code>
@@ -81,6 +81,6 @@ when planning parallelization ([Chapter 18](18-parallel-hpc.html)).
 
 ## Related examples
 
-- [E1 · Si SCF](ex-01-si-scf.html): read every output block on a measured run.
+- [E1 · Si SCF](ex-01-si-scf.html): read every output block of a real run.
 - [E7 · Si DOS and PDOS](ex-07-si-dos.html): the scf → nscf handoff in practice.
 - [E8 · Si band structure](ex-08-si-bands.html): the scf → bands handoff in practice.

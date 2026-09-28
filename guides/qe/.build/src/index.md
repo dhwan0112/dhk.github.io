@@ -22,29 +22,26 @@ words, it covers the full path you need for transition-metal oxide research
 
 ## Three principles to hold on to
 
-**1. QE is less a program than a piece of lab equipment.** Every input
-parameter corresponds to a physical approximation. `ecutwfc = 60` is not "the
-number 60"; it is a physical decision about where to truncate the plane-wave
-basis. Asking "what does this value approximate?" every time, instead of
-memorizing the manual, is what determines how fast you learn.
+**1. Every input parameter is a physical approximation.** `ecutwfc = 60`
+sets where the plane-wave basis is truncated. For each value you set, ask what
+it approximates; that helps more than memorizing the manual.
 
-**2. A number that has not passed a convergence test is not a number.** The
-most common beginner mistake is equating "the calculation ran" with "the
-result is right". QE will happily print physically wrong results in a
-perfectly clean format. [Chapter 05](05-convergence.html) and
+**2. Run convergence tests before trusting a number.** The most common
+beginner mistake is equating "the calculation ran" with "the result is right".
+QE will print physically wrong results in a perfectly clean format. [Chapter 05](05-convergence.html) and
 [Example E3](ex-03-convergence.html) cover the procedure.
 
 **3. Check the version before trusting third-party tutorials.** A large share
 of QE examples on the internet use obsolete syntax. The prime case is DFT+U:
 in v7.1 the `lda_plus_u` / `Hubbard_U(i)` style was replaced by the
-**`HUBBARD` card**. Pasting old examples gets you input that is silently
+`HUBBARD` card. Pasting old examples gets you input that is silently
 ignored or fails. This guide uses the new syntax only.
 
 ## About this guide
 
-- **The target version is QE 7.5** (released August 2025). All 13 examples
-  were actually executed with QE 7.5 (conda-forge build, WSL Ubuntu), and the
-  pages report the **measured numbers and figures** from those runs. Every
+- The target version is QE 7.5 (released August 2025). I ran all 13
+  examples with QE 7.5 (conda-forge build, WSL Ubuntu), and the pages report
+  the numbers and figures from those runs. Every
   example page links its input files, and a
   [complete bundle](files/qe-examples.tar.gz) is available.
 - The chapters (01–18) are organized by concept; the
@@ -140,7 +137,7 @@ ignored or fails. This guide uses the new syntax only.
   <a class="card" href="13-dft-plus-u.html">
     <div class="card-num">13 · DFT+U</div>
     <div class="card-title">DFT+U and the HUBBARD card</div>
-    <div class="card-desc">v7.1+ syntax, projector choice, opening the FeO gap.</div>
+    <div class="card-desc">v7.1+ syntax, projector choice, U on FeO and the gap.</div>
   </a>
   <a class="card" href="14-hubbard-hp.html">
     <div class="card-num">14 · HP.X</div>
@@ -255,12 +252,12 @@ QE 7.5 runs.
   <a class="card" href="ex-10-feo-afm.html">
     <div class="card-num">E10</div>
     <div class="card-title">FeO AFM (where GGA fails)</div>
-    <div class="card-desc">Watch GGA predict a metal for an insulator.</div>
+    <div class="card-desc">GGA predicts a metal for an insulator.</div>
   </a>
   <a class="card" href="ex-11-feo-hubbard.html">
     <div class="card-num">E11</div>
     <div class="card-title">FeO with DFT+U</div>
-    <div class="card-desc">The HUBBARD card, Hubbard splitting, and a famous trap.</div>
+    <div class="card-desc">The HUBBARD card, Hubbard splitting, and the cubic-cell pitfall.</div>
   </a>
   <a class="card" href="ex-12-feo-hp.html">
     <div class="card-num">E12</div>
@@ -281,43 +278,42 @@ QE 7.5 runs.
 If transition-metal oxides (say, iron oxidation) are your end goal, you can
 compress the examples into this sequence.
 
-1. **Si (E1–E3, E6–E8).** Learn the syntax, convergence, and optimization
-   instincts. Two or three days is enough.
-2. **bcc Fe (E9).** A metal plus ferromagnetism. Meet the difficulties of
-   smearing and magnetization convergence here, on an easy system.
-3. **FeO in the AFM phase (E10).** Verify for yourself that without DFT+U the
-   calculation comes out metallic.
-4. **FeO with U (E11–E12).** Turn on U with the `HUBBARD` card, observe the
-   Hubbard splitting (and walk into the famous trap of the ideal cubic cell),
-   then compute U from first principles with `hp.x`. This one cycle is the
-   heart of the whole curriculum.
-5. **Slab and AIMD (E13).** The starting point for generating training data
+1. Si (E1–E3, E6–E8). Learn the syntax, convergence testing, and structure
+   optimization. Two or three days is enough.
+2. bcc Fe (E9). A metal plus ferromagnetism. Deal with smearing and
+   magnetization convergence here, on an easy system.
+3. FeO in the AFM phase (E10). Check that without DFT+U the calculation comes
+   out metallic.
+4. FeO with U (E11–E12). Turn on U with the `HUBBARD` card, observe the
+   Hubbard splitting (and the ideal-cubic-cell pitfall), then compute U from
+   first principles with `hp.x`. This is the core of the Fe–O part of the
+   guide.
+5. Slab and AIMD (E13). The starting point for generating training data
    for machine-learned potentials.
 
-If ML training data is the goal, one criterion changes: converge with respect
-to **forces**, not energies, and keep the cutoffs, k-grid, smearing, and U
-absolutely identical across every structure. A dataset with mixed settings
-cannot be repaired at the training stage.
+If ML training data is the goal, converge with respect to forces rather than
+energies, and keep every setting identical across structures; see
+[Chapter 16](16-molecular-dynamics.html).
 
 ## Self-check list
 
 Move on only when you can answer these.
 
-- **Basics (E1–E3).** You can explain the physical difference between
+- Basics (E1–E3). You can explain the physical difference between
   `ecutwfc` and `ecutrho`. You can convert between `alat`, `crystal`, and
   `angstrom` coordinates. You can explain why absolute total energies must
   not be compared.
-- **System types (E4–E6).** You know which `occupations` to use for a metal,
+- System types (E4–E6). You know which `occupations` to use for a metal,
   a semiconductor, and a molecule. You know the difference between
   `starting_magnetization` and `tot_magnetization`. You can explain why a
   fresh `scf` is required after `vc-relax` (Pulay stress).
-- **Post-processing (E7–E8).** You know the role of `prefix` and `outdir` in
+- Post-processing (E7–E8). You know the role of `prefix` and `outdir` in
   the scf, nscf, dos.x chain. You know why the tetrahedron method requires a
   Γ-centered, unshifted grid.
-- **Magnetism and correlation (E9–E12).** You know why the same element needs
+- Magnetism and correlation (E9–E12). You know why the same element needs
   two labels to build an AFM state. You can classify a magnetic solution from
   total vs absolute magnetization. You know that the meaning of U depends on
-  the projector. You have seen GGA predict metallic FeO with your own eyes.
+  the projector. You have run GGA on FeO and seen it come out metallic.
 
 ## How to cite
 

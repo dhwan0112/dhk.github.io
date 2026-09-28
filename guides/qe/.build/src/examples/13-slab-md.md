@@ -6,9 +6,9 @@ title: "E13. Slabs and AIMD"
 
 ## Goal
 
-Three applications in one pass: (1) **generate** a FeO(100) slab with ASE
+Three applications: (1) generate a FeO(100) slab with ASE
 (never by hand), (2) relax it with the dipole correction on and extract the
-**work function** with `pp.x`, and (3) run **Born-Oppenheimer MD** on the
+work function with `pp.x`, and (3) run Born-Oppenheimer MD on the
 bulk FeO cell as the starting point for sampling ML training data.
 Background in [Chapter 15](15-surfaces.html) and
 [Chapter 16](16-molecular-dynamics.html).
@@ -81,11 +81,11 @@ write(
 print("wrote feo100.scf.in; open it and read CELL_PARAMETERS/ATOMIC_POSITIONS yourself")
 ```
 
-Open the generated `feo100.scf.in` and **read it yourself**: the
+Open the generated `feo100.scf.in` and read it: the
 `CELL_PARAMETERS`, the `ATOMIC_POSITIONS (angstrom)`, the `if_pos` flags.
-Being able to read generator output is what
-[E2](ex-02-si-ibrav0.html) was for. The slab SCF is nonmagnetic by design:
-a 1×1 (100) cell **cannot geometrically hold** the AFM-II order of FeO
+[E2](ex-02-si-ibrav0.html) covered how to read generator output. The slab
+SCF is nonmagnetic by design: a 1×1 (100) cell cannot geometrically hold
+the AFM-II order of FeO
 ([Chapter 15](15-surfaces.html)).
 
 The MD deck, fully annotated (the same FeO(+U) bulk cell as E11):
@@ -161,49 +161,49 @@ mpirun -np 8 pp.x -in pp_workfunction.in  > pp_workfunction.out
 mpirun -np 8 pw.x -nk 4 -in feo_md.in     > feo_md.out
 ```
 
-For the measurements we capped the relaxation at 25 BFGS steps and ran the
+For my runs I capped the relaxation at 25 BFGS steps and ran the
 MD on an `nstep=200` copy (about 0.2 ps); the distributed input keeps the
-original `nstep=2000`. Along the way we found and fixed several defects in
+original `nstep=2000`. Along the way I found and fixed several defects in
 the original decks (the `tefield`/`dipfield` namelist placement, the
 missing `nosym` and `mixing_fixed_ns` for MD; see the common-mistakes box).
 
-## Output and figure: measured (1) slab and work function
+## Output and figure (1): slab and work function
 
 | Item | Measured (QE 7.5) |
 |---|---|
 | Slab | FeO(100), 4 layers, 8 atoms (1×1), 16 Å vacuum, nonmagnetic demo |
 | Relaxation | 25-step BFGS copy (final total force 0.005 Ry/au: a partial optimization for the demo) |
 | Vacuum level / Fermi level | 7.35 eV / 2.40 eV (vacuum flatness std 0.05 eV) |
-| **Work function Φ = V_vac − E_F** | **4.95 eV** |
+| Work function Φ = V_vac − E_F | 4.95 eV |
 
 <figure>
   <img src="assets/images/qe-e13-workfunction.png"
        alt="Planar-averaged electrostatic potential of the FeO(100) slab" />
   <figcaption>
-    Measured planar-averaged electrostatic potential of the FeO(100) slab
+    Planar-averaged electrostatic potential of the FeO(100) slab
     (pp.x plot_num=11). Confirm the vacuum plateau is flat, then read the
     work function as the distance from the plateau to the Fermi level.
   </figcaption>
 </figure>
 
-## Output and figure: measured (2) BOMD
+## Output and figure (2): BOMD
 
 <figure>
   <img src="assets/images/qe-e13-md.png"
        alt="FeO BOMD: temperature and energy trace" />
   <figcaption>
-    Measured BOMD of the FeO(+U) bulk cell (SVR 300 K, dt = 20 a.u. ≈
+    BOMD of the FeO(+U) bulk cell (SVR 300 K, dt = 20 a.u. ≈
     0.968 fs, 200 steps ≈ 0.19 ps). In the first steps the ions leave
     their ideal lattice sites and release about 2.5 eV of potential energy
-    (blue): thermal motion lifting the t2g degeneracy, the physics of E11
-    continued. The ±100 K temperature swings (orange) are not a bug but the
+    (blue): thermal motion lifts the t2g degeneracy discussed in E11.
+    The ±100 K temperature swings (orange) are the
     normal statistics of a 4-atom cell (relative fluctuations ~1/√N),
     while the SVR thermostat (nraise=100, ≈0.1 ps coupling) equilibrates
     slowly.
   </figcaption>
 </figure>
 
-That early transient is itself the practical lesson: **extract training
+Because of this early transient, **extract training
 frames only after equilibration**. Mixing the transient into a dataset
 contaminates it with artificially high-energy structures.
 
@@ -225,24 +225,24 @@ you need stress, compute it in separate scf runs on the extracted frames
    against your ML accuracy target (~50 meV/Å).
 
 <div class="warning">
-  <div class="note-title">Common mistakes (all measured on QE 7.5)</div>
+  <div class="note-title">Common mistakes (all hit on QE 7.5)</div>
   <p>
     <strong><code>tefield</code>/<code>dipfield</code> belong to
     <code>&amp;CONTROL</code>.</strong> Put them in <code>&amp;SYSTEM</code>
     and the run dies instantly with
     <code>read_namelists ... bad line</code> (only the position parameters
-    <code>edir</code> etc. are &amp;SYSTEM variables); we hit this and
+    <code>edir</code> etc. are &amp;SYSTEM variables); I hit this and
     fixed the generator.
-    <strong>MD requires <code>nosym=.true.</code></strong>: thermal motion
+    MD requires <code>nosym=.true.</code>: thermal motion
     breaks the initial symmetry in the first step, and without it the run
     stops at <code>checkallsym</code>.
-    <strong>DFT+U with nosym stalls the SCF</strong>: rotations among the
+    DFT+U with nosym stalls the SCF: rotations among the
     degenerate t2g orbitals keep the density sloshing (stuck at 7×10⁻⁵ Ry
     after 100 iterations); <code>mixing_fixed_ns=30</code> (freeze the ns
     matrix for the first iterations) releases it, after which even 10⁻⁸ is
     hard to reach, so the distributed input uses the BOMD-conventional
     <code>conv_thr = 1.0d-6</code>.
-    <strong>Hubbard stress dies under nosym</strong>: with
+    Hubbard stress dies under nosym: with
     <code>tstress=.true.</code> the run aborts at
     <code>stres_hub: non-symmetric stress contribution</code>; NVT sampling
     does not need stress, so it is off, and stress for training data comes

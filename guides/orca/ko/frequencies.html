@@ -73,14 +73,14 @@
 
       <article class="content">
         <div class="toc">
-          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
           <ul>
             <li><a href="#why">왜 진동수를 계산하는가</a></li>
-            <li><a href="#basic">기본 사용법 — AnFreq vs NumFreq</a></li>
+            <li><a href="#basic">기본 사용법: AnFreq와 NumFreq</a></li>
             <li><a href="#combined">최적화와 동시에</a></li>
             <li><a href="#interpret">출력 해석</a></li>
             <li><a href="#imaginary">허수 진동수 처리</a></li>
-            <li><a href="#thermo">열역학량 — 깁스 자유에너지</a></li>
+            <li><a href="#thermo">열역학량과 깁스 자유에너지</a></li>
             <li><a href="#ir-raman">IR · Raman 스펙트럼 그리기</a></li>
             <li><a href="#options">자주 쓰는 옵션</a></li>
           </ul>
@@ -95,7 +95,7 @@
           <li><strong>IR·Raman 스펙트럼 예측</strong>: 실험과 직접 비교 가능한 진동 스펙트럼.</li>
         </ol>
 
-        <h2 id="basic">기본 사용법 — AnFreq vs NumFreq</h2>
+        <h2 id="basic">기본 사용법: AnFreq와 NumFreq</h2>
         <p>방식은 두 가지다.</p>
 
         <table>
@@ -160,7 +160,7 @@ Scaling factor for frequencies =  1.000000000  (already applied!)
           세 모드를 가진다.
         </p>
 
-        <h3>모드의 시각화 — 정규 좌표</h3>
+        <h3>정규 좌표 시각화</h3>
         <p>각 모드의 변위 벡터는 “NORMAL MODES” 섹션에 찍힌다.</p>
 
         <pre data-lang="output"><code>------------
@@ -201,7 +201,7 @@ orca_pltvib mol.hess 6</code></pre>
           </p>
         </div>
 
-        <h2 id="thermo">열역학량 — 깁스 자유에너지</h2>
+        <h2 id="thermo">열역학량과 깁스 자유에너지</h2>
         <p>
           진동수 계산이 끝나면 ORCA가 열역학량을 자동으로 계산해 출력한다. 기본 조건은 298.15 K, 1 atm이다.
         </p>
@@ -294,10 +294,6 @@ orca_mapspc mol.out raman -w50
             NIST CCCBDB(<a href="https://cccbdb.nist.gov">cccbdb.nist.gov</a>)에 종합 표가 있다.
           </p>
         </div>
-
-        <p>
-          최소 구조와 전이 상태의 진동수를 다 얻었으면, 이제 그 둘을 잇는 작업 차례다.
-        </p>
       </article>
 
       <nav class="page-nav">

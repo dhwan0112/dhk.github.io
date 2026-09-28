@@ -129,8 +129,8 @@
 </ul>
 </div>
 <p>A lookup dictionary of <code>pw.x</code> input variables, namelist by namelist.
-Defaults are as of QE 7.5, and <strong>the final authority is always the
-<code>Doc/INPUT_PW.txt</code> of your installed version</strong>
+Defaults are as of QE 7.5; the final authority is the
+<code>Doc/INPUT_PW.txt</code> of your installed version
 (<a href="https://www.quantum-espresso.org/Doc/INPUT_PW.html">online</a>).
 Card syntax is in <a href="ref-cards.html">R2</a>; post-processing variables in
 <a href="ref-executables.html">R4</a>.</p>
@@ -157,7 +157,7 @@ Card syntax is in <a href="ref-cards.html">R2</a>; post-processing variables in
 <tr>
 <td><code>verbosity</code></td>
 <td><code>'low'</code></td>
-<td><code>'high'</code> prints symmetry operations, ns matrices, the k-point list. <strong>Always high while learning</strong></td>
+<td><code>'high'</code> prints symmetry operations, ns matrices, the k-point list. Use high while learning</td>
 </tr>
 <tr>
 <td><code>restart_mode</code></td>
@@ -177,7 +177,7 @@ Card syntax is in <a href="ref-cards.html">R2</a>; post-processing variables in
 <tr>
 <td><code>outdir</code></td>
 <td><code>./</code> or <code>$ESPRESSO_TMPDIR</code></td>
-<td>Location of large temporaries. <strong>Point it at a fast disk</strong></td>
+<td>Location of large temporaries. Put it on a fast disk</td>
 </tr>
 <tr>
 <td><code>wfcdir</code></td>
@@ -187,7 +187,7 @@ Card syntax is in <a href="ref-cards.html">R2</a>; post-processing variables in
 <tr>
 <td><code>prefix</code></td>
 <td><code>'pwscf'</code></td>
-<td><strong>Must match</strong> across follow-up runs</td>
+<td>Must match across follow-up runs</td>
 </tr>
 <tr>
 <td><code>pseudo_dir</code></td>
@@ -202,7 +202,7 @@ Card syntax is in <a href="ref-cards.html">R2</a>; post-processing variables in
 <tr>
 <td><code>tprnfor</code></td>
 <td><code>.false.</code> for scf</td>
-<td>Print forces. <strong>Mandatory for ML training data</strong></td>
+<td>Print forces. Required for ML training data</td>
 </tr>
 <tr>
 <td><code>tstress</code></td>
@@ -222,12 +222,12 @@ Card syntax is in <a href="ref-cards.html">R2</a>; post-processing variables in
 <tr>
 <td><code>max_seconds</code></td>
 <td>1.0d7</td>
-<td>Save and exit cleanly before the time limit. <strong>Essential in HPC batch jobs</strong></td>
+<td>Save and exit cleanly before the time limit. Set it in HPC batch jobs</td>
 </tr>
 <tr>
 <td><code>tefield</code>, <code>dipfield</code></td>
 <td><code>.false.</code></td>
-<td>Sawtooth field / dipole correction switches. <strong>They live here in &amp;CONTROL</strong> (the position parameters <code>edir</code> etc. are in &amp;SYSTEM)</td>
+<td>Sawtooth field / dipole correction switches. <strong>They belong in &amp;CONTROL</strong> (the position parameters <code>edir</code> etc. are in &amp;SYSTEM)</td>
 </tr>
 <tr>
 <td><code>lelfield</code>, <code>gate</code>, <code>trism</code></td>
@@ -255,7 +255,7 @@ Card syntax is in <a href="ref-cards.html">R2</a>; post-processing variables in
 </tr>
 <tr>
 <td><code>A, B, C, cosAB, cosAC, cosBC</code></td>
-<td>Alternative to <code>celldm</code>. <strong><code>A</code> is in Å</strong> (mind the mix)</td>
+<td>Alternative to <code>celldm</code>. <strong><code>A</code> is in Å</strong> (do not mix the two)</td>
 </tr>
 <tr>
 <td><code>nat</code>, <code>ntyp</code></td>
@@ -281,13 +281,13 @@ Card syntax is in <a href="ref-cards.html">R2</a>; post-processing variables in
 <tbody>
 <tr>
 <td><code>ecutwfc</code></td>
-<td><strong>required</strong></td>
+<td>required</td>
 <td>Wavefunction cutoff (Ry)</td>
 </tr>
 <tr>
 <td><code>ecutrho</code></td>
 <td><code>4*ecutwfc</code></td>
-<td>Density cutoff (Ry). <strong>US/PAW need 8–12x</strong></td>
+<td>Density cutoff (Ry). US/PAW need 8–12x</td>
 </tr>
 <tr>
 <td><code>nbnd</code></td>
@@ -319,7 +319,7 @@ Card syntax is in <a href="ref-cards.html">R2</a>; post-processing variables in
 </tr>
 </tbody>
 </table>
-<p>The tetrahedron methods require a <strong>Γ-centered, unshifted automatic grid</strong>
+<p>The tetrahedron methods require a Γ-centered, unshifted automatic grid
 and belong in nscf runs.</p>
 <h2 id="system-spin-and-magnetism">&amp;SYSTEM: spin and magnetism</h2>
 <table>
@@ -336,7 +336,7 @@ and belong in nscf runs.</p>
 </tr>
 <tr>
 <td><code>starting_magnetization(i)</code></td>
-<td><strong>Initial polarization ratio (−1 to 1)</strong> for type <code>i</code>. Not Bohr magnetons</td>
+<td>Initial polarization ratio (−1 to 1) for type <code>i</code>. Not Bohr magnetons</td>
 </tr>
 <tr>
 <td><code>tot_magnetization</code></td>
@@ -361,7 +361,7 @@ and belong in nscf runs.</p>
 </tbody>
 </table>
 <h2 id="system-dftu-v71-syntax">&amp;SYSTEM: DFT+U (v7.1+ syntax)</h2>
-<p>U parameters go in the <strong><code>HUBBARD</code> card</strong> (<a href="ref-cards.html">R2</a>), not in
+<p>U parameters go in the <code>HUBBARD</code> card (<a href="ref-cards.html">R2</a>), not in
 <code>&amp;SYSTEM</code>. The related variables that remain here:</p>
 <table>
 <thead>
@@ -373,7 +373,7 @@ and belong in nscf runs.</p>
 <tbody>
 <tr>
 <td><code>starting_ns_eigenvalue(m, ispin, ityp)</code></td>
-<td>Forces initial d/f occupation eigenvalues. <strong>Essential for systems trapped in wrong minima, like FeO</strong></td>
+<td>Forces initial d/f occupation eigenvalues. Needed for systems stuck in wrong minima, like FeO</td>
 </tr>
 <tr>
 <td><code>Hubbard_occ(ityp, i)</code></td>
@@ -381,7 +381,7 @@ and belong in nscf runs.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Retired syntax</strong>: <code>lda_plus_u</code>, <code>lda_plus_u_kind</code>, <code>Hubbard_U(i)</code>,
+<p>Retired syntax: <code>lda_plus_u</code>, <code>lda_plus_u_kind</code>, <code>Hubbard_U(i)</code>,
 <code>U_projection_type</code>. All replaced by the <code>HUBBARD</code> card in v7.1.</p>
 <h2 id="system-functionals-dispersion-isolation-fields">&amp;SYSTEM: functionals, dispersion, isolation, fields</h2>
 <table>
@@ -437,7 +437,7 @@ and belong in nscf runs.</p>
 <tr>
 <td><code>mixing_mode</code></td>
 <td><code>'plain'</code></td>
-<td><code>'plain'</code> (Broyden) / <code>'TF'</code> / <code>'local-TF'</code>. <strong>Metals, slabs, magnets: <code>'local-TF'</code></strong></td>
+<td><code>'plain'</code> (Broyden) / <code>'TF'</code> / <code>'local-TF'</code>. Metals, slabs, magnets: <code>'local-TF'</code></td>
 </tr>
 <tr>
 <td><code>mixing_beta</code></td>
@@ -452,12 +452,12 @@ and belong in nscf runs.</p>
 <tr>
 <td><code>mixing_fixed_ns</code></td>
 <td>0</td>
-<td>DFT+U: freeze the ns occupation matrix for the first N iterations. <strong>Unsticks stalled SCF in the nosym+U combination (MD)</strong>; measured in <a href="ex-13-slab-md.html">E13</a></td>
+<td>DFT+U: freeze the ns occupation matrix for the first N iterations. Unsticks stalled SCF in the nosym+U combination (MD); tested in <a href="ex-13-slab-md.html">E13</a></td>
 </tr>
 <tr>
 <td><code>diagonalization</code></td>
 <td><code>'david'</code></td>
-<td><code>'david'</code> / <code>'cg'</code> / <code>'ppcg'</code> / <code>'paro'</code> / <code>'rmm-davidson'</code>. <code>'cg'</code> is slow but robust</td>
+<td><code>'david'</code> / <code>'cg'</code> / <code>'ppcg'</code> / <code>'paro'</code> / <code>'rmm-davidson'</code>. <code>'cg'</code> is slow but more stable</td>
 </tr>
 <tr>
 <td><code>diago_david_ndim</code></td>
@@ -543,7 +543,7 @@ and belong in nscf runs.</p>
 </tr>
 <tr>
 <td><code>cell_dofree</code></td>
-<td><code>'all'</code> / <code>'ibrav'</code> / <code>'x'</code>,<code>'y'</code>,<code>'z'</code> / <code>'xy'</code> etc. / <code>'2Dxy'</code> / <code>'2Dshape'</code> / <code>'volume'</code> / <code>'shape'</code>. <strong>Slabs: <code>'2Dxy'</code></strong></td>
+<td><code>'all'</code> / <code>'ibrav'</code> / <code>'x'</code>,<code>'y'</code>,<code>'z'</code> / <code>'xy'</code> etc. / <code>'2Dxy'</code> / <code>'2Dshape'</code> / <code>'volume'</code> / <code>'shape'</code>. Slabs: <code>'2Dxy'</code></td>
 </tr>
 <tr>
 <td><code>cell_factor</code></td>
@@ -570,7 +570,7 @@ and belong in nscf runs.</p>
 <td><code>-nk</code></td>
 <td><code>-npool</code></td>
 <td>k-point pools</td>
-<td><strong>Most efficient.</strong> Divide the k-count; lower it if memory runs out</td>
+<td>Most efficient. Divide the k-count; lower it if memory runs out</td>
 </tr>
 <tr>
 <td><code>-nb</code></td>
@@ -588,7 +588,7 @@ and belong in nscf runs.</p>
 <td><code>-nd</code></td>
 <td><code>-ndiag</code></td>
 <td>Diagonalization group</td>
-<td><strong>Square numbers only.</strong> Large systems</td>
+<td>Square numbers only. Large systems</td>
 </tr>
 <tr>
 <td><code>-ni</code></td>

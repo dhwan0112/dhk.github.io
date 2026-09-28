@@ -193,7 +193,7 @@ K_POINTS (tpiba_b)
 <p><code>tpiba_b</code> is Cartesian in 2π/a. QE's primitive-vector convention for
 <code>ibrav=2</code> can differ from the textbook fcc setting, so literature
 fractional coordinates pasted into <code>crystal_b</code> produce a wrong path.
-<strong>When unsure, <code>tpiba_b</code> is the safe choice</strong>
+When unsure, use <code>tpiba_b</code>
 (<a href="10-dos-bands.html">Chapter 10</a>).</p>
 <p>The post-processor input:</p>
 <pre><code class="language-fortran">! E08 step 3: bands.x reorders the raw eigenvalues into continuous bands.
@@ -212,25 +212,25 @@ pw.x    -in si.bands.in   &gt; si.bands.out
 bands.x -in si.bandspp.in &gt; si.bandspp.out
 </code></pre>
 <p>The <code>high-symmetry point</code> lines in <code>si.bandspp.out</code> give the tick
-positions along the path. Measured: 0.000 (L), 0.866 (Γ), 1.866 (X),
+positions along the path. In my run: 0.000 (L), 0.866 (Γ), 1.866 (X),
 2.366 (W), 2.720 (K), 3.780 (Γ).</p>
-<h2 id="output-and-figure-measured">Output and figure: measured</h2>
+<h2 id="output-and-figure">Output and figure</h2>
 <figure>
   <img src="assets/images/qe-e08-bands.png"
        alt="Si band structure along L-Gamma-X-W-K-Gamma" />
   <figcaption>
     Measured silicon band structure (QE 7.5, PBE). The valence maximum sits
     at Γ and the conduction minimum on the Γ–X line (at about 0.85 of the
-    way to X): an <strong>indirect-gap</strong> semiconductor.
+    way to X): an indirect-gap semiconductor.
   </figcaption>
 </figure>
 
 <ul>
 <li>The zero is the VBM (the scf <code>highest occupied level</code>, measured
   6.212 eV).</li>
-<li><strong>Measured indirect gap: 0.57 eV</strong> (VBM at Γ, CBM at 0.83 of Γ–X), and a
-  <strong>direct gap at Γ of 2.56 eV</strong>. The experimental indirect gap is
-  1.12 eV: the systematic PBE underestimate, on display.</li>
+<li>Indirect gap: 0.57 eV (VBM at Γ, CBM at 0.83 of Γ–X), and a direct gap
+  at Γ of 2.56 eV. The experimental indirect gap is 1.12 eV; PBE
+  systematically underestimates it.</li>
 </ul>
 <h2 id="exercises">Exercises</h2>
 <ol>
@@ -249,7 +249,7 @@ positions along the path. Measured: 0.000 (L), 0.866 (Γ), 1.866 (X),
     builds no density and needs the scf products under the same
     <code>prefix</code>/<code>outdir</code>. And a PBE gap below experiment
     does not mean your run is broken; it is a
-    <strong>known limitation of the functional</strong>. If the gap itself
+    known limitation of the functional. If the gap itself
     is the target, move to hybrids or GW.
   </p>
 </div>

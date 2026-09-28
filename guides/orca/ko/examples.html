@@ -76,11 +76,11 @@
 
       <article class="content">
         <div class="toc">
-          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
           <ul>
-            <li><a href="#worked">예제 — 입력 + 실제 출력</a></li>
+            <li><a href="#worked">예제: 입력과 실제 출력</a></li>
             <li><a href="#fragment">조각 병합 예제</a></li>
-            <li><a href="#templates">템플릿 — 바로 고쳐 쓰는 스켈레톤</a></li>
+            <li><a href="#templates">템플릿: 바로 고쳐 쓰는 스켈레톤</a></li>
           </ul>
         </div>
 
@@ -93,7 +93,7 @@
           </p>
         </div>
 
-        <h2 id="worked">예제 — 입력 + 실제 출력</h2>
+        <h2 id="worked">예제: 입력과 실제 출력</h2>
         <table>
           <thead>
             <tr><th>계산</th><th>핵심 결과</th><th>파일</th></tr>
@@ -134,10 +134,10 @@
         <p>
           <code>05-casscf-h2/</code>의 <code>dissociation_{rhf,cas}.dat</code>은 H–H 거리 0.4–3.0 Å를
           RHF·CASSCF로 훑은 실제 곡선이다 (<a href="../assets/img/h2-dissociation.png">h2-dissociation.png</a>의 출처).
-          RHF는 해리에서 발산, CASSCF는 정상 — 단일참조가 깨지는 고전적 사례다.
+          RHF는 해리에서 발산하고 CASSCF는 정상이다. 단일참조가 깨지는 고전적 사례다.
         </p>
 
-        <h2 id="fragment">조각 병합 예제 — <code>06-fragment-merge/</code></h2>
+        <h2 id="fragment">조각 병합 예제 (<code>06-fragment-merge/</code>)</h2>
         <p>
           금속과 리간드를 따로 풀어 <code>orca_mergefrag</code>로 궤도를 합치는 절차를 실제로 돌린 것이다.
           자세한 설명과 함정은 <a href="casscf.html#fragment">13장 CASSCF의 “조각 병합” 절</a>에 있다.
@@ -145,16 +145,16 @@
         <table>
           <thead><tr><th>파일</th><th>역할</th></tr></thead>
           <tbody>
-            <tr><td><a href="../examples/06-fragment-merge/fragMn.inp">fragMn.inp</a></td><td>금속 조각 — Mn<sup>2+</sup> 고스핀(육중항)</td></tr>
-            <tr><td><a href="../examples/06-fragment-merge/fragH2O.inp">fragH2O.inp</a></td><td>리간드 조각 — H<sub>2</sub>O (HFTyp 일치 위해 UHF)</td></tr>
-            <tr><td><a href="../examples/06-fragment-merge/mergefrag.log">mergefrag.log</a></td><td>실제 병합 출력 — Dim 31+24=55, NEl 23+10=33</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/fragMn.inp">fragMn.inp</a></td><td>금속 조각: Mn<sup>2+</sup> 고스핀(육중항)</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/fragH2O.inp">fragH2O.inp</a></td><td>리간드 조각: H<sub>2</sub>O (HFTyp 일치 위해 UHF)</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/mergefrag.log">mergefrag.log</a></td><td>실제 병합 출력: Dim 31+24=55, NEl 23+10=33</td></tr>
             <tr><td><a href="../examples/06-fragment-merge/super-cas-merged.inp">super-cas-merged.inp</a></td><td>병합 guess를 읽는 CASSCF(5,5)</td></tr>
-            <tr><td><a href="../examples/06-fragment-merge/cas-default.inp">cas-default.inp</a></td><td>비교용 — 기본 guess CASSCF</td></tr>
-            <tr><td><a href="../examples/06-fragment-merge/cas-default.out">cas-default.out</a></td><td>수렴 결과 — E −1225.0207 Eh, N(occ) 1.0×5</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/cas-default.inp">cas-default.inp</a></td><td>비교용 기본 guess CASSCF</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/cas-default.out">cas-default.out</a></td><td>수렴 결과: E −1225.0207 Eh, N(occ) 1.0×5</td></tr>
           </tbody>
         </table>
 
-        <h2 id="templates">템플릿 — 바로 고쳐 쓰는 스켈레톤</h2>
+        <h2 id="templates">템플릿: 바로 고쳐 쓰는 스켈레톤</h2>
         <p>전부 ORCA 6.1.1에서 실행 검증했다. <code>mol.xyz</code>를 자기 분자 좌표로 바꿔 쓰면 된다.</p>
         <table>
           <thead><tr><th>파일</th><th>용도</th></tr></thead>

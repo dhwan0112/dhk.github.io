@@ -96,7 +96,7 @@
 </ul>
 </li>
 <li><a href="#13">1.3 표면 흡착의 분자동역학적 측면</a></li>
-<li><a href="#14">1.4 다섯 단계 시뮬레이션 프로토콜의 화학적 정당화</a></li>
+<li><a href="#14">1.4 다섯 단계 프로토콜과 단계별 이유</a></li>
 <li><a href="#15">1.5 분석 대상 물리량</a></li>
 <li><a href="#_1">참고문헌</a></li>
 </ul>
@@ -106,22 +106,22 @@
 <p>벤젠과 에탄올은 서로 다른 결합 양상을 갖는 대표적인 유기 분자이다.
 벤젠은 비편극성(nonpolar) π-전자 시스템을 가지며,
 에탄올은 극성(polar) 수산기(-OH)를 통해 수소 결합 네트워크를 형성한다.
-두 분자가 혼합된 액체상이 전이금속 표면과 접촉할 때,
-어느 분자가 우선적으로 흡착되는가는 분리 공정과 촉매 설계에서 중요한 문제이다.</p>
+두 분자가 섞인 액체가 전이금속 표면에 닿을 때
+어느 쪽이 먼저 흡착하는지는 분리 공정과 촉매 설계에서 중요한 문제다.</p>
 <p>구리(Cu)는 채워진 3d 궤도를 가지므로 가스상 벤젠 분자의 π-궤도와의 도너-억셉터 상호작용을
 형성할 수 있는 대표적인 fcc 금속이다 (Cu의 [Ar]3d¹⁰4s¹ 전자 배치를 참고).
 한편 에탄올은 표면 위에서 수산기를 통한 수소 결합과 메틸기를 통한 약한 분산력으로 흡착하므로,
 두 분자가 동시에 존재할 때 표면 점유 경쟁이 발생한다.</p>
 <h2 id="12">1.2 시뮬레이션 셀 기하</h2>
-<p>본 가이드의 시스템은 다음과 같은 슬랩 기하(slab geometry)를 채택한다.</p>
+<p>여기서 다루는 시스템은 다음과 같은 슬랩 기하(slab geometry)다.</p>
 <ul>
 <li><strong>박스 크기</strong>: 30 × 30 × 41.895 Å³</li>
 <li><strong>경계 조건</strong>: x, y 방향 주기적; z 방향 비주기 (<code>boundary p p f</code>)</li>
 <li><strong>금속 슬랩</strong>: z 축 하단에 fcc Cu 슬랩 배치 (격자 상수 a = 3.615 Å)</li>
 <li><strong>유기 분자</strong>: Cu 슬랩 위 진공-액체 영역에 무작위로 배치된 벤젠과 에탄올</li>
 </ul>
-<p>z 축 비주기 경계는 표면 흡착 시뮬레이션의 표준 설정이다.
-이는 슬랩 위에 진공 영역을 두어 두 분자가 표면으로 유입/탈리하는 과정을 자연스럽게 관찰하기 위함이다.</p>
+<p>표면 흡착 시뮬레이션에서는 보통 z 축을 비주기로 둔다.
+슬랩 위에 진공 영역을 두고, 두 분자가 표면으로 들어오고 떨어져 나가는 과정을 자연스럽게 보려는 것이다.</p>
 <figure>
   <img src="assets/images/cu-cell.svg" alt="Cu 표면 흡착 시뮬레이션 셀의 슬랩 기하 모식도" style="width:100%;max-width:860px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
   <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
@@ -137,7 +137,7 @@
 <p>데이터 파일에서 Cu 원자는 (0, 0, 0), (0, 0, 3.615), (0, 0, 7.230), …
 와 같이 3.615 Å 간격으로 배치되어 있다. 이는 fcc Cu의 격자 상수
 (experimental: 3.6147 Å at 298 K, Davey 1925)와 일치한다.
-슬랩의 노출면이 (100) 인지 (111) 인지는 슬랩을 자를 때의 결정 방향에 따라 결정된다.</p>
+노출면이 (100) 인지 (111) 인지는 슬랩을 자르는 결정 방향으로 정해진다.</p>
 <table>
 <thead>
 <tr>
@@ -162,17 +162,17 @@
 </tr>
 </tbody>
 </table>
-<p>표면 에너지 값은 Vitos 외 (1998), <em>Surf. Sci.</em> 411, 186 에서 발췌하였다.</p>
+<p>표면 에너지 값은 Vitos 외 (1998), <em>Surf. Sci.</em> 411, 186 에서 가져왔다.</p>
 <figure>
   <img src="assets/images/cu-slab.png" alt="실제로 실행한 Cu(100) 슬랩의 측면도와 z 방향 원자 밀도 프로파일" style="width:100%;max-width:880px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
   <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
     그림 2. 위 슬랩 기하를 실제로 구성해 돌린 결과(LAMMPS 22 Jul 2025, EAM Mishin 2001,
-    fcc <em>a</em> = 3.615 Å, 1664 원자, NVT 열냉수 설정 300 K, 하단 한 층 고정). 왼쪽은 측면도(x–z 투영)로
+    fcc <em>a</em> = 3.615 Å, 1664 원자, NVT 열욕 300 K, 하단 한 층 고정). 왼쪽은 측면도(x–z 투영)로
     하단의 이산적인 Cu 원자층과 그 위의 진공 영역이 그대로 보인다.
     오른쪽 z-밀도 프로파일에서 각 봉우리는 (100) 원자 한 층(층 간격 ≈ 1.81 Å)에 해당하며,
-    진공 영역에서는 밀도가 0으로 떨어진다 — <code>boundary p p f</code>의 슬랩+진공 구조를
-    수치로 확인할 수 있다. 본 그림은 금속 슬랩 단독 실행이며, 본문의 생성 동역학은
-    이 슬랩 위에 유기 분자를 올리고 Cu는 고정한다.
+    진공 영역에서는 밀도가 0으로 떨어진다. <code>boundary p p f</code>의 슬랩+진공 구조가
+    수치로 드러난다. 이 그림은 금속 슬랩만 따로 돌린 것이고, 본문의 production 단계에서는
+    이 슬랩 위에 유기 분자를 올리고 Cu를 고정한다.
   </figcaption>
 </figure>
 
@@ -186,36 +186,36 @@
 </div>
 
 <h2 id="13">1.3 표면 흡착의 분자동역학적 측면</h2>
-<p>본 시스템에서 다루는 흡착은 다음 세 가지 기여로 분해할 수 있다.</p>
+<p>이 시스템의 흡착은 세 가지 기여로 나눠 볼 수 있다.</p>
 <ol>
 <li>
 <p><strong>분산 인력 (London dispersion)</strong>:
-   Cu 원자와 유기 분자의 비결합 12-6 Lennard-Jones 항으로 모형화된다.
-   본 가이드에서는 Heinz et al. (2008) 의 INTERFACE-FF 파라미터를 사용한다.
+   Cu 원자와 유기 분자 사이의 비결합 12-6 Lennard-Jones 항으로 모형화한다.
+   파라미터는 Heinz et al. (2008) 의 INTERFACE-FF 값을 쓴다.
    Cu-Cu의 경우 ε = 4.72 kcal/mol, σ = 2.616 Å.</p>
 </li>
 <li>
 <p><strong>정전기 상호작용 (Coulomb)</strong>:
    에탄올의 -O-H 결합은 큰 부분 전하 (q_O ≈ -0.7, q_H ≈ +0.435) 를 가지므로
-   장거리 정전기 처리가 필수적이다. PPPM 또는 MSM이 사용된다.</p>
+   장거리 정전기 처리가 꼭 필요하다. PPPM 또는 MSM을 쓴다.</p>
 </li>
 <li>
 <p><strong>π-d 궤도 상호작용</strong>:
-   고전 힘장에서는 이 효과를 명시적으로 다루지 않으며, LJ 파라미터에 흡수되어 간접적으로 표현된다.
-   양자역학적 효과를 정확히 포착하려면 DFT 또는 ReaxFF가 필요하지만,
-   본 가이드는 INTERFACE-FF의 LJ 파라미터가 표면 장력에 fit되어 있다는 점에서
+   고전 힘장은 이 효과를 명시적으로 다루지 않고, LJ 파라미터에 녹여 간접적으로 표현한다.
+   양자역학적 효과를 제대로 잡으려면 DFT 나 ReaxFF가 필요하다. 여기서는
+   INTERFACE-FF의 LJ 파라미터가 표면 장력에 fit되어 있으므로
    계면 거동을 정량적으로 재현할 수 있다고 가정한다.</p>
 </li>
 </ol>
-<h2 id="14">1.4 다섯 단계 시뮬레이션 프로토콜의 화학적 정당화</h2>
-<p>본 가이드는 다음 다섯 단계의 시뮬레이션 프로토콜을 유지한다.</p>
+<h2 id="14">1.4 다섯 단계 프로토콜과 단계별 이유</h2>
+<p>시뮬레이션은 다음 다섯 단계로 진행한다.</p>
 <table>
 <thead>
 <tr>
 <th>단계</th>
 <th>명칭</th>
 <th>목적</th>
-<th>화학적 의미</th>
+<th>이유</th>
 </tr>
 </thead>
 <tbody>
@@ -245,23 +245,23 @@
 </tr>
 <tr>
 <td>5</td>
-<td>생성 동역학 (Production)</td>
+<td>Production</td>
 <td>통계 수집</td>
 <td>평형 앙상블 평균 계산</td>
 </tr>
 </tbody>
 </table>
-<p>각 단계의 상세한 화학적 정당화는 <a href="05-protocol">5단계 프로토콜</a> 문서에서 다룬다.</p>
+<p>단계별로 왜 필요한지는 <a href="05-protocol">5단계 프로토콜</a>에서 자세히 다룬다.</p>
 <h2 id="15">1.5 분석 대상 물리량</h2>
-<p>본 시뮬레이션에서 추출하는 주요 물리량은 다음과 같다.</p>
+<p>이 시뮬레이션에서 뽑는 물리량은 다음과 같다.</p>
 <ul>
-<li><strong>방사 분포 함수 (Radial Distribution Function, g(r))</strong>: 분자 간 구조 상관</li>
+<li><strong>동경 분포 함수 (Radial Distribution Function, g(r))</strong>: 분자 간 구조 상관</li>
 <li><strong>밀도 프로파일 (z 방향)</strong>: 계면에서의 분자별 분포</li>
 <li><strong>분리 효율 지수 (Separation Efficiency Index, SEI)</strong>: 0 (완전 혼합) ~ 1 (완전 분리)</li>
 <li><strong>흡착 에너지</strong>: 표면 결합 강도의 정량 지표</li>
 <li><strong>계면 장력 (Irving-Kirkwood 방법)</strong>: 계면의 열역학적 안정성</li>
 </ul>
-<p>상세 분석 방법은 <a href="07-analysis">분석 방법</a> 문서에서 다룬다.</p>
+<p>분석 방법은 <a href="07-analysis">분석 방법</a>에서 자세히 다룬다.</p>
 <h2 id="_1">참고문헌</h2>
 <ol>
 <li>
@@ -290,8 +290,6 @@
    DOI: <a href="https://doi.org/10.1103/PhysRev.25.753">10.1103/PhysRev.25.753</a></p>
 </li>
 </ol>
-<hr />
-<p><a href="02-data-files">다음: 2. 데이터 파일 구조 →</a></p>
       </article>
 <nav class="page-nav"><a class="prev" href="cu-overview.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">개요</div></a><a class="next" href="cu-02-data-files.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">데이터 파일</div></a></nav>
     </main>

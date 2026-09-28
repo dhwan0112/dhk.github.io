@@ -121,9 +121,9 @@
 <li><a href="#related-examples">Related examples</a></li>
 </ul>
 </div>
-<p>This is the gateway to transition-metal oxides. Collinear spin polarization
-is switched on by <code>nspin = 2</code>; the real problem is <strong>which magnetic solution
-the SCF converges to</strong>.</p>
+<p>Transition-metal oxides need spin polarization. Collinear spin polarization
+is switched on by <code>nspin = 2</code>; the harder question is which magnetic solution
+the SCF converges to.</p>
 <h2 id="basic-setup">Basic setup</h2>
 <pre><code class="language-fortran">&amp;SYSTEM
   nspin = 2
@@ -146,17 +146,17 @@ ATOMIC_SPECIES
 </code></pre>
 <ul>
 <li><code>starting_magnetization</code> is a <strong>dimensionless ratio between −1 and 1</strong>
-  (not μB), and it is only an <strong>initial guess</strong>. The SCF is free to change
+  (not μB), and it is only an initial guess. The SCF is free to change
   it.</li>
-<li>To <strong>constrain</strong> the total magnetization, use <code>tot_magnetization</code>
+<li>To constrain the total magnetization, use <code>tot_magnetization</code>
   (separate Fermi levels for up and down). The O₂ triplet in
   <a href="ex-04-o2-molecule.html">Example E4</a> does exactly this.</li>
 </ul>
 <h2 id="afm-order-is-built-with-labels">AFM order is built with labels</h2>
-<p>The key trick for antiferromagnetic order: <strong>register the same
+<p>To build antiferromagnetic order, <strong>register the same
 pseudopotential under two labels</strong> (<code>Fe1</code>, <code>Fe2</code>) and give them opposite
 initial magnetizations. Without the label split, QE treats the two Fe atoms
-as symmetry-equivalent and <strong>cannot form an AFM state at all</strong>. The same
+as symmetry-equivalent and cannot form an AFM state at all. The same
 label split is needed later by DFT+U and <code>hp.x</code>.</p>
 <p>Classify the converged state from two output lines:</p>
 <table>
@@ -187,8 +187,8 @@ label split is needed later by DFT+U and <code>hp.x</code>.</p>
 </table>
 <h2 id="measured-bcc-fe-and-feo">Measured: bcc Fe and FeO</h2>
 <p><a href="ex-09-fe-bcc.html">Example E9</a> (ferromagnetic metal) and
-<a href="ex-10-feo-afm.html">Example E10</a> (antiferromagnetic oxide) are this
-chapter in practice.</p>
+<a href="ex-10-feo-afm.html">Example E10</a> (antiferromagnetic oxide) apply this
+chapter.</p>
 <figure>
   <img src="assets/images/qe-e09-fe-dos.png"
        alt="bcc Fe spin-resolved DOS" />
@@ -200,23 +200,22 @@ chapter in practice.</p>
 </figure>
 
 <h2 id="when-a-magnet-will-not-converge">When a magnet will not converge</h2>
-<p>It is common for the magnetization to collapse to zero during the SCF. In
-order:</p>
-<ol>
-<li><code>mixing_beta</code> 0.7 → 0.3 → 0.1</li>
-<li><code>mixing_mode = 'local-TF'</code></li>
-<li>Larger <code>starting_magnetization</code> (0.4–0.9)</li>
-<li>Smaller <code>degauss</code> (excess smearing erases moments). If the SCF itself
-   fails, temporarily raise it, converge, then restart with
-   <code>startingpot='file'</code> while lowering it</li>
-<li><code>diagonalization = 'cg'</code> or <code>'ppcg'</code></li>
-</ol>
-<p>And the fundamental caution:</p>
+<p>It is common for the magnetization to collapse to zero during the SCF. Work
+through the diagnosis order in <a href="07-scf-control.html">Chapter 07</a> (lower
+<code>mixing_beta</code>, <code>mixing_mode = 'local-TF'</code>, then <code>'cg'</code> or <code>'ppcg'</code>), with two
+additions specific to magnets:</p>
+<ul>
+<li>Use a larger <code>starting_magnetization</code> (0.4–0.9).</li>
+<li>Use a smaller <code>degauss</code>, since excess smearing erases moments. If the SCF
+  itself fails, temporarily raise it, converge, then restart with
+  <code>startingpot='file'</code> while lowering it.</li>
+</ul>
+<p>One more caution:</p>
 <div class="warning">
   <div class="note-title">Magnets have multiple local minima</div>
   <p>
-    Every magnetic ordering is its own <strong>metastable
-    solution</strong>. One converged answer is not evidence of the ground
+    Every magnetic ordering is its own metastable
+    solution. One converged answer is not evidence of the ground
     state. The standard practice is to start from several initial
     magnetizations (FM, AFM, nonmagnetic), converge each, and pick the
     lowest energy.
@@ -230,8 +229,8 @@ pseudopotentials), at a much higher cost. Learn them when you need them.</p>
 <ul>
 <li><a href="ex-09-fe-bcc.html">E9 · Ferromagnetic bcc Fe</a>: FM metal, measured moment
   2.19 μB.</li>
-<li><a href="ex-10-feo-afm.html">E10 · FeO AFM</a>: the AFM-II state built by the label
-  trick, measured.</li>
+<li><a href="ex-10-feo-afm.html">E10 · FeO AFM</a>: the AFM-II state built with two Fe
+  labels.</li>
 <li><a href="ex-04-o2-molecule.html">E4 · O₂ molecule</a>: constraining the triplet with
   <code>tot_magnetization</code>.</li>
 </ul>

@@ -113,8 +113,7 @@
       </header>
       <article class="content">
 <h2 id="goal">Goal</h2>
-<p><strong>This is where QE skill forks.</strong> Learn the standard procedure of scripted
-convergence tests for <code>ecutwfc</code>, the k-grid, and forces, including the habit
+<p>Learn the standard procedure of scripted convergence tests for <code>ecutwfc</code>, the k-grid, and forces, including the habit
 of judging in meV/atom and meV/Å. Background in
 <a href="05-convergence.html">Chapter 05</a>.</p>
 <h2 id="new-here">New here</h2>
@@ -194,7 +193,7 @@ done
 bash conv_kpts.sh  &gt; conv_kpts.dat
 bash conv_force.sh &gt; conv_force.dat
 </code></pre>
-<h2 id="output-and-figure-measured">Output and figure: measured</h2>
+<h2 id="output-and-figure">Output and figure</h2>
 <figure>
   <img src="assets/images/qe-e03-convergence.png"
        alt="Si convergence: dE vs ecutwfc, dE vs k-grid, force vs ecutwfc" />
@@ -274,11 +273,11 @@ bash conv_force.sh &gt; conv_force.dat
 <h2 id="exercises">Exercises</h2>
 <ol>
 <li>Repeat the scan with <code>ecutrho</code> pinned at 4x and watch what PAW does (the
-   trap of <a href="04-pseudopotentials.html">Chapter 04</a>).</li>
+   pitfall from <a href="04-pseudopotentials.html">Chapter 04</a>).</li>
 <li>Compare the cutoff at which the energy converges with the cutoff at
    which the force converges. Which is higher?</li>
 <li>Write your own Python script to plot the scans (the one used for this
-   guide is in the repository at <code>.build/plot_qe.py</code>).</li>
+   guide is the plotting script included with the guide's source).</li>
 </ol>
 <div class="warning">
   <div class="note-title">Common mistakes</div>
@@ -288,8 +287,8 @@ bash conv_force.sh &gt; conv_force.dat
     <strong>last</strong> match is not the total force; it is the SCF
     correction term (~10⁻⁶) from the contribution breakdown further down
     the output. The total force is the <strong>first</strong> match after
-    <code>Forces acting on atoms</code>. We fell into exactly this hole
-    when first measuring this example; the script above is the corrected
+    <code>Forces acting on atoms</code>. I made exactly this mistake
+    when first running this example; the script above is the corrected
     version.
   </p>
 </div>

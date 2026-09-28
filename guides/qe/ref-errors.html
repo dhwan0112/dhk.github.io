@@ -132,7 +132,7 @@
 </ul>
 </div>
 <p>Most QE errors arrive as <code>Error in routine &lt;name&gt; (&lt;code&gt;)</code>, and
-<strong>the routine name is the strongest clue to the cause</strong>.</p>
+the routine name is usually the best clue to the cause.</p>
 <h2 id="how-to-read-an-error">How to read an error</h2>
 <pre><code>     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
      Error in routine  cdiaghg (2):
@@ -169,7 +169,7 @@
 </tr>
 </tbody>
 </table>
-<p>The truly dangerous cases have no error at all; see
+<p>The worst cases produce no error at all; see
 <a href="#silent-failures-the-most-dangerous-category">the section on silent failures</a>.</p>
 <h2 id="input-syntax-errors">Input syntax errors</h2>
 <table>
@@ -214,7 +214,7 @@
 <tr>
 <td><code>read_namelists ... bad line</code></td>
 <td>Variable placed in the wrong namelist</td>
-<td>Example: <code>tefield</code>/<code>dipfield</code> belong in <code>&amp;CONTROL</code>, not <code>&amp;SYSTEM</code> (measured; see <a href="ex-13-slab-md.html">E13</a>)</td>
+<td>Example: <code>tefield</code>/<code>dipfield</code> belong in <code>&amp;CONTROL</code>, not <code>&amp;SYSTEM</code> (hit in <a href="ex-13-slab-md.html">E13</a>)</td>
 </tr>
 </tbody>
 </table>
@@ -260,13 +260,13 @@
 </tr>
 </tbody>
 </table>
-<p>Measured case: in the degauss scan of
+<p>Example: in the degauss scan of
 <a href="ex-05-al-metal.html">Example E5</a>, <code>mv</code> smearing with <code>degauss=0.005</code> on a
 12×12×12 grid integrated the charge to 3.003 instead of 3 and stopped with
 <code>charge is wrong</code>. Smearing width and k-grid must be converged together.</p>
 <h2 id="scf-and-diagonalization-failures">SCF and diagonalization failures</h2>
 <h3 id="convergence-not-achieved-after-n-iterations">convergence NOT achieved after N iterations</h3>
-<p>The most common problem. Try these <strong>in order</strong>.</p>
+<p>The most common problem. Try these in order.</p>
 <ol>
 <li><code>mixing_beta</code> 0.7 → 0.3 → 0.1</li>
 <li><code>mixing_mode = 'local-TF'</code> (metals, slabs, magnets)</li>
@@ -274,12 +274,12 @@
 <li>Raise <code>mixing_ndim</code> (8 → 12–16, if memory allows)</li>
 <li>Temporarily raise <code>degauss</code>, converge, restart with
    <code>startingpot='file'</code> while lowering it</li>
-<li><code>diagonalization = 'cg'</code> or <code>'ppcg'</code> (slow but robust)</li>
+<li><code>diagonalization = 'cg'</code> or <code>'ppcg'</code> (slow but more stable)</li>
 <li>Inspect the structure (atoms too close)</li>
 </ol>
 <p>For DFT+U with <code>nosym</code> (MD in particular): the SCF stalls because rotations
 among degenerate orbitals keep the density sloshing. Add
-<code>mixing_fixed_ns = 30</code> (measured in <a href="ex-13-slab-md.html">E13</a>: stuck at
+<code>mixing_fixed_ns = 30</code> (in <a href="ex-13-slab-md.html">E13</a> the SCF was stuck at
 7×10⁻⁵ after 100 iterations without it, converged in 28 with it).</p>
 <h3 id="c_bands-n-eigenvalues-not-converged">c_bands: N eigenvalues not converged</h3>
 <ul>
@@ -290,10 +290,10 @@ among degenerate orbitals keep the density sloshing. Add
 </ul>
 <h3 id="cdiaghg-problems-computing-cholesky-s-matrix-not-positive-definite">cdiaghg: problems computing cholesky / S matrix not positive definite</h3>
 <ul>
-<li>The overlap matrix went singular. Usual causes: <strong>atoms too close, a bad
-  initial wavefunction, or a linearly dependent basis</strong>.</li>
+<li>The overlap matrix went singular. Usual causes: atoms too close, a bad
+  initial wavefunction, or a linearly dependent basis.</li>
 <li>Try <code>startingwfc = 'random'</code>.</li>
-<li>Recheck the structure: overlapping atoms are more common than you think.</li>
+<li>Recheck the structure for overlapping atoms.</li>
 </ul>
 <h3 id="not-enough-space-allocated-for-radial-fft">Not enough space allocated for radial FFT</h3>
 <ul>
@@ -303,7 +303,7 @@ among degenerate orbitals keep the density sloshing. Add
 <h3 id="checkallsym-some-of-the-original-symmetry-operations-not-satisfied">checkallsym: some of the original symmetry operations not satisfied</h3>
 <ul>
 <li>Atomic motion broke the symmetry detected on the initial structure.
-  <strong>In MD you will hit this almost immediately</strong> (thermal motion destroys
+  In MD you will hit this almost immediately (thermal motion destroys
   symmetric positions in the first step).</li>
 <li>Set <code>nosym = .true.</code> for MD
   (<a href="16-molecular-dynamics.html">Chapter 16</a>). If it appears during a
@@ -353,8 +353,8 @@ among degenerate orbitals keep the density sloshing. Add
 </tbody>
 </table>
 <h2 id="silent-failures-the-most-dangerous-category">Silent failures: the most dangerous category</h2>
-<p>QE prints physically wrong results in a perfectly clean format. Make these
-checks habitual.</p>
+<p>QE prints physically wrong results in a perfectly clean format. Run these
+checks routinely.</p>
 <table>
 <thead>
 <tr>
@@ -367,7 +367,7 @@ checks habitual.</p>
 <tr>
 <td>Total energy far from the literature</td>
 <td>Different pseudopotential</td>
-<td><strong>Absolute energies are not comparable</strong>; only same-condition differences</td>
+<td><strong>Absolute energies are not comparable</strong>; compare only differences under identical settings</td>
 </tr>
 <tr>
 <td>Magnetic moment collapses to zero</td>
@@ -386,7 +386,7 @@ checks habitual.</p>
 </tr>
 <tr>
 <td>Still metallic with U on</td>
-<td>d occupations trapped in a wrong minimum</td>
+<td>d occupations stuck in a wrong minimum</td>
 <td>Steer the pattern with <code>starting_ns_eigenvalue</code></td>
 </tr>
 <tr>
@@ -423,8 +423,8 @@ checks habitual.</p>
 <li>Are spin-up and spin-down sublattices split into separate labels?</li>
 <li>Is <code>mixing_beta</code> at 0.3 or below with <code>mixing_mode='local-TF'</code>?</li>
 <li>Did you converge from several initial magnetizations and pick the
-  <strong>lowest-energy</strong> solution?</li>
-<li>Is the <code>HUBBARD</code> card in the <strong>new syntax</strong> (no <code>lda_plus_u</code> remnants)?</li>
+  lowest-energy solution?</li>
+<li>Is the <code>HUBBARD</code> card in the new syntax (no <code>lda_plus_u</code> remnants)?</li>
 <li>Is the projector (<code>ortho-atomic</code> etc.) recorded together with the U value?</li>
 <li>Did you steer the orbital occupations with <code>starting_ns_eigenvalue</code>?</li>
 <li>If you use <code>hp.x</code>, did you converge the <code>nq</code> grid?</li>
@@ -433,14 +433,14 @@ checks habitual.</p>
 <h2 id="when-you-ask-for-help">When you ask for help</h2>
 <p>Search the
 <a href="https://www.mail-archive.com/users@lists.quantum-espresso.org/">QE users mailing list archive</a>
-first. Most problems are already answered, and threads answered by the
-developers (Giannozzi, Timrov, and others) are effectively official
-documentation.</p>
+first. Most problems have already been answered there, and replies from
+the developers (Giannozzi, Timrov, and others) are about as reliable as
+the official documentation.</p>
 <p>Always include:</p>
 <ol>
 <li>The QE version and how it was built</li>
-<li>The <strong>complete input file</strong></li>
-<li>The error section of the output, <strong>with 30 lines of context</strong></li>
+<li>The complete input file</li>
+<li>The error section of the output, with 30 lines of context</li>
 <li>What you already tried</li>
 </ol>
       </article>

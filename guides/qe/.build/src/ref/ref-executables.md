@@ -4,7 +4,7 @@ title: "R4. Executables"
 
 # R4. Executables
 
-QE is a suite, not one program. This is the map of what each executable
+QE is a suite of programs. This page lists what each executable
 takes and produces. Per-variable detail lives in each code's
 `Doc/INPUT_<name>.txt`.
 
@@ -38,7 +38,7 @@ takes and produces. Per-variable detail lives in each code's
 
 `prefix`, `outdir`, `fildos`, `Emin`, `Emax`, `DeltaE`, `ngauss`,
 `degauss`, `bz_sum`. The output columns are E (eV), DOS (two spin columns
-in polarized runs), and the integrated DOS. Note that `Emin`/`Emax` are
+in polarized runs), and the integrated DOS. `Emin`/`Emax` are
 **absolute energies in eV**; place the window around the actual Fermi level
 of your system, which for PAW data can sit at 15–20 eV.
 
@@ -47,8 +47,8 @@ of your system, which for PAW data can sit at 15–20 eV.
 `prefix`, `outdir`, `filpdos`, `filproj`, `ngauss`, `degauss`, `Emin`,
 `Emax`, `DeltaE`, `lsym` (symmetrized atomic orbitals), `pawproj`,
 `lwrite_overlaps`, `kresolveddos`. Outputs the
-`filpdos.pdos_atm#N(label)_wfc#M(orbital)` files plus the **Löwdin
-charges** block on standard output.
+`filpdos.pdos_atm#N(label)_wfc#M(orbital)` files plus the Löwdin
+charges block on standard output.
 
 ### bands.x: &BANDS
 
@@ -70,7 +70,7 @@ the tick positions.
 | 5 | STM image |
 | 6 | Spin density ρ↑ − ρ↓ |
 | 8 | ELF |
-| 11 | Bare + Hartree potential (**work function**) |
+| 11 | Bare + Hartree potential (work function) |
 
 `&PLOT`: `nfile`, `filepp(i)`, `weight(i)`, `iflag` (0 line / 1 spherical
 average / 2 plane / 3 3D / 4 polar), `output_format` (0 gnuplot /
@@ -97,7 +97,7 @@ partial results).
 `CI_scheme` (`'no-CI'`/`'auto'`/`'manual'`), `path_thr`, `ds`, `k_max`,
 `k_min`, `restart_mode`. Input layout in [R2](ref-cards.html).
 
-## The file flow on one page
+## The file flow
 
 ```
                     ┌─ dos.x ──────→ total DOS
@@ -109,6 +109,6 @@ scf ──→ nscf ───────┼─ projwfc.x ──→ PDOS, Löwdin
  └────→ ph.x ──→ q2r.x ──→ matdyn.x → phonon dispersion
 ```
 
-Every arrow is glued by the **same `prefix` and `outdir`**. Break the chain
-and you get `cannot open file ... .save/...`
+Every step in this chain needs the **same `prefix` and `outdir`**. If they
+differ, you get `cannot open file ... .save/...`
 ([R3](ref-errors.html)).

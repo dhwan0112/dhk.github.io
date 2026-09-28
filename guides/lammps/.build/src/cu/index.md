@@ -7,17 +7,15 @@ permalink: /
 ---
 
 # 구리 계면 벤젠-에탄올 혼합물 LAMMPS 시뮬레이션 가이드
-{: .fs-9 }
 
-Cu(100) 및 Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착 거동에 대한
-분자동역학 시뮬레이션 프로토콜과 입력 파일을 정리한 문서.
-{: .fs-6 .fw-300 }
+Cu(100)·Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착을 분자동역학으로 계산할 때 쓴
+프로토콜과 입력 파일을 정리했다.
 
 ---
 
-## 본 가이드의 목적
+## 무엇을 비교하나
 
-본 가이드는 다음 네 가지 시뮬레이션 프레임워크를 체계적으로 비교하기 위해 작성되었다.
+이 시리즈는 다음 네 가지 조합을 비교한다.
 
 | 힘장 (Force field) | 정전기 방법 | 약칭         |
 |--------------------|-------------|--------------|
@@ -26,30 +24,29 @@ Cu(100) 및 Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착 거동에 대한
 | TraPPE-UA          | PPPM        | TraPPE+PPPM  |
 | TraPPE-UA          | MSM         | TraPPE+MSM   |
 
-각 조합이 동일한 다섯 단계 프로토콜 (소프트 완화 → 에너지 최소화 → 단계적 가열 → 평형화 → 생성 동역학)을
-따르도록 구성되어 있으며, 이를 통해 힘장과 정전기 처리 방식이 계면 흡착 거동에 미치는 영향을
-분리하여 분석할 수 있다.
+네 조합 모두 같은 다섯 단계 프로토콜(소프트 완화 → 에너지 최소화 → 단계적 가열 → 평형화 → production)을
+따른다. 그래서 힘장과 정전기 처리 방식이 계면 흡착에 주는 영향을 따로 떼어 볼 수 있다.
 
 ## 빠른 둘러보기
 
-- [시스템 개요](docs/01-overview) — 화학적 배경과 시뮬레이션 셀 구성
-- [데이터 파일 구조](docs/02-data-files) — `opls.data`, `trappe.data` 비교
-- [힘장 비교](docs/03-force-fields) — OPLS-AA vs TraPPE-UA의 화학적 의미
-- [정전기 방법](docs/04-electrostatics) — PPPM과 MSM, 그리고 슬랩 보정
-- [5단계 프로토콜](docs/05-protocol) — 단계별 화학적 정당화와 입력 명령어
-- [4가지 프레임워크 비교](docs/06-frameworks) — 조합별 차이와 선택 가이드
-- [분석 방법](docs/07-analysis) — RDF, 밀도 프로파일, SEI, 계면 장력
-- [트러블슈팅](docs/08-troubleshooting) — 빈번한 오류와 화학적 진단
+- [시스템 개요](docs/01-overview): 화학적 배경과 시뮬레이션 셀 구성
+- [데이터 파일 구조](docs/02-data-files): `opls.data`, `trappe.data` 비교
+- [힘장 비교](docs/03-force-fields): OPLS-AA와 TraPPE-UA의 차이
+- [정전기 방법](docs/04-electrostatics): PPPM과 MSM, 슬랩 보정
+- [5단계 프로토콜](docs/05-protocol): 단계별 이유와 입력 명령어
+- [4가지 프레임워크 비교](docs/06-frameworks): 조합별 차이와 선택 기준
+- [분석 방법](docs/07-analysis): RDF, 밀도 프로파일, SEI, 계면 장력
+- [트러블슈팅](docs/08-troubleshooting): 자주 나는 오류와 원인 진단
 
 ## 실행 환경
 
-- **LAMMPS**: 23 Jun 2022 이후 안정 버전 권장 (KSPACE, MANYBODY, EXTRA-PAIR 패키지 포함)
-- **MPI**: 40코어 워크스테이션 기준으로 `mpirun -np 40` 권장
-- **세션 관리**: 장시간 실행에는 `tmux` 사용
+- LAMMPS: 23 Jun 2022 이후 안정 버전 (KSPACE, MANYBODY, EXTRA-PAIR 패키지 포함)
+- MPI: 40코어 워크스테이션에서 `mpirun -np 40`
+- 세션 관리: 오래 걸리는 실행은 `tmux` 안에서
 
 ## 인용 시 참고문헌
 
-본 가이드의 구성은 다음 핵심 문헌에 기반한다.
+이 시리즈는 주로 다음 문헌을 바탕으로 한다.
 
 - W. L. Jorgensen, D. S. Maxwell, J. Tirado-Rives,
   "Development and Testing of the OPLS All-Atom Force Field on Conformational

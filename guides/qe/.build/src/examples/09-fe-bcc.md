@@ -6,10 +6,10 @@ title: "E9. Ferromagnetic bcc Fe"
 
 ## Goal
 
-Your first **magnetic** calculation. Converge the ferromagnetic ground
+Your first magnetic calculation. Converge the ferromagnetic ground
 state of bcc Fe with a spin-polarized SCF (`nspin=2`) and compare the
-moment with experiment. This is the hands-on version of the metal-plus-
-magnetism convergence craft of [Chapter 12](12-magnetism.html).
+moment with experiment. This puts the metal-plus-magnetism convergence
+settings of [Chapter 12](12-magnetism.html) into practice.
 
 ## New cards and variables
 
@@ -72,22 +72,22 @@ K_POINTS (automatic)
 mpirun -np 6 pw.x -nk 6 -in fe.scf.in > fe.scf.out
 ```
 
-## What to check: measured
+## What to check
 
 | Item | Measured (QE 7.5, PAW) | Note |
 |---|---|---|
 | Total energy | −329.26290531 Ry | |
-| **total magnetization** | **2.19 μB/cell** | Experiment 2.22 μB: PBE nearly nails it |
+| **total magnetization** | **2.19 μB/cell** | Experiment 2.22 μB: close agreement |
 | absolute magnetization | 2.32 μB/cell | Close to total, so FM |
 | Fermi level | 17.4481 eV | A metal |
 
-Total ≈ absolute is the badge of ferromagnetism. For AFM the total is near
+Total ≈ absolute indicates ferromagnetism. For AFM the total is near
 zero while the absolute stays large; that case is
 [E10](ex-10-feo-afm.html).
 
-## Spin-resolved DOS: an extra measurement
+## Spin-resolved DOS
 
-On top of the same density we ran an nscf (20³, tetrahedra) plus `dos.x`
+On top of the same density I ran an nscf (20³, tetrahedra) plus `dos.x`
 to get the spin-resolved DOS (dos.x prints up and down columns for
 polarized runs).
 
@@ -95,7 +95,7 @@ polarized runs).
   <img src="assets/images/qe-e09-fe-dos.png"
        alt="bcc Fe spin-resolved DOS" />
   <figcaption>
-    Measured spin-resolved DOS of bcc Fe (QE 7.5, PBE). Exchange splitting
+    Spin-resolved DOS of bcc Fe (QE 7.5, PBE). Exchange splitting
     pushes the majority (up) d band down to near-full occupation while the
     minority (down) d band straddles the Fermi level. The occupation
     difference is exactly the 2.2 μB moment.
@@ -119,7 +119,7 @@ polarized runs).
     Declaring the first converged solution the ground state. Magnets hold
     several metastable solutions; converge from several initial
     magnetizations (0.3 / 0.7 / −0.7) and compare energies. And remember,
-    <code>starting_magnetization</code> is a <strong>ratio</strong>, not
+    <code>starting_magnetization</code> is a ratio, not
     μB (<a href="03-units-coordinates.html">Chapter 03</a>).
   </p>
 </div>

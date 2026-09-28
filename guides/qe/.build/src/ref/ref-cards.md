@@ -38,10 +38,10 @@ ATOMIC_SPECIES
   O    15.999  O.pbe-n-kjpaw_psl.1.0.0.UPF
 ```
 
-The number of lines must equal `ntyp`. **The same pseudopotential may be
-registered under several labels**; antiferromagnetic order
+The number of lines must equal `ntyp`. The same pseudopotential may be
+registered under several labels; antiferromagnetic order
 ([Chapter 12](12-magnetism.html)) and per-atom U
-([Chapter 13](13-dft-plus-u.html)) rely on exactly this. The mass matters
+([Chapter 13](13-dft-plus-u.html)) depend on this. The mass matters
 physically only in MD and phonons.
 
 ## ATOMIC_POSITIONS
@@ -82,7 +82,7 @@ K_POINTS (crystal)        ! explicit list with weights
 
 - The difference between `tpiba_b` (Cartesian, 2π/a) and `crystal_b`
   (fractional, reciprocal basis) is explained in
-  [Chapter 10](10-dos-bands.html). When in doubt, `tpiba_b` is safe.
+  [Chapter 10](10-dos-bands.html). When in doubt, use `tpiba_b`.
 - An nscf feeding the tetrahedron method must use an **unshifted,
   Γ-centered automatic grid**.
 
@@ -113,7 +113,7 @@ Grammar: `HUBBARD (<projector>)`, then lines of
 
 | Field | Options |
 |---|---|
-| Projector | `atomic` / `ortho-atomic` (**recommended**) / `norm-atomic` / `wf` / `pseudo` |
+| Projector | `atomic` / `ortho-atomic` (recommended) / `norm-atomic` / `wf` / `pseudo` |
 | Parameter | `U`, `J0`, `J`, `B`, `E2`, `E3`, `V`, `alpha` |
 | Manifold | `3d`, `2p`, `4f`, ... (up to 3 channels per type) |
 
@@ -140,7 +140,7 @@ constraints, then one per line (`'distance'`, `'planar_angle'`,
 
 ## The neb.x input layout (for reference)
 
-`neb.x` uses a **block structure** rather than cards:
+`neb.x` uses a block structure rather than cards:
 
 ```
 BEGIN

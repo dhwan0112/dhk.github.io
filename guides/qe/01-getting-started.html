@@ -170,7 +170,7 @@ each concept connects to.</p>
 </table>
 <p>For theory, good starting points are
 <a href="https://compmatphys.epotentia.com/">Cottenier's online DFT course</a>
-(QE exercises come bundled with the theory, the most efficient entry point),
+(QE exercises come bundled with the theory),
 <a href="http://www.fisica.uniud.it/~giannozz/QE-Tutorial/">Giannozzi's hands-on tutorial</a>
 (by one of the main QE authors), MIT OCW 3.320, and as books
 Sholl &amp; Steckel (introductory) and R. Martin (reference).</p>
@@ -232,7 +232,7 @@ export ESPRESSO_TMPDIR=/scratch/$USER   # large temporaries (use a fast disk)
 </code></pre>
 <p><code>outdir</code> (temporaries) and <code>pseudo_dir</code> can be given in the input or fall
 back to these environment variables. <code>outdir</code> is where wavefunctions and
-charge densities accumulate, so make sure it points at a <strong>fast disk</strong>.</p>
+charge densities accumulate, so make sure it points at a fast disk.</p>
 <h2 id="verifying-the-install-do-not-skip-this">Verifying the install (do not skip this)</h2>
 <p>Check the banner first.</p>
 <pre><code class="language-bash">which pw.x
@@ -243,14 +243,15 @@ pw.x -in /dev/null 2&gt;&amp;1 | head -20
 <li>The banner says <code>Parallel version (MPI), running on N processors</code>.</li>
 <li><code>Number of MPI processes</code> and <code>Threads/MPI process</code> are what you intended.</li>
 </ul>
-<p>If you have the QE source tree, open <strong><code>PW/examples/</code> and <code>test-suite/</code></strong>.
-These are not mere tests; they are <strong>the best textbook you have</strong>.</p>
+<p>If you have the QE source tree, open <code>PW/examples/</code> and <code>test-suite/</code>.
+They double as worked examples matched to your installed version.</p>
 <pre><code class="language-bash">cd PW/examples/example01
 ./run_example
 ls results/            # open every generated input and output
 </code></pre>
-<p>Work through <code>example01</code> onward and see what each example demonstrates. For
-version consistency these beat any third-party tutorial.</p>
+<p>Work through <code>example01</code> onward and see what each example demonstrates.
+Because they ship with your version, their syntax is always current, which is
+not true of third-party tutorials.</p>
 <h2 id="getting-pseudopotentials">Getting pseudopotentials</h2>
 <p>You need one UPF file per element before the first run. Where to get them
 and how to choose is covered in <a href="04-pseudopotentials.html">Chapter 04</a>; the

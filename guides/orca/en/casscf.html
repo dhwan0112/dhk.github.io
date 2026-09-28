@@ -68,26 +68,26 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 13 · METHODS &amp; MODELS</div>
         <h1 class="page-title">CASSCF · Multireference</h1>
-        <p class="page-lede">Where single-reference breaks down — bond dissociation, transition-metal magnetism, diradicals. An introduction to CASSCF, which solves the active space explicitly.</p>
+        <p class="page-lede">An introduction to CASSCF for cases where single-reference methods break down, such as bond dissociation, transition-metal magnetism, and diradicals.</p>
       </header>
 
       <article class="content">
         <div class="toc">
           <div class="toc-title">On this page</div>
           <ul>
-            <li><a href="#why">Why multireference — the limits of single-reference</a></li>
+            <li><a href="#why">Why multireference: the limits of single-reference</a></li>
             <li><a href="#active-space">The active space CAS(n, m)</a></li>
-            <li><a href="#first">A first CASSCF — H<sub>2</sub>(2,2)</a></li>
-            <li><a href="#output">Reading the output — CI vector and occupations</a></li>
-            <li><a href="#state-average">Several states at once — state-averaging</a></li>
-            <li><a href="#nevpt2">Dynamic correlation — NEVPT2</a></li>
+            <li><a href="#first">A first CASSCF: H<sub>2</sub>(2,2)</a></li>
+            <li><a href="#output">Reading the output: CI vector and occupations</a></li>
+            <li><a href="#state-average">Treating several states together (state-averaging)</a></li>
+            <li><a href="#nevpt2">Dynamic correlation: NEVPT2</a></li>
             <li><a href="#soc">Spin-orbit coupling and magnetic properties</a></li>
-            <li><a href="#fragment">Large systems — metal / ligand fragment merge</a></li>
-            <li><a href="#limits">Limits and what's next — DMRG</a></li>
+            <li><a href="#fragment">Large systems: metal / ligand fragment merge</a></li>
+            <li><a href="#limits">Limits and DMRG</a></li>
           </ul>
         </div>
 
-        <h2 id="why">Why multireference — the limits of single-reference</h2>
+        <h2 id="why">Why multireference: the limits of single-reference</h2>
         <p>
           HF, DFT, and CCSD(T) all assume that <strong>a single Slater determinant dominates</strong>.
           That holds for closed-shell organics and ordinary radicals. The moment two or more
@@ -98,15 +98,15 @@
         </p>
         <p>
           The cleanest example is H<sub>2</sub> dissociation. The curves below scan the H–H distance
-          from 0.4 to 3.0 Å with RHF and CASSCF(2,2) — real calculations on ORCA 6.1.1, cc-pVDZ.
+          from 0.4 to 3.0 Å with RHF and CASSCF(2,2) (real calculations on ORCA 6.1.1, cc-pVDZ).
         </p>
 
-        <img src="../assets/img/h2-dissociation.png" alt="H2 bond dissociation — RHF diverges at dissociation, CASSCF is correct" style="max-width:100%;height:auto;margin:1rem 0;" />
+        <img src="../assets/img/h2-dissociation.png" alt="H2 bond dissociation: RHF diverges at dissociation, CASSCF is correct" style="max-width:100%;height:auto;margin:1rem 0;" />
 
         <p>
           Near equilibrium both are fine, but as the bond stretches <strong>RHF runs away
           upward</strong> (−0.826 E<sub>h</sub> at 3.0 Å). Closed-shell RHF keeps both electrons in
-          the σ bonding orbital, so it cannot separate cleanly into two neutral H atoms — ionic
+          the σ bonding orbital, so it cannot separate cleanly into two neutral H atoms; ionic
           terms are forced in. CASSCF adds the σ*<sup>2</sup> configuration to the wavefunction and
           dissociates correctly to two H atoms (−1.0 E<sub>h</sub>). Treating those two
           configurations, σ<sup>2</sup> and σ*<sup>2</sup>, <em>at the same time</em> is the heart of
@@ -117,15 +117,15 @@
         <p>
           CASSCF solves for every electron configuration within an <strong>active space</strong>.
           <code>CAS(n, m)</code> means a full CI of <em>n</em> electrons in <em>m</em> orbitals.
-          The active orbitals are the chemically important ones near the frontier — where the
+          The active orbitals are the chemically important ones near the frontier, where the
           multireference character lives. For H<sub>2</sub> that is the σ·σ* pair → CAS(2,2); for a
           transition metal it starts from all the metal d (or f) orbitals plus the key ligand orbitals.
         </p>
 
-        <img src="../assets/img/casscf-active-space.png" alt="Active-space diagram — inactive (doubly occupied) / active (partially occupied) / virtual orbitals" style="max-width:100%;height:auto;margin:1rem 0;" />
+        <img src="../assets/img/casscf-active-space.png" alt="Active-space diagram: inactive (doubly occupied) / active (partially occupied) / virtual orbitals" style="max-width:100%;height:auto;margin:1rem 0;" />
 
         <div class="warning">
-          <div class="note-title">Choosing the active space is the whole game</div>
+          <div class="note-title">Choosing the active space</div>
           <p>
             The result depends critically on the active space. Too small and it is inaccurate; too
             large and the cost explodes (the CAS dimension grows almost factorially with (n, m), so
@@ -136,7 +136,7 @@
           </p>
         </div>
 
-        <h2 id="first">A first CASSCF — H<sub>2</sub>(2,2)</h2>
+        <h2 id="first">A first CASSCF: H<sub>2</sub>(2,2)</h2>
         <p>
           The input behind the curves above. The bond is stretched to 1.5 Å so the multireference
           character is obvious. The runnable file is in <code>examples/05-casscf-h2/</code>.
@@ -156,7 +156,7 @@
   H   0.0   0.0   1.50      <span class="cmt"># stretched bond → multireference</span>
 <span class="kw">*</span></code></pre>
 
-        <h2 id="output">Reading the output — CI vector and occupations</h2>
+        <h2 id="output">Reading the output: CI vector and occupations</h2>
         <p>
           Two lines of the real output tell the story. (Measured on ORCA 6.1.1.)
         </p>
@@ -178,13 +178,13 @@ Final CASSCF energy       : -1.056125382 Eh</code></pre>
           perfect diradical).
         </p>
         <p>
-          <strong>N(occ)</strong> is the natural-orbital occupation: 1.81 for σ, 0.19 for σ* — away
+          <strong>N(occ)</strong> is the natural-orbital occupation: 1.81 for σ, 0.19 for σ*, away
           from the single-reference 2.00 / 0.00. That departure from integer occupation is the key
           diagnostic. Rule of thumb: an orbital with occupation roughly between
           <strong>0.1 and 1.9</strong> belongs in the active space.
         </p>
 
-        <h2 id="state-average">Several states at once — state-averaging</h2>
+        <h2 id="state-average">Treating several states together (state-averaging)</h2>
         <p>
           For excited states, or when several states sit nearly degenerate (common in transition
           metals and lanthanides), optimising orbitals for one state biases the result.
@@ -200,7 +200,7 @@ Final CASSCF energy       : -1.056125382 Eh</code></pre>
    <span class="kw2">nroots</span> <span class="num">5, 5</span>      <span class="cmt"># average 5 roots in each block</span>
 <span class="kw">end</span></code></pre>
 
-        <h2 id="nevpt2">Dynamic correlation — NEVPT2</h2>
+        <h2 id="nevpt2">Dynamic correlation: NEVPT2</h2>
         <p>
           CASSCF captures <strong>static</strong> correlation (the near-degeneracy) but misses the
           rest, the <strong>dynamic</strong> correlation. <strong>NEVPT2</strong> adds it
@@ -226,7 +226,7 @@ Final CASSCF energy       : -1.056125382 Eh</code></pre>
           For heavy elements (4d/5d transition metals, 4f lanthanides) spin-orbit coupling (SOC)
           splits the states and sets the magnetic anisotropy. <code>DoSOC true</code> in the
           <code>rel</code> block does second-order SOC via QDPT, and <code>SINGLE_ANISO</code> fits a
-          pseudospin Hamiltonian (g-tensor, zero-field splitting) — the standard tool for
+          pseudospin Hamiltonian (g-tensor, zero-field splitting). This is the standard tool for
           single-molecule magnets (SMMs). Below is a single Dy(III) ion treated as CAS(9,7).
         </p>
 
@@ -274,7 +274,7 @@ Final CASSCF energy       : -1.056125382 Eh</code></pre>
           behaviour (manual §9.27).
         </p>
 
-        <h2 id="fragment">Large systems — metal / ligand fragment merge</h2>
+        <h2 id="fragment">Large systems: metal / ligand fragment merge</h2>
         <p>
           Throwing a large transition-metal complex into CASSCF whole tends to give a stubborn SCF
           and a hard-to-choose active space. A common strategy is to <strong>split into fragments and
@@ -288,10 +288,10 @@ Final CASSCF energy       : -1.056125382 Eh</code></pre>
         </p>
         <pre data-lang="text"><code>orca_mergefrag FragmentA.gbw FragmentB.gbw Supermolecule.gbw</code></pre>
 
-        <h3>Procedure — high-spin [Mn(H<sub>2</sub>O)]<sup>2+</sup></h3>
+        <h3>Procedure: high-spin [Mn(H<sub>2</sub>O)]<sup>2+</sup></h3>
         <p>
           Mn<sup>2+</sup> is high-spin d<sup>5</sup> (sextet), so all five d orbitals are singly
-          occupied — the textbook case for a fragment merge. Compute the metal site and the water as
+          occupied, which makes it the textbook case for a fragment merge. Compute the metal site and the water as
           separate fragments.
         </p>
 
@@ -301,7 +301,7 @@ Final CASSCF energy       : -1.056125382 Eh</code></pre>
   Mn  0.0  0.0  0.0
 <span class="kw">*</span></code></pre>
 
-        <p><strong>② Ligand fragment</strong> <code>fragH2O.inp</code> — at its supermolecule position, same basis</p>
+        <p><strong>② Ligand fragment</strong> <code>fragH2O.inp</code> (at its supermolecule position, same basis)</p>
         <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">UHF def2-SVP</span>      <span class="cmt"># metal is UHF, so the ligand must be UHF too (HFTyp must match)</span>
 <span class="kw">*</span> <span class="kw2">xyz</span> <span class="num">0 1</span>
   O   2.10  0.0  0.0
@@ -309,7 +309,7 @@ Final CASSCF energy       : -1.056125382 Eh</code></pre>
   H   2.65 -0.76 0.0
 <span class="kw">*</span></code></pre>
 
-        <p><strong>③ Merge</strong> — run each fragment to get its <code>.gbw</code>, then</p>
+        <p><strong>③ Merge</strong>: run each fragment to get its <code>.gbw</code>, then</p>
         <pre data-lang="text"><code>orca_mergefrag fragMn.gbw fragH2O.gbw superMn.gbw</code></pre>
         <p>Check the merge output (real run): atom counts, basis dimensions, and electron counts must all add up.</p>
         <pre data-lang="output"><code>NAtoms(A)    =  1   NAtoms(B)    =  3   NAtoms(C)    =  4
@@ -319,7 +319,7 @@ Merging orbitals   ... done
 Merging geometries ... done
 Merging basis sets ... done</code></pre>
 
-        <p><strong>④ Supermolecule reads the merged guess for CASSCF</strong> — fragment A (Mn) comes first in the coordinates</p>
+        <p><strong>④ Supermolecule reads the merged guess for CASSCF</strong> (fragment A (Mn) comes first in the coordinates)</p>
         <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">CASSCF def2-SVP MOREAD</span>
 <span class="kw">%moinp</span> <span class="str">"superMn.gbw"</span>
 <span class="kw">%casscf</span>
@@ -336,7 +336,7 @@ Merging basis sets ... done</code></pre>
         <p>
           The merged guess drops the five Mn 3d orbitals straight into the active space. In the actual
           run the UHF step gave <em>⟨S²⟩ = 8.751</em> (sextet ideal 8.75, no spin contamination) and the
-          CASSCF natural occupations came out <em>N(occ) = 1.00 × 5</em> — a clean d<sup>5</sup>.
+          CASSCF natural occupations came out <em>N(occ) = 1.00 × 5</em>, a clean d<sup>5</sup>.
         </p>
 
         <div class="note">
@@ -354,11 +354,11 @@ Merging basis sets ... done</code></pre>
                 energy-sorted, so the orbital rotation can diverge. As the tool suggests, run one SCF
                 on the merged guess to sort the orbitals before handing them to CASSCF, and if it still
                 thrashes use a robust optimiser such as <code>SuperCI_PT</code>. For a simple system
-                ORCA's default guess may already converge to the right d-occupation — this very example
+                ORCA's default guess may already converge to the right d-occupation; this very example
                 converges straight to <code>N(occ)=1.0×5</code>, <code>E=−1225.0207 Eh</code> from the
                 default guess, making the merge unnecessary. <strong>Always check that the merge
                 actually helps by comparing N(occ) and the energy against the default guess.</strong>
-                It earns its keep on large, low-symmetry complexes where the default guess lands on the
+                It is most useful on large, low-symmetry complexes where the default guess lands on the
                 wrong d-occupation or spin state.</li>
           </ul>
         </div>
@@ -369,7 +369,7 @@ Merging basis sets ... done</code></pre>
           exploits the <em>C</em><sub>3</sub> symmetry so only one site is treated explicitly.
         </p>
 
-        <h2 id="limits">Limits and what's next — DMRG</h2>
+        <h2 id="limits">Limits and DMRG</h2>
         <p>
           Conventional CASSCF runs out of memory once the active space passes 12–14 orbitals. From
           there, ORCA 6's <strong>DMRG-CASSCF</strong> (<code>%casscf actorbs DMRG</code>) is the
@@ -377,8 +377,7 @@ Merging basis sets ... done</code></pre>
           <code>! MRCI+Q</code> (multireference CI with the Davidson correction).
         </p>
         <p>
-          This chapter is an introduction, so it stops here. With the keywords in hand you can open
-          manual §9 (CASSCF · NEVPT2) and §10 (MRCI) directly. To return to a single-reference method
+          For more detail, see manual §9 (CASSCF · NEVPT2) and §10 (MRCI). To return to a single-reference method
           like CCSD(T), see <a href="coupled-cluster.html">10 · DLPNO-CCSD(T)</a>.
         </p>
       </article>

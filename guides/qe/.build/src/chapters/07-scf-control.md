@@ -37,14 +37,14 @@ need gentle mixing (0.2–0.3). `mixing_mode='local-TF'` is particularly
 effective for spatially inhomogeneous systems: slabs, cells with vacuum,
 magnetic oxides.
 
-A measured example: the [FeO AFM run (E10)](ex-10-feo-afm.html) uses
+For example, the [FeO AFM run (E10)](ex-10-feo-afm.html) uses
 `mixing_beta = 0.2` with `local-TF`. GGA FeO converges to a (wrong)
 metallic state and is touchy; the default 0.7 oscillates.
 
 ## A diagnosis order for failures
 
 When you see `convergence NOT achieved after N iterations`, try these
-**in order**.
+in order.
 
 1. `mixing_beta` 0.7 → 0.3 → 0.1
 2. `mixing_mode = 'local-TF'` (metals, slabs, magnets)
@@ -52,7 +52,7 @@ When you see `convergence NOT achieved after N iterations`, try these
 4. Increase `mixing_ndim` (8 → 12–16, if memory allows)
 5. Temporarily raise `degauss` to converge, then restart with
    `startingpot='file'` while lowering it back
-6. `diagonalization = 'cg'` or `'ppcg'` (slower but robust)
+6. `diagonalization = 'cg'` or `'ppcg'` (slower but more stable)
 7. Check the structure for nonsense (atoms too close together)
 
 Diagonalization-stage problems

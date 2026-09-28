@@ -113,11 +113,11 @@
       </header>
       <article class="content">
 <h2 id="goal">Goal</h2>
-<p>Learn to treat an <strong>isolated molecule</strong> in a periodic code: a vacuum box, a
+<p>Learn to treat an isolated molecule in a periodic code: a vacuum box, a
 Γ-only calculation, periodic-image corrections, and pinning the spin state.
 The ground state of O₂ is a triplet (S=1), and if you work on Fe–O systems
-this molecule is a mandatory reference. It is also the famous case of GGA
-badly overbinding O₂, which you will measure yourself.</p>
+this molecule is a mandatory reference. GGA also overbinds O₂ badly, and
+this example quantifies by how much.</p>
 <h2 id="new-cards-and-variables">New cards and variables</h2>
 <table>
 <thead>
@@ -137,7 +137,7 @@ badly overbinding O₂, which you will measure yourself.</p>
 </tr>
 <tr>
 <td><code>nspin=2</code> + <code>tot_magnetization</code></td>
-<td>Spin polarization plus a <strong>constrained</strong> total moment (enforcing the triplet)</td>
+<td>Spin polarization plus a constrained total moment (enforcing the triplet)</td>
 </tr>
 <tr>
 <td><code>ibrav=1</code> + a large <code>celldm(1)</code></td>
@@ -237,7 +237,7 @@ mpirun -np 6 pw.x -in o_atom.scf.in &gt; o_atom.scf.out
 </code></pre>
 <p>With a single Γ point, <code>-nk</code> pools are pointless; only the G-vector split
 applies.</p>
-<h2 id="what-to-check-measured">What to check: measured</h2>
+<h2 id="what-to-check">What to check</h2>
 <table>
 <thead>
 <tr>
@@ -268,8 +268,8 @@ applies.</p>
 </tr>
 </tbody>
 </table>
-<p>The experimental binding energy is 5.12 eV: <strong>PBE overbinds by about
-1.7 eV</strong>, measured live. This is why oxide formation energies computed
+<p>The experimental binding energy is 5.12 eV, so PBE overbinds by about
+1.7 eV. This is why oxide formation energies computed
 against O₂ need corrections, the origin of the "O₂ correction" you see in
 the literature.</p>
 <p><code>tot_magnetization</code> vs <code>starting_magnetization</code>:</p>

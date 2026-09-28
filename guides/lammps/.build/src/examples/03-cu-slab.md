@@ -3,7 +3,7 @@ layout: default
 title: "3. Cu(100) 슬랩"
 ---
 
-# 3. Cu(100) 슬랩 — 금속 표면 만들기
+# 3. Cu(100) 슬랩: 금속 표면 만들기
 {: .no_toc }
 
 ## 목차
@@ -27,12 +27,12 @@ title: "3. Cu(100) 슬랩"
 <figure>
   <img src="assets/images/cu-cell.svg" alt="Cu 표면 흡착 시뮬레이션 셀의 슬랩 기하 모식도" style="width:100%;max-width:860px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
   <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
-    본 예제가 만드는 셀 기하의 모식도. 아래 예제는 이 중 Cu 슬랩 부분만 단독으로
+    이 예제가 만드는 셀 기하의 모식도. 아래 예제는 이 중 Cu 슬랩 부분만 단독으로
     실행한다(유기 분자·상부 벽은 응용 시리즈에서 추가한다).
   </figcaption>
 </figure>
 
-## 전체 입력 스크립트 — `in.cu_slab`
+## 전체 입력 스크립트: `in.cu_slab`
 
 ```lammps
 # Cu(100) 슬랩 — 슬랩+진공 기하 (cu-01 §1.2 예시)
@@ -104,15 +104,12 @@ lmp -in in.cu_slab > out.cu_slab
 ## 요점
 
 - `metal` 단위에서 거리는 Å, 에너지는 eV, timestep은 ps다(여기서 0.002 ps = 2 fs).
-- `boundary p p f` + 위쪽 진공이 표면 흡착 시뮬레이션의 표준 슬랩 설정이다.
+- `boundary p p f` + 위쪽 진공은 표면 흡착 시뮬레이션에서 흔히 쓰는 슬랩 설정이다.
 - `compute chunk/atom bin/1d z` + `fix ave/chunk` 로 z 방향 밀도 프로파일을 얻는다.
 - 하단 층 고정(`setforce 0`)은 슬랩 표류를 막는 관용적인 방법이다.
 
 ## 관련 개념 챕터
 
-- [응용 · 1. 시스템 개요](cu-01-system.html) — 슬랩 기하와 결정면
-- [04 시스템 정의](04-system.html) — `lattice` · `create_atoms`
-- [05 상호작용 모델](05-forcefield.html) — EAM 등 `pair_style`
-
-앞 예제는 [E2 — LJ 5단계](ex-02-lj-demo.html), 다음은
-[E4 — Cu 벤젠-에탄올 흡착](ex-04-cu-adsorption.html) 이다.
+- [응용 · 1. 시스템 개요](cu-01-system.html): 슬랩 기하와 결정면
+- [04 시스템 정의](04-system.html): `lattice` · `create_atoms`
+- [05 상호작용 모델](05-forcefield.html): EAM 등 `pair_style`

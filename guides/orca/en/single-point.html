@@ -69,25 +69,25 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 04 · COMMON CALCULATIONS</div>
         <h1 class="page-title">Single point energy</h1>
-        <p class="page-lede">Energy and wavefunction at a fixed geometry — the most basic ORCA job, and the starting point for every other calculation.</p>
+        <p class="page-lede">The basic job of computing the energy and wavefunction at a fixed geometry, and how to read its output.</p>
       </header>
 
       <article class="content">
         <div class="toc">
           <div class="toc-title">On this page</div>
           <ul>
-            <li><a href="#basic">Basic examples — HF, DFT</a></li>
+            <li><a href="#basic">Basic examples: HF, DFT</a></li>
             <li><a href="#per-atom-basis">Element-specific basis sets</a></li>
             <li><a href="#open-shell">Open-shell calculations</a></li>
-            <li><a href="#reading-output">Reading the output — the essentials</a></li>
+            <li><a href="#reading-output">What to look for in the output</a></li>
             <li><a href="#scf-workflow">What to do after the SCF converges</a></li>
             <li><a href="#population">Population analysis</a></li>
             <li><a href="#mo-plot">Visualising molecular orbitals</a></li>
-            <li><a href="#spectroscopy">Spectroscopic applications — NMR · EPR g-tensor</a></li>
+            <li><a href="#spectroscopy">Spectroscopic applications: NMR · EPR g-tensor</a></li>
           </ul>
         </div>
 
-        <h2 id="basic">Basic examples — HF, DFT</h2>
+        <h2 id="basic">Basic examples: HF, DFT</h2>
         <p>
           A single-point calculation is the simplest thing you can do in ORCA. You need a method,
           a basis set, and the coordinates. If no run-type keyword is given, ORCA defaults to a
@@ -110,19 +110,19 @@
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> cyclohexane.xyz</code></pre>
 
         <p>
-          Combining <code>RIJCOSX</code> with <code>def2/J</code> is the de-facto standard
+          Combining <code>RIJCOSX</code> with <code>def2/J</code> is the usual
           acceleration scheme for hybrid DFT. Enabling both treats the Coulomb term with RI and
           the exchange term with COSX (Chain-of-Spheres exchange); for medium-sized molecules
           you typically see an order-of-magnitude speed-up.
         </p>
 
         <div class="tip">
-          <div class="note-title">RIJCOSX is essentially free</div>
+          <div class="note-title">Error of RIJCOSX</div>
           <p>
-            According to the benchmarks cited in the manual, the energy error introduced by
+            The energy error introduced by
             RIJCOSX is at the level of microhartrees (μE<sub>h</sub>) relative to exact
-            integrals — completely negligible for chemical applications. If you are running
-            hybrid DFT, leave RIJCOSX on by default.
+            integrals, which is negligible for chemical applications. If you are running
+            hybrid DFT, leave RIJCOSX on.
           </p>
         </div>
 
@@ -184,11 +184,11 @@ Orbital    Overlap(*)
         <p>
           An overlap close to 1 indicates a doubly occupied orbital, 0 indicates a singly
           occupied one, and values in between (typically below ~0.85) suggest a spin-coupled
-          pair — e.g. a singlet diradical. That single column of numbers is a very fast
+          pair, e.g. a singlet diradical. That single column of numbers is a very fast
           electronic-structure diagnostic.
         </p>
 
-        <h2 id="reading-output">Reading the output — the essentials</h2>
+        <h2 id="reading-output">What to look for in the output</h2>
         <p>
           ORCA's output file is long, but the most important lines fit into a handful of
           sections. For a DFT single point, look at these in order:
@@ -281,7 +281,7 @@ Magnitude (Debye)      :   2.08473</code></pre>
         </p>
 
         <h2 id="population">Population analysis</h2>
-        <p>The manual's recommended combination is:</p>
+        <p>Population-analysis keywords are combined like this:</p>
 
         <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">HF def2-SVP Mulliken Loewdin Mayer ReducedPOP</span></code></pre>
 
@@ -347,7 +347,7 @@ orca_plot water.gbw -i</code></pre>
 
         <p>The resulting <code>.cube</code> files can be visualised in VMD, Avogadro, ChimeraX, PyMOL, and similar tools.</p>
 
-        <h2 id="spectroscopy">Spectroscopic applications — NMR shielding and EPR g-tensor</h2>
+        <h2 id="spectroscopy">Spectroscopic applications: NMR shielding and EPR g-tensor</h2>
         <p>
           One of the most common follow-ups to a single point is the calculation of
           spectroscopic parameters. ORCA's <code>%eprnmr</code> block lets you handle NMR
@@ -440,16 +440,10 @@ A(dip) =  -28.13,  +14.21,  +13.92  MHz
             approximation. For 4d and heavier transition metals or lanthanides, however, scalar
             relativity (<code>ZORA</code> or <code>DKH2</code>) and a relativistically
             recontracted basis (<code>ZORA-def2-TZVP</code> / <code>SARC-DKH-TZVP</code>) are
-            essentially mandatory. Functionals whose EPR-specific performance has been
+            required. Functionals whose EPR-specific performance has been
             benchmarked (<code>PBE0</code>, <code>B3LYP</code>) generally fit g-tensors better.
           </p>
         </div>
-
-        <p>
-          The way of reading the output covered here carries over unchanged to almost every other
-          calculation. The single point held the geometry fixed and only read off the energy; next
-          comes letting the geometry itself relax — geometry optimisation.
-        </p>
       </article>
 
       <nav class="page-nav">

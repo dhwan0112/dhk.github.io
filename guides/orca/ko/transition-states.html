@@ -68,19 +68,19 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 07 · 자주 쓰는 계산</div>
         <h1 class="page-title">전이 상태 · NEB</h1>
-        <p class="page-lede">반응의 에너지 장벽을 찾는 작업. 어디서 시작해야 할지 모를 때를 위한 안내서.</p>
+        <p class="page-lede">반응의 에너지 장벽을 찾는 방법(NEB-TS, OptTS, ScanTS)과 IRC 검증.</p>
       </header>
 
       <article class="content">
         <div class="toc">
-          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
           <ul>
             <li><a href="#overview">전이 상태 탐색의 세 가지 길</a></li>
-            <li><a href="#neb-ts">NEB-TS — 첫 시도로 권장</a></li>
+            <li><a href="#neb-ts">NEB-TS: 처음 시도할 때</a></li>
             <li><a href="#variants">NEB의 여러 변형</a></li>
-            <li><a href="#optts">OptTS — 좋은 초기 추정이 있을 때</a></li>
-            <li><a href="#scants">ScanTS — 스캔 + TS 검색 자동화</a></li>
-            <li><a href="#irc">IRC — 전이 상태 검증</a></li>
+            <li><a href="#optts">OptTS (초기 추정이 좋을 때)</a></li>
+            <li><a href="#scants">ScanTS: 스캔과 TS 검색 자동화</a></li>
+            <li><a href="#irc">IRC로 전이 상태 검증</a></li>
             <li><a href="#workflow">권장 워크플로우</a></li>
           </ul>
         </div>
@@ -99,14 +99,14 @@
           </tbody>
         </table>
 
-        <h2 id="neb-ts">NEB-TS — 첫 시도로 권장</h2>
+        <h2 id="neb-ts">NEB-TS: 처음 시도할 때</h2>
         <p>
           NEB-TS는 Nudged Elastic Band와 OptTS를 합친 방법이다.
           반응물과 생성물 구조만 주면 알아서 둘을 잇는 경로를 만들고,
           그 위에서 가장 높은 점을 골라 정밀하게 TS로 수렴시킨다.
         </p>
 
-        <img src="../assets/img/neb-path.png" alt="NEB-TS — 이미지 밴드가 최소에너지 경로로 이완하고 climbing image가 안장점으로" style="max-width:100%;height:auto;margin:1rem 0;" />
+        <img src="../assets/img/neb-path.png" alt="NEB-TS: 이미지 밴드가 최소에너지 경로로 이완하고 climbing image가 안장점으로" style="max-width:100%;height:auto;margin:1rem 0;" />
 
         <p>아래는 아세트산 분자 내부 양성자 이동의 NEB-TS 입력 예다(매뉴얼 6.3.16절 예제).</p>
 
@@ -155,13 +155,13 @@ Image Dist.(Ang.)    E(Eh)        dE(kcal/mol)     max(|Fp|)
         </p>
 
         <h2 id="variants">NEB의 여러 변형</h2>
-        <p>매뉴얼에 정리된 변형들은 비용·강건성에서 조금씩 다르다.</p>
+        <p>NEB 변형은 비용과 강건성이 조금씩 다르다.</p>
 
         <table>
           <thead><tr><th>키워드</th><th>특징</th></tr></thead>
           <tbody>
             <tr><td><code>NEB</code></td><td>표준 NEB. CI 없음. 경로만 얻는다.</td></tr>
-            <tr><td><code>NEB-CI</code></td><td>Climbing Image — 최고점을 정확히 잡아 줌. OptTS 단계 없음.</td></tr>
+            <tr><td><code>NEB-CI</code></td><td>Climbing Image. 최고점을 정확히 잡아 줌. OptTS 단계 없음.</td></tr>
             <tr><td><code>NEB-TS</code></td><td>NEB-CI + OptTS. <strong>가장 자주 사용</strong>.</td></tr>
             <tr><td><code>Loose-NEB-TS</code></td><td>NEB 단계 임계값 완화. 더 빠름, 다소 덜 정확.</td></tr>
             <tr><td><code>Tight-NEB-TS</code></td><td>임계값 강화. 정확하지만 비쌈.</td></tr>
@@ -180,7 +180,7 @@ Image Dist.(Ang.)    E(Eh)        dE(kcal/mol)     max(|Fp|)
           </p>
         </div>
 
-        <h2 id="optts">OptTS — 좋은 초기 추정이 있을 때</h2>
+        <h2 id="optts">OptTS (초기 추정이 좋을 때)</h2>
         <p>
           이미 TS에 가까운 초기 구조와 정밀한 헤시안이 있으면 OptTS가 가장 효율적이다.
           단, 헤시안은 반드시 <strong>같은 메소드의 진동수 계산</strong>으로 먼저 만들어 둬야 한다.
@@ -212,7 +212,7 @@ Image Dist.(Ang.)    E(Eh)        dE(kcal/mol)     max(|Fp|)
           </p>
         </div>
 
-        <h2 id="scants">ScanTS — 스캔 + TS 검색 자동화</h2>
+        <h2 id="scants">ScanTS: 스캔과 TS 검색 자동화</h2>
         <p>
           반응 좌표가 결합 길이나 각도 하나로 분명하면 ScanTS가 직관적이다.
           ORCA가 표면을 스캔하다가 최대값을 지나면, 그 점을 초기 추정 삼아 OptTS를 시작한다.
@@ -229,11 +229,11 @@ Image Dist.(Ang.)    E(Eh)        dE(kcal/mol)     max(|Fp|)
 
         <p>
           스캔이 최대를 지나는 순간 자동으로 OptTS로 넘어간다.
-          매뉴얼은 스캔 중간에 헤시안을 한 번 계산해 정확도를 올리길 권한다.
+          스캔 중간에 헤시안을 한 번 계산해 두면 정확도가 올라간다.
           전체 스캔이 끝날 때까지 기다리게 하고 싶으면 <code>fullScan true</code>를 더한다.
         </p>
 
-        <h2 id="irc">IRC — 전이 상태 검증</h2>
+        <h2 id="irc">IRC로 전이 상태 검증</h2>
         <p>
           TS를 얻었으면 <strong>그게 정말 의도한 반응을 잇는 TS인지</strong> 확인해야 한다.
           IRC(Intrinsic Reaction Coordinate)는 TS에서 양쪽으로 가장 가파른 내리막을 따라 내려가
@@ -279,8 +279,7 @@ Image Dist.(Ang.)    E(Eh)        dE(kcal/mol)     max(|Fp|)
         </ol>
 
         <p>
-          이 순서대로 가면 결과의 신뢰도가 확 올라간다.
-          특히 IRC를 빼먹으면 “전이 상태처럼 보이지만 사실은 다른 반응을 잇는” 가짜 TS를 그대로 발표하게 될 수 있다.
+          IRC를 빼먹으면 “전이 상태처럼 보이지만 사실은 다른 반응을 잇는” 가짜 TS를 그대로 발표하게 될 수 있다.
         </p>
 
         <div class="note">

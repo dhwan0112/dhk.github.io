@@ -91,7 +91,7 @@
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
 <li><a href="#_1">무엇을 하는 예제인가</a></li>
-<li><a href="#incu_slab">전체 입력 스크립트 — in.cu_slab</a></li>
+<li><a href="#incu_slab">전체 입력 스크립트: in.cu_slab</a></li>
 <li><a href="#_2">실행</a></li>
 <li><a href="#_3">출력과 결과</a></li>
 <li><a href="#_4">요점</a></li>
@@ -109,12 +109,12 @@
 <figure>
   <img src="assets/images/cu-cell.svg" alt="Cu 표면 흡착 시뮬레이션 셀의 슬랩 기하 모식도" style="width:100%;max-width:860px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
   <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
-    본 예제가 만드는 셀 기하의 모식도. 아래 예제는 이 중 Cu 슬랩 부분만 단독으로
+    이 예제가 만드는 셀 기하의 모식도. 아래 예제는 이 중 Cu 슬랩 부분만 단독으로
     실행한다(유기 분자·상부 벽은 응용 시리즈에서 추가한다).
   </figcaption>
 </figure>
 
-<h2 id="incu_slab">전체 입력 스크립트 — <code>in.cu_slab</code></h2>
+<h2 id="incu_slab">전체 입력 스크립트: <code>in.cu_slab</code></h2>
 <pre><code class="language-lammps"># Cu(100) 슬랩 — 슬랩+진공 기하 (cu-01 §1.2 예시)
 units           metal
 atom_style      atomic
@@ -176,18 +176,16 @@ lmp -in in.cu_slab &gt; out.cu_slab
 <h2 id="_4">요점</h2>
 <ul>
 <li><code>metal</code> 단위에서 거리는 Å, 에너지는 eV, timestep은 ps다(여기서 0.002 ps = 2 fs).</li>
-<li><code>boundary p p f</code> + 위쪽 진공이 표면 흡착 시뮬레이션의 표준 슬랩 설정이다.</li>
+<li><code>boundary p p f</code> + 위쪽 진공은 표면 흡착 시뮬레이션에서 흔히 쓰는 슬랩 설정이다.</li>
 <li><code>compute chunk/atom bin/1d z</code> + <code>fix ave/chunk</code> 로 z 방향 밀도 프로파일을 얻는다.</li>
 <li>하단 층 고정(<code>setforce 0</code>)은 슬랩 표류를 막는 관용적인 방법이다.</li>
 </ul>
 <h2 id="_5">관련 개념 챕터</h2>
 <ul>
-<li><a href="cu-01-system.html">응용 · 1. 시스템 개요</a> — 슬랩 기하와 결정면</li>
-<li><a href="04-system.html">04 시스템 정의</a> — <code>lattice</code> · <code>create_atoms</code></li>
-<li><a href="05-forcefield.html">05 상호작용 모델</a> — EAM 등 <code>pair_style</code></li>
+<li><a href="cu-01-system.html">응용 · 1. 시스템 개요</a>: 슬랩 기하와 결정면</li>
+<li><a href="04-system.html">04 시스템 정의</a>: <code>lattice</code> · <code>create_atoms</code></li>
+<li><a href="05-forcefield.html">05 상호작용 모델</a>: EAM 등 <code>pair_style</code></li>
 </ul>
-<p>앞 예제는 <a href="ex-02-lj-demo.html">E2 — LJ 5단계</a>, 다음은
-<a href="ex-04-cu-adsorption.html">E4 — Cu 벤젠-에탄올 흡착</a> 이다.</p>
       </article>
 <nav class="page-nav"><a class="prev" href="ex-02-lj-demo.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">LJ 5단계 + RDF·MSD</div></a><a class="next" href="ex-04-cu-adsorption.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">Cu 벤젠-에탄올 흡착</div></a></nav>
     </main>

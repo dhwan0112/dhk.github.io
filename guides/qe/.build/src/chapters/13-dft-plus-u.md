@@ -15,8 +15,8 @@ title: "13. DFT+U and the HUBBARD card"
 GGA mishandles the self-interaction error of localized 3d electrons. The
 spurious interaction of an electron with itself delocalizes orbitals that
 should be localized, and in systems like FeO the result is a computed metal
-where experiment sees an insulator (gap ≈ 2.4 eV). You can watch this
-failure happen in [Example E10](ex-10-feo-afm.html).
+where experiment sees an insulator (gap ≈ 2.4 eV).
+[Example E10](ex-10-feo-afm.html) reproduces this failure.
 
 DFT+U adds a Hubbard correction on a chosen orbital manifold (Fe-3d, say)
 and repairs the error at nearly zero extra cost.
@@ -84,18 +84,17 @@ the three HUBBARD lines added.
     (experiment: an insulator). Right, GGA+U (4.6 eV, ortho-atomic): the
     Hubbard splitting opens gaps above and below, but in the ideal cubic
     cell a narrow band derived from the minority-spin t2g states survives at
-    the Fermi level. That last trap is treated below and in E11.
+    the Fermi level. That remaining band is treated below and in E11.
   </figcaption>
 </figure>
 
 ## If it is still metallic with U on: the occupation-pattern trap
 
 It is common to switch U on and still converge to a metal. The culprit is
-the **occupation pattern** of the d orbitals. Since QE 7.1 the initial d
+the occupation pattern of the d orbitals. Since QE 7.1 the initial d
 occupations are read from the pseudopotential (they used to be hardcoded),
 so the same input can converge to different metallic solutions on different
-versions. **Both are wrong ground states** (this is the mailing-list case
-the community knows well).
+versions. **Both are wrong ground states.**
 
 The prescription is to steer the occupations explicitly with
 `starting_ns_eigenvalue`:
@@ -111,8 +110,8 @@ The constraint holds only for the first few SCF iterations and is then
 released; think of it as a device that pushes the run into the basin of the
 correct minimum. After convergence, inspect the `Tr[ns(na)]` values and the
 ns eigenvalue blocks in the output (`verbosity='high'` required) to confirm
-the occupation pattern is physical. This is the canonical example of
-"converged does not mean correct".
+the occupation pattern is physical. A converged SCF is not necessarily a
+correct one.
 
 ## U comes as a package with its projector
 
@@ -123,7 +122,7 @@ the projector conventions, and when publishing, record your own. The way to
 avoid borrowing altogether is to compute U for your own system:
 [Chapter 14, hp.x](14-hubbard-hp.html).
 
-QE 7.5 adds **orbital-resolved DFT+U** (Macke &amp; Timrov, *JCTC* 2024),
+QE 7.5 adds orbital-resolved DFT+U (Macke &amp; Timrov, *JCTC* 2024),
 which can assign different U values to t2g and eg within one 3d manifold. It
 was designed for octahedral transition-metal oxides, exactly the FeO
 situation.
@@ -133,5 +132,5 @@ situation.
 - [E10 · FeO AFM (where GGA fails)](ex-10-feo-afm.html): confirm the metal
   without U.
 - [E11 · FeO with DFT+U](ex-11-feo-hubbard.html): the HUBBARD card and the
-  trap, measured.
+  occupation-pattern problem.
 - [E12 · Computing U with hp.x](ex-12-feo-hp.html): first-principles U.

@@ -10,14 +10,14 @@ title: "05. Cutoff and k-point convergence"
 1. TOC
 {:toc}
 
-**This chapter is half of QE.** A number that has not passed a convergence
-test is not a number, and QE will print physically wrong results in a
-perfectly clean format.
+Every result in this guide depends on converged cutoffs and k-grids. QE
+will print physically wrong results in a perfectly clean format, so run these
+tests before trusting any number.
 
 ## The standard procedure
 
 1. **Converge `ecutwfc`.** Fix a reasonable k-grid and scan the cutoff from
-   20 to 80 Ry. Judge by the **energy change per atom** (typically within
+   20 to 80 Ry. Judge by the energy change per atom (typically within
    1–5 meV/atom), not by the absolute total energy.
 2. **Converge `ecutrho`.** For US/PAW, fix `ecutwfc` and scan from 4x to 12x.
 3. **Converge the k-grid.** Fix the cutoffs and densify the grid. Metals need
@@ -56,23 +56,22 @@ scanned together).
 
 ## Common misconceptions
 
-- **Absolute total energies have a different zero for every pseudopotential,
-  so comparing them is meaningless.** Only differences computed under
-  identical conditions matter.
-- **A converged energy does not imply converged forces, stress, or DOS.**
+- Absolute total energies cannot be compared across pseudopotentials or
+  cutoffs; only differences computed under identical conditions matter (see
+  [Chapter 04](04-pseudopotentials.html)).
+- A converged energy does not imply converged forces, stress, or DOS.
   Verify convergence for the property you actually care about (an energy
-  difference? forces? a band gap? a magnetic moment?). For ML training data,
-  converge on **forces**.
-- **Monotonic convergence in the cutoff is guaranteed by the variational
-  principle; monotonic convergence in the k-grid is not.** Non-monotonic
-  k-point behavior is normal.
+  difference, forces, a band gap, a magnetic moment). For ML training data,
+  converge on forces.
+- The variational principle guarantees monotonic convergence in the cutoff,
+  but not in the k-grid. Non-monotonic k-point behavior is normal.
 
 <div class="warning">
   <div class="note-title">Common mistakes</div>
   <p>
     Running one convergence test and declaring "this element needs 40 Ry"
-    forever. Cutoff requirements attach to the <strong>pseudopotential
-    file</strong>, not to the element. New potential, new test. And if a
+    forever. Cutoff requirements attach to the pseudopotential
+    file, not to the element. New potential, new test. And if a
     project mixes very different structures (bulk, surface, molecule),
     standardize on the settings demanded by the most demanding one.
   </p>

@@ -113,10 +113,10 @@
       </header>
       <article class="content">
 <h2 id="goal">Goal</h2>
-<p>Your first <strong>magnetic</strong> calculation. Converge the ferromagnetic ground
+<p>Your first magnetic calculation. Converge the ferromagnetic ground
 state of bcc Fe with a spin-polarized SCF (<code>nspin=2</code>) and compare the
-moment with experiment. This is the hands-on version of the metal-plus-
-magnetism convergence craft of <a href="12-magnetism.html">Chapter 12</a>.</p>
+moment with experiment. This puts the metal-plus-magnetism convergence
+settings of <a href="12-magnetism.html">Chapter 12</a> into practice.</p>
 <h2 id="new-cards-and-variables">New cards and variables</h2>
 <table>
 <thead>
@@ -186,7 +186,7 @@ K_POINTS (automatic)
 <h2 id="run">Run</h2>
 <pre><code class="language-bash">mpirun -np 6 pw.x -nk 6 -in fe.scf.in &gt; fe.scf.out
 </code></pre>
-<h2 id="what-to-check-measured">What to check: measured</h2>
+<h2 id="what-to-check">What to check</h2>
 <table>
 <thead>
 <tr>
@@ -204,7 +204,7 @@ K_POINTS (automatic)
 <tr>
 <td><strong>total magnetization</strong></td>
 <td><strong>2.19 μB/cell</strong></td>
-<td>Experiment 2.22 μB: PBE nearly nails it</td>
+<td>Experiment 2.22 μB: close agreement</td>
 </tr>
 <tr>
 <td>absolute magnetization</td>
@@ -218,18 +218,18 @@ K_POINTS (automatic)
 </tr>
 </tbody>
 </table>
-<p>Total ≈ absolute is the badge of ferromagnetism. For AFM the total is near
+<p>Total ≈ absolute indicates ferromagnetism. For AFM the total is near
 zero while the absolute stays large; that case is
 <a href="ex-10-feo-afm.html">E10</a>.</p>
-<h2 id="spin-resolved-dos-an-extra-measurement">Spin-resolved DOS: an extra measurement</h2>
-<p>On top of the same density we ran an nscf (20³, tetrahedra) plus <code>dos.x</code>
+<h2 id="spin-resolved-dos">Spin-resolved DOS</h2>
+<p>On top of the same density I ran an nscf (20³, tetrahedra) plus <code>dos.x</code>
 to get the spin-resolved DOS (dos.x prints up and down columns for
 polarized runs).</p>
 <figure>
   <img src="assets/images/qe-e09-fe-dos.png"
        alt="bcc Fe spin-resolved DOS" />
   <figcaption>
-    Measured spin-resolved DOS of bcc Fe (QE 7.5, PBE). Exchange splitting
+    Spin-resolved DOS of bcc Fe (QE 7.5, PBE). Exchange splitting
     pushes the majority (up) d band down to near-full occupation while the
     minority (down) d band straddles the Fermi level. The occupation
     difference is exactly the 2.2 μB moment.
@@ -253,7 +253,7 @@ polarized runs).</p>
     Declaring the first converged solution the ground state. Magnets hold
     several metastable solutions; converge from several initial
     magnetizations (0.3 / 0.7 / −0.7) and compare energies. And remember,
-    <code>starting_magnetization</code> is a <strong>ratio</strong>, not
+    <code>starting_magnetization</code> is a ratio, not
     μB (<a href="03-units-coordinates.html">Chapter 03</a>).
   </p>
 </div>

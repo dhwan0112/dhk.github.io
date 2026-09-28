@@ -69,7 +69,7 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 07 · COMMON CALCULATIONS</div>
         <h1 class="page-title">Transition states · NEB</h1>
-        <p class="page-lede">Finding the energy barrier of a reaction — a guide for when you do not know where to start.</p>
+        <p class="page-lede">Methods for finding the energy barrier of a reaction (NEB-TS, OptTS, ScanTS) and validating it with IRC.</p>
       </header>
 
       <article class="content">
@@ -77,11 +77,11 @@
           <div class="toc-title">On this page</div>
           <ul>
             <li><a href="#overview">Three ways to locate a transition state</a></li>
-            <li><a href="#neb-ts">NEB-TS — the recommended first attempt</a></li>
+            <li><a href="#neb-ts">NEB-TS: for a first attempt</a></li>
             <li><a href="#variants">NEB variants</a></li>
-            <li><a href="#optts">OptTS — when you have a good initial guess</a></li>
-            <li><a href="#scants">ScanTS — automate scan + TS search</a></li>
-            <li><a href="#irc">IRC — validating the transition state</a></li>
+            <li><a href="#optts">OptTS (when you have a good initial guess)</a></li>
+            <li><a href="#scants">ScanTS: automating the scan and TS search</a></li>
+            <li><a href="#irc">Validating the transition state with IRC</a></li>
             <li><a href="#workflow">Recommended workflow</a></li>
           </ul>
         </div>
@@ -100,14 +100,14 @@
           </tbody>
         </table>
 
-        <h2 id="neb-ts">NEB-TS — the recommended first attempt</h2>
+        <h2 id="neb-ts">NEB-TS: for a first attempt</h2>
         <p>
           NEB-TS combines the Nudged Elastic Band method with OptTS. Given only the reactant
           and product geometries it constructs a path between them, identifies the highest
           point, and then refines it to a true saddle point.
         </p>
 
-        <img src="../assets/img/neb-path.png" alt="NEB-TS — a band of images relaxes to the minimum-energy path, the climbing image to the saddle point" style="max-width:100%;height:auto;margin:1rem 0;" />
+        <img src="../assets/img/neb-path.png" alt="NEB-TS: a band of images relaxes to the minimum-energy path, the climbing image to the saddle point" style="max-width:100%;height:auto;margin:1rem 0;" />
 
         <p>The example below is the intramolecular proton transfer in acetic acid (manual section 6.3.16):</p>
 
@@ -158,7 +158,7 @@ Image Dist.(Ang.)    E(Eh)        dE(kcal/mol)     max(|Fp|)
         </p>
 
         <h2 id="variants">NEB variants</h2>
-        <p>The variants documented in the manual trade cost against robustness:</p>
+        <p>The NEB variants differ somewhat in cost and robustness:</p>
 
         <table>
           <thead><tr><th>Keyword</th><th>Notes</th></tr></thead>
@@ -184,7 +184,7 @@ Image Dist.(Ang.)    E(Eh)        dE(kcal/mol)     max(|Fp|)
           </p>
         </div>
 
-        <h2 id="optts">OptTS — when you have a good initial guess</h2>
+        <h2 id="optts">OptTS (when you have a good initial guess)</h2>
         <p>
           If you already have a geometry close to the TS together with an accurate Hessian,
           OptTS is the most efficient option. The Hessian <strong>must come from a frequency
@@ -213,11 +213,11 @@ Image Dist.(Ang.)    E(Eh)        dE(kcal/mol)     max(|Fp|)
             OptTS only converges if the initial geometry sits in the same "valley" as the true
             TS. The initial Hessian must have exactly one negative eigenvalue, and the
             corresponding mode must point along the reaction coordinate. If you are unsure,
-            start from NEB-TS instead — it is much more robust.
+            start from NEB-TS instead, which is much more robust.
           </p>
         </div>
 
-        <h2 id="scants">ScanTS — automate scan + TS search</h2>
+        <h2 id="scants">ScanTS: automating the scan and TS search</h2>
         <p>
           When the reaction coordinate is a single bond length or angle, ScanTS is intuitive.
           ORCA scans the surface and, after passing the maximum, automatically uses that point
@@ -234,13 +234,12 @@ Image Dist.(Ang.)    E(Eh)        dE(kcal/mol)     max(|Fp|)
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> reactant.xyz</code></pre>
 
         <p>
-          The moment the scan crosses its maximum, ORCA switches to OptTS automatically. The
-          manual suggests computing a Hessian once at an intermediate scan point for better
-          accuracy. To make ORCA finish the full scan before switching, add
+          The moment the scan crosses its maximum, ORCA switches to OptTS automatically.
+          Computing a Hessian once at an intermediate scan point improves the accuracy. To make ORCA finish the full scan before switching, add
           <code>fullScan true</code>.
         </p>
 
-        <h2 id="irc">IRC — validating the transition state</h2>
+        <h2 id="irc">Validating the transition state with IRC</h2>
         <p>
           Once you have a TS, you must verify <strong>that it actually connects the intended
           reactant and product</strong>. The Intrinsic Reaction Coordinate (IRC) traces the
@@ -288,8 +287,7 @@ Image Dist.(Ang.)    E(Eh)        dE(kcal/mol)     max(|Fp|)
         </ol>
 
         <p>
-          Following this workflow significantly improves the reliability of the result.
-          Skipping IRC in particular risks publishing a "looks-like-a-TS-but-connects-the-wrong-reaction"
+          Skipping IRC risks publishing a "looks-like-a-TS-but-connects-the-wrong-reaction"
           false positive.
         </p>
 

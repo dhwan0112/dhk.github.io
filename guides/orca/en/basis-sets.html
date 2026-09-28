@@ -69,7 +69,7 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 11 · METHODS &amp; MODELS</div>
         <h1 class="page-title">Basis sets</h1>
-        <p class="page-lede">def2, cc-pVnZ, SARC. When should you reach for which?</p>
+        <p class="page-lede">def2, cc-pVnZ, SARC and other major basis sets, and how to choose among them.</p>
       </header>
 
       <article class="content">
@@ -77,12 +77,12 @@
           <div class="toc-title">On this page</div>
           <ul>
             <li><a href="#concept">What a basis set is</a></li>
-            <li><a href="#families">Main families — def2, cc, ANO</a></li>
-            <li><a href="#size">Sizes — DZ, TZ, QZ</a></li>
+            <li><a href="#families">Main families: def2, cc, ANO</a></li>
+            <li><a href="#size">Sizes: DZ, TZ, QZ</a></li>
             <li><a href="#diffuse">Diffuse functions</a></li>
             <li><a href="#aux">Auxiliary basis sets</a></li>
             <li><a href="#ecp">Effective core potentials (ECPs)</a></li>
-            <li><a href="#sarc">SARC — for heavy elements</a></li>
+            <li><a href="#sarc">SARC: basis sets for heavy elements</a></li>
             <li><a href="#recommendations">Recommendations by situation</a></li>
             <li><a href="#bsse">BSSE and counterpoise correction</a></li>
           </ul>
@@ -96,14 +96,14 @@
           bases are more accurate but their cost grows as the 4th–6th power of system size.
         </p>
 
-        <h2 id="families">Main families — def2, cc, ANO</h2>
+        <h2 id="families">Main families: def2, cc, ANO</h2>
 
         <table>
           <thead>
             <tr><th>Family</th><th>Designer</th><th>Notes / use case</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>def2-</code> (Karlsruhe)</td><td>Ahlrichs, Weigend</td><td>Covers elements 1–86 with consistent accuracy. <strong>The de-facto standard for DFT</strong>.</td></tr>
+            <tr><td><code>def2-</code> (Karlsruhe)</td><td>Ahlrichs, Weigend</td><td>Covers elements 1–86 with consistent accuracy. <strong>The most common choice for DFT</strong>.</td></tr>
             <tr><td><code>cc-pVnZ</code> (Dunning)</td><td>Dunning</td><td>Designed for correlated methods. Standard for CCSD(T) and CBS extrapolation.</td></tr>
             <tr><td><code>aug-cc-pVnZ</code></td><td>Dunning</td><td>cc-pVnZ + diffuse functions. Anions, excited states.</td></tr>
             <tr><td><code>ANO-RCC</code></td><td>Roos group</td><td>Multi-reference work. Includes core-correlation contractions.</td></tr>
@@ -112,7 +112,7 @@
           </tbody>
         </table>
 
-        <h2 id="size">Sizes — DZ, TZ, QZ</h2>
+        <h2 id="size">Sizes: DZ, TZ, QZ</h2>
         <p>
           Labels like "double-zeta (DZ)" and "triple-zeta (TZ)" indicate how many functions
           describe each valence orbital. The presence of polarisation (d, f) and diffuse
@@ -133,7 +133,7 @@
         </table>
 
         <div class="tip">
-          <div class="note-title">An everyday golden combination</div>
+          <div class="note-title">A reasonable starting combination</div>
           <p>
             DFT geometry optimisation: <code>def2-SVP</code> or <code>def2-TZVP</code>.<br />
             DFT precision single point: <code>def2-TZVPP</code> or <code>def2-QZVPP</code>.<br />
@@ -180,9 +180,9 @@
             <tr><th>Suffix</th><th>Used for</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>/J</code> or <code>def2/J</code></td><td>Coulomb-only RI — RIJCOSX, RI-J.</td></tr>
-            <tr><td><code>/JK</code> or <code>def2/JK</code></td><td>Coulomb + Exchange RI — RI-JK.</td></tr>
-            <tr><td><code>/C</code> suffix</td><td>Correlation calculations — MP2, CC.</td></tr>
+            <tr><td><code>/J</code> or <code>def2/J</code></td><td>Coulomb-only RI. Used for RIJCOSX, RI-J.</td></tr>
+            <tr><td><code>/JK</code> or <code>def2/JK</code></td><td>Coulomb + Exchange RI. Used for RI-JK.</td></tr>
+            <tr><td><code>/C</code> suffix</td><td>Correlation calculations. Used for MP2, CC.</td></tr>
           </tbody>
         </table>
 
@@ -202,13 +202,13 @@
           <p>
             For the def2 family, the <code>/C</code> auxiliary basis carries the basis name
             verbatim (<code>def2-TZVP/C</code>). The cc and def2 <code>/C</code> bases are
-            not interchangeable — keep the main basis and auxiliary basis in the same family.
+            not interchangeable; keep the main basis and auxiliary basis in the same family.
           </p>
         </div>
 
         <h2 id="ecp">Effective core potentials (ECPs)</h2>
         <p>
-          For heavy elements (broadly 4d onwards — element 36, Rb, and beyond) it is
+          For heavy elements (broadly 4d onwards: element 36, Rb, and beyond) it is
           efficient to replace the explicit core electrons with an effective core potential,
           which also folds in scalar-relativistic effects. The def2 family automatically uses
           the def2-ECP from element 37 onwards.
@@ -233,7 +233,7 @@
   Ag   0.0   0.0   0.0
 <span class="kw">*</span></code></pre>
 
-        <h2 id="sarc">SARC — for heavy elements</h2>
+        <h2 id="sarc">SARC: basis sets for heavy elements</h2>
         <p>
           For 4d, 5d, 4f, and 5f elements (roughly elements 37, Rb, through 100, Fm) the SARC
           (Segmented All-electron Relativistically Contracted) basis is the recommended
@@ -267,7 +267,7 @@
           <tbody>
             <tr><td>Organic optimisation</td><td><code>def2-SVP</code> or <code>def2-TZVP</code></td><td><code>def2/J</code></td></tr>
             <tr><td>DFT precision single point</td><td><code>def2-TZVPP</code></td><td><code>def2/J</code></td></tr>
-            <tr><td>3d transition metals (DFT)</td><td><code>def2-TZVP</code> (all-electron — no automatic ECP)</td><td><code>def2/J</code></td></tr>
+            <tr><td>3d transition metals (DFT)</td><td><code>def2-TZVP</code> (all-electron, no automatic ECP)</td><td><code>def2/J</code></td></tr>
             <tr><td>4d / 5d transition metals</td><td><code>def2-TZVP</code> (def2-ECP) or <code>SARC-ZORA-TZVP</code></td><td><code>def2/J</code> or <code>SARC/J</code></td></tr>
             <tr><td>Lanthanides</td><td><code>SARC2-ZORA-QZVP</code></td><td><code>SARC/J</code></td></tr>
             <tr><td>DLPNO-CCSD(T) single point</td><td><code>cc-pVTZ</code> + CBS extrapolation</td><td><code>cc-pVTZ/C</code></td></tr>
@@ -294,7 +294,7 @@
           if bases are mixed.
         </p>
 
-        <h2 id="bsse">BSSE and counterpoise correction — quantifying intermolecular interactions</h2>
+        <h2 id="bsse">BSSE and counterpoise correction</h2>
         <p>
           When two molecules sit close to one another, each molecule's basis effectively
           "borrows" functions from the other's region, so the dimer energy comes out
@@ -304,10 +304,10 @@
         </p>
 
         <p>
-          The textbook fix is the Boys–Bernardi <strong>counterpoise (CP) correction</strong>.
+          The usual fix is the Boys–Bernardi <strong>counterpoise (CP) correction</strong>.
           In ORCA, a <strong>ghost atom</strong> is created by appending a colon
           <code>:</code> to the element symbol. A ghost atom carries a basis set but has no
-          nucleus and no electrons — a "virtual" atom.
+          nucleus and no electrons (a "virtual" atom).
         </p>
 
         <h3>The 4-step CP procedure</h3>
@@ -393,7 +393,7 @@
         </table>
 
         <div class="tip">
-          <div class="note-title">CP correction is "half-truth"</div>
+          <div class="note-title">Limits of the CP correction</div>
           <p>
             CP correction does not exactly recover the true (complete basis-set limit) binding
             energy. In small bases, BSSE overbinds while basis-set incompleteness error (BSIE)

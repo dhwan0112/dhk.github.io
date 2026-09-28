@@ -125,10 +125,10 @@
 <li><a href="#nebx-path">neb.x: &amp;PATH</a></li>
 </ul>
 </li>
-<li><a href="#the-file-flow-on-one-page">The file flow on one page</a></li>
+<li><a href="#the-file-flow">The file flow</a></li>
 </ul>
 </div>
-<p>QE is a suite, not one program. This is the map of what each executable
+<p>QE is a suite of programs. This page lists what each executable
 takes and produces. Per-variable detail lives in each code's
 <code>Doc/INPUT_&lt;name&gt;.txt</code>.</p>
 <h2 id="the-core-pipeline">The core pipeline</h2>
@@ -240,15 +240,15 @@ takes and produces. Per-variable detail lives in each code's
 <h3 id="dosx-dos">dos.x: &amp;DOS</h3>
 <p><code>prefix</code>, <code>outdir</code>, <code>fildos</code>, <code>Emin</code>, <code>Emax</code>, <code>DeltaE</code>, <code>ngauss</code>,
 <code>degauss</code>, <code>bz_sum</code>. The output columns are E (eV), DOS (two spin columns
-in polarized runs), and the integrated DOS. Note that <code>Emin</code>/<code>Emax</code> are
+in polarized runs), and the integrated DOS. <code>Emin</code>/<code>Emax</code> are
 <strong>absolute energies in eV</strong>; place the window around the actual Fermi level
 of your system, which for PAW data can sit at 15–20 eV.</p>
 <h3 id="projwfcx-projwfc">projwfc.x: &amp;PROJWFC</h3>
 <p><code>prefix</code>, <code>outdir</code>, <code>filpdos</code>, <code>filproj</code>, <code>ngauss</code>, <code>degauss</code>, <code>Emin</code>,
 <code>Emax</code>, <code>DeltaE</code>, <code>lsym</code> (symmetrized atomic orbitals), <code>pawproj</code>,
 <code>lwrite_overlaps</code>, <code>kresolveddos</code>. Outputs the
-<code>filpdos.pdos_atm#N(label)_wfc#M(orbital)</code> files plus the <strong>Löwdin
-charges</strong> block on standard output.</p>
+<code>filpdos.pdos_atm#N(label)_wfc#M(orbital)</code> files plus the Löwdin
+charges block on standard output.</p>
 <h3 id="bandsx-bands">bands.x: &amp;BANDS</h3>
 <p><code>prefix</code>, <code>outdir</code>, <code>filband</code>, <code>lsym</code> (assign symmetry labels),
 <code>spin_component</code>, <code>lp</code> (momentum matrix elements). <code>filband.gnu</code> is the
@@ -291,7 +291,7 @@ the tick positions.</p>
 </tr>
 <tr>
 <td>11</td>
-<td>Bare + Hartree potential (<strong>work function</strong>)</td>
+<td>Bare + Hartree potential (work function)</td>
 </tr>
 </tbody>
 </table>
@@ -313,7 +313,7 @@ partial results).</p>
 <code>opt_scheme</code> (<code>'broyden'</code>/<code>'quick-min'</code>/<code>'sd'</code>),
 <code>CI_scheme</code> (<code>'no-CI'</code>/<code>'auto'</code>/<code>'manual'</code>), <code>path_thr</code>, <code>ds</code>, <code>k_max</code>,
 <code>k_min</code>, <code>restart_mode</code>. Input layout in <a href="ref-cards.html">R2</a>.</p>
-<h2 id="the-file-flow-on-one-page">The file flow on one page</h2>
+<h2 id="the-file-flow">The file flow</h2>
 <pre><code>                    ┌─ dos.x ──────→ total DOS
 scf ──→ nscf ───────┼─ projwfc.x ──→ PDOS, Löwdin
  │                  └─ (frozen density)
@@ -322,8 +322,8 @@ scf ──→ nscf ───────┼─ projwfc.x ──→ PDOS, Löwdin
  ├────→ hp.x (HUBBARD required) ──→ U, V
  └────→ ph.x ──→ q2r.x ──→ matdyn.x → phonon dispersion
 </code></pre>
-<p>Every arrow is glued by the <strong>same <code>prefix</code> and <code>outdir</code></strong>. Break the chain
-and you get <code>cannot open file ... .save/...</code>
+<p>Every step in this chain needs the <strong>same <code>prefix</code> and <code>outdir</code></strong>. If they
+differ, you get <code>cannot open file ... .save/...</code>
 (<a href="ref-errors.html">R3</a>).</p>
       </article>
 <nav class="page-nav"><a class="prev" href="ref-errors.html"><div class="page-nav-label">← Previous</div><div class="page-nav-title">Error message dictionary</div></a><a class="next" href="ex-01-si-scf.html"><div class="page-nav-label">Next →</div><div class="page-nav-title">Si SCF</div></a></nav>

@@ -122,7 +122,7 @@
 </ul>
 </div>
 <p>A large fraction of beginner errors in QE are unit confusions. Memorizing the
-one table in this chapter will save you days.</p>
+one table in this chapter avoids most of them.</p>
 <h2 id="the-unit-conventions-you-must-memorize">The unit conventions you must memorize</h2>
 <p>QE uses <strong>Rydberg atomic units</strong>.</p>
 <table>
@@ -172,8 +172,8 @@ one table in this chapter will save you days.</p>
 </tbody>
 </table>
 <p>The lattice parameters in <code>&amp;SYSTEM</code> come either as <code>celldm(1..6)</code> (bohr) or
-as <code>A, B, C, cosAB, ...</code> (<strong>Å</strong>). One set is in bohr and the other in
-angstrom for the same quantities; that asymmetry is the trap.</p>
+as <code>A, B, C, cosAB, ...</code> (Å). The same quantities are in bohr in one form
+and in angstrom in the other, and mixing them up is a common mistake.</p>
 <h2 id="ibrav-choosing-the-bravais-lattice">ibrav: choosing the Bravais lattice</h2>
 <p><code>ibrav</code> decides how the cell is defined.</p>
 <table>
@@ -237,9 +237,8 @@ angstrom for the same quantities; that asymmetry is the trap.</p>
 </tr>
 </tbody>
 </table>
-<p>With <code>ibrav &gt; 0</code>, QE defines the primitive vectors <strong>by its own
-convention</strong>, which may differ from the convention in your favorite
-textbook. This bites later, especially for band paths; see the <code>tpiba_b</code>
+<p>With <code>ibrav &gt; 0</code>, QE defines the primitive vectors by its own
+convention, which may differ from the one in your textbook. This bites later, especially for band paths; see the <code>tpiba_b</code>
 discussion in <a href="10-dos-bands.html">Chapter 10</a>.</p>
 <p><code>ibrav = 0</code> is flexible, but <strong>automatic symmetry detection can silently
 degrade</strong>. Check the <code>Sym. Ops.</code> count in the output: fewer symmetry

@@ -70,7 +70,7 @@
         <h1 class="page-title">Examples</h1>
         <p class="page-lede">
           Inputs and their real outputs in one place. Every <code>.out</code> below is an actual
-          ORCA 6.1.1 run — take the input and adapt it to your own molecule.
+          ORCA 6.1.1 run; take the input and adapt it to your own molecule.
         </p>
       </header>
 
@@ -78,22 +78,22 @@
         <div class="toc">
           <div class="toc-title">On this page</div>
           <ul>
-            <li><a href="#worked">Worked examples — input + real output</a></li>
+            <li><a href="#worked">Worked examples: input and real output</a></li>
             <li><a href="#fragment">Fragment-merge example</a></li>
-            <li><a href="#templates">Templates — ready-to-edit skeletons</a></li>
+            <li><a href="#templates">Templates: ready-to-edit skeletons</a></li>
           </ul>
         </div>
 
         <div class="note">
           <div class="note-title">All real runs</div>
           <p>
-            The outputs below are not illustrative — they come straight from ORCA 6.1.1. Running one
+            The outputs below are not illustrative; they come straight from ORCA 6.1.1. Running one
             is a single line, <code>orca water.inp &gt; water.out</code>. Clicking a file opens it as
             text or downloads it.
           </p>
         </div>
 
-        <h2 id="worked">Worked examples — input + real output</h2>
+        <h2 id="worked">Worked examples: input and real output</h2>
         <table>
           <thead>
             <tr><th>Calculation</th><th>Key result</th><th>Files</th></tr>
@@ -135,10 +135,10 @@
           The <code>dissociation_{rhf,cas}.dat</code> files under <code>05-casscf-h2/</code> are the
           real RHF and CASSCF curves scanned over H–H = 0.4–3.0 Å (the source for
           <a href="../assets/img/h2-dissociation.png">h2-dissociation.png</a>). RHF diverges at
-          dissociation, CASSCF stays well-behaved — the classic single-reference breakdown.
+          dissociation while CASSCF stays well-behaved. This is the classic single-reference breakdown.
         </p>
 
-        <h2 id="fragment">Fragment-merge example — <code>06-fragment-merge/</code></h2>
+        <h2 id="fragment">Fragment-merge example (<code>06-fragment-merge/</code>)</h2>
         <p>
           A real run of the split-and-merge procedure: solve the metal and the ligand separately,
           then merge their orbitals with <code>orca_mergefrag</code>. The full walkthrough and the
@@ -147,16 +147,16 @@
         <table>
           <thead><tr><th>File</th><th>Role</th></tr></thead>
           <tbody>
-            <tr><td><a href="../examples/06-fragment-merge/fragMn.inp">fragMn.inp</a></td><td>Metal fragment — Mn<sup>2+</sup> high-spin (sextet)</td></tr>
-            <tr><td><a href="../examples/06-fragment-merge/fragH2O.inp">fragH2O.inp</a></td><td>Ligand fragment — H<sub>2</sub>O (UHF, to match HFTyp)</td></tr>
-            <tr><td><a href="../examples/06-fragment-merge/mergefrag.log">mergefrag.log</a></td><td>Real merge output — Dim 31+24=55, NEl 23+10=33</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/fragMn.inp">fragMn.inp</a></td><td>Metal fragment: Mn<sup>2+</sup> high-spin (sextet)</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/fragH2O.inp">fragH2O.inp</a></td><td>Ligand fragment: H<sub>2</sub>O (UHF, to match HFTyp)</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/mergefrag.log">mergefrag.log</a></td><td>Real merge output: Dim 31+24=55, NEl 23+10=33</td></tr>
             <tr><td><a href="../examples/06-fragment-merge/super-cas-merged.inp">super-cas-merged.inp</a></td><td>CASSCF(5,5) reading the merged guess</td></tr>
-            <tr><td><a href="../examples/06-fragment-merge/cas-default.inp">cas-default.inp</a></td><td>Reference — CASSCF from the default guess</td></tr>
-            <tr><td><a href="../examples/06-fragment-merge/cas-default.out">cas-default.out</a></td><td>Converged result — E −1225.0207 Eh, N(occ) 1.0×5</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/cas-default.inp">cas-default.inp</a></td><td>Reference CASSCF from the default guess</td></tr>
+            <tr><td><a href="../examples/06-fragment-merge/cas-default.out">cas-default.out</a></td><td>Converged result: E −1225.0207 Eh, N(occ) 1.0×5</td></tr>
           </tbody>
         </table>
 
-        <h2 id="templates">Templates — ready-to-edit skeletons</h2>
+        <h2 id="templates">Templates: ready-to-edit skeletons</h2>
         <p>All verified to run on ORCA 6.1.1. Swap <code>mol.xyz</code> for your own coordinate file.</p>
         <table>
           <thead><tr><th>File</th><th>Use</th></tr></thead>

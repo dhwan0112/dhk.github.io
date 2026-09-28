@@ -69,7 +69,7 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 05 · COMMON CALCULATIONS</div>
         <h1 class="page-title">Geometry optimisation</h1>
-        <p class="page-lede">Finding stationary points on the energy surface — constraints, choice of coordinate system, and relaxed scans.</p>
+        <p class="page-lede">Finding stationary points on the energy surface: constraints, choice of coordinate system, and relaxed scans.</p>
       </header>
 
       <article class="content">
@@ -77,7 +77,7 @@
           <div class="toc-title">On this page</div>
           <ul>
             <li><a href="#basic">Basic usage</a></li>
-            <li><a href="#coords-system">Coordinate systems — Cartesian vs redundant internal</a></li>
+            <li><a href="#coords-system">Coordinate systems: Cartesian and redundant internal</a></li>
             <li><a href="#convergence">Reading the convergence criteria</a></li>
             <li><a href="#constraints">Constrained optimisation</a></li>
             <li><a href="#hydrogens">Hydrogen-only / partial optimisation</a></li>
@@ -113,7 +113,7 @@
 <span class="cmt"># Hybrids pair with RIJCOSX</span>
 <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J Opt</span></code></pre>
 
-        <h2 id="coords-system">Coordinate systems — Cartesian vs redundant internal</h2>
+        <h2 id="coords-system">Coordinate systems: Cartesian and redundant internal</h2>
         <p>
           In ORCA 6 the <code>Opt</code> keyword defaults to <strong>redundant internal
           coordinates</strong>. This coordinate system represents the geometry as a chemically
@@ -127,7 +127,7 @@
             <tr><th>Keyword</th><th>Coordinates</th><th>When to use</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>Opt</code></td><td>Redundant internal</td><td>Almost all molecules — the default.</td></tr>
+            <tr><td><code>Opt</code></td><td>Redundant internal</td><td>Almost all molecules. The default.</td></tr>
             <tr><td><code>COpt</code></td><td>Cartesian</td><td>Very large systems, fragment optimisations, extremely flat surfaces.</td></tr>
           </tbody>
         </table>
@@ -216,9 +216,9 @@ MAX step             0.0002345678 bohr      0.0040000000      YES
           <div class="note-title">Important details</div>
           <p>
             The <em>value</em> is optional. If omitted, the current value in the input geometry
-            is preserved. Cartesian constraints accept no value — they always use the initial
+            is preserved. Cartesian constraints accept no value; they always use the initial
             position. Atom indices are <strong>0-based</strong>, the opposite of the
-            <code>int</code> coordinate input — easy to get wrong, watch out.
+            <code>int</code> coordinate input, which is easy to get wrong.
           </p>
         </div>
 
@@ -255,8 +255,8 @@ MAX step             0.0002345678 bohr      0.0040000000      YES
 
         <h2 id="scan">Relaxed surface scan</h2>
         <p>
-          Step one coordinate from one value to another and at each point relax everything else
-          — the standard tool for exploring a reaction coordinate or a conformational change.
+          Step one coordinate from one value to another and at each point relax everything else.
+          This is the standard tool for exploring a reaction coordinate or a conformational change.
         </p>
 
         <pre data-lang="orca"><code><span class="cmt"># Scan the H–O–O–H dihedral of H2O2 from 0° to 180° in 19 points</span>
@@ -326,7 +326,7 @@ MAX step             0.0002345678 bohr      0.0040000000      YES
             <tr><td><code>Lindh</code></td><td>Lindh model. Effective on flat surfaces.</td></tr>
             <tr><td><code>Swart</code></td><td>Swart model. Stable for transition metals.</td></tr>
             <tr><td><code>Schlegel</code></td><td>Schlegel model. General organics.</td></tr>
-            <tr><td><code>Unit</code></td><td>Identity matrix. Last resort for very hard cases.</td></tr>
+            <tr><td><code>Unit</code></td><td>Identity matrix. Try when the other options all fail.</td></tr>
             <tr><td><code>Read</code></td><td>Read a <code>.hess</code> file from a previous frequency job.</td></tr>
           </tbody>
         </table>
@@ -363,8 +363,8 @@ MAX step             0.0002345678 bohr      0.0040000000      YES
         </ul>
 
         <p>
-          You now have a stationary point. Whether it really is a minimum — no imaginary
-          frequencies — is what a frequency calculation tells you next.
+          Whether the stationary point you found really is a minimum (no imaginary
+          frequencies) is checked with a frequency calculation.
         </p>
       </article>
 

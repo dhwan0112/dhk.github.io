@@ -69,7 +69,7 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 14 · OPERATIONS</div>
         <h1 class="page-title">Tips &amp; troubleshooting</h1>
-        <p class="page-lede">When the calculation gets stuck or the result looks wrong — section 8 of the manual, retold in plain English.</p>
+        <p class="page-lede">What to check when a calculation gets stuck or the result looks wrong. Based on section 8 of the manual.</p>
       </header>
 
       <article class="content">
@@ -84,13 +84,13 @@
             <li><a href="#parallel">When parallelisation feels slow</a></li>
             <li><a href="#spin-contamination">Spin contamination</a></li>
             <li><a href="#workflow">Workflow recipes by situation</a></li>
-            <li><a href="#general">General principles the manual emphasises</a></li>
+            <li><a href="#general">General principles</a></li>
           </ul>
         </div>
 
         <h2 id="mistakes">Common input mistakes</h2>
         <p>
-          The things that trip people up most when starting out — usually a one-line difference.
+          The things that trip people up most when starting out. Most are a one-line difference.
           <strong>★</strong> marks the ones actually hit while building this guide on ORCA 6.1.1.
         </p>
         <table>
@@ -112,12 +112,11 @@
 
         <h2 id="scf-troubles">When the SCF refuses to converge</h2>
         <p>
-          Manual §8.3 emphasises that SCF convergence failures almost always occur in open-shell
-          situations, and that the key to fixing them is "better starting orbitals". Recommended
-          strategies:
+          SCF convergence failures mostly occur in open-shell systems, and the key to fixing them
+          is better starting orbitals (manual §8.3). Useful strategies:
         </p>
 
-        <h3>Strategy ① — converge a smaller basis first</h3>
+        <h3>Strategy ①: converge a smaller basis first</h3>
         <pre data-lang="orca"><code><span class="cmt"># Step 1: small basis + loose convergence + strong damping</span>
 <span class="kw">!</span> <span class="kw2">BP86 def2-SV def2/J SlowConv LooseSCF</span>
 <span class="kw">%scf</span>
@@ -142,7 +141,7 @@
 <span class="kw">%moinp</span> <span class="str">"step2.gbw"</span>
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 3</span></code></pre>
 
-        <h3>Strategy ② — SOSCF or TRAH</h3>
+        <h3>Strategy ②: SOSCF or TRAH</h3>
         <p>
           When DIIS stalls near ~0.001, switch on second-order SCF (SOSCF) or the
           Trust-Region Augmented Hessian (TRAH) SCF.
@@ -156,14 +155,14 @@
         <pre data-lang="orca"><code><span class="cmt"># Last resort for the hardest cases: TRAH</span>
 <span class="kw">!</span> <span class="kw2">B3LYP def2-TZVP TRAH</span></code></pre>
 
-        <h3>Strategy ③ — heavy damping and a level shift</h3>
+        <h3>Strategy ③: heavy damping and a level shift</h3>
         <pre data-lang="orca"><code><span class="kw">%scf</span>
    <span class="kw2">DampFac</span>    <span class="num">0.90</span>    <span class="cmt"># heavy damping</span>
    <span class="kw2">DampErr</span>    <span class="num">0.02</span>    <span class="cmt"># damping turns off once DIIS error falls below this</span>
    <span class="kw2">Shift</span> <span class="kw">shift</span> <span class="num">0.5</span> <span class="kw2">erroff</span> <span class="num">0</span> <span class="kw">end</span>   <span class="cmt"># push virtual orbitals up by 0.5 Eh</span>
 <span class="kw">end</span></code></pre>
 
-        <h3>Strategy ④ — start from the related closed shell</h3>
+        <h3>Strategy ④: start from the related closed shell</h3>
         <p>
           If an odd-electron system refuses to converge, first converge the closed-shell
           cation or anion and read its orbitals. Closed-shell SCFs generally converge much
@@ -171,11 +170,11 @@
         </p>
 
         <div class="tip">
-          <div class="note-title">~80 % of convergence problems are the geometry</div>
+          <div class="note-title">Check the geometry first</div>
           <p>
-            As the manual itself points out, the most common cause of a failed SCF is an
-            "unreasonable structure" — a 0.5 Å bond length, two atoms occupying the same
-            position, or coordinates accidentally given in bohr rather than Å. Before
+            The most common cause of a failed SCF is a bad structure: a 0.5 Å bond length,
+            two atoms occupying the same position, or coordinates accidentally given in bohr
+            rather than Å. Before
             changing the method, double-check that the geometry is chemically sensible.
           </p>
         </div>
@@ -184,14 +183,14 @@
         <ol>
           <li><strong>Shrink the maximum step</strong>: <code>%geom MaxStep 0.1 end</code> (bohr). Damps oscillations.</li>
           <li><strong>Switch the coordinate system</strong>: try <code>! COpt</code> for Cartesian coordinates.</li>
-          <li><strong>Strengthen the initial Hessian</strong>: compute a Hessian cheaply, then read it with <code>InHess Read</code>. The manual's example is a "Step 1 NumFreq → Step 2 OptTS" pattern.</li>
+          <li><strong>Strengthen the initial Hessian</strong>: compute a Hessian cheaply, then read it with <code>InHess Read</code>, e.g. NumFreq in step 1 and OptTS in step 2.</li>
           <li><strong>Tighten the SCF</strong>: on flat surfaces SCF noise shakes the gradient. Use <code>TightSCF</code> or better.</li>
           <li><strong>Tighten the integration grid</strong>: <code>DefGrid3</code> for DFT.</li>
         </ol>
 
         <h2 id="freq-troubles">Small negative frequencies</h2>
         <p>
-          Imaginary modes of ± 10–30 cm⁻¹ are usually not real negative curvature — they are
+          Imaginary modes of ± 10–30 cm⁻¹ are usually not real negative curvature but
           numerical noise. Work through these in order:
         </p>
 
@@ -243,7 +242,7 @@ cd / &amp;&amp; rm -rf $ORCA_SCRDIR</code></pre>
           becomes unreliable.
         </p>
 
-        <p>The manual's recommended diagnostic combination is <code>! UNO ! UCO</code>:</p>
+        <p>For diagnosis, use the <code>! UNO ! UCO</code> combination:</p>
 
         <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP UNO UCO TightSCF</span>
 
@@ -251,7 +250,7 @@ cd / &amp;&amp; rm -rf $ORCA_SCRDIR</code></pre>
 
         <p>
           If the UCO overlap table contains values below ~0.85, those orbitals form
-          "spin-coupled pairs" — characteristic of singlet diradicals or partially broken
+          "spin-coupled pairs", characteristic of singlet diradicals or partially broken
           bonds. Such systems are at the limit of single-reference DFT / HF; for accurate
           results consider moving to a multi-reference method (CASSCF / NEVPT2).
         </p>
@@ -267,7 +266,7 @@ cd / &amp;&amp; rm -rf $ORCA_SCRDIR</code></pre>
 
         <h3>Transition-metal complex (3d metal)</h3>
         <ol>
-          <li><code>TPSSh D4 def2-TZVP Opt Freq</code> — meta-GGA hybrid handles spin states well.</li>
+          <li><code>TPSSh D4 def2-TZVP Opt Freq</code>. The meta-GGA hybrid handles spin states well.</li>
           <li>For ambiguous spin states, run every plausible multiplicity at the same level and compare.</li>
           <li>UV-Vis with <code>TDDFT</code>; EPR g-tensor with <code>! EPRNMR</code>.</li>
         </ol>
@@ -289,32 +288,31 @@ cd / &amp;&amp; rm -rf $ORCA_SCRDIR</code></pre>
           <li>Compute ΔG<sup>‡</sup> and ΔG<sub>rxn</sub>.</li>
         </ol>
 
-        <h2 id="general">General principles the manual emphasises</h2>
+        <h2 id="general">General principles</h2>
 
         <div class="note">
           <div class="note-title">Consistency in the basis set</div>
           <p>
-            As the manual stresses in §8.2, minimal bases (STO-3G) and small split-valence
-            bases such as 3-21G are inappropriate for quantitative work. Use the Karlsruhe
+            Minimal bases (STO-3G) and small split-valence bases such as 3-21G are
+            inappropriate for quantitative work (manual §8.2). Use the Karlsruhe
             def2 series consistently. Reactants, products and transition states must all use
             the same basis so that errors cancel.
           </p>
         </div>
 
         <div class="note">
-          <div class="note-title">For DFT, the grid is often the accuracy bottleneck</div>
+          <div class="note-title">Larger basis, larger grid</div>
           <p>
             When working with a large basis (e.g. def2-QZVPP), leaving the DFT grid at
             <code>DefGrid2</code> caps the accuracy at the grid noise level. Raise to
-            <code>DefGrid3</code> when you raise the basis. As the manual puts it, "don't
-            spend basis accuracy on grid noise."
+            <code>DefGrid3</code> when you raise the basis.
           </p>
         </div>
 
         <div class="note">
-          <div class="note-title">Dispersion correction is essentially free</div>
+          <div class="note-title">Cost of dispersion corrections</div>
           <p>
-            D3 / D4 corrections add essentially no runtime while improving accuracy
+            D3 / D4 corrections add almost no runtime while improving accuracy
             significantly. Unless the functional already includes dispersion (e.g. VV10 built
             into ωB97M-V), turn them on by default.
           </p>
@@ -331,25 +329,21 @@ cd / &amp;&amp; rm -rf $ORCA_SCRDIR</code></pre>
         </div>
 
         <div class="tip">
-          <div class="note-title">The manual's parting advice</div>
+          <div class="note-title">Accuracy and chemical interpretation</div>
           <p>
-            There is a striking line near the end of §8.2 of the manual: "the computer does
-            not solve the problem — the human does. Making one or two numbers slightly more
-            accurate does not necessarily help you understand the chemistry and spectroscopy
-            of the molecule you are working on. The risk of getting lost in technical
-            details and losing sight of the original insight is real." Striving for accuracy
-            is good; never forget that it does not substitute for chemical insight.
+            Making one or two numbers slightly more accurate does not by itself help you
+            understand the chemistry and spectroscopy of the molecule you are working on.
+            Do not get so caught up in refining technical details that you lose sight of the
+            chemical question you set out to answer (manual §8.2).
           </p>
         </div>
 
         <div class="divider"></div>
 
         <p>
-          This is the final chapter of the guide. I hope it has been of some help in your
-          everyday research. For deeper options or unusual use cases, please consult the
-          official ORCA 6.0.0 manual (PDF) directly. And whenever you get stuck, the official
-          forum (<a href="https://orcaforum.kofo.mpg.de">orcaforum.kofo.mpg.de</a>) is a great
-          place to look for similar cases.
+          For deeper options or unusual use cases, consult the official ORCA 6.0.0 manual
+          (PDF) directly. When you get stuck, look for similar cases on the official
+          forum (<a href="https://orcaforum.kofo.mpg.de">orcaforum.kofo.mpg.de</a>).
         </p>
 
         <footer class="site-footer">

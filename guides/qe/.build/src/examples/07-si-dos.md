@@ -7,8 +7,8 @@ title: "E7. Si DOS and PDOS"
 ## Goal
 
 Run the density-of-states pipeline end to end: scf → nscf → `dos.x` →
-`projwfc.x`. Learn in your fingers that **order and matching
-`prefix`/`outdir` are everything**, and read the Löwdin charges at the end.
+`projwfc.x`. The steps must run in order with matching `prefix`/`outdir`.
+At the end, read the Löwdin charges.
 
 ```
 scf (8³ k) ─→ nscf (16³ k, tetrahedra) ─┬─→ dos.x       (total DOS)
@@ -75,9 +75,9 @@ K_POINTS (automatic)
 ```
 
 <div class="warning">
-  <div class="note-title">Measured note: tetrahedra_opt and projwfc.x</div>
+  <div class="note-title">Note: tetrahedra_opt and projwfc.x</div>
   <p>
-    We first ran this with the optimized tetrahedron method,
+    I first ran this with the optimized tetrahedron method,
     <code>occupations='tetrahedra_opt'</code>, and found that on
     <strong>QE 7.5 dos.x and the Löwdin charges are fine but projwfc.x
     writes PDOS files that are entirely zero</strong> (serial or parallel,
@@ -132,7 +132,7 @@ projwfc.x  -in si.projwfc.in > si.projwfc.out  # 4. PDOS + Lowdin charges
 grep -A20 'Lowdin Charges' si.projwfc.out      # show the per-orbital occupations
 ```
 
-## Output and figure: measured
+## Output and figure
 
 <figure>
   <img src="assets/images/qe-e07-dos-pdos.png"
@@ -150,7 +150,7 @@ Decoding the output files:
   (the valence electron count) at the top of the valence bands: a built-in
   sanity check.
 - `si.pdos.pdos_atm#1(Si)_wfc#2(p)`: the p-projected DOS of atom 1.
-- **Löwdin charges, measured**: 3.9637 e per atom (s 1.1617 + p 2.8020),
+- Löwdin charges: 3.9637 e per atom (s 1.1617 + p 2.8020),
   spilling parameter 0.0091. The gap to the 4 valence electrons (the
   spilling) is the part of the plane-wave states the atomic-orbital basis
   cannot represent. Keep the same caveat in mind when reading Fe d

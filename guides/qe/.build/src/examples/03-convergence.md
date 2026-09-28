@@ -6,8 +6,7 @@ title: "E3. Automating convergence tests"
 
 ## Goal
 
-**This is where QE skill forks.** Learn the standard procedure of scripted
-convergence tests for `ecutwfc`, the k-grid, and forces, including the habit
+Learn the standard procedure of scripted convergence tests for `ecutwfc`, the k-grid, and forces, including the habit
 of judging in meV/atom and meV/Å. Background in
 [Chapter 05](05-convergence.html).
 
@@ -84,7 +83,7 @@ bash conv_kpts.sh  > conv_kpts.dat
 bash conv_force.sh > conv_force.dat
 ```
 
-## Output and figure: measured
+## Output and figure
 
 <figure>
   <img src="assets/images/qe-e03-convergence.png"
@@ -119,11 +118,11 @@ The verdict in numbers (reference: the densest scan point):
 ## Exercises
 
 1. Repeat the scan with `ecutrho` pinned at 4x and watch what PAW does (the
-   trap of [Chapter 04](04-pseudopotentials.html)).
+   pitfall from [Chapter 04](04-pseudopotentials.html)).
 2. Compare the cutoff at which the energy converges with the cutoff at
    which the force converges. Which is higher?
 3. Write your own Python script to plot the scans (the one used for this
-   guide is in the repository at `.build/plot_qe.py`).
+   guide is the plotting script included with the guide's source).
 
 <div class="warning">
   <div class="note-title">Common mistakes</div>
@@ -133,8 +132,8 @@ The verdict in numbers (reference: the densest scan point):
     <strong>last</strong> match is not the total force; it is the SCF
     correction term (~10⁻⁶) from the contribution breakdown further down
     the output. The total force is the <strong>first</strong> match after
-    <code>Forces acting on atoms</code>. We fell into exactly this hole
-    when first measuring this example; the script above is the corrected
+    <code>Forces acting on atoms</code>. I made exactly this mistake
+    when first running this example; the script above is the corrected
     version.
   </p>
 </div>

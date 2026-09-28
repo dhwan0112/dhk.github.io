@@ -68,21 +68,21 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 02 · 시작</div>
         <h1 class="page-title">입력 파일 구조</h1>
-        <p class="page-lede">키워드 라인, %블록, 좌표 입력. 이 셋만 손에 익히면 ORCA 입력의 90%는 끝난 거다.</p>
+        <p class="page-lede">ORCA 입력 파일을 이루는 키워드 라인, %블록, 좌표 입력의 문법.</p>
       </header>
 
       <article class="content">
         <div class="toc">
-          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
           <ul>
             <li><a href="#anatomy">입력 파일의 해부</a></li>
             <li><a href="#keyword-line">키워드 라인 <code>!</code></a></li>
             <li><a href="#blocks">블록 입력 <code>%...end</code></a></li>
             <li><a href="#coords">좌표 입력 방식</a></li>
             <li><a href="#external">외부 파일에서 좌표 읽기</a></li>
-            <li><a href="#special">특수 원자 — 가짜 원자, 점전하, 동위원소</a></li>
-            <li><a href="#multi-job">하나의 파일에 여러 작업 — <code>$new_job</code></a></li>
-            <li><a href="#compound">자동화 — Compound 모듈</a></li>
+            <li><a href="#special">특수 원자: 가짜 원자, 점전하, 동위원소</a></li>
+            <li><a href="#multi-job">한 파일에 여러 작업 넣기 (<code>$new_job</code>)</a></li>
+            <li><a href="#compound">Compound 모듈로 자동화</a></li>
           </ul>
         </div>
 
@@ -108,7 +108,7 @@
 <span class="kw">*</span></code></pre>
 
         <p>
-          이 셋만 알면 웬만한 계산은 다 할 수 있다. 하나씩 뜯어보자.
+          하나씩 뜯어보자.
         </p>
 
         <h2 id="keyword-line">키워드 라인 <code>!</code></h2>
@@ -297,7 +297,7 @@ H   0.000000  -0.763239  -0.477047</code></pre>
           Gaussian Z-matrix 파일은 <code>* gzmtfile 0 1 file.gzmt</code>로 읽는다.
         </p>
 
-        <h2 id="special">특수 원자 — 가짜 원자, 점전하, 동위원소</h2>
+        <h2 id="special">특수 원자: 가짜 원자, 점전하, 동위원소</h2>
         <table>
           <thead>
             <tr><th>표기</th><th>의미</th></tr>
@@ -322,7 +322,7 @@ H   0.000000  -0.763239  -0.477047</code></pre>
   H   0.0   0.0   0.741   <span class="kw2">M</span> <span class="kw">=</span> <span class="num">2.014</span>
 <span class="kw">*</span></code></pre>
 
-        <h2 id="multi-job">하나의 파일에 여러 작업 — <code>$new_job</code></h2>
+        <h2 id="multi-job">한 파일에 여러 작업 넣기 (<code>$new_job</code>)</h2>
         <p>
           ORCA는 입력 파일 하나에 여러 작업을 차례로 태울 수 있다. “싼 방법으로 구조 최적화 → 정밀한 방법으로 단일점 에너지” 같은 패턴이 흔하다.
         </p>
@@ -348,7 +348,7 @@ H   0.000000  -0.763239  -0.477047</code></pre>
         </p>
 
         <div class="tip">
-          <div class="note-title">한 단계 더 — Compound 모듈</div>
+          <div class="note-title">Compound 모듈</div>
           <p>
             반복 계산이나 조건 분기가 들어가는 복잡한 워크플로우는 ORCA 6의 Compound 모듈로 자동화할 수 있다.
             <code>%compound</code> 블록 안에서 변수·반복문·조건문·출력 포맷을 직접 짠다.
@@ -356,7 +356,7 @@ H   0.000000  -0.763239  -0.477047</code></pre>
           </p>
         </div>
 
-        <h2 id="compound">자동화 한 발 더 — Compound 모듈로 결합 해리 곡선</h2>
+        <h2 id="compound">Compound 모듈로 결합 해리 곡선 자동화</h2>
         <p>
           <code>$new_job</code> 만으로도 여러 단계를 한 입력에 묶을 수 있지만,
           “좌표 하나만 바꿔 가며 같은 계산 20번” 같은 건 손으로 풀어 쓰면 입력이
@@ -364,7 +364,7 @@ H   0.000000  -0.763239  -0.477047</code></pre>
           줄여 준다.
         </p>
 
-        <h3>예제 ① — H<sub>2</sub> 결합 해리 곡선</h3>
+        <h3>예제 ①: H<sub>2</sub> 결합 해리 곡선</h3>
         <p>
           수소 분자의 H-H 거리를 0.5 Å에서 3.0 Å까지 26점으로 스캔하면서
           B3LYP/def2-TZVP 단일점 에너지를 한 입력으로 뽑는 예다. 결과는
@@ -412,7 +412,7 @@ H   0.000000  -0.763239  -0.477047</code></pre>
           </tbody>
         </table>
 
-        <h3>예제 ② — 반응물 + 전이 상태 + 생성물 자동 계산</h3>
+        <h3>예제 ②: 반응물 + 전이 상태 + 생성물 자동 계산</h3>
         <p>
           분자 셋의 깁스 자유에너지를 같은 레벨로 한 번에 얻고, ΔG와 ΔG<sup>‡</sup>
           까지 계산해 찍어 주는 좀 더 실용적인 예다.
@@ -459,10 +459,6 @@ H   0.000000  -0.763239  -0.477047</code></pre>
             를 같이 펴 놓고 단순한 것부터 따라가는 걸 권한다.
           </p>
         </div>
-
-        <p>
-          여기까지 오면 입력 파일은 원하는 대로 짤 수 있다. 정작 매번 막히는 건 “그래서 그 키워드 이름이 뭐였더라”인데, 그건 다음 장에 사전처럼 모아 뒀다.
-        </p>
       </article>
 
       <nav class="page-nav">

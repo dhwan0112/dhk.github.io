@@ -26,10 +26,10 @@ mpirun -np 32 pw.x -nk 8 -in input.in > output.out
 
 The default split (no flags) distributes plane waves (G-vectors). Small
 cells with many k-points want `-nk`; large cells with few k-points lean on
-the G-vector split and `-nd`. **If you run out of memory, lower `-nk`**:
+the G-vector split and `-nd`. If you run out of memory, lower `-nk`:
 every pool holds its own copy of the charge density.
 
-## Measured: the thread trap on small systems
+## Measured: OpenMP threads on small systems
 
 The two-atom Si SCF from this guide, on a 16-core WSL machine with the
 conda-forge build:
@@ -47,8 +47,8 @@ ranks-per-node × threads = physical cores.
 
 ## Read the timing breakdown first
 
-The timing block at the end of the output is where parallelization strategy
-starts.
+Base your parallelization choices on the timing block at the end of the
+output.
 
 ```
      init_run     :    ...
@@ -68,8 +68,8 @@ spin; WALL much larger than CPU points at I/O or communication.
 - Point `outdir` at scratch (the fast parallel filesystem). Writing
   wavefunctions into your home directory slows you and everyone else down.
 - Record the QE version, pseudopotential paths and names, and the commit of
-  your scripts inside the batch script. "What settings produced this data?"
-  is the question your future self asks most often.
+  your scripts inside the batch script, so you can later tell which settings
+  produced which data.
 - For large scans (convergence tests, U scans, MD frame recomputation),
   workflow tools like AiiDA and ASE beat shell loops on reproducibility.
 

@@ -10,8 +10,8 @@ title: "10. DOS and band structure"
 1. TOC
 {:toc}
 
-For electronic-structure post-processing, **pipeline order and matching
-`prefix`/`outdir` are everything**.
+Electronic-structure post-processing depends on running the steps in order
+with matching `prefix` and `outdir`.
 
 ## The DOS / PDOS pipeline
 
@@ -22,16 +22,16 @@ scf (coarse k) ─→ nscf (dense k, occupations='tetrahedra') ─┬─→ dos.
 
 - **nscf**: densify the k-grid (say 8³ → 16³), raise `nbnd` to cover the
   conduction bands, set `occupations='tetrahedra'`. The tetrahedron method
-  requires a **Γ-centered automatic grid with zero shift**. The optimized
-  variant `'tetrahedra_opt'` is fine for dos.x, but we found (measured, QE
-  7.5) that **projwfc.x writes all-zero PDOS on top of it**; if your
+  requires a Γ-centered automatic grid with zero shift. The optimized
+  variant `'tetrahedra_opt'` is fine for dos.x, but I found (QE 7.5) that
+  projwfc.x writes all-zero PDOS on top of it; if your
   pipeline includes PDOS, use the classic `'tetrahedra'`
   (see the note in [Example E7](ex-07-si-dos.html)).
 - **`dos.x`** (`&DOS`): the total DOS. The `fildos` file has E (eV), DOS,
   and the integrated DOS. Check that the integral hits the valence electron
   count at the top of the valence bands.
 - **`projwfc.x`** (`&PROJWFC`): atom- and orbital-resolved DOS (PDOS) and
-  **Löwdin charges**. Files appear as
+  Löwdin charges. Files appear as
   `si.pdos_atm#1(Si)_wfc#2(p)` and so on. The d occupation of Fe,
   spin-resolved breakdowns, and d-band centers all come from here.
 
@@ -41,7 +41,7 @@ scf (coarse k) ─→ nscf (dense k, occupations='tetrahedra') ─┬─→ dos.
   <figcaption>
     Measured silicon total DOS with s/p PDOS (QE 7.5, nscf 16×16×16,
     tetrahedra). The lower valence band is s-dominated and the upper is
-    p-dominated, exactly as the textbook says. Procedure and numbers in
+    p-dominated, as expected. Procedure and numbers in
     <a href="ex-07-si-dos.html">Example E7</a>.
   </figcaption>
 </figure>
@@ -108,7 +108,7 @@ point. `bands.x` (`&BANDS`) reorders the eigenvalues into bands and writes
   <div class="note-title">Common mistakes</div>
   <p>
     Shrinking <code>DeltaE</code> because the DOS looks jagged. The cause is
-    almost always an <strong>insufficient nscf k-grid</strong>; densify it
+    almost always an insufficient nscf k-grid; densify it
     and use the tetrahedron method. Running <code>dos.x</code> straight off
     a coarse scf density works, but the resolution is poor. Respect the
     pipeline order.
@@ -117,7 +117,7 @@ point. `bands.x` (`&BANDS`) reorders the eigenvalues into bands and writes
 
 ## Related examples
 
-- [E7 · Si DOS and PDOS](ex-07-si-dos.html): the full measured pipeline plus
+- [E7 · Si DOS and PDOS](ex-07-si-dos.html): the full pipeline plus
   Löwdin charges.
 - [E8 · Si band structure](ex-08-si-bands.html): path setup and reading the
   indirect gap.

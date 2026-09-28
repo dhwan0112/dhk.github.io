@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DOS and band structure · QE Guide</title>
-  <meta name="description" content="The dos.x, projwfc.x and bands.x post-processing pipelines, reading gaps, and interpreting PDOS." />
+  <meta name="description" content="The dos.x, projwfc.x and bands.x post-processing pipelines, band-structure k-paths, and three ways to read a gap." />
   <link rel="icon" type="image/x-icon" href="../../images/icons/favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -109,7 +109,7 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 10 · BASICS · CALCULATION TYPES</div>
         <h1 class="page-title">DOS and band structure</h1>
-        <p class="page-lede">The dos.x, projwfc.x and bands.x post-processing pipelines, reading gaps, and interpreting PDOS.</p>
+        <p class="page-lede">The dos.x, projwfc.x and bands.x post-processing pipelines, band-structure k-paths, and three ways to read a gap.</p>
       </header>
       <article class="content">
 <div class="toc"><div class="toc-title">On this page</div>
@@ -120,8 +120,8 @@
 <li><a href="#related-examples">Related examples</a></li>
 </ul>
 </div>
-<p>For electronic-structure post-processing, <strong>pipeline order and matching
-<code>prefix</code>/<code>outdir</code> are everything</strong>.</p>
+<p>Electronic-structure post-processing depends on running the steps in order
+with matching <code>prefix</code> and <code>outdir</code>.</p>
 <h2 id="the-dos-pdos-pipeline">The DOS / PDOS pipeline</h2>
 <pre><code>scf (coarse k) ─→ nscf (dense k, occupations='tetrahedra') ─┬─→ dos.x      (total DOS)
                                                              └─→ projwfc.x  (PDOS + Löwdin)
@@ -129,16 +129,16 @@
 <ul>
 <li><strong>nscf</strong>: densify the k-grid (say 8³ → 16³), raise <code>nbnd</code> to cover the
   conduction bands, set <code>occupations='tetrahedra'</code>. The tetrahedron method
-  requires a <strong>Γ-centered automatic grid with zero shift</strong>. The optimized
-  variant <code>'tetrahedra_opt'</code> is fine for dos.x, but we found (measured, QE
-  7.5) that <strong>projwfc.x writes all-zero PDOS on top of it</strong>; if your
+  requires a Γ-centered automatic grid with zero shift. The optimized
+  variant <code>'tetrahedra_opt'</code> is fine for dos.x, but I found (QE 7.5) that
+  projwfc.x writes all-zero PDOS on top of it; if your
   pipeline includes PDOS, use the classic <code>'tetrahedra'</code>
   (see the note in <a href="ex-07-si-dos.html">Example E7</a>).</li>
 <li><strong><code>dos.x</code></strong> (<code>&amp;DOS</code>): the total DOS. The <code>fildos</code> file has E (eV), DOS,
   and the integrated DOS. Check that the integral hits the valence electron
   count at the top of the valence bands.</li>
 <li><strong><code>projwfc.x</code></strong> (<code>&amp;PROJWFC</code>): atom- and orbital-resolved DOS (PDOS) and
-  <strong>Löwdin charges</strong>. Files appear as
+  Löwdin charges. Files appear as
   <code>si.pdos_atm#1(Si)_wfc#2(p)</code> and so on. The d occupation of Fe,
   spin-resolved breakdowns, and d-band centers all come from here.</li>
 </ul>
@@ -148,7 +148,7 @@
   <figcaption>
     Measured silicon total DOS with s/p PDOS (QE 7.5, nscf 16×16×16,
     tetrahedra). The lower valence band is s-dominated and the upper is
-    p-dominated, exactly as the textbook says. Procedure and numbers in
+    p-dominated, as expected. Procedure and numbers in
     <a href="ex-07-si-dos.html">Example E7</a>.
   </figcaption>
 </figure>
@@ -208,7 +208,7 @@ point. <code>bands.x</code> (<code>&amp;BANDS</code>) reorders the eigenvalues i
   <div class="note-title">Common mistakes</div>
   <p>
     Shrinking <code>DeltaE</code> because the DOS looks jagged. The cause is
-    almost always an <strong>insufficient nscf k-grid</strong>; densify it
+    almost always an insufficient nscf k-grid; densify it
     and use the tetrahedron method. Running <code>dos.x</code> straight off
     a coarse scf density works, but the resolution is poor. Respect the
     pipeline order.
@@ -217,7 +217,7 @@ point. <code>bands.x</code> (<code>&amp;BANDS</code>) reorders the eigenvalues i
 
 <h2 id="related-examples">Related examples</h2>
 <ul>
-<li><a href="ex-07-si-dos.html">E7 · Si DOS and PDOS</a>: the full measured pipeline plus
+<li><a href="ex-07-si-dos.html">E7 · Si DOS and PDOS</a>: the full pipeline plus
   Löwdin charges.</li>
 <li><a href="ex-08-si-bands.html">E8 · Si band structure</a>: path setup and reading the
   indirect gap.</li>

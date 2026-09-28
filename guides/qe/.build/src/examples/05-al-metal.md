@@ -6,9 +6,9 @@ title: "E5. fcc Al metal"
 
 ## Goal
 
-Your first **metal**. See why `occupations='smearing'` is required, where
+Your first metal. See why `occupations='smearing'` is required, where
 the Fermi level shows up, and measure how the smearing type and `degauss`
-leave their fingerprints on the energy.
+change the energy.
 
 ## New cards and variables
 
@@ -70,20 +70,20 @@ K_POINTS (automatic)
 mpirun -np 6 pw.x -nk 6 -in al.scf.in > al.scf.out
 ```
 
-## What to check: measured
+## What to check
 
 | Item | Measured (QE 7.5, PAW) |
 |---|---|
 | Total energy | −39.50323368 Ry |
-| **Fermi level** | `the Fermi energy is 7.7450 ev`: the badge of a metal |
+| **Fermi level** | `the Fermi energy is 7.7450 ev`: printed only for metals |
 | `smearing contrib. (-TS)` | The size of the smearing contamination |
 
 Where the insulator ([E1](ex-01-si-scf.html)) printed
-`highest occupied level`, the metal prints `the Fermi energy is`.
-**This line is itself the diagnosis "the run converged to a metal"**, and
-you will meet it again with a twist in [E10](ex-10-feo-afm.html).
+`highest occupied level`, the metal prints `the Fermi energy is`. This line
+tells you the run converged to a metal; [E10](ex-10-feo-afm.html) uses it to
+catch a wrong metallic result.
 
-## The degauss scan by smearing type: measured
+## The degauss scan by smearing type
 
 The same system, scanned over smearing types (gaussian/mv/fd) and degauss
 (0.005 to 0.05 Ry):
@@ -94,15 +94,15 @@ The same system, scanned over smearing types (gaussian/mv/fd) and degauss
   <figcaption>
     Measured fcc Al (QE 7.5, 12×12×12 k). Cold smearing (mv) moves by only
     0.3 mRy from 0.01 to 0.05 Ry, while gaussian drifts 3 mRy and
-    Fermi-Dirac 22 mRy. This is the measured meaning of "mv needs no
-    extrapolation".
+    Fermi-Dirac 22 mRy. This is why mv needs no extrapolation in
+    practice.
   </figcaption>
 </figure>
 
-One real accident happened during the scan: `mv` at `degauss=0.005` on the
-12³ grid integrated the charge to 3.003 instead of 3 and **stopped with
-`charge is wrong`**. Narrower smearing demands denser k-grids: degauss and
-the k-grid are a **coupled pair** to converge together
+One run in my scan failed: `mv` at `degauss=0.005` on the 12³ grid
+integrated the charge to 3.003 instead of 3 and **stopped with
+`charge is wrong`**. Narrower smearing demands denser k-grids, so degauss and
+the k-grid have to be converged together
 ([Chapter 06](06-occupations.html)).
 
 ## Exercises
@@ -110,8 +110,8 @@ the k-grid are a **coupled pair** to converge together
 1. Sweep the k-grid from 8³ to 16³ and watch the energy scatter per
    degauss. Smaller degauss should demand denser grids.
 2. Remove `nbnd` and find in the output how many bands QE picks by itself.
-3. Set `occupations='fixed'` and collect the error message in person (the
-   exact one listed in [R3](ref-errors.html)).
+3. Set `occupations='fixed'` and check that you get the error message listed
+   in [R3](ref-errors.html).
 
 <div class="warning">
   <div class="note-title">Common mistakes</div>

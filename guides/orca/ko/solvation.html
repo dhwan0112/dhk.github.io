@@ -68,20 +68,20 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 09 · 자주 쓰는 계산</div>
         <h1 class="page-title">용매 효과</h1>
-        <p class="page-lede">음폐 용매 모델로 분자의 진짜 환경을 흉내내기. CPCM과 SMD의 실전 사용법.</p>
+        <p class="page-lede">음폐 용매 모델 CPCM과 SMD의 사용법과 세부 옵션.</p>
       </header>
 
       <article class="content">
         <div class="toc">
-          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
           <ul>
             <li><a href="#why">왜 용매 효과를 고려해야 하는가</a></li>
-            <li><a href="#models">사용 가능한 모델 — CPCM · SMD · ALPB</a></li>
-            <li><a href="#basic">기본 사용법 — 한 줄로 끝내기</a></li>
-            <li><a href="#smd">SMD — 자유에너지 보정까지 포함</a></li>
-            <li><a href="#advanced">세부 옵션 — %cpcm 블록</a></li>
+            <li><a href="#models">사용 가능한 모델: CPCM · SMD · ALPB</a></li>
+            <li><a href="#basic">기본 사용법</a></li>
+            <li><a href="#smd">SMD와 비정전 자유에너지 보정</a></li>
+            <li><a href="#advanced">세부 옵션: %cpcm 블록</a></li>
             <li><a href="#solvents">지원 용매 목록</a></li>
-            <li><a href="#explicit">SOLVATOR — 명시적 용매 분자 자동 배치</a></li>
+            <li><a href="#explicit">SOLVATOR로 명시적 용매 분자 배치</a></li>
             <li><a href="#tddft">들뜬 상태와 용매 효과</a></li>
           </ul>
         </div>
@@ -93,9 +93,9 @@
           용매 효과를 빼놓으면 반응 평형, 산-염기 평형, 자유에너지 장벽이 실험과 크게 어긋날 수 있다.
         </p>
 
-        <img src="../assets/img/solvation-cavity.png" alt="음폐 용매 — 용질은 cavity 안에, 용매는 분극 가능한 연속체" style="max-width:100%;height:auto;margin:1rem 0;" />
+        <img src="../assets/img/solvation-cavity.png" alt="음폐 용매: 용질은 cavity 안에, 용매는 분극 가능한 연속체" style="max-width:100%;height:auto;margin:1rem 0;" />
 
-        <h2 id="models">사용 가능한 모델 — CPCM · SMD · ALPB</h2>
+        <h2 id="models">사용 가능한 모델: CPCM · SMD · ALPB</h2>
         <p>ORCA가 지원하는 음폐 용매 모델은 이렇다.</p>
 
         <table>
@@ -115,7 +115,7 @@
           둘 다 같은 키워드로 켜지지만, SMD는 비정전 기여(공동 형성, 분산, 표면 효과)까지 얹어 줘서 자유에너지 비교에 더 잘 맞는다.
         </p>
 
-        <h2 id="basic">기본 사용법 — 한 줄로 끝내기</h2>
+        <h2 id="basic">기본 사용법</h2>
         <p>CPCM은 키워드 라인에 단어 하나만 붙이면 켜진다.</p>
 
         <pre data-lang="orca"><code><span class="cmt"># 물 환경에서 벤젠 최적화 (CPCM)</span>
@@ -128,7 +128,7 @@
           n 궤도가 수소결합 환경에서 더 안정화돼 전이 에너지가 0.224 eV(약 5 kcal/mol)만큼 커진 것이다.
         </p>
 
-        <h2 id="smd">SMD — 자유에너지 보정까지 포함</h2>
+        <h2 id="smd">SMD와 비정전 자유에너지 보정</h2>
         <p>
           순수 CPCM은 정전 자유에너지만 다룬다. 용매화 자유에너지 ΔG<sub>solv</sub>를 뽑거나
           반응 평형을 정량적으로 따질 때는 비정전 보정까지 들어가는 <strong>SMD</strong>가 더 맞다.
@@ -163,15 +163,15 @@ Total non-electrostatic:      1.235 kcal/mol
 SMD ΔG_solv            :     -7.221 kcal/mol</code></pre>
 
         <div class="tip">
-          <div class="note-title">SMD는 “원래의 SMD 함수/기저집합”와 함께 사용</div>
+          <div class="note-title">SMD와 함수·기저집합 선택</div>
           <p>
             SMD 파라미터는 원래 M05-2X/6-31G(d)에서 보정됐다. 그래도 실제로는
-            B3LYP, M06-2X, ωB97X-D 같은 흔한 DFT 함수에 def2-TZVP 정도 기저집합면 잘 돌아간다.
+            B3LYP, M06-2X, ωB97X-D 같은 흔한 DFT 함수에 def2-TZVP 정도 기저집합이면 잘 돌아간다.
             가스상 계산과 같은 메소드·기저집합을 써서 ΔG<sub>solv</sub> = G(soln) − G(gas)로 일관되게 비교하면 된다.
           </p>
         </div>
 
-        <h2 id="advanced">세부 옵션 — <code>%cpcm</code> 블록</h2>
+        <h2 id="advanced">세부 옵션: <code>%cpcm</code> 블록</h2>
         <p>유전 상수, 굴절률, 공동 형태 같은 걸 세밀하게 만지려면 <code>%cpcm</code> 블록을 쓴다.</p>
 
         <pre data-lang="orca"><code><span class="kw">%cpcm</span>
@@ -226,7 +226,7 @@ SMD ΔG_solv            :     -7.221 kcal/mol</code></pre>
           </tbody>
         </table>
 
-        <h2 id="explicit">SOLVATOR — 명시적 용매 분자 자동 배치</h2>
+        <h2 id="explicit">SOLVATOR로 명시적 용매 분자 배치</h2>
         <p>
           음폐 모델은 수소결합처럼 방향성 있는 상호작용을 잘 못 잡는다.
           그래서 중요한 수소결합 1~2개만 명시적으로 넣고 나머지는 CPCM으로 처리하는 “미세-용매화(microsolvation)” 접근이 쓸모 있을 때가 많다.

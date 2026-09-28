@@ -115,7 +115,7 @@
 <div class="toc"><div class="toc-title">On this page</div>
 <ul>
 <li><a href="#the-parallelization-cheat-sheet">The parallelization cheat sheet</a></li>
-<li><a href="#measured-the-thread-trap-on-small-systems">Measured: the thread trap on small systems</a></li>
+<li><a href="#measured-openmp-threads-on-small-systems">Measured: OpenMP threads on small systems</a></li>
 <li><a href="#read-the-timing-breakdown-first">Read the timing breakdown first</a></li>
 <li><a href="#hpc-habits">HPC habits</a></li>
 <li><a href="#related-examples">Related examples</a></li>
@@ -168,9 +168,9 @@
 </table>
 <p>The default split (no flags) distributes plane waves (G-vectors). Small
 cells with many k-points want <code>-nk</code>; large cells with few k-points lean on
-the G-vector split and <code>-nd</code>. <strong>If you run out of memory, lower <code>-nk</code></strong>:
+the G-vector split and <code>-nd</code>. If you run out of memory, lower <code>-nk</code>:
 every pool holds its own copy of the charge density.</p>
-<h2 id="measured-the-thread-trap-on-small-systems">Measured: the thread trap on small systems</h2>
+<h2 id="measured-openmp-threads-on-small-systems">Measured: OpenMP threads on small systems</h2>
 <p>The two-atom Si SCF from this guide, on a 16-core WSL machine with the
 conda-forge build:</p>
 <table>
@@ -197,8 +197,8 @@ machine, set <code>OMP_NUM_THREADS=1</code> explicitly and parallelize with MPI 
 <code>-nk</code>.</strong> On HPC, if you use hybrid MPI×OpenMP, keep
 ranks-per-node × threads = physical cores.</p>
 <h2 id="read-the-timing-breakdown-first">Read the timing breakdown first</h2>
-<p>The timing block at the end of the output is where parallelization strategy
-starts.</p>
+<p>Base your parallelization choices on the timing block at the end of the
+output.</p>
 <pre><code>     init_run     :    ...
      electrons    :    ...      ← the whole SCF
      c_bands      :    ...      ← diagonalization (if large: -nd, diagonalization)
@@ -214,8 +214,8 @@ spin; WALL much larger than CPU points at I/O or communication.</p>
 <li>Point <code>outdir</code> at scratch (the fast parallel filesystem). Writing
   wavefunctions into your home directory slows you and everyone else down.</li>
 <li>Record the QE version, pseudopotential paths and names, and the commit of
-  your scripts inside the batch script. "What settings produced this data?"
-  is the question your future self asks most often.</li>
+  your scripts inside the batch script, so you can later tell which settings
+  produced which data.</li>
 <li>For large scans (convergence tests, U scans, MD frame recomputation),
   workflow tools like AiiDA and ASE beat shell loops on reproducibility.</li>
 </ul>

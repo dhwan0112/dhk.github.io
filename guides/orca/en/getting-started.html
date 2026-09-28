@@ -78,7 +78,7 @@
           <ul>
             <li><a href="#about">What is ORCA?</a></li>
             <li><a href="#install">Install check</a></li>
-            <li><a href="#first-run">First run — single point on H<sub>2</sub>O</a></li>
+            <li><a href="#first-run">First run: single point on H<sub>2</sub>O</a></li>
             <li><a href="#files">Output and scratch files</a></li>
             <li><a href="#parallel">Running in parallel</a></li>
             <li><a href="#memory">Setting memory</a></li>
@@ -91,8 +91,7 @@
           Max-Planck-Institut für Kohlenforschung, particularly strong in transition-metal
           chemistry and spectroscopy (CASSCF, NEVPT2, DLPNO-CCSD(T), …) and free for academic
           use. For the program's background, downloads, and the full manual, see the
-          <a href="https://orcaforum.kofo.mpg.de">official forum</a>. This guide pulls just the
-          parts of that manual you reach for most often and lays them out for practical use.
+          <a href="https://orcaforum.kofo.mpg.de">official forum</a>.
         </p>
 
         <h2 id="install">Install check</h2>
@@ -122,7 +121,7 @@ which orca</code></pre>
           </p>
         </div>
 
-        <h2 id="first-run">First run — single point on H<sub>2</sub>O</h2>
+        <h2 id="first-run">First run: single point on H<sub>2</sub>O</h2>
         <p>
           An ORCA input file is plain ASCII, and the conventional extension is <code>.inp</code>.
           The example below takes the single-point energy of one water molecule at the
@@ -139,8 +138,8 @@ which orca</code></pre>
 <span class="kw">*</span></code></pre>
 
         <p>
-          What each line does, in short — the full syntax comes in
-          <a href="input-structure.html">02 · Input file structure</a>:
+          What each line does, in short (the full syntax is in
+          <a href="input-structure.html">02 · Input file structure</a>):
         </p>
 
         <ul>
@@ -179,13 +178,13 @@ orca my_first.inp &gt; my_first.out</code></pre>
 
         <p>
           The number on the <code>FINAL SINGLE POINT ENERGY</code> line is the energy in
-          Hartree. Seeing that message means the run reached the end — nothing more.
+          Hartree. Seeing that message means the run reached the end, nothing more.
         </p>
 
         <div class="warning">
           <div class="note-title">"Terminated normally" ≠ result is trustworthy</div>
           <p>
-            As the manual emphasises, an <code>ORCA TERMINATED NORMALLY</code> message does not
+            An <code>ORCA TERMINATED NORMALLY</code> message does not
             guarantee a meaningful result. For example, a geometry optimisation that hits its
             maximum number of iterations without converging will also print this message.
             Whether the job actually did what you wanted always has to be confirmed by reading
@@ -245,7 +244,7 @@ del basename*.tmp    <span class="cmt"># Windows</span></code></pre>
           <li><strong>RI-DFT</strong>: scales well up to ~16 cores; overhead dominates beyond that.</li>
           <li><strong>Hybrid DFT, HF</strong>: usable up to 16–24 cores.</li>
           <li><strong>Coupled cluster</strong>: typically 8–16 cores.</li>
-          <li><strong>Numerical derivatives</strong> (NumFreq, NumGrad): many independent displacements, so many cores can be used effectively — up to roughly 6 × atoms × (4–8).</li>
+          <li><strong>Numerical derivatives</strong> (NumFreq, NumGrad): many independent displacements, so many cores can be used effectively, up to roughly 6 × atoms × (4–8).</li>
         </ul>
 
         <p>
@@ -278,11 +277,6 @@ del basename*.tmp    <span class="cmt"># Windows</span></code></pre>
             running 8 cores in parallel, starting at <code>%maxcore 5000</code> is reasonable.
           </p>
         </div>
-
-        <p>
-          Once a first run goes through cleanly you are halfway there. What is left is writing
-          input files the way you want — which is exactly what the next chapter is for.
-        </p>
       </article>
 
       <nav class="page-nav">

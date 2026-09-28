@@ -119,14 +119,13 @@
 <li><a href="#the-wider-map">The wider map</a></li>
 </ul>
 </div>
-<p>This chapter is a <strong>map, not a manual</strong>. <code>ph.x</code> and <code>neb.x</code> are each a
-book-sized topic, so here we only fix when you will need them and where to
-start.</p>
+<p><code>ph.x</code> and <code>neb.x</code> are each a book-sized topic. This chapter only covers
+when you will need them and where to start.</p>
 <h2 id="phx-phonons-dfpt">ph.x: phonons (DFPT)</h2>
 <p>Computes dynamical matrices by density-functional perturbation theory. You
 will need it when:</p>
 <ul>
-<li><strong>Validating structural stability</strong>: is the optimized structure a true
+<li>Validating structural stability: is the optimized structure a true
   minimum (no imaginary frequencies)?</li>
 <li>Vibrational spectra, thermodynamic quantities (free energy, entropy),
   thermal expansion (with <code>thermo_pw</code>).</li>
@@ -136,7 +135,7 @@ will need it when:</p>
 <pre><code>pw.x (scf, very tight conv_thr) → ph.x (&amp;INPUTPH, ldisp=.true., nq grid)
   → q2r.x (real-space force constants) → matdyn.x (dispersion and DOS at any q)
 </code></pre>
-<p>The essentials of <code>&amp;INPUTPH</code>: <code>tr2_ph</code> (response threshold, typically
+<p>The main <code>&amp;INPUTPH</code> variables: <code>tr2_ph</code> (response threshold, typically
 1.0d-14), <code>ldisp</code> with <code>nq1/nq2/nq3</code> (the q-grid), <code>epsil</code> (dielectric
 tensor, needed for LO-TO splitting in polar insulators), <code>fildyn</code>. The cost
 is heavy, so image parallelism (<code>-ni</code>) and <code>start_q</code>/<code>last_q</code> splitting are
@@ -147,7 +146,7 @@ structure are full of imaginary modes, and those are a symptom of
 non-convergence, not physics.</strong></p>
 <h2 id="nebx-reaction-paths-and-barriers">neb.x: reaction paths and barriers</h2>
 <p>Nudged Elastic Band finds the minimum-energy path and transition state
-between two structures. It is the central tool for oxidation mechanisms,
+between two structures. It is the usual tool for oxidation mechanisms,
 diffusion barriers, and surface reactions.</p>
 <p>Its input format differs from <code>pw.x</code>: path settings (<code>&amp;PATH</code>) and an engine
 input (identical to a pw.x input) sit together inside <code>BEGIN</code>/<code>END</code> blocks.</p>
@@ -220,11 +219,11 @@ END
 <div class="warning">
   <div class="note-title">Common mistakes</div>
   <p>
-    Building phonons or NEB on top of <strong>unconverged settings</strong>.
+    Building phonons or NEB on top of unconverged settings.
     Both methods live off tiny force and energy differences, so any
     looseness in the underlying SCF (its <code>conv_thr</code>, cutoffs,
-    k-points) comes back as imaginary modes or jagged paths. Pass the
-    program of <a href="05-convergence.html">Chapter 05</a> first.
+    k-points) comes back as imaginary modes or jagged paths. Run the
+    convergence tests of <a href="05-convergence.html">Chapter 05</a> first.
   </p>
 </div>
       </article>

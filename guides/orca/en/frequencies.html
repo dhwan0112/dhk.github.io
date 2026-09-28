@@ -77,11 +77,11 @@
           <div class="toc-title">On this page</div>
           <ul>
             <li><a href="#why">Why compute frequencies</a></li>
-            <li><a href="#basic">Basic usage — AnFreq vs NumFreq</a></li>
+            <li><a href="#basic">Basic usage: AnFreq and NumFreq</a></li>
             <li><a href="#combined">Combined with optimisation</a></li>
             <li><a href="#interpret">Reading the output</a></li>
             <li><a href="#imaginary">Handling imaginary frequencies</a></li>
-            <li><a href="#thermo">Thermochemistry — Gibbs free energy</a></li>
+            <li><a href="#thermo">Thermochemistry and Gibbs free energy</a></li>
             <li><a href="#ir-raman">IR · Raman spectra</a></li>
             <li><a href="#options">Useful options</a></li>
           </ul>
@@ -96,7 +96,7 @@
           <li><strong>Predict IR / Raman spectra</strong>: vibrational spectra directly comparable to experiment.</li>
         </ol>
 
-        <h2 id="basic">Basic usage — AnFreq vs NumFreq</h2>
+        <h2 id="basic">Basic usage: AnFreq and NumFreq</h2>
         <p>Two flavours are available:</p>
 
         <table>
@@ -159,12 +159,12 @@ Scaling factor for frequencies =  1.000000000  (already applied!)
 
         <p>
           The first six entries (five for linear molecules) are the translational and
-          rotational modes — they should always appear near zero. The remaining entries are the
+          rotational modes, which should always appear near zero. The remaining entries are the
           true vibrational modes. In the example above water has three modes: the bend (1659),
           symmetric stretch (3805) and antisymmetric stretch (3914).
         </p>
 
-        <h3>Visualising modes — normal coordinates</h3>
+        <h3>Visualising normal coordinates</h3>
         <p>Displacement vectors for each mode appear in the <code>NORMAL MODES</code> section:</p>
 
         <pre data-lang="output"><code>------------
@@ -207,7 +207,7 @@ orca_pltvib mol.hess 6</code></pre>
           </p>
         </div>
 
-        <h2 id="thermo">Thermochemistry — Gibbs free energy</h2>
+        <h2 id="thermo">Thermochemistry and Gibbs free energy</h2>
         <p>
           Once the frequencies are in, ORCA automatically prints the thermochemistry. The
           default reference conditions are 298.15 K and 1 atm:
@@ -299,16 +299,11 @@ orca_mapspc mol.out raman -w50
           <p>
             Harmonic frequencies from DFT are typically 5–10 % too high compared to
             experiment. When comparing with literature, multiply by the functional-specific
-            recommended scaling factor — e.g. ~0.961 for B3LYP/6-31G(d) and ~0.965 for
+            recommended scaling factor, e.g. ~0.961 for B3LYP/6-31G(d) and ~0.965 for
             B3LYP/def2-TZVP. A comprehensive table lives at NIST CCCBDB
             (<a href="https://cccbdb.nist.gov">cccbdb.nist.gov</a>).
           </p>
         </div>
-
-        <p>
-          With frequencies for both minima and transition states in hand, the next step is to
-          connect them.
-        </p>
       </article>
 
       <nav class="page-nav">

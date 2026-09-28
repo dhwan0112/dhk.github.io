@@ -178,12 +178,12 @@ response (metals, magnets) the density oscillates and diverges. Such systems
 need gentle mixing (0.2–0.3). <code>mixing_mode='local-TF'</code> is particularly
 effective for spatially inhomogeneous systems: slabs, cells with vacuum,
 magnetic oxides.</p>
-<p>A measured example: the <a href="ex-10-feo-afm.html">FeO AFM run (E10)</a> uses
+<p>For example, the <a href="ex-10-feo-afm.html">FeO AFM run (E10)</a> uses
 <code>mixing_beta = 0.2</code> with <code>local-TF</code>. GGA FeO converges to a (wrong)
 metallic state and is touchy; the default 0.7 oscillates.</p>
 <h2 id="a-diagnosis-order-for-failures">A diagnosis order for failures</h2>
 <p>When you see <code>convergence NOT achieved after N iterations</code>, try these
-<strong>in order</strong>.</p>
+in order.</p>
 <ol>
 <li><code>mixing_beta</code> 0.7 → 0.3 → 0.1</li>
 <li><code>mixing_mode = 'local-TF'</code> (metals, slabs, magnets)</li>
@@ -191,7 +191,7 @@ metallic state and is touchy; the default 0.7 oscillates.</p>
 <li>Increase <code>mixing_ndim</code> (8 → 12–16, if memory allows)</li>
 <li>Temporarily raise <code>degauss</code> to converge, then restart with
    <code>startingpot='file'</code> while lowering it back</li>
-<li><code>diagonalization = 'cg'</code> or <code>'ppcg'</code> (slower but robust)</li>
+<li><code>diagonalization = 'cg'</code> or <code>'ppcg'</code> (slower but more stable)</li>
 <li>Check the structure for nonsense (atoms too close together)</li>
 </ol>
 <p>Diagonalization-stage problems

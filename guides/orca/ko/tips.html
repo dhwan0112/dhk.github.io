@@ -68,12 +68,12 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 14 · 실전 운영</div>
         <h1 class="page-title">팁과 트러블슈팅</h1>
-        <p class="page-lede">계산이 멈췄을 때, 결과가 이상할 때. 매뉴얼 §8을 한국어로 풀어 정리했다.</p>
+        <p class="page-lede">계산이 멈추거나 결과가 이상할 때 점검할 것들. 매뉴얼 §8을 바탕으로 정리했다.</p>
       </header>
 
       <article class="content">
         <div class="toc">
-          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
           <ul>
             <li><a href="#mistakes">흔한 입력 실수</a></li>
             <li><a href="#scf-troubles">SCF가 수렴하지 않을 때</a></li>
@@ -83,7 +83,7 @@
             <li><a href="#parallel">병렬이 느릴 때</a></li>
             <li><a href="#spin-contamination">스핀 오염</a></li>
             <li><a href="#workflow">상황별 권장 워크플로우</a></li>
-            <li><a href="#general">매뉴얼이 강조하는 일반 원칙</a></li>
+            <li><a href="#general">일반 원칙</a></li>
           </ul>
         </div>
 
@@ -111,11 +111,11 @@
 
         <h2 id="scf-troubles">SCF가 수렴하지 않을 때</h2>
         <p>
-          매뉴얼 §8.3은 SCF 수렴 실패가 거의 항상 열린 껍질 상황에서 나오고,
-          해결책의 핵심은 “더 나은 초기 궤도(better starting orbitals)”라고 못 박는다. 권장 전략은 이렇다.
+          SCF 수렴 실패는 대부분 열린 껍질 계에서 나오고, 해결의 핵심은 더 나은 초기 궤도를
+          주는 것이다(매뉴얼 §8.3). 쓸 만한 전략은 이렇다.
         </p>
 
-        <h3>전략 ① — 작은 기저집합으로 먼저 수렴</h3>
+        <h3>전략 ①: 작은 기저집합으로 먼저 수렴</h3>
         <pre data-lang="orca"><code><span class="cmt"># 1단계: 작은 기저집합 + 느슨한 수렴 + 강한 감쇠</span>
 <span class="kw">!</span> <span class="kw2">BP86 def2-SV def2/J SlowConv LooseSCF</span>
 <span class="kw">%scf</span>
@@ -140,7 +140,7 @@
 <span class="kw">%moinp</span> <span class="str">"step2.gbw"</span>
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 3</span></code></pre>
 
-        <h3>전략 ② — SOSCF 또는 TRAH 활용</h3>
+        <h3>전략 ②: SOSCF 또는 TRAH</h3>
         <p>
           DIIS가 0.001 언저리에서 정체되면 2차 SCF(SOSCF)나 TRAH(Trust-Region Augmented Hessian)를 켠다.
         </p>
@@ -153,23 +153,23 @@
         <pre data-lang="orca"><code><span class="cmt"># 가장 어려운 경우의 마지막 수단: TRAH</span>
 <span class="kw">!</span> <span class="kw2">B3LYP def2-TZVP TRAH</span></code></pre>
 
-        <h3>전략 ③ — 큰 감쇠와 level shift</h3>
+        <h3>전략 ③: 큰 감쇠와 level shift</h3>
         <pre data-lang="orca"><code><span class="kw">%scf</span>
    <span class="kw2">DampFac</span>    <span class="num">0.90</span>    <span class="cmt"># 큰 감쇠</span>
    <span class="kw2">DampErr</span>    <span class="num">0.02</span>    <span class="cmt"># DIIS 오차가 이 값 이하가 되면 감쇠 끔</span>
    <span class="kw2">Shift</span> <span class="kw">shift</span> <span class="num">0.5</span> <span class="kw2">erroff</span> <span class="num">0</span> <span class="kw">end</span>   <span class="cmt"># 가상 궤도를 0.5 Eh 만큼 위로 밀어 올림</span>
 <span class="kw">end</span></code></pre>
 
-        <h3>전략 ④ — 연관된 닫힌 껍질에서 시작</h3>
+        <h3>전략 ④: 연관된 닫힌 껍질에서 시작</h3>
         <p>
           홀수 전자 시스템이 잘 수렴하지 않으면, 양이온이나 음이온의 닫힌 껍질 계산을 먼저 하고 그 궤도를 읽어 오는 방법이 있다.
           닫힌 껍질이 대체로 더 잘 수렴한다.
         </p>
 
         <div class="tip">
-          <div class="note-title">수렴 문제의 8할은 좌표</div>
+          <div class="note-title">수렴 실패는 좌표부터 확인</div>
           <p>
-            매뉴얼도 대놓고 말하듯, 수렴 실패의 가장 흔한 원인은 “말도 안 되는 구조”다.
+            수렴 실패의 가장 흔한 원인은 잘못된 구조다.
             결합 길이가 0.5 Å로 짧거나, 두 원자가 같은 자리에 있거나, 단위가 Å이 아니라 bohr인 채로 들어갔거나 하는 경우다.
             방법을 바꾸기 전에 좌표가 화학적으로 말이 되는지부터 확인한다.
           </p>
@@ -180,7 +180,7 @@
           <li><strong>최대 step 줄이기</strong>: <code>%geom MaxStep 0.1 end</code> (단위 bohr). 진동을 잠재운다.</li>
           <li><strong>좌표계 전환</strong>: <code>!COpt</code>로 데카르트 좌표를 시도한다.</li>
           <li><strong>초기 헤시안 강화</strong>: 싼 방법으로 헤시안을 계산한 뒤 <code>InHess Read</code>로 읽어 온다.
-            매뉴얼이 드는 예가 “1단계 NumFreq → 2단계 OptTS” 패턴이다.</li>
+            1단계에서 NumFreq, 2단계에서 OptTS를 돌리는 식이다.</li>
           <li><strong>SCF 임계값 강화</strong>: 평탄한 표면에서는 SCF 잡음이 그래디언트를 흔든다. <code>TightSCF</code> 이상을 권한다.</li>
           <li><strong>적분 격자 강화</strong>: <code>DefGrid3</code>으로 DFT 격자 정밀도를 올린다.</li>
         </ol>
@@ -238,7 +238,7 @@ cd / &amp;&amp; rm -rf $ORCA_SCRDIR</code></pre>
           벗어남이 5% 이내면 무시할 만하지만, 10%를 넘으면 결과를 믿기 어려워진다.
         </p>
 
-        <p>매뉴얼이 권하는 진단 도구는 <code>!UNO !UCO</code> 조합이다.</p>
+        <p>진단에는 <code>!UNO !UCO</code> 조합을 쓴다.</p>
 
         <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">B3LYP D4 def2-SVP UNO UCO TightSCF</span>
 
@@ -261,7 +261,7 @@ cd / &amp;&amp; rm -rf $ORCA_SCRDIR</code></pre>
 
         <h3>전이금속 착물 (3d 금속)</h3>
         <ol>
-          <li><code>TPSSh D4 def2-TZVP Opt Freq</code> — 메타-GGA 하이브리드가 스핀 상태를 잘 묘사.</li>
+          <li><code>TPSSh D4 def2-TZVP Opt Freq</code>. 메타-GGA 하이브리드가 스핀 상태를 잘 묘사한다.</li>
           <li>스핀 상태가 미묘하면 같은 방법으로 다른 다중도를 모두 계산해 비교한다.</li>
           <li>UV-Vis는 <code>TDDFT</code>, EPR g-tensor는 <code>!EPRNMR</code>로 추가 계산한다.</li>
         </ol>
@@ -283,28 +283,27 @@ cd / &amp;&amp; rm -rf $ORCA_SCRDIR</code></pre>
           <li>ΔG<sup>‡</sup>, ΔG<sub>rxn</sub> 산출.</li>
         </ol>
 
-        <h2 id="general">매뉴얼이 강조하는 일반 원칙</h2>
+        <h2 id="general">일반 원칙</h2>
 
         <div class="note">
           <div class="note-title">기저집합의 일관성</div>
           <p>
-            매뉴얼 §8.2가 강조하듯, 최소 기저집합(STO-3G)나 3-21G 같은 작은 split-valence 기저집합은
-            정량적 결과엔 부적합하다. Karlsruhe def2 시리즈를 일관되게 쓰는 게 좋다.
+            최소 기저집합(STO-3G)이나 3-21G 같은 작은 split-valence 기저집합은
+            정량적 결과엔 부적합하다(매뉴얼 §8.2). Karlsruhe def2 시리즈를 일관되게 쓰는 게 좋다.
             반응물·생성물·전이 상태 모두 같은 기저집합을 써야 오차가 상쇄된다.
           </p>
         </div>
 
         <div class="note">
-          <div class="note-title">DFT는 격자가 정확도의 한계</div>
+          <div class="note-title">큰 기저집합에는 큰 격자</div>
           <p>
-            큰 기저집합(예: def2-QZVPP)로 작업할 때 DFT 적분 격자가 <code>DefGrid2</code>에 머물러 있으면,
+            큰 기저집합(예: def2-QZVPP)으로 작업할 때 DFT 적분 격자가 <code>DefGrid2</code>에 머물러 있으면,
             정확도가 격자 잡음에 묶인다. 큰 기저집합을 쓸 때는 <code>DefGrid3</code>으로 격자도 같이 올린다.
-            매뉴얼의 표현을 빌리면 “격자에서 온 수치 잡음으로 애써 얻은 정확도를 깎아 먹지 말 것”.
           </p>
         </div>
 
         <div class="note">
-          <div class="note-title">분산 보정은 거의 무료</div>
+          <div class="note-title">분산 보정의 비용</div>
           <p>
             D3·D4 보정은 계산 시간을 거의 늘리지 않으면서 정확도를 크게 끌어올린다.
             함수가 분산력을 자체 처리(VV10 내장)하는 경우가 아니면 거의 항상 켜는 게 좋다.
@@ -321,23 +320,19 @@ cd / &amp;&amp; rm -rf $ORCA_SCRDIR</code></pre>
         </div>
 
         <div class="tip">
-          <div class="note-title">매뉴얼의 마지막 조언</div>
+          <div class="note-title">정확도와 화학적 해석</div>
           <p>
-            매뉴얼 §8.2 끝에 인상적인 한마디가 있다.
-            “문제를 푸는 건 컴퓨터가 아니라 사람이다.
-            숫자 한두 개를 더 정확하게 만든다고 해서, 그게 우리가 다루는 분자의 화학·분광학을 이해하는 데 곧장 도움이 되는 건 아니다.
-            기술적 디테일에 갇혀 본래의 통찰을 놓치는 위험은 실제로 있다.”
-            계산의 정확도를 좇는 건 좋지만, 그게 화학적 통찰을 대신해 주지는 않는다는 걸 잊지 말자.
+            숫자 한두 개를 더 정확하게 만든다고 분자의 화학·분광학을 더 잘 이해하게 되지는 않는다.
+            기술적 디테일을 다듬는 데 매달리다 원래 알고 싶던 화학적 질문을 놓치지 않도록 한다(매뉴얼 §8.2).
           </p>
         </div>
 
         <div class="divider"></div>
 
         <p>
-          여기까지가 이 가이드의 마지막 장이다. 일상 연구에 조금이라도 도움이 됐으면 한다.
           더 깊은 옵션이나 특수한 사용 사례는 ORCA 매뉴얼 6.0.0판(공식 PDF)을 직접 펴 보면 된다.
-          그리고 막히는 데가 있으면 공식 포럼(<a href="https://orcaforum.kofo.mpg.de">orcaforum.kofo.mpg.de</a>)에서
-          비슷한 사례를 찾아보는 게 큰 도움이 된다.
+          막히는 데가 있으면 공식 포럼(<a href="https://orcaforum.kofo.mpg.de">orcaforum.kofo.mpg.de</a>)에서
+          비슷한 사례를 찾아본다.
         </p>
 
         <footer class="site-footer">

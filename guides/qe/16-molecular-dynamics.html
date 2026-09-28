@@ -123,8 +123,8 @@
 <p><code>calculation='md'</code> in <code>pw.x</code> is <strong>Born-Oppenheimer MD (BOMD)</strong>: every step
 converges an SCF and moves the ions on the resulting forces.
 (Car-Parrinello MD lives in the separate executable <code>cp.x</code>.) It is the tool
-for finite-temperature sampling, and in particular the <strong>starting point for
-generating training data for machine-learned potentials</strong>.</p>
+for finite-temperature sampling, and in particular the starting point for
+generating training data for machine-learned potentials.</p>
 <h2 id="input-skeleton">Input skeleton</h2>
 <pre><code class="language-fortran">&amp;CONTROL
   calculation  = 'md'
@@ -146,11 +146,11 @@ generating training data for machine-learned potentials</strong>.</p>
 /
 </code></pre>
 <ul>
-<li><code>dt</code> is in <strong>Rydberg atomic units</strong> (20.0 a.u. ≈ 0.968 fs), not
+<li><code>dt</code> is in Rydberg atomic units (20.0 a.u. ≈ 0.968 fs), not
   femtoseconds.</li>
 <li>The <code>'svr'</code> thermostat (stochastic velocity rescaling,
   Bussi-Donadio-Parrinello) samples the canonical ensemble correctly and is
-  robust; a good default. <code>nraise</code> is its coupling period.</li>
+  stable; a good default. <code>nraise</code> is its coupling period.</li>
 <li>Without <code>disk_io='none'</code> the wavefunction writes drown the run in I/O.</li>
 <li>Every step is an SCF, so the <code>&amp;ELECTRONS</code> settings govern the speed. The
   wavefunction and potential extrapolation
@@ -161,7 +161,7 @@ generating training data for machine-learned potentials</strong>.</p>
   <img src="assets/images/qe-e13-md.png"
        alt="FeO BOMD: temperature and energy trace" />
   <figcaption>
-    Measured BOMD of the 4-atom FeO(+U) cell (QE 7.5, SVR 300 K, 0.19 ps).
+    BOMD of the 4-atom FeO(+U) cell (QE 7.5, SVR 300 K, 0.19 ps).
     The early transient shows the ions leaving their ideal lattice sites and
     releasing potential energy, and the large temperature fluctuations
     (roughly 1/√N) are normal for such a small cell while the SVR thermostat
@@ -175,13 +175,13 @@ generating training data for machine-learned potentials</strong>.</p>
 <li>Keep <code>ecutwfc</code>, <code>ecutrho</code>, the k-grid, smearing, and U <strong>absolutely
   identical across every frame</strong>. A dataset with mixed settings cannot be
   repaired at training time.</li>
-<li>Converge on <strong>forces</strong>, not energies
+<li>Converge on forces, not energies
   (<a href="05-convergence.html">Chapter 05</a>).</li>
-<li>Consecutive MD frames are strongly correlated; <strong>subsample</strong> (every 50
+<li>Consecutive MD frames are strongly correlated; subsample (every 50
   steps, say).</li>
 <li>Getting stress into the dataset requires <code>tstress=.true.</code>, but the
-  <strong>Hubbard stress dies with <code>stres_hub</code> errors in the nosym+U
-  (ortho-atomic) combination</strong> (measured on QE 7.5). In that case compute
+  Hubbard stress fails with <code>stres_hub</code> errors in the nosym+U
+  (ortho-atomic) combination (I saw this on QE 7.5). In that case compute
   stress in separate scf runs on the extracted frames.</li>
 <li>Check each step's <code>Ekin + Etot (const)</code> line and the temperature trace in
   the output.</li>
@@ -193,11 +193,11 @@ generating training data for machine-learned potentials</strong>.</p>
     Symmetry is detected on the initial structure, and thermal motion breaks
     it in the very first step, stopping the run with
     <code>checkallsym: some of the original symmetry operations not
-    satisfied</code> (we hit this ourselves). For DFT+U MD also set
+    satisfied</code> (I hit this myself). For DFT+U MD also set
     <code>mixing_fixed_ns</code>: with symmetry off, rotations among
     degenerate orbitals stall the SCF, and freezing the occupation matrix
     for the first iterations releases it
-    (<a href="ex-13-slab-md.html">E13</a>, measured). Mistaking
+    (see <a href="ex-13-slab-md.html">E13</a>). Mistaking
     <code>dt</code> for femtoseconds (a 20 fs step) blows the trajectory up
     immediately. Finally, if an SCF inside the MD fails to converge, QE can
     continue on the previous density, and that frame's forces are
@@ -208,7 +208,7 @@ generating training data for machine-learned potentials</strong>.</p>
 
 <h2 id="related-examples">Related examples</h2>
 <ul>
-<li><a href="ex-13-slab-md.html">E13 · Slabs and AIMD</a>: the measured 300 K BOMD of
+<li><a href="ex-13-slab-md.html">E13 · Slabs and AIMD</a>: the 300 K BOMD of
   the FeO cell and frame-extraction practice.</li>
 </ul>
       </article>

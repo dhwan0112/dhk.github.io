@@ -6,12 +6,11 @@ title: "E10. FeO AFM (where GGA fails)"
 
 ## Goal
 
-The gateway example for antiferromagnetic oxides. Build the AFM-II order of
+The first antiferromagnetic oxide in this guide. Build the AFM-II order of
 rocksalt FeO (alternating (111) spin planes) by **splitting one element
-into two labels**, and then watch GGA (PBE) predict a **metal** for a
-material that experiment says is an insulator with a gap of about 2.4 eV.
-Seeing this failure with your own eyes is the motivation for
-[E11 (DFT+U)](ex-11-feo-hubbard.html).
+into two labels**, and then see GGA (PBE) predict a metal for a material
+that experiment says is an insulator with a gap of about 2.4 eV. This
+failure is the motivation for [E11 (DFT+U)](ex-11-feo-hubbard.html).
 
 ## New cards and variables
 
@@ -102,13 +101,13 @@ required later by [DFT+U (E11)](ex-11-feo-hubbard.html) and
 mpirun -np 8 pw.x -nk 4 -in feo.scf.in > feo.scf.out
 ```
 
-## What to check: measured (the real point of this example)
+## What to check
 
 | Item | Measured (QE 7.5, PAW) | Reading |
 |---|---|---|
 | Total energy | −741.81592118 Ry (28 iterations) | |
 | total magnetization | **0.00 μB** | AFM established |
-| absolute magnetization | **7.17 μB** | total ≈ 0 with large absolute: the AFM badge |
+| absolute magnetization | **7.17 μB** | total ≈ 0 with large absolute: AFM |
 | Fe local moments | +3.31 / −3.31 μB | The alternating (111) arrangement confirmed |
 | O moment | 0.00 | |
 | **`the Fermi energy is 14.2231 ev`** | **printed, so a metal** | **The GGA failure.** Experiment: an insulator (~2.4 eV) |
@@ -117,15 +116,15 @@ mpirun -np 8 pw.x -nk 4 -in feo.scf.in > feo.scf.out
   <img src="assets/images/qe-e10-e11-feo-dos.png"
        alt="FeO spin-resolved DOS: GGA metallic vs GGA+U" />
   <figcaption>
-    Measured spin-resolved DOS of FeO (QE 7.5, nscf 8×8×8). Left (this
+    Spin-resolved DOS of FeO (QE 7.5, nscf 8×8×8). Left (this
     example, GGA): Fe-3d states sit right at the Fermi level with
     DOS(E_F) ≈ 3.7, a metal. The right panel is
     <a href="ex-11-feo-hubbard.html">E11</a> with U on, showing the Hubbard
-    splitting and the narrow-band trap that survives it.
+    splitting and the narrow band that survives it.
   </figcaption>
 </figure>
 
-The AFM order itself came out perfectly (moments ±3.31 μB), yet the
+The AFM order itself came out as intended (moments ±3.31 μB), yet the
 electronic structure is metallic. That is the self-interaction error of
 GGA delocalizing the Fe-3d electrons, and it is why the U correction
 exists ([Chapter 13](13-dft-plus-u.html)).

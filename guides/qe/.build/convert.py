@@ -51,14 +51,14 @@ PAGES = [
     ("09-relaxation.html", "chapters/09-relaxation.md", "CHAPTER 09 · BASICS · CALCULATION TYPES",
         "Forces and stress, relax and vc-relax, BFGS, &IONS and &CELL, convergence criteria, and the post-vc-relax rerun."),
     ("10-dos-bands.html", "chapters/10-dos-bands.md", "CHAPTER 10 · BASICS · CALCULATION TYPES",
-        "The dos.x, projwfc.x and bands.x post-processing pipelines, reading gaps, and interpreting PDOS."),
+        "The dos.x, projwfc.x and bands.x post-processing pipelines, band-structure k-paths, and three ways to read a gap."),
     ("11-postprocessing.html", "chapters/11-postprocessing.md", "CHAPTER 11 · BASICS · CALCULATION TYPES",
         "pp.x and plot_num, extracting charge densities and potentials, cube files, and visualization tools."),
     # === Advanced · Magnetism and correlation ===
     ("12-magnetism.html", "chapters/12-magnetism.md", "CHAPTER 12 · ADVANCED · MAGNETISM",
         "nspin and starting_magnetization, setting up AFM order with atom labels, and measured runs on bcc Fe and FeO."),
     ("13-dft-plus-u.html", "chapters/13-dft-plus-u.md", "CHAPTER 13 · ADVANCED · MAGNETISM",
-        "Self-interaction error and DFT+U, the v7.1+ HUBBARD card syntax, and why (and how) a gap opens in FeO."),
+        "Self-interaction error and DFT+U, the v7.1+ HUBBARD card syntax, and DFT+U on FeO and what happens to the gap."),
     ("14-hubbard-hp.html", "chapters/14-hubbard-hp.md", "CHAPTER 14 · ADVANCED · MAGNETISM",
         "Computing U from first principles with hp.x: the linear-response workflow and its convergence parameters."),
     # === Advanced · Applications and operations ===

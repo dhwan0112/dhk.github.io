@@ -123,8 +123,8 @@
 </div>
 <p>A pseudopotential replaces the rapidly oscillating all-electron wavefunction
 near the nucleus with a smooth pseudo-wavefunction, which is what makes a
-plane-wave basis workable. <strong>Your choice of pseudopotential controls both
-the cutoffs you need and the accuracy you get.</strong></p>
+plane-wave basis workable. Your choice of pseudopotential controls both
+the cutoffs you need and the accuracy you get.</p>
 <h2 id="the-three-families-nc-us-paw">The three families: NC, US, PAW</h2>
 <table>
 <thead>
@@ -156,13 +156,13 @@ the cutoffs you need and the accuracy you get.</strong></p>
 </tr>
 </tbody>
 </table>
-<p>The examples in this guide use PSlibrary <strong>PAW</strong> files. For demanding
+<p>The examples in this guide use PSlibrary PAW files. For demanding
 elements like Fe, <code>ecutrho</code> is set to 10x <code>ecutwfc</code>.</p>
 <div class="warning">
   <div class="note-title">Common mistake: the ecutrho trap</div>
   <p>
     The default <code>ecutrho = 4 × ecutwfc</code> is a
-    <strong>norm-conserving</strong> convention. Leaving that default with
+    norm-conserving convention. Leaving that default with
     US/PAW potentials produces <code>negative rho</code> warnings or a
     <code>charge is wrong</code> error, or worse, a <strong>quietly wrong
     total energy with no error at all</strong>. Always set 8–12x explicitly
@@ -176,8 +176,8 @@ elements like Fe, <code>ecutrho</code> is set to 10x <code>ecutwfc</code>.</p>
   State Pseudopotentials): a curated, element-by-element verified library.
   The <em>efficiency</em> set keeps cutoffs low at reasonable accuracy, good for
   everyday work and screening; the <em>precision</em> set stays closest to
-  all-electron results for high-accuracy work. <strong>For beginners the real
-  treasure is the per-element recommended cutoff table</strong>: take your
+  all-electron results for high-accuracy work. For beginners the most
+  useful part is the per-element recommended cutoff table: take your
   convergence-test starting points from it.</li>
 <li><strong><a href="https://pseudopotentials.quantum-espresso.org/">PSlibrary</a></strong>: the
   NC/US/PAW library by the QE developers, downloadable per element from the
@@ -208,14 +208,13 @@ this guide, this card is the only thing you need to change.</p>
 <p>The exchange-correlation functional is fixed when the pseudopotential is
 generated, and <code>pw.x</code> reads it from the file. You can override it with
 <code>input_dft</code>, but that contradicts the generation conditions of the
-potential, so <strong>avoid it</strong>. Use PBE potentials for PBE calculations; that is
-the rule.</p>
+potential, so avoid it. Use PBE potentials for PBE calculations.</p>
 <div class="tip">
   <div class="note-title">Absolute total energies are not comparable</div>
   <p>
     Every pseudopotential has its own energy zero, so comparing absolute
     total energies across different potentials (or different cutoffs) is
-    meaningless. Only <strong>differences</strong> between energies computed
+    meaningless. Only differences between energies computed
     under identical conditions carry physics. If your total energy differs
     from a paper's, that alone means nothing.
   </p>

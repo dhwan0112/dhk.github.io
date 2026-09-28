@@ -113,9 +113,9 @@
       </header>
       <article class="content">
 <h2 id="goal">Goal</h2>
-<p>Define the <strong>physically identical system</strong> of <a href="ex-01-si-scf.html">E1</a> using
+<p>Define the physically identical system of <a href="ex-01-si-scf.html">E1</a> using
 <code>ibrav=0</code> and an explicit <code>CELL_PARAMETERS</code> card, verify the equivalence
-through the total energy, and internalize the coordinate options
+through the total energy, and practice the coordinate options
 (<code>alat</code>/<code>crystal</code>/<code>angstrom</code>). Every generator (ASE and friends) emits this
 format, so you must be able to read it.</p>
 <h2 id="new-cards-and-variables">New cards and variables</h2>
@@ -188,7 +188,7 @@ K_POINTS (automatic)
 <h2 id="run">Run</h2>
 <pre><code class="language-bash">mpirun -np 6 pw.x -nk 6 -in si_ibrav0.scf.in &gt; si_ibrav0.scf.out
 </code></pre>
-<h2 id="what-to-check-the-measured-comparison">What to check: the measured comparison</h2>
+<h2 id="what-to-check-the-comparison">What to check: the comparison</h2>
 <table>
 <thead>
 <tr>
@@ -215,11 +215,10 @@ K_POINTS (automatic)
   written <code>CELL_PARAMETERS</code> does not necessarily lose symmetry (it can in
   general, so always check).</li>
 <li>The energies differ by 1.3×10⁻⁵ Ry (0.09 meV/atom): not an exact match.
-  The cause is not the syntax but <strong>rounding in the lattice constant</strong>:
+  The cause is rounding in the lattice constant, not the syntax:
   E1's <code>celldm(1)=10.26 bohr</code> is 5.4293 Å, while E2's cell (half-vectors of
   2.715 Å) is exactly 5.4300 Å. Writing "the same structure" twice requires
-  matching the unit conversion to full precision, which is a lesson in
-  itself.</li>
+  matching the unit conversion to full precision.</li>
 </ul>
 <h2 id="exercises">Exercises</h2>
 <ol>

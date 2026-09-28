@@ -28,7 +28,7 @@ each concept connects to.
 
 For theory, good starting points are
 [Cottenier's online DFT course](https://compmatphys.epotentia.com/)
-(QE exercises come bundled with the theory, the most efficient entry point),
+(QE exercises come bundled with the theory),
 [Giannozzi's hands-on tutorial](http://www.fisica.uniud.it/~giannozz/QE-Tutorial/)
 (by one of the main QE authors), MIT OCW 3.320, and as books
 Sholl &amp; Steckel (introductory) and R. Martin (reference).
@@ -78,7 +78,7 @@ project/
 
 `outdir` (temporaries) and `pseudo_dir` can be given in the input or fall
 back to these environment variables. `outdir` is where wavefunctions and
-charge densities accumulate, so make sure it points at a **fast disk**.
+charge densities accumulate, so make sure it points at a fast disk.
 
 ## Verifying the install (do not skip this)
 
@@ -94,8 +94,8 @@ What to confirm:
 - The banner says `Parallel version (MPI), running on N processors`.
 - `Number of MPI processes` and `Threads/MPI process` are what you intended.
 
-If you have the QE source tree, open **`PW/examples/` and `test-suite/`**.
-These are not mere tests; they are **the best textbook you have**.
+If you have the QE source tree, open `PW/examples/` and `test-suite/`.
+They double as worked examples matched to your installed version.
 
 ```bash
 cd PW/examples/example01
@@ -103,8 +103,9 @@ cd PW/examples/example01
 ls results/            # open every generated input and output
 ```
 
-Work through `example01` onward and see what each example demonstrates. For
-version consistency these beat any third-party tutorial.
+Work through `example01` onward and see what each example demonstrates.
+Because they ship with your version, their syntax is always current, which is
+not true of third-party tutorials.
 
 ## Getting pseudopotentials
 

@@ -68,27 +68,27 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 10 · 방법론 선택</div>
         <h1 class="page-title">DLPNO-CCSD(T)</h1>
-        <p class="page-lede">대규모 분자에서도 사용 가능한 황금 표준 계산. 화학 정확도를 합리적 비용으로.</p>
+        <p class="page-lede">국소 상관 근사로 CCSD(T)를 큰 분자에 적용하는 법. 정밀도 단계, CBS 외삽, 컴포지트 워크플로우.</p>
       </header>
 
       <article class="content">
         <div class="toc">
-          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
           <ul>
             <li><a href="#why">왜 DLPNO-CCSD(T)인가</a></li>
             <li><a href="#basic">기본 사용법</a></li>
-            <li><a href="#thresholds">정밀도 단계 — Loose / Normal / Tight</a></li>
+            <li><a href="#thresholds">정밀도 단계: Loose / Normal / Tight</a></li>
             <li><a href="#cbs">완전 기저집합 외삽 (CBS)</a></li>
-            <li><a href="#f12">F12 — 기저집합 한계에 빠르게 접근</a></li>
-            <li><a href="#open-shell">열린 껍질 — UHF 레퍼런스</a></li>
+            <li><a href="#f12">F12 명시적 상관</a></li>
+            <li><a href="#open-shell">열린 껍질 (UHF 레퍼런스)</a></li>
             <li><a href="#workflow">권장 워크플로우</a></li>
-            <li><a href="#multiref">한 걸음 더 — 다중참조 (CASSCF · NEVPT2)</a></li>
+            <li><a href="#multiref">다중참조가 필요한 경우 (CASSCF · NEVPT2)</a></li>
           </ul>
         </div>
 
         <h2 id="why">왜 DLPNO-CCSD(T)인가</h2>
         <p>
-          CCSD(T)는 단일참조 양자화학의 “황금 표준”이다. 웬만한 닫힌 껍질 화학종에서
+          CCSD(T)는 단일참조 양자화학에서 기준 방법으로 흔히 쓰인다. 웬만한 닫힌 껍질 화학종에서
           상대 에너지를 ±1 kcal/mol(이른바 화학 정확도) 안으로 재현한다.
           다만 표준 CCSD(T)는 비용이 시스템 크기에 대해 O(N<sup>7</sup>)로 늘어서,
           원자 20개를 넘어가면 비현실적으로 비싸진다.
@@ -97,9 +97,8 @@
         <p>
           DLPNO(Domain-based Local Pair Natural Orbital) 근사가 이 비용을 확 줄여 준다.
           국소 궤도와 도메인 기반 페어 자연 궤도를 써서 점근적으로 선형 확장(linear scaling)에 가까워지면서도,
-          기준 CCSD(T) 에너지의 약 99.9%를 재현한다. 매뉴얼은 DLPNO-CCSD(T)를 두고
-          “DLPNO-MP2가 되면 DLPNO-CCSD(T)도 된다”고 적어 뒀다.
-          실제로 원자 수백 개짜리 분자에도 쓸 수 있다.
+          기준 CCSD(T) 에너지의 약 99.9%를 재현한다. DLPNO-MP2를 돌릴 수 있는 크기라면
+          DLPNO-CCSD(T)도 대체로 돌릴 수 있고, 원자 수백 개짜리 분자에도 쓸 수 있다.
         </p>
 
         <h2 id="basic">기본 사용법</h2>
@@ -129,7 +128,7 @@
           </tbody>
         </table>
 
-        <h2 id="thresholds">정밀도 단계 — Loose / Normal / Tight</h2>
+        <h2 id="thresholds">정밀도 단계: Loose / Normal / Tight</h2>
         <p>DLPNO의 컷오프 임계값은 세 단계로 묶여 있다.</p>
 
         <table>
@@ -180,7 +179,7 @@
           </tbody>
         </table>
 
-        <h3>EP2 · EP3 — 더 큰 기저집합을 위한 효율적 외삽</h3>
+        <h3>EP2 · EP3 외삽</h3>
         <p>
           큰 기저집합(예: cc-pV5Z)에서 CCSD(T)를 직접 돌리기는 비싸도,
           MP2 수준에서는 되는 경우가 많다. EP2/EP3 외삽은 “큰 기저집합의 MP2 + 작은 기저집합의 CCSD(T) − MP2 보정”을 묶어 효율을 끌어올린다.
@@ -189,7 +188,7 @@
         <pre data-lang="orca"><code><span class="cmt"># EP2: 작은 기저집합에서 CC, 큰 기저집합에서 MP2 외삽</span>
 <span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) ExtrapolateEP2(2/3,cc) AutoAux TightSCF</span></code></pre>
 
-        <h2 id="f12">F12 — 기저집합 한계에 빠르게 접근</h2>
+        <h2 id="f12">F12 명시적 상관</h2>
         <p>
           F12 명시적 상관 방법은 더 작은 기저집합으로도 CBS 한계 근처 정확도를 내게 해 준다.
           DLPNO-CCSD(T)-F12는 이 둘을 합친 것이다.
@@ -204,7 +203,7 @@
           F12를 쓰면 cc-pVDZ-F12 한 번 계산이 cc-pVQZ나 cc-pV5Z CBS 외삽과 비슷한 정확도를 낸다.
         </p>
 
-        <h2 id="open-shell">열린 껍질 — UHF 레퍼런스</h2>
+        <h2 id="open-shell">열린 껍질 (UHF 레퍼런스)</h2>
         <p>
           라디칼이나 다중항 시스템에서는 UHF 레퍼런스를 쓰는 “UHF-DLPNO-CCSD(T)”를 쓴다.
         </p>
@@ -229,7 +228,7 @@
         <h2 id="workflow">권장 워크플로우</h2>
         <p>
           DLPNO-CCSD(T)는 보통 단일점 에너지로만 쓴다. 그래디언트도 구현돼 있지만 비싸서,
-          구조 최적화는 가벼운 방법(DFT)으로 하고 그 위에 정밀 에너지를 얹는 “composite” 워크플로우가 표준이다.
+          구조 최적화는 가벼운 방법(DFT)으로 하고 그 위에 정밀 에너지를 얹는 “composite” 워크플로우가 일반적이다.
         </p>
 
         <ol>
@@ -270,7 +269,7 @@
 
         <p>
           반응 평형이나 자유에너지 장벽을 보고할 때 쓰는 “DFT 최적화 + CCSD(T) 정밀점 + SMD 용매” 조합은
-          요즘 양자화학에서 가장 표준적인 절차이고, 학술지에서도 무난히 받아들여진다.
+          널리 쓰이는 절차이고, 학술지에서도 무난히 받아들여진다.
         </p>
 
         <div class="note">
@@ -282,16 +281,16 @@
           </p>
         </div>
 
-        <h2 id="multiref">한 걸음 더 — 다중참조 (CASSCF · NEVPT2)</h2>
+        <h2 id="multiref">다중참조가 필요한 경우 (CASSCF · NEVPT2)</h2>
         <p>
-          DLPNO-CCSD(T)는 단일참조 이론의 정점이다. 그런데 결합이 끊어지는 도중의 분자,
+          결합이 끊어지는 도중의 분자,
           전이금속·란타나이드의 비공선 자기 상태, 단일항 디라디칼처럼 슬레이터 행렬식이 둘 이상
           비슷한 가중치를 가지는 영역에서는 단일참조 가정 자체가 깨진다. 거기서부터는 활성 공간을
           직접 푸는 CASSCF가 출발점이고, 그 위에 NEVPT2로 동적 상관을 얹는다.
         </p>
         <p>
           활성 공간 잡는 법, state-averaging, NEVPT2, 스핀-궤도 결합·SINGLE_ANISO, 금속·리간드 조각
-          병합까지는 전용 챕터로 옮겼다 → <a href="casscf.html"><strong>13. CASSCF · 다중참조</strong></a>.
+          병합은 <a href="casscf.html"><strong>13. CASSCF · 다중참조</strong></a>에서 다룬다.
         </p>
 
       </article>

@@ -114,8 +114,8 @@
       <article class="content">
 <h2 id="goal">Goal</h2>
 <p>Run the density-of-states pipeline end to end: scf → nscf → <code>dos.x</code> →
-<code>projwfc.x</code>. Learn in your fingers that <strong>order and matching
-<code>prefix</code>/<code>outdir</code> are everything</strong>, and read the Löwdin charges at the end.</p>
+<code>projwfc.x</code>. The steps must run in order with matching <code>prefix</code>/<code>outdir</code>.
+At the end, read the Löwdin charges.</p>
 <pre><code>scf (8³ k) ─→ nscf (16³ k, tetrahedra) ─┬─→ dos.x       (total DOS)
                                          └─→ projwfc.x   (PDOS + Löwdin)
 </code></pre>
@@ -192,9 +192,9 @@ K_POINTS (automatic)
   16 16 16  0 0 0
 </code></pre>
 <div class="warning">
-  <div class="note-title">Measured note: tetrahedra_opt and projwfc.x</div>
+  <div class="note-title">Note: tetrahedra_opt and projwfc.x</div>
   <p>
-    We first ran this with the optimized tetrahedron method,
+    I first ran this with the optimized tetrahedron method,
     <code>occupations='tetrahedra_opt'</code>, and found that on
     <strong>QE 7.5 dos.x and the Löwdin charges are fine but projwfc.x
     writes PDOS files that are entirely zero</strong> (serial or parallel,
@@ -241,7 +241,7 @@ dos.x      -in si.dos.in     &gt; si.dos.out      # 3. total DOS -&gt; si.dos
 projwfc.x  -in si.projwfc.in &gt; si.projwfc.out  # 4. PDOS + Lowdin charges
 grep -A20 'Lowdin Charges' si.projwfc.out      # show the per-orbital occupations
 </code></pre>
-<h2 id="output-and-figure-measured">Output and figure: measured</h2>
+<h2 id="output-and-figure">Output and figure</h2>
 <figure>
   <img src="assets/images/qe-e07-dos-pdos.png"
        alt="Si total DOS with s/p projected DOS" />
@@ -258,7 +258,7 @@ grep -A20 'Lowdin Charges' si.projwfc.out      # show the per-orbital occupation
   (the valence electron count) at the top of the valence bands: a built-in
   sanity check.</li>
 <li><code>si.pdos.pdos_atm#1(Si)_wfc#2(p)</code>: the p-projected DOS of atom 1.</li>
-<li><strong>Löwdin charges, measured</strong>: 3.9637 e per atom (s 1.1617 + p 2.8020),
+<li>Löwdin charges: 3.9637 e per atom (s 1.1617 + p 2.8020),
   spilling parameter 0.0091. The gap to the 4 valence electrons (the
   spilling) is the part of the plane-wave states the atomic-orbital basis
   cannot represent. Keep the same caveat in mind when reading Fe d

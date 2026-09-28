@@ -6,9 +6,9 @@ title: "E2. Rewriting with ibrav=0"
 
 ## Goal
 
-Define the **physically identical system** of [E1](ex-01-si-scf.html) using
+Define the physically identical system of [E1](ex-01-si-scf.html) using
 `ibrav=0` and an explicit `CELL_PARAMETERS` card, verify the equivalence
-through the total energy, and internalize the coordinate options
+through the total energy, and practice the coordinate options
 (`alat`/`crystal`/`angstrom`). Every generator (ASE and friends) emits this
 format, so you must be able to read it.
 
@@ -74,7 +74,7 @@ K_POINTS (automatic)
 mpirun -np 6 pw.x -nk 6 -in si_ibrav0.scf.in > si_ibrav0.scf.out
 ```
 
-## What to check: the measured comparison
+## What to check: the comparison
 
 | Item | E1 (`ibrav=2`) | E2 (`ibrav=0`) |
 |---|---|---|
@@ -85,11 +85,10 @@ mpirun -np 6 pw.x -nk 6 -in si_ibrav0.scf.in > si_ibrav0.scf.out
   written `CELL_PARAMETERS` does not necessarily lose symmetry (it can in
   general, so always check).
 - The energies differ by 1.3×10⁻⁵ Ry (0.09 meV/atom): not an exact match.
-  The cause is not the syntax but **rounding in the lattice constant**:
+  The cause is rounding in the lattice constant, not the syntax:
   E1's `celldm(1)=10.26 bohr` is 5.4293 Å, while E2's cell (half-vectors of
   2.715 Å) is exactly 5.4300 Å. Writing "the same structure" twice requires
-  matching the unit conversion to full precision, which is a lesson in
-  itself.
+  matching the unit conversion to full precision.
 
 ## Exercises
 

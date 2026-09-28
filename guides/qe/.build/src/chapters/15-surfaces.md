@@ -16,7 +16,7 @@ energies, and work functions all start here.
 
 ## Building slabs: never by hand
 
-Writing slab coordinates by hand is an error factory. Use a generator such
+Writing slab coordinates by hand is error-prone. Use a generator such
 as ASE or pymatgen.
 
 ```python
@@ -34,11 +34,11 @@ write('feo100.scf.in', slab, format='espresso-in',
                              'occupations': 'smearing', 'degauss': 0.01}})
 ```
 
-Open the generated file and **read the `CELL_PARAMETERS` and
-`ATOMIC_POSITIONS` yourself**. Being able to read generator output is what
-[Chapter 03](03-units-coordinates.html) was for.
+Open the generated file and read the `CELL_PARAMETERS` and
+`ATOMIC_POSITIONS` yourself, using the conventions from
+[Chapter 03](03-units-coordinates.html).
 
-A note on magnetism: a 1×1 (100) cell **cannot geometrically hold** the
+A note on magnetism: a 1×1 (100) cell cannot geometrically hold the
 AFM-II order of FeO (alternating (111) spin planes), which is why this demo
 is nonmagnetic. Real magnetic-surface work needs a larger cell that fits
 the ordering, plus `starting_magnetization` seeds.
@@ -50,8 +50,7 @@ Slab conventions:
   relax the top.
 - For cell optimization use `cell_dofree='2Dxy'` to freeze the vacuum
   direction.
-- Vacuum thickness and layer count are themselves **convergence
-  parameters**.
+- Vacuum thickness and layer count also need convergence tests.
 
 ## The dipole correction
 
@@ -78,9 +77,9 @@ potential.
 Mind the namelist assignment: **`tefield` and `dipfield` belong to
 `&CONTROL`**, while `edir`, `emaxpos`, `eopreg`, `eamp` belong to
 `&SYSTEM`. Putting `tefield` into `&SYSTEM` stops the run immediately with
-`read_namelists ... bad line` (measured; tutorials get this wrong
-regularly). And `emaxpos`, the sawtooth peak, must sit **inside the
-vacuum**; letting it cross the slab produces nonsense.
+`read_namelists ... bad line` (confirmed on QE 7.5; some tutorials get
+this wrong). And `emaxpos`, the sawtooth peak, must sit inside the vacuum;
+letting it cross the slab produces nonsense.
 
 ## The work function
 
@@ -94,7 +93,7 @@ parser), then subtract the Fermi level from the flat vacuum plateau.
   <img src="assets/images/qe-e13-workfunction.png"
        alt="Planar-averaged electrostatic potential of a FeO(100) slab" />
   <figcaption>
-    Measured planar-averaged electrostatic potential of the FeO(100) slab
+    Planar-averaged electrostatic potential of the FeO(100) slab
     (QE 7.5). The work function is the difference between the flat vacuum
     level and the Fermi level. Full procedure in
     <a href="ex-13-slab-md.html">Example E13</a>.
@@ -116,6 +115,6 @@ parser), then subtract the Fermi level from the flat vacuum plateau.
 ## Related examples
 
 - [E13 · Slabs and AIMD](ex-13-slab-md.html): generation, relaxation, and a
-  measured work function.
+  computed work function.
 - [E9](ex-09-fe-bcc.html) / [E10](ex-10-feo-afm.html): the bulk references
   to compute before any slab.

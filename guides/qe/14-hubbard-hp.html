@@ -120,11 +120,11 @@
 <li><a href="#related-examples">Related examples</a></li>
 </ul>
 </div>
-<p>Instead of copying a U value from the literature, you can <strong>compute the U
-appropriate to your own system by linear response (DFPT)</strong>. The tool is
+<p>Instead of copying a U value from the literature, you can compute the U
+appropriate to your own system by linear response (DFPT). The tool is
 <code>hp.x</code> (Timrov, Cococcioni, Marzari,
-<em>Comput. Phys. Commun.</em> <strong>2022</strong>, <em>279</em>, 108455), and the result is far
-easier to defend methodologically.</p>
+<em>Comput. Phys. Commun.</em> <strong>2022</strong>, <em>279</em>, 108455), and the result is easier
+to defend than a borrowed value.</p>
 <h2 id="the-principle-in-one-line">The principle in one line</h2>
 <p>Hubbard U is defined by how strongly the system pushes back when the
 occupation of the localized manifold is perturbed. <code>hp.x</code> computes that
@@ -157,12 +157,12 @@ sensitive to the quality of the ground-state density.</p>
 hp.x -in feo.hp.in     &gt; feo.hp.out
 cat FeO.Hubbard_parameters.dat
 </code></pre>
-<p>The result file lists U per atom. The measured numbers are in
+<p>The result file lists U per atom. The FeO numbers are in
 <a href="ex-12-feo-hp.html">Example E12</a>.</p>
 <p><code>conv_thr_chi</code> is the convergence threshold for the response function χ. In
 systems whose GGA ground state is metallic (FeO is one), the numerical
-noise floor of χ sits around 10⁻⁷, so 1.0d-8 may never be reached; the
-measured evidence is in <a href="ex-12-feo-hp.html">Example E12</a>.</p>
+noise floor of χ sits around 10⁻⁷, so 1.0d-8 may never be reached (see
+<a href="ex-12-feo-hp.html">Example E12</a>).</p>
 <h2 id="cautions">Cautions</h2>
 <ul>
 <li><strong>Convergence testing over the <code>nq</code> grid is mandatory.</strong> A U from 1×1×1
@@ -181,8 +181,8 @@ measured evidence is in <a href="ex-12-feo-hp.html">Example E12</a>.</p>
 <div class="warning">
   <div class="note-title">Common mistakes</div>
   <p>
-    Transplanting an hp.x U into a run with a <strong>different projector or
-    pseudopotential</strong>. U is meaningful only within the conditions it
+    Transplanting an hp.x U into a run with a different projector or
+    pseudopotential. U is meaningful only within the conditions it
     was computed for (projector, pseudopotential, magnetic order). Also, a
     loose <code>conv_thr</code> on the preceding scf injects noise into the
     response matrix and swings U by whole eV: keep the 1.0d-12.
@@ -191,7 +191,7 @@ measured evidence is in <a href="ex-12-feo-hp.html">Example E12</a>.</p>
 
 <h2 id="related-examples">Related examples</h2>
 <ul>
-<li><a href="ex-12-feo-hp.html">E12 · Computing U with hp.x</a>: the measured U for FeO.</li>
+<li><a href="ex-12-feo-hp.html">E12 · Computing U with hp.x</a>: the computed U for FeO.</li>
 <li><a href="ex-11-feo-hubbard.html">E11 · FeO with DFT+U</a>: where the U gets used.</li>
 </ul>
       </article>

@@ -11,7 +11,7 @@ title: "03. Units and coordinates"
 {:toc}
 
 A large fraction of beginner errors in QE are unit confusions. Memorizing the
-one table in this chapter will save you days.
+one table in this chapter avoids most of them.
 
 ## The unit conventions you must memorize
 
@@ -28,8 +28,8 @@ QE uses **Rydberg atomic units**.
 | DOS and band output | eV | The post-processing codes print eV; do not mix this up |
 
 The lattice parameters in `&SYSTEM` come either as `celldm(1..6)` (bohr) or
-as `A, B, C, cosAB, ...` (**Å**). One set is in bohr and the other in
-angstrom for the same quantities; that asymmetry is the trap.
+as `A, B, C, cosAB, ...` (Å). The same quantities are in bohr in one form
+and in angstrom in the other, and mixing them up is a common mistake.
 
 ## ibrav: choosing the Bravais lattice
 
@@ -48,9 +48,8 @@ angstrom for the same quantities; that asymmetry is the trap.
 | 12–13 | Monoclinic | `celldm(1..4)` |
 | 14 | Triclinic | `celldm(1..6)` |
 
-With `ibrav > 0`, QE defines the primitive vectors **by its own
-convention**, which may differ from the convention in your favorite
-textbook. This bites later, especially for band paths; see the `tpiba_b`
+With `ibrav > 0`, QE defines the primitive vectors by its own
+convention, which may differ from the one in your textbook. This bites later, especially for band paths; see the `tpiba_b`
 discussion in [Chapter 10](10-dos-bands.html).
 
 `ibrav = 0` is flexible, but **automatic symmetry detection can silently

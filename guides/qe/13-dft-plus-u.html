@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DFT+U and the HUBBARD card · QE Guide</title>
-  <meta name="description" content="Self-interaction error and DFT+U, the v7.1+ HUBBARD card syntax, and why (and how) a gap opens in FeO." />
+  <meta name="description" content="Self-interaction error and DFT+U, the v7.1+ HUBBARD card syntax, and DFT+U on FeO and what happens to the gap." />
   <link rel="icon" type="image/x-icon" href="../../images/icons/favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -109,7 +109,7 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 13 · ADVANCED · MAGNETISM</div>
         <h1 class="page-title">DFT+U and the HUBBARD card</h1>
-        <p class="page-lede">Self-interaction error and DFT+U, the v7.1+ HUBBARD card syntax, and why (and how) a gap opens in FeO.</p>
+        <p class="page-lede">Self-interaction error and DFT+U, the v7.1+ HUBBARD card syntax, and DFT+U on FeO and what happens to the gap.</p>
       </header>
       <article class="content">
 <div class="toc"><div class="toc-title">On this page</div>
@@ -126,8 +126,8 @@
 <p>GGA mishandles the self-interaction error of localized 3d electrons. The
 spurious interaction of an electron with itself delocalizes orbitals that
 should be localized, and in systems like FeO the result is a computed metal
-where experiment sees an insulator (gap ≈ 2.4 eV). You can watch this
-failure happen in <a href="ex-10-feo-afm.html">Example E10</a>.</p>
+where experiment sees an insulator (gap ≈ 2.4 eV).
+<a href="ex-10-feo-afm.html">Example E10</a> reproduces this failure.</p>
 <p>DFT+U adds a Hubbard correction on a chosen orbital manifold (Fe-3d, say)
 and repairs the error at nearly zero extra cost.</p>
 <h2 id="the-new-syntax-the-hubbard-card-v71">The new syntax: the HUBBARD card (v7.1+)</h2>
@@ -200,17 +200,16 @@ the three HUBBARD lines added.</p>
     (experiment: an insulator). Right, GGA+U (4.6 eV, ortho-atomic): the
     Hubbard splitting opens gaps above and below, but in the ideal cubic
     cell a narrow band derived from the minority-spin t2g states survives at
-    the Fermi level. That last trap is treated below and in E11.
+    the Fermi level. That remaining band is treated below and in E11.
   </figcaption>
 </figure>
 
 <h2 id="if-it-is-still-metallic-with-u-on-the-occupation-pattern-trap">If it is still metallic with U on: the occupation-pattern trap</h2>
 <p>It is common to switch U on and still converge to a metal. The culprit is
-the <strong>occupation pattern</strong> of the d orbitals. Since QE 7.1 the initial d
+the occupation pattern of the d orbitals. Since QE 7.1 the initial d
 occupations are read from the pseudopotential (they used to be hardcoded),
 so the same input can converge to different metallic solutions on different
-versions. <strong>Both are wrong ground states</strong> (this is the mailing-list case
-the community knows well).</p>
+versions. <strong>Both are wrong ground states.</strong></p>
 <p>The prescription is to steer the occupations explicitly with
 <code>starting_ns_eigenvalue</code>:</p>
 <pre><code class="language-fortran">&amp;SYSTEM
@@ -222,8 +221,8 @@ the community knows well).</p>
 released; think of it as a device that pushes the run into the basin of the
 correct minimum. After convergence, inspect the <code>Tr[ns(na)]</code> values and the
 ns eigenvalue blocks in the output (<code>verbosity='high'</code> required) to confirm
-the occupation pattern is physical. This is the canonical example of
-"converged does not mean correct".</p>
+the occupation pattern is physical. A converged SCF is not necessarily a
+correct one.</p>
 <h2 id="u-comes-as-a-package-with-its-projector">U comes as a package with its projector</h2>
 <p>The same U = 4.6 eV gives different results under <code>atomic</code> and
 <code>ortho-atomic</code> projectors. <strong>A U value has meaning only together with its
@@ -231,7 +230,7 @@ projector (and pseudopotential)</strong>, so when borrowing U from a paper, chec
 the projector conventions, and when publishing, record your own. The way to
 avoid borrowing altogether is to compute U for your own system:
 <a href="14-hubbard-hp.html">Chapter 14, hp.x</a>.</p>
-<p>QE 7.5 adds <strong>orbital-resolved DFT+U</strong> (Macke &amp; Timrov, <em>JCTC</em> 2024),
+<p>QE 7.5 adds orbital-resolved DFT+U (Macke &amp; Timrov, <em>JCTC</em> 2024),
 which can assign different U values to t2g and eg within one 3d manifold. It
 was designed for octahedral transition-metal oxides, exactly the FeO
 situation.</p>
@@ -240,7 +239,7 @@ situation.</p>
 <li><a href="ex-10-feo-afm.html">E10 · FeO AFM (where GGA fails)</a>: confirm the metal
   without U.</li>
 <li><a href="ex-11-feo-hubbard.html">E11 · FeO with DFT+U</a>: the HUBBARD card and the
-  trap, measured.</li>
+  occupation-pattern problem.</li>
 <li><a href="ex-12-feo-hp.html">E12 · Computing U with hp.x</a>: first-principles U.</li>
 </ul>
       </article>

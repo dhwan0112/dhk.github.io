@@ -55,8 +55,8 @@ on that structure.**
 The plane-wave basis is tied to the cell. When the cell changes, the basis
 set changes with it (Pulay stress), so the energy and stress of the last
 vc-relax step were computed in the old basis and cannot be trusted. QE
-prints a warning saying exactly this. A measured check is in
-[Example E6](ex-06-si-vcrelax.html).
+prints a warning saying exactly this. [Example E6](ex-06-si-vcrelax.html)
+checks it on silicon.
 
 ## Symmetry and the optimization path
 
@@ -64,7 +64,7 @@ QE detects the symmetry of the initial structure and preserves it
 throughout the optimization. This cuts both ways.
 
 - An atom on a symmetric site feels exactly zero force along directions the
-  symmetry forbids, so it **never moves off them**. To find lower-energy
+  symmetry forbids, so it never moves off them. To find lower-energy
   broken-symmetry structures, distort the starting geometry slightly or set
   `nosym=.true.`.
 - Conversely, keeping symmetry saves a great deal of compute. Choose

@@ -69,15 +69,15 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 12 · METHODS &amp; MODELS</div>
         <h1 class="page-title">DFT functionals</h1>
-        <p class="page-lede">Beyond B3LYP — the functionals quantum chemistry leans on in the 2020s, and how to pick one for the job.</p>
+        <p class="page-lede">Classes of DFT functionals and how to choose one by task and system.</p>
       </header>
 
       <article class="content">
         <div class="toc">
           <div class="toc-title">On this page</div>
           <ul>
-            <li><a href="#hierarchy">A hierarchy of functionals — Jacob's ladder</a></li>
-            <li><a href="#dispersion">Dispersion corrections are essentially required</a></li>
+            <li><a href="#hierarchy">A hierarchy of functionals: Jacob's ladder</a></li>
+            <li><a href="#dispersion">Dispersion corrections are nearly always needed</a></li>
             <li><a href="#by-task">Recommendations by task</a></li>
             <li><a href="#composite">Composite methods (the 3c series)</a></li>
             <li><a href="#double-hybrid">Double hybrids</a></li>
@@ -86,20 +86,20 @@
           </ul>
         </div>
 
-        <h2 id="hierarchy">A hierarchy of functionals — Jacob's ladder</h2>
+        <h2 id="hierarchy">A hierarchy of functionals: Jacob's ladder</h2>
         <p>
           DFT functionals are often organised along Perdew's "Jacob's ladder". Each rung adds
           more ingredients and (typically) more accuracy at higher cost.
         </p>
 
-        <img src="../assets/img/jacobs-ladder.png" alt="Jacob's ladder of DFT functionals — from LDA to double hybrids" style="max-width:100%;height:auto;margin:1rem 0;" />
+        <img src="../assets/img/jacobs-ladder.png" alt="Jacob's ladder of DFT functionals: from LDA to double hybrids" style="max-width:100%;height:auto;margin:1rem 0;" />
 
         <table>
           <thead>
             <tr><th>Rung</th><th>Name</th><th>Depends on</th><th>Representative</th></tr>
           </thead>
           <tbody>
-            <tr><td>1</td><td>LDA</td><td>density ρ only</td><td>SVWN — almost never used</td></tr>
+            <tr><td>1</td><td>LDA</td><td>density ρ only</td><td>SVWN (almost never used)</td></tr>
             <tr><td>2</td><td>GGA</td><td>ρ + ∇ρ</td><td>BP86, BLYP, PBE</td></tr>
             <tr><td>3</td><td>meta-GGA</td><td>+ ∇²ρ or τ</td><td>TPSS, M06-L, r²SCAN</td></tr>
             <tr><td>4</td><td>Hybrid</td><td>+ some HF exchange</td><td>B3LYP, PBE0, M06-2X</td></tr>
@@ -120,7 +120,7 @@
 
         <p>Both are built into ORCA: <code>! wB97M-V def2-TZVP</code> on one line is enough.</p>
 
-        <h2 id="dispersion">Dispersion corrections are essentially required</h2>
+        <h2 id="dispersion">Dispersion corrections are nearly always needed</h2>
         <p>
           Pure GGAs and standard hybrids do not describe London dispersion. Without a
           correction, π–π stacking, hydrogen bonds, vdW complexes, and conformer energetics
@@ -154,7 +154,7 @@
             <tr><th>Task</th><th>Recommended functional</th><th>Notes</th></tr>
           </thead>
           <tbody>
-            <tr><td>Geometry optimisation (general organic)</td><td><code>r²SCAN-3c</code>, <code>B97-3c</code></td><td>Composite — basis included.</td></tr>
+            <tr><td>Geometry optimisation (general organic)</td><td><code>r²SCAN-3c</code>, <code>B97-3c</code></td><td>Composite. Basis included.</td></tr>
             <tr><td>Geometry optimisation (TM complexes)</td><td><code>TPSS D4</code>, <code>BP86 D4</code></td><td>Pure GGAs are more forgiving of poor initial geometries.</td></tr>
             <tr><td>Reaction barriers</td><td><code>M06-2X D4</code>, <code>ωB97X-V</code></td><td>Higher HF percentage gives better barriers.</td></tr>
             <tr><td>Non-covalent interactions</td><td><code>ωB97M-V</code>, <code>DSD-PBEP86 D4</code></td><td>Double hybrids are the most accurate.</td></tr>
@@ -169,7 +169,7 @@
         <p>
           The Grimme group's "3c" methods bundle "functional + basis + D3/D4 + gCP correction"
           into a single keyword. The basis is fixed, the usage is therefore extremely simple,
-          and the price/accuracy ratio is hard to beat.
+          and the accuracy is high for the cost.
         </p>
 
         <table>
@@ -180,7 +180,7 @@
             <tr><td><code>HF-3c</code></td><td>HF + minix (small DZ) + 3 corrections</td><td>Quick screening of very large molecules</td></tr>
             <tr><td><code>PBEh-3c</code></td><td>PBEh hybrid + def2-mSVP</td><td>Medium-sized opt + frequencies</td></tr>
             <tr><td><code>B97-3c</code></td><td>Modified B97 GGA + def2-mTZVP</td><td>Medium-to-large molecules, fast optimisation</td></tr>
-            <tr><td><code>r²SCAN-3c</code></td><td>r²SCAN meta-GGA + def2-mTZVPP</td><td><strong>Top recommendation</strong>. Geometries and free energies alike.</td></tr>
+            <tr><td><code>r²SCAN-3c</code></td><td>r²SCAN meta-GGA + def2-mTZVPP</td><td>Good accuracy for the cost. Geometries and free energies alike.</td></tr>
             <tr><td><code>ωB97X-3c</code></td><td>Range-separated hybrid + valence DZ</td><td>Organic / excited states</td></tr>
           </tbody>
         </table>
@@ -191,12 +191,11 @@
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
 
         <div class="tip">
-          <div class="note-title">r²SCAN-3c works well almost everywhere</div>
+          <div class="note-title">Starting with r²SCAN-3c</div>
           <p>
-            The manual and many independent benchmarks report that r²SCAN-3c reaches
-            B3LYP-D4/def2-TZVP accuracy in under half the time. Using r²SCAN-3c as the first
-            attempt — and refining with more expensive methods only when needed — is an
-            efficient workflow.
+            r²SCAN-3c often reaches B3LYP-D4/def2-TZVP accuracy in under half the time.
+            Using r²SCAN-3c as the first attempt, and refining with more expensive methods only
+            when needed, is an efficient workflow.
           </p>
         </div>
 
@@ -253,7 +252,7 @@
         </ul>
 
         <h2 id="avoid">Functionals to avoid</h2>
-        <p>For historical reasons these functionals are still common, but they are not recommended for new work in the 2020s:</p>
+        <p>For historical reasons these functionals are still common, but they are not recommended for new work today:</p>
 
         <table>
           <thead>
@@ -262,7 +261,7 @@
           <tbody>
             <tr><td><code>SVWN</code> / <code>LSDA</code></td><td>Move up to a GGA or higher.</td></tr>
             <tr><td><code>B3LYP</code> without dispersion</td><td><strong>Always pair with D4</strong> (or D3BJ).</td></tr>
-            <tr><td><code>BLYP</code> without dispersion</td><td>Same — dispersion is mandatory.</td></tr>
+            <tr><td><code>BLYP</code> without dispersion</td><td>Same: dispersion is mandatory.</td></tr>
             <tr><td>The <code>D2</code> correction</td><td>Use D4 or D3BJ instead.</td></tr>
             <tr><td>VWN3 variants</td><td>Little effect today. <code>B3LYP/G</code> is for Gaussian compatibility only.</td></tr>
           </tbody>

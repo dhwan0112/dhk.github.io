@@ -69,7 +69,7 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 02 · GETTING STARTED</div>
         <h1 class="page-title">Input file structure</h1>
-        <p class="page-lede">Keyword lines, %-blocks, and coordinate input. Get these three down and 90 % of any ORCA input file is already behind you.</p>
+        <p class="page-lede">Syntax of the three parts of an ORCA input file: keyword lines, %-blocks, and coordinate input.</p>
       </header>
 
       <article class="content">
@@ -81,9 +81,9 @@
             <li><a href="#blocks">Block input <code>%...end</code></a></li>
             <li><a href="#coords">Coordinate input styles</a></li>
             <li><a href="#external">Reading coordinates from an external file</a></li>
-            <li><a href="#special">Special atoms — dummies, point charges, isotopes</a></li>
-            <li><a href="#multi-job">Multiple jobs in one file — <code>$new_job</code></a></li>
-            <li><a href="#compound">Automation — Compound module</a></li>
+            <li><a href="#special">Special atoms: dummies, point charges, isotopes</a></li>
+            <li><a href="#multi-job">Multiple jobs in one file (<code>$new_job</code>)</a></li>
+            <li><a href="#compound">Automation with the Compound module</a></li>
           </ul>
         </div>
 
@@ -110,8 +110,7 @@
 <span class="kw">*</span></code></pre>
 
         <p>
-          With just those three pieces you can drive most calculations. Here is each one in
-          turn.
+          Here is each one in turn.
         </p>
 
         <h2 id="keyword-line">The keyword line <code>!</code></h2>
@@ -301,7 +300,7 @@ H   0.000000  -0.763239  -0.477047</code></pre>
           <code>* gzmtfile 0 1 file.gzmt</code>.
         </p>
 
-        <h2 id="special">Special atoms — dummies, point charges, isotopes</h2>
+        <h2 id="special">Special atoms: dummies, point charges, isotopes</h2>
         <table>
           <thead>
             <tr><th>Notation</th><th>Meaning</th></tr>
@@ -326,7 +325,7 @@ H   0.000000  -0.763239  -0.477047</code></pre>
   H   0.0   0.0   0.741   <span class="kw2">M</span> <span class="kw">=</span> <span class="num">2.014</span>
 <span class="kw">*</span></code></pre>
 
-        <h2 id="multi-job">Multiple jobs in one file — <code>$new_job</code></h2>
+        <h2 id="multi-job">Multiple jobs in one file (<code>$new_job</code>)</h2>
         <p>
           ORCA can perform several jobs in sequence inside a single input. A very common pattern
           is "optimise with a cheap method, then a single point with a more accurate method".
@@ -349,12 +348,11 @@ H   0.000000  -0.763239  -0.477047</code></pre>
 
         <p>
           After <code>$new_job</code>, if you write <code>xyzfile</code> without a file name,
-          ORCA automatically reuses the optimised geometry from the previous job — a very handy
-          shortcut.
+          ORCA automatically reuses the optimised geometry from the previous job.
         </p>
 
         <div class="tip">
-          <div class="note-title">One step further — the Compound module</div>
+          <div class="note-title">The Compound module</div>
           <p>
             Complex workflows that need loops or conditional branches can be automated with
             ORCA 6's new Compound module. Inside a <code>%compound</code> block you control
@@ -365,7 +363,7 @@ H   0.000000  -0.763239  -0.477047</code></pre>
           </p>
         </div>
 
-        <h2 id="compound">Automation one step further — Compound module for a dissociation curve</h2>
+        <h2 id="compound">Automating a dissociation curve with the Compound module</h2>
         <p>
           <code>$new_job</code> lets you chain several jobs in one input, but a pattern like
           "the same calculation 20 times, varying one coordinate" quickly grows to hundreds of
@@ -373,11 +371,11 @@ H   0.000000  -0.763239  -0.477047</code></pre>
           repetition with variables and for-loops.
         </p>
 
-        <h3>Example ① — H<sub>2</sub> bond dissociation curve</h3>
+        <h3>Example ①: H<sub>2</sub> bond dissociation curve</h3>
         <p>
           Scan the H–H bond length of H<sub>2</sub> from 0.5 Å to 3.0 Å in 26 points and
-          evaluate the B3LYP/def2-TZVP single-point energy at each — all in a single input. The
-          result is written cleanly to <code>scan.dat</code>:
+          evaluate the B3LYP/def2-TZVP single-point energy at each, all in a single input. The
+          result is written to <code>scan.dat</code>:
         </p>
 
         <pre data-lang="orca"><code><span class="kw">%compound</span>
@@ -419,7 +417,7 @@ H   0.000000  -0.763239  -0.477047</code></pre>
           </tbody>
         </table>
 
-        <h3>Example ② — Reactant + TS + product in one go</h3>
+        <h3>Example ②: Reactant + TS + product in one go</h3>
         <p>
           A more practical recipe: compute the Gibbs free energies of three species at the same
           level of theory and immediately print ΔG and ΔG<sup>‡</sup>.
@@ -466,12 +464,6 @@ H   0.000000  -0.763239  -0.477047</code></pre>
             open and start from a very small example.
           </p>
         </div>
-
-        <p>
-          By now you can put an input file together however you like. The thing that actually
-          trips people up next is remembering what each keyword is called — which is what the next
-          chapter gathers into a dictionary.
-        </p>
       </article>
 
       <nav class="page-nav">

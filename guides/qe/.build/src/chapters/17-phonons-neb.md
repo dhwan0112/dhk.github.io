@@ -10,16 +10,15 @@ title: "17. Phonons and reaction paths"
 1. TOC
 {:toc}
 
-This chapter is a **map, not a manual**. `ph.x` and `neb.x` are each a
-book-sized topic, so here we only fix when you will need them and where to
-start.
+`ph.x` and `neb.x` are each a book-sized topic. This chapter only covers
+when you will need them and where to start.
 
 ## ph.x: phonons (DFPT)
 
 Computes dynamical matrices by density-functional perturbation theory. You
 will need it when:
 
-- **Validating structural stability**: is the optimized structure a true
+- Validating structural stability: is the optimized structure a true
   minimum (no imaginary frequencies)?
 - Vibrational spectra, thermodynamic quantities (free energy, entropy),
   thermal expansion (with `thermo_pw`).
@@ -32,7 +31,7 @@ pw.x (scf, very tight conv_thr) → ph.x (&INPUTPH, ldisp=.true., nq grid)
   → q2r.x (real-space force constants) → matdyn.x (dispersion and DOS at any q)
 ```
 
-The essentials of `&INPUTPH`: `tr2_ph` (response threshold, typically
+The main `&INPUTPH` variables: `tr2_ph` (response threshold, typically
 1.0d-14), `ldisp` with `nq1/nq2/nq3` (the q-grid), `epsil` (dielectric
 tensor, needed for LO-TO splitting in polar insulators), `fildyn`. The cost
 is heavy, so image parallelism (`-ni`) and `start_q`/`last_q` splitting are
@@ -46,7 +45,7 @@ non-convergence, not physics.**
 ## neb.x: reaction paths and barriers
 
 Nudged Elastic Band finds the minimum-energy path and transition state
-between two structures. It is the central tool for oxidation mechanisms,
+between two structures. It is the usual tool for oxidation mechanisms,
 diffusion barriers, and surface reactions.
 
 Its input format differs from `pw.x`: path settings (`&PATH`) and an engine
@@ -100,10 +99,10 @@ Practical notes:
 <div class="warning">
   <div class="note-title">Common mistakes</div>
   <p>
-    Building phonons or NEB on top of <strong>unconverged settings</strong>.
+    Building phonons or NEB on top of unconverged settings.
     Both methods live off tiny force and energy differences, so any
     looseness in the underlying SCF (its <code>conv_thr</code>, cutoffs,
-    k-points) comes back as imaginary modes or jagged paths. Pass the
-    program of <a href="05-convergence.html">Chapter 05</a> first.
+    k-points) comes back as imaginary modes or jagged paths. Run the
+    convergence tests of <a href="05-convergence.html">Chapter 05</a> first.
   </p>
 </div>

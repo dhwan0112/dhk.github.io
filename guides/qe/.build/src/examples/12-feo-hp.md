@@ -7,8 +7,8 @@ title: "E12. Computing U with hp.x"
 ## Goal
 
 In [E11](ex-11-feo-hubbard.html) the U of 4.6 eV was "a given". This time,
-**compute the U by linear response (DFPT)**: no empirical parameters, and a
-value that belongs to this system, this pseudopotential, and this
+compute U by linear response (DFPT): no empirical parameters, and a
+value specific to this system, this pseudopotential, and this
 projector. Background in [Chapter 14](14-hubbard-hp.html).
 
 ```
@@ -62,12 +62,12 @@ The hp.x input in full:
 /
 ```
 
-A measured note on `conv_thr_chi`: we first ran with 1.0d-8, and even
+A note on `conv_thr_chi`: I first ran with 1.0d-8, and even
 after the χ values had stabilized to seven digits, the residual kept
 bouncing around a noise floor near 10⁻⁷ (checked out to 46 iterations)
 without ever crossing the threshold. For systems whose GGA ground state is
 metallic, like FeO, that is where the numerical noise of the response
-function lives, so we relaxed the threshold to 1.0d-6. The relative
+function lives, so I relaxed the threshold to 1.0d-6. The relative
 scatter of χ is below 0.1%, which moves U by less than 0.01 eV.
 
 ## Run
@@ -86,7 +86,7 @@ hp.x runs one perturbation series per inequivalent Hubbard atom, so it
 takes a while (`-nk` pools apply, and q-points can be split with
 `start_q`/`last_q`).
 
-## What to check: measured
+## What to check
 
 | Item | Measured (QE 7.5, PAW, ortho-atomic) |
 |---|---|
@@ -98,9 +98,9 @@ takes a while (`-nk` pools apply, and q-points can be split with
 `FeO.Hubbard_parameters.dat` lists the per-atom U along with the full χ₀
 and χ matrices. The computed U = 5.22 eV sits 0.6 eV above the
 conventional 4.6 eV used in [E11](ex-11-feo-hubbard.html). Neither number
-is "the right one" in isolation; the pair illustrates that U only has
-meaning together with its projector, pseudopotential, and magnetic order.
-The principle: for your own system, use the U computed for it.
+is correct on its own; U only has meaning together with its projector,
+pseudopotential, and magnetic order. For your own system, use the U
+computed for it.
 
 ## Exercises
 

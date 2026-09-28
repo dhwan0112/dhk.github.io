@@ -6,11 +6,11 @@ title: "E4. O₂ molecule (triplet)"
 
 ## Goal
 
-Learn to treat an **isolated molecule** in a periodic code: a vacuum box, a
+Learn to treat an isolated molecule in a periodic code: a vacuum box, a
 Γ-only calculation, periodic-image corrections, and pinning the spin state.
 The ground state of O₂ is a triplet (S=1), and if you work on Fe–O systems
-this molecule is a mandatory reference. It is also the famous case of GGA
-badly overbinding O₂, which you will measure yourself.
+this molecule is a mandatory reference. GGA also overbinds O₂ badly, and
+this example quantifies by how much.
 
 ## New cards and variables
 
@@ -18,7 +18,7 @@ badly overbinding O₂, which you will measure yourself.
 |---|---|
 | `K_POINTS gamma` | Γ only: no dispersion for a molecule, plus the real-wavefunction speedup |
 | `assume_isolated='mt'` | Martyna-Tuckerman periodic-image correction |
-| `nspin=2` + `tot_magnetization` | Spin polarization plus a **constrained** total moment (enforcing the triplet) |
+| `nspin=2` + `tot_magnetization` | Spin polarization plus a constrained total moment (enforcing the triplet) |
 | `ibrav=1` + a large `celldm(1)` | The vacuum box (20 bohr) |
 
 ## Input files
@@ -124,7 +124,7 @@ mpirun -np 6 pw.x -in o_atom.scf.in > o_atom.scf.out
 With a single Γ point, `-nk` pools are pointless; only the G-vector split
 applies.
 
-## What to check: measured
+## What to check
 
 | Item | Measured (QE 7.5, PAW) |
 |---|---|
@@ -134,8 +134,8 @@ applies.
 | absolute magnetization | 2.05 μB (slightly above 2 because the spin density is spatially spread; normal) |
 | **Binding energy D = 2E(O) − E(O₂)** | **0.50226 Ry = 6.83 eV** |
 
-The experimental binding energy is 5.12 eV: **PBE overbinds by about
-1.7 eV**, measured live. This is why oxide formation energies computed
+The experimental binding energy is 5.12 eV, so PBE overbinds by about
+1.7 eV. This is why oxide formation energies computed
 against O₂ need corrections, the origin of the "O₂ correction" you see in
 the literature.
 

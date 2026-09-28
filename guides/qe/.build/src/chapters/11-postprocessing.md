@@ -78,7 +78,7 @@ charge is missing.
 ## Visualization tools
 
 - **VESTA**: structures plus cube isosurfaces; the easiest starting point.
-- **XCrySDen**: the classic companion to QE (XSF format).
+- **XCrySDen**: a long-standing companion to QE (XSF format).
 - **Python (ASE, pymatgen)**: get in the habit of parsing outputs yourself;
   it pays off the moment you need automation. Every figure in this guide is
   drawn with Python.
@@ -97,7 +97,7 @@ charge is missing.
 
 ## Related examples
 
-- [E13 · Slabs and AIMD](ex-13-slab-md.html): a measured work function via
+- [E13 · Slabs and AIMD](ex-13-slab-md.html): a work function computed via
   `plot_num=11`.
 - [E9 · bcc Fe](ex-09-fe-bcc.html): a good system to pair with spin-resolved
   DOS.

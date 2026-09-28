@@ -69,7 +69,7 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 03 · GETTING STARTED</div>
         <h1 class="page-title">Keywords</h1>
-        <p class="page-lede">Methods, basis sets, algorithmic options — the keywords you will meet most often, gathered on a single page.</p>
+        <p class="page-lede">The method, basis-set, and algorithm keywords you will meet most often, gathered on a single page.</p>
       </header>
 
       <article class="content">
@@ -78,7 +78,7 @@
           <ul>
             <li><a href="#runtypes">Run types</a></li>
             <li><a href="#hf-dft">Hartree–Fock · DFT methods</a></li>
-            <li><a href="#correlated">Correlated methods — MP2, CCSD(T), DLPNO</a></li>
+            <li><a href="#correlated">Correlated methods: MP2, CCSD(T), DLPNO</a></li>
             <li><a href="#scf-options">SCF algorithm options</a></li>
             <li><a href="#convergence">SCF · optimisation convergence thresholds</a></li>
             <li><a href="#grids">DFT integration grids</a></li>
@@ -182,14 +182,14 @@
             <tr><td><code>D4</code></td><td>Most recent D4 correction. The recommended choice in ORCA 6.</td></tr>
             <tr><td><code>D3BJ</code></td><td>Grimme's D3 + Becke–Johnson damping. Very robust.</td></tr>
             <tr><td><code>D3ZERO</code></td><td>D3 + zero damping.</td></tr>
-            <tr><td><code>D2</code></td><td>Older version — not recommended.</td></tr>
+            <tr><td><code>D2</code></td><td>Older version. Not recommended.</td></tr>
           </tbody>
         </table>
 
         <pre data-lang="orca"><code><span class="cmt"># Using B3LYP with a dispersion correction is essentially standard</span>
 <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP</span></code></pre>
 
-        <h2 id="correlated">Correlated methods — MP2, CCSD(T), DLPNO</h2>
+        <h2 id="correlated">Correlated methods: MP2, CCSD(T), DLPNO</h2>
 
         <table>
           <thead>
@@ -201,7 +201,7 @@
             <tr><td><code>SCS-MP2</code></td><td>Spin-Component Scaled MP2. Improved accuracy.</td></tr>
             <tr><td><code>DLPNO-MP2</code></td><td>Local PNO-based MP2. Designed for large molecules.</td></tr>
             <tr><td><code>CCSD</code></td><td>Coupled Cluster Singles &amp; Doubles.</td></tr>
-            <tr><td><code>CCSD(T)</code></td><td>Adds perturbative triples — the gold standard.</td></tr>
+            <tr><td><code>CCSD(T)</code></td><td>Adds perturbative triples. Commonly used for reference values.</td></tr>
             <tr><td><code>DLPNO-CCSD</code></td><td>Local PNO-based CCSD (closed-shell).</td></tr>
             <tr><td><code>DLPNO-CCSD(T)</code></td><td>Local PNO-based CCSD(T). Full discussion in <a href="coupled-cluster.html">Chapter 10</a>.</td></tr>
             <tr><td><code>F12-CCSD(T)</code> · <code>CCSD(T)-F12</code></td><td>Includes F12 explicit correlation. Approaches the basis-set limit rapidly.</td></tr>
@@ -231,9 +231,9 @@
             <tr><td><code>CONV</code></td><td>Store integrals on disk (I/O cost; required by some follow-up tasks).</td></tr>
             <tr><td><code>DIIS</code> · <code>NODIIS</code></td><td>Enable / disable DIIS acceleration.</td></tr>
             <tr><td><code>SOSCF</code></td><td>Second-order SCF. Often effective for closed-shell organics.</td></tr>
-            <tr><td><code>TRAH</code></td><td>Trust-Region Augmented Hessian SCF. The last resort for hard cases.</td></tr>
+            <tr><td><code>TRAH</code></td><td>Trust-Region Augmented Hessian SCF. For cases where other convergers fail.</td></tr>
             <tr><td><code>MOREAD</code></td><td>Read molecular orbitals from a previous calculation. Use with <code>%moinp "file.gbw"</code>.</td></tr>
-            <tr><td><code>NOITER</code></td><td>No SCF iterations — stop with the supplied orbitals.</td></tr>
+            <tr><td><code>NOITER</code></td><td>No SCF iterations; stop with the supplied orbitals.</td></tr>
             <tr><td><code>UNO</code></td><td>Generate UHF natural orbitals. Recommended for unrestricted calculations.</td></tr>
           </tbody>
         </table>
@@ -242,14 +242,14 @@
         <table>
           <thead><tr><th>Keyword</th><th>Description</th></tr></thead>
           <tbody>
-            <tr><td><code>LooseSCF</code></td><td>Loose SCF convergence — fast but imprecise.</td></tr>
+            <tr><td><code>LooseSCF</code></td><td>Loose SCF convergence. Fast but imprecise.</td></tr>
             <tr><td><code>NormalSCF</code></td><td>Default.</td></tr>
             <tr><td><code>TightSCF</code></td><td>Recommended for optimisations and frequencies.</td></tr>
             <tr><td><code>VeryTightSCF</code></td><td>For precision energies, NMR, and other sensitive jobs.</td></tr>
-            <tr><td><code>ExtremeSCF</code></td><td>Benchmark only — very expensive.</td></tr>
+            <tr><td><code>ExtremeSCF</code></td><td>Benchmark only. Very expensive.</td></tr>
             <tr><td><code>LooseOpt</code></td><td>Loose optimisation convergence.</td></tr>
             <tr><td><code>NormalOpt</code></td><td>Default optimisation convergence.</td></tr>
-            <tr><td><code>TightOpt</code></td><td>Tight optimisation — needed if you want clean frequencies afterwards.</td></tr>
+            <tr><td><code>TightOpt</code></td><td>Tight optimisation. Needed if you want clean frequencies afterwards.</td></tr>
             <tr><td><code>VeryTightOpt</code></td><td>Very tight.</td></tr>
           </tbody>
         </table>

@@ -69,7 +69,7 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 09 · COMMON CALCULATIONS</div>
         <h1 class="page-title">Solvation</h1>
-        <p class="page-lede">Approximating the real environment of a molecule with an implicit-solvent model — CPCM and SMD in practice.</p>
+        <p class="page-lede">How to use the implicit-solvent models CPCM and SMD, and their detailed options.</p>
       </header>
 
       <article class="content">
@@ -77,12 +77,12 @@
           <div class="toc-title">On this page</div>
           <ul>
             <li><a href="#why">Why account for solvation</a></li>
-            <li><a href="#models">Available models — CPCM · SMD · ALPB</a></li>
-            <li><a href="#basic">Basic usage — one extra keyword</a></li>
-            <li><a href="#smd">SMD — including the free-energy correction</a></li>
-            <li><a href="#advanced">Fine control — the <code>%cpcm</code> block</a></li>
+            <li><a href="#models">Available models: CPCM · SMD · ALPB</a></li>
+            <li><a href="#basic">Basic usage</a></li>
+            <li><a href="#smd">SMD and the non-electrostatic free-energy correction</a></li>
+            <li><a href="#advanced">Fine control: the <code>%cpcm</code> block</a></li>
             <li><a href="#solvents">Built-in solvent list</a></li>
-            <li><a href="#explicit">SOLVATOR — automated placement of explicit solvent molecules</a></li>
+            <li><a href="#explicit">Placing explicit solvent molecules with SOLVATOR</a></li>
             <li><a href="#tddft">Excited states + solvation</a></li>
           </ul>
         </div>
@@ -96,9 +96,9 @@
           barriers far from experiment.
         </p>
 
-        <img src="../assets/img/solvation-cavity.png" alt="Implicit solvation — the solute sits in a cavity, the solvent is a polarizable continuum" style="max-width:100%;height:auto;margin:1rem 0;" />
+        <img src="../assets/img/solvation-cavity.png" alt="Implicit solvation: the solute sits in a cavity, the solvent is a polarizable continuum" style="max-width:100%;height:auto;margin:1rem 0;" />
 
-        <h2 id="models">Available models — CPCM · SMD · ALPB</h2>
+        <h2 id="models">Available models: CPCM · SMD · ALPB</h2>
         <p>ORCA supports the following implicit-solvent models:</p>
 
         <table>
@@ -114,13 +114,13 @@
         </table>
 
         <p>
-          This page focuses on the two you will use most often — <strong>CPCM</strong> and
-          <strong>SMD</strong>. The manual activates both via the same keyword, but SMD also
+          This page focuses on the two you will use most often, <strong>CPCM</strong> and
+          <strong>SMD</strong>. Both are activated via the same keyword, but SMD also
           includes non-electrostatic terms (cavity formation, dispersion, surface tension) that
           make it more appropriate for free-energy comparisons.
         </p>
 
-        <h2 id="basic">Basic usage — one extra keyword</h2>
+        <h2 id="basic">Basic usage</h2>
         <p>CPCM is activated by adding one keyword to the keyword line:</p>
 
         <pre data-lang="orca"><code><span class="cmt"># Benzene optimisation in water (CPCM)</span>
@@ -135,11 +135,11 @@
           0.224 eV (~5 kcal/mol).
         </p>
 
-        <h2 id="smd">SMD — including the free-energy correction</h2>
+        <h2 id="smd">SMD and the non-electrostatic free-energy correction</h2>
         <p>
           Plain CPCM gives only the electrostatic free energy. For solvation free energies
-          ΔG<sub>solv</sub> or quantitative reaction equilibria, <strong>SMD</strong> — which
-          includes the non-electrostatic correction — is more appropriate.
+          ΔG<sub>solv</sub> or quantitative reaction equilibria, <strong>SMD</strong>, which
+          includes the non-electrostatic correction, is more appropriate.
         </p>
 
         <pre data-lang="orca"><code><span class="cmt"># Activate SMD — CPCM keyword + SMD true</span>
@@ -169,7 +169,7 @@ Total non-electrostatic:      1.235 kcal/mol
 SMD ΔG_solv            :     -7.221 kcal/mol</code></pre>
 
         <div class="tip">
-          <div class="note-title">SMD with non-SMD functionals</div>
+          <div class="note-title">SMD and the choice of functional and basis</div>
           <p>
             SMD's parameters were originally calibrated for M05-2X/6-31G(d). In practice it
             works well with common DFT functionals (B3LYP, M06-2X, ωB97X-D, …) and a basis like
@@ -178,7 +178,7 @@ SMD ΔG_solv            :     -7.221 kcal/mol</code></pre>
           </p>
         </div>
 
-        <h2 id="advanced">Fine control — the <code>%cpcm</code> block</h2>
+        <h2 id="advanced">Fine control: the <code>%cpcm</code> block</h2>
         <p>For precise control over the dielectric constant, refractive index and cavity shape, use the <code>%cpcm</code> block:</p>
 
         <pre data-lang="orca"><code><span class="kw">%cpcm</span>
@@ -193,7 +193,7 @@ SMD ΔG_solv            :     -7.221 kcal/mol</code></pre>
         <table>
           <thead><tr><th>Option</th><th>Description</th></tr></thead>
           <tbody>
-            <tr><td><code>vdw_gaussian</code></td><td><strong>Default</strong>. Smooth Gaussian-weighted vdW surface — well-defined gradients and frequencies.</td></tr>
+            <tr><td><code>vdw_gaussian</code></td><td><strong>Default</strong>. Smooth Gaussian-weighted vdW surface with well-defined gradients and frequencies.</td></tr>
             <tr><td><code>gepol_ses</code></td><td>GEPOL Solvent-Excluded Surface. More realistic shape, but derivatives can be rougher.</td></tr>
           </tbody>
         </table>
@@ -232,11 +232,11 @@ SMD ΔG_solv            :     -7.221 kcal/mol</code></pre>
           </tbody>
         </table>
 
-        <h2 id="explicit">SOLVATOR — automated placement of explicit solvent molecules</h2>
+        <h2 id="explicit">Placing explicit solvent molecules with SOLVATOR</h2>
         <p>
           Implicit models cannot capture directional interactions such as specific hydrogen
-          bonds. A microsolvation strategy — explicitly modelling the few most important
-          hydrogen bonds while treating the rest with CPCM — is often a worthwhile compromise.
+          bonds. A microsolvation strategy, which explicitly models the few most important
+          hydrogen bonds and treats the rest with CPCM, is often a worthwhile compromise.
           ORCA 6 includes the SOLVATOR utility to automate this.
         </p>
 

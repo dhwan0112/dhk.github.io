@@ -69,25 +69,25 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 08 · COMMON CALCULATIONS</div>
         <h1 class="page-title">Excited states · TD-DFT</h1>
-        <p class="page-lede">UV-Vis absorption spectra and fluorescence — the starting point for photophysics and photochemistry.</p>
+        <p class="page-lede">Computing UV-Vis absorption spectra and fluorescence energies with TD-DFT.</p>
       </header>
 
       <article class="content">
         <div class="toc">
           <div class="toc-title">On this page</div>
           <ul>
-            <li><a href="#methods">Excited-state methods — TDA · TD-DFT · CIS</a></li>
+            <li><a href="#methods">Excited-state methods: TDA · TD-DFT · CIS</a></li>
             <li><a href="#basic">Basic usage</a></li>
             <li><a href="#interpret">Reading the output</a></li>
             <li><a href="#triplets-sf">Triplets and spin-flip</a></li>
-            <li><a href="#opt-excited">Excited-state optimisation — fluorescence</a></li>
+            <li><a href="#opt-excited">Excited-state optimisation and fluorescence</a></li>
             <li><a href="#nacme">Non-adiabatic couplings and ETF</a></li>
             <li><a href="#xray">X-ray absorption spectra</a></li>
             <li><a href="#tips">Functional choice and pitfalls</a></li>
           </ul>
         </div>
 
-        <h2 id="methods">Excited-state methods — TDA · TD-DFT · CIS</h2>
+        <h2 id="methods">Excited-state methods: TDA · TD-DFT · CIS</h2>
         <p>
           ORCA supports several excited-state methods. The single-reference ones are listed
           below; for the multi-reference methods (CASSCF, NEVPT2, MRCI) the manual has a chapter
@@ -166,7 +166,7 @@ States    Energy   Wavelength   fosc     T2         TX        TY        TZ
           <li><strong>STATE n</strong>: energy of the <em>n</em>-th excited state (au, eV, cm⁻¹).</li>
           <li><strong>x → y</strong>: the dominant single excitation (e.g. HOMO → LUMO). Larger coefficient → more dominant.</li>
           <li><strong>fosc</strong>: the oscillator strength. Above ~0.01 the absorption is large enough to be visible experimentally.</li>
-          <li><strong>Wavelength</strong>: the corresponding absorption wavelength (nm) — the number to compare with UV-Vis.</li>
+          <li><strong>Wavelength</strong>: the corresponding absorption wavelength (nm), the number to compare with UV-Vis.</li>
         </ul>
 
         <p>
@@ -200,7 +200,7 @@ States    Energy   Wavelength   fosc     T2         TX        TY        TZ
 
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 3</span> mol.xyz</code></pre>
 
-        <h2 id="opt-excited">Excited-state optimisation — fluorescence</h2>
+        <h2 id="opt-excited">Excited-state optimisation and fluorescence</h2>
         <p>
           To predict a fluorescence wavelength, you must re-optimise the geometry on the excited
           state. The excited-state energy evaluated at that geometry is close to the 0-0
@@ -241,8 +241,8 @@ States    Energy   Wavelength   fosc     T2         TX        TY        TZ
         <h2 id="xray">X-ray absorption spectra</h2>
         <p>
           The pre-edge region of a K-edge X-ray absorption spectrum can be modelled, both
-          qualitatively and quantitatively, with TD-DFT. The manual uses the Ti K-edge of
-          TiCl<sub>4</sub> as an illustration:
+          qualitatively and quantitatively, with TD-DFT. Below is the Ti K-edge of
+          TiCl<sub>4</sub> as an example:
         </p>
 
         <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">BP86 ZORA ZORA-def2-TZVP(-f) SARC/J TightSCF</span>

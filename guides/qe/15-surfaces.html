@@ -124,7 +124,7 @@
 few atomic layers plus a vacuum layer. Adsorption energies, surface
 energies, and work functions all start here.</p>
 <h2 id="building-slabs-never-by-hand">Building slabs: never by hand</h2>
-<p>Writing slab coordinates by hand is an error factory. Use a generator such
+<p>Writing slab coordinates by hand is error-prone. Use a generator such
 as ASE or pymatgen.</p>
 <pre><code class="language-python">from ase.build import surface, bulk
 from ase.io import write
@@ -139,10 +139,10 @@ write('feo100.scf.in', slab, format='espresso-in',
       input_data={'system': {'ecutwfc': 70, 'ecutrho': 700,
                              'occupations': 'smearing', 'degauss': 0.01}})
 </code></pre>
-<p>Open the generated file and <strong>read the <code>CELL_PARAMETERS</code> and
-<code>ATOMIC_POSITIONS</code> yourself</strong>. Being able to read generator output is what
-<a href="03-units-coordinates.html">Chapter 03</a> was for.</p>
-<p>A note on magnetism: a 1×1 (100) cell <strong>cannot geometrically hold</strong> the
+<p>Open the generated file and read the <code>CELL_PARAMETERS</code> and
+<code>ATOMIC_POSITIONS</code> yourself, using the conventions from
+<a href="03-units-coordinates.html">Chapter 03</a>.</p>
+<p>A note on magnetism: a 1×1 (100) cell cannot geometrically hold the
 AFM-II order of FeO (alternating (111) spin planes), which is why this demo
 is nonmagnetic. Real magnetic-surface work needs a larger cell that fits
 the ordering, plus <code>starting_magnetization</code> seeds.</p>
@@ -153,8 +153,7 @@ the ordering, plus <code>starting_magnetization</code> seeds.</p>
   relax the top.</li>
 <li>For cell optimization use <code>cell_dofree='2Dxy'</code> to freeze the vacuum
   direction.</li>
-<li>Vacuum thickness and layer count are themselves <strong>convergence
-  parameters</strong>.</li>
+<li>Vacuum thickness and layer count also need convergence tests.</li>
 </ul>
 <h2 id="the-dipole-correction">The dipole correction</h2>
 <p>An asymmetric slab (adsorbate or reconstruction on one face) builds a
@@ -177,9 +176,9 @@ potential.</p>
 <p>Mind the namelist assignment: <strong><code>tefield</code> and <code>dipfield</code> belong to
 <code>&amp;CONTROL</code></strong>, while <code>edir</code>, <code>emaxpos</code>, <code>eopreg</code>, <code>eamp</code> belong to
 <code>&amp;SYSTEM</code>. Putting <code>tefield</code> into <code>&amp;SYSTEM</code> stops the run immediately with
-<code>read_namelists ... bad line</code> (measured; tutorials get this wrong
-regularly). And <code>emaxpos</code>, the sawtooth peak, must sit <strong>inside the
-vacuum</strong>; letting it cross the slab produces nonsense.</p>
+<code>read_namelists ... bad line</code> (confirmed on QE 7.5; some tutorials get
+this wrong). And <code>emaxpos</code>, the sawtooth peak, must sit inside the vacuum;
+letting it cross the slab produces nonsense.</p>
 <h2 id="the-work-function">The work function</h2>
 <p>$$\Phi = V_{\mathrm{vacuum}} - E_F$$</p>
 <p>Procedure: SCF, then <code>pp.x</code> with <code>plot_num=11</code> (bare + Hartree potential),
@@ -189,7 +188,7 @@ parser), then subtract the Fermi level from the flat vacuum plateau.</p>
   <img src="assets/images/qe-e13-workfunction.png"
        alt="Planar-averaged electrostatic potential of a FeO(100) slab" />
   <figcaption>
-    Measured planar-averaged electrostatic potential of the FeO(100) slab
+    Planar-averaged electrostatic potential of the FeO(100) slab
     (QE 7.5). The work function is the difference between the flat vacuum
     level and the Fermi level. Full procedure in
     <a href="ex-13-slab-md.html">Example E13</a>.
@@ -211,7 +210,7 @@ parser), then subtract the Fermi level from the flat vacuum plateau.</p>
 <h2 id="related-examples">Related examples</h2>
 <ul>
 <li><a href="ex-13-slab-md.html">E13 · Slabs and AIMD</a>: generation, relaxation, and a
-  measured work function.</li>
+  computed work function.</li>
 <li><a href="ex-09-fe-bcc.html">E9</a> / <a href="ex-10-feo-afm.html">E10</a>: the bulk references
   to compute before any slab.</li>
 </ul>

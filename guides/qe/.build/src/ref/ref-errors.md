@@ -5,7 +5,7 @@ title: "R3. Error message dictionary"
 # R3. Error message dictionary
 
 Most QE errors arrive as `Error in routine <name> (<code>)`, and
-**the routine name is the strongest clue to the cause**.
+the routine name is usually the best clue to the cause.
 
 ## Contents
 {:.toc-title}
@@ -30,7 +30,7 @@ Most QE errors arrive as `Error in routine <name> (<code>)`, and
 | `electrons` | SCF convergence |
 | `punch`, `openfil`, `davcio` | File I/O (paths, disk, `prefix` mismatch) |
 
-The truly dangerous cases have no error at all; see
+The worst cases produce no error at all; see
 [the section on silent failures](#silent-failures-the-most-dangerous-category).
 
 ## Input syntax errors
@@ -43,7 +43,7 @@ The truly dangerous cases have no error at all; see
 | `namelist not found` | Namelist typo or missing `/` | Every namelist ends with `/` |
 | `input_dft not allowed` | Conflicts with the pseudopotential functional | Remove `input_dft`; use the built-in functional |
 | `reading namelist ...` | Fortran parse failure (usually commas or quotes) | Single quotes for strings, `.true.`/`.false.` for logicals |
-| `read_namelists ... bad line` | Variable placed in the wrong namelist | Example: `tefield`/`dipfield` belong in `&CONTROL`, not `&SYSTEM` (measured; see [E13](ex-13-slab-md.html)) |
+| `read_namelists ... bad line` | Variable placed in the wrong namelist | Example: `tefield`/`dipfield` belong in `&CONTROL`, not `&SYSTEM` (hit in [E13](ex-13-slab-md.html)) |
 
 ## Pseudopotential and density problems
 
@@ -56,7 +56,7 @@ The truly dangerous cases have no error at all; see
 | `wrong number of valence electrons` | Pseudopotential does not match the species | Recheck `ATOMIC_SPECIES` |
 | `set_hubbard_l: pseudopotential not yet inserted` | The Hubbard manifold is absent from the pseudopotential | Use a semicore pseudopotential |
 
-Measured case: in the degauss scan of
+Example: in the degauss scan of
 [Example E5](ex-05-al-metal.html), `mv` smearing with `degauss=0.005` on a
 12×12×12 grid integrated the charge to 3.003 instead of 3 and stopped with
 `charge is wrong`. Smearing width and k-grid must be converged together.
@@ -65,7 +65,7 @@ Measured case: in the degauss scan of
 
 ### convergence NOT achieved after N iterations
 
-The most common problem. Try these **in order**.
+The most common problem. Try these in order.
 
 1. `mixing_beta` 0.7 → 0.3 → 0.1
 2. `mixing_mode = 'local-TF'` (metals, slabs, magnets)
@@ -73,12 +73,12 @@ The most common problem. Try these **in order**.
 4. Raise `mixing_ndim` (8 → 12–16, if memory allows)
 5. Temporarily raise `degauss`, converge, restart with
    `startingpot='file'` while lowering it
-6. `diagonalization = 'cg'` or `'ppcg'` (slow but robust)
+6. `diagonalization = 'cg'` or `'ppcg'` (slow but more stable)
 7. Inspect the structure (atoms too close)
 
 For DFT+U with `nosym` (MD in particular): the SCF stalls because rotations
 among degenerate orbitals keep the density sloshing. Add
-`mixing_fixed_ns = 30` (measured in [E13](ex-13-slab-md.html): stuck at
+`mixing_fixed_ns = 30` (in [E13](ex-13-slab-md.html) the SCF was stuck at
 7×10⁻⁵ after 100 iterations without it, converged in 28 with it).
 
 ### c_bands: N eigenvalues not converged
@@ -90,10 +90,10 @@ among degenerate orbitals keep the density sloshing. Add
 
 ### cdiaghg: problems computing cholesky / S matrix not positive definite
 
-- The overlap matrix went singular. Usual causes: **atoms too close, a bad
-  initial wavefunction, or a linearly dependent basis**.
+- The overlap matrix went singular. Usual causes: atoms too close, a bad
+  initial wavefunction, or a linearly dependent basis.
 - Try `startingwfc = 'random'`.
-- Recheck the structure: overlapping atoms are more common than you think.
+- Recheck the structure for overlapping atoms.
 
 ### Not enough space allocated for radial FFT
 
@@ -103,7 +103,7 @@ among degenerate orbitals keep the density sloshing. Add
 ### checkallsym: some of the original symmetry operations not satisfied
 
 - Atomic motion broke the symmetry detected on the initial structure.
-  **In MD you will hit this almost immediately** (thermal motion destroys
+  In MD you will hit this almost immediately (thermal motion destroys
   symmetric positions in the first step).
 - Set `nosym = .true.` for MD
   ([Chapter 16](16-molecular-dynamics.html)). If it appears during a
@@ -123,16 +123,16 @@ among degenerate orbitals keep the density sloshing. Add
 
 ## Silent failures: the most dangerous category
 
-QE prints physically wrong results in a perfectly clean format. Make these
-checks habitual.
+QE prints physically wrong results in a perfectly clean format. Run these
+checks routinely.
 
 | Symptom | Hidden cause | Check |
 |---|---|---|
-| Total energy far from the literature | Different pseudopotential | **Absolute energies are not comparable**; only same-condition differences |
+| Total energy far from the literature | Different pseudopotential | **Absolute energies are not comparable**; compare only differences under identical settings |
 | Magnetic moment collapses to zero | Weak initial magnetization, excess smearing | Raise `starting_magnetization`, lower `degauss` |
 | AFM but total magnetization is nonzero | Label split missing; symmetry enforcing FM | Split labels via `ntyp`; check `Sym. Ops.` |
 | FeO comes out metallic | GGA self-interaction error | Apply DFT+U; if U alone fails, `starting_ns_eigenvalue` |
-| Still metallic with U on | d occupations trapped in a wrong minimum | Steer the pattern with `starting_ns_eigenvalue` |
+| Still metallic with U on | d occupations stuck in a wrong minimum | Steer the pattern with `starting_ns_eigenvalue` |
 | `vc-relax` results not reproducible | Pulay stress | Fresh `scf` on the final structure |
 | Jagged DOS | Too few nscf k-points | Densify and use the tetrahedron method |
 | Weird band path | `crystal_b` convention confusion | Use `tpiba_b` or SeeK-path |
@@ -147,8 +147,8 @@ Recurring issues in systems like FeO, Fe₂O₃, Fe₃O₄:
 - Are spin-up and spin-down sublattices split into separate labels?
 - Is `mixing_beta` at 0.3 or below with `mixing_mode='local-TF'`?
 - Did you converge from several initial magnetizations and pick the
-  **lowest-energy** solution?
-- Is the `HUBBARD` card in the **new syntax** (no `lda_plus_u` remnants)?
+  lowest-energy solution?
+- Is the `HUBBARD` card in the new syntax (no `lda_plus_u` remnants)?
 - Is the projector (`ortho-atomic` etc.) recorded together with the U value?
 - Did you steer the orbital occupations with `starting_ns_eigenvalue`?
 - If you use `hp.x`, did you converge the `nq` grid?
@@ -158,13 +158,13 @@ Recurring issues in systems like FeO, Fe₂O₃, Fe₃O₄:
 
 Search the
 [QE users mailing list archive](https://www.mail-archive.com/users@lists.quantum-espresso.org/)
-first. Most problems are already answered, and threads answered by the
-developers (Giannozzi, Timrov, and others) are effectively official
-documentation.
+first. Most problems have already been answered there, and replies from
+the developers (Giannozzi, Timrov, and others) are about as reliable as
+the official documentation.
 
 Always include:
 
 1. The QE version and how it was built
-2. The **complete input file**
-3. The error section of the output, **with 30 lines of context**
+2. The complete input file
+3. The error section of the output, with 30 lines of context
 4. What you already tried

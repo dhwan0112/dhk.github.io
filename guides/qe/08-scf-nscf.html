@@ -119,8 +119,8 @@
 <li><a href="#related-examples">Related examples</a></li>
 </ul>
 </div>
-<p>QE is not one program but a <strong>suite of executables</strong>, connected by a
-pipeline that flows through <code>prefix</code> and <code>outdir</code>. The starting point of
+<p>QE is a suite of executables, connected by a pipeline that flows through
+<code>prefix</code> and <code>outdir</code>. The starting point of
 that pipeline is the division of labor between <code>scf</code> and <code>nscf</code>.</p>
 <h2 id="division-of-labor">Division of labor</h2>
 <table>
@@ -176,24 +176,24 @@ exactly</strong> and the run must happen in the same directory. A mismatch gives
 <ul>
 <li>Only the total-energy line marked <code>!</code> is the converged value; the
   unmarked <code>total energy</code> lines are intermediate.</li>
-<li><strong>The gap between total and absolute magnetization is physical
-  information.</strong> For FM they nearly coincide; for AFM the total is near zero
+<li>The difference between total and absolute magnetization tells you the
+  magnetic order. For FM they nearly coincide; for AFM the total is near zero
   while the absolute stays large (<a href="12-magnetism.html">Chapter 12</a>).</li>
 <li>Insulators print <code>highest occupied, lowest unoccupied level</code> (a gap
-  estimate); metals print <code>the Fermi energy is</code> instead. <strong>Which of the two
-  appears is itself a diagnosis.</strong> <a href="ex-10-feo-afm.html">Example E10</a> uses
+  estimate); metals print <code>the Fermi energy is</code> instead, so the line that appears
+  tells you which one pw.x found. <a href="ex-10-feo-afm.html">Example E10</a> uses
   exactly this line to catch GGA calling FeO a metal.</li>
 <li>The energy decomposition block (<code>one-electron contribution</code>,
   <code>hartree contribution</code>, <code>xc contribution</code>, <code>ewald contribution</code>) is useful
   when hunting anomalies.</li>
 </ul>
-<p>The <strong>timing breakdown</strong> at the bottom (<code>init_run</code>, <code>electrons</code>, <code>c_bands</code>,
+<p>The timing breakdown at the bottom (<code>init_run</code>, <code>electrons</code>, <code>c_bands</code>,
 <code>sum_band</code>) tells you where the time goes, and is the first thing to read
 when planning parallelization (<a href="18-parallel-hpc.html">Chapter 18</a>).</p>
 <div class="warning">
   <div class="note-title">Common mistakes</div>
   <p>
-    Running the nscf in a <strong>different directory</strong> from the scf,
+    Running the nscf in a different directory from the scf,
     or deleting <code>outdir</code> in between. The nscf does not build a
     density; without the scf products it cannot even start. One more:
     learning with <code>verbosity='low'</code>. With <code>'high'</code>
@@ -204,7 +204,7 @@ when planning parallelization (<a href="18-parallel-hpc.html">Chapter 18</a>).</
 
 <h2 id="related-examples">Related examples</h2>
 <ul>
-<li><a href="ex-01-si-scf.html">E1 · Si SCF</a>: read every output block on a measured run.</li>
+<li><a href="ex-01-si-scf.html">E1 · Si SCF</a>: read every output block of a real run.</li>
 <li><a href="ex-07-si-dos.html">E7 · Si DOS and PDOS</a>: the scf → nscf handoff in practice.</li>
 <li><a href="ex-08-si-bands.html">E8 · Si band structure</a>: the scf → bands handoff in practice.</li>
 </ul>

@@ -73,10 +73,10 @@
 
       <article class="content">
         <div class="toc">
-          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
           <ul>
             <li><a href="#basic">기본 사용법</a></li>
-            <li><a href="#coords-system">좌표계 — 데카르트와 redundant internal</a></li>
+            <li><a href="#coords-system">좌표계: 데카르트와 redundant internal</a></li>
             <li><a href="#convergence">수렴 임계값 읽기</a></li>
             <li><a href="#constraints">제약 조건 최적화</a></li>
             <li><a href="#hydrogens">수소만 최적화 · 부분 최적화</a></li>
@@ -111,7 +111,7 @@
 <span class="cmt"># 하이브리드는 RIJCOSX와 함께</span>
 <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J Opt</span></code></pre>
 
-        <h2 id="coords-system">좌표계 — 데카르트와 redundant internal</h2>
+        <h2 id="coords-system">좌표계: 데카르트와 redundant internal</h2>
         <p>
           ORCA 6의 <code>Opt</code> 키워드는 기본으로 <strong>redundant internal coordinates</strong>를 쓴다.
           이 좌표계는 화학적으로 의미 있는 결합 길이·각도·이면각의 조합이라, 대개 가장 빨리 수렴한다.
@@ -124,7 +124,7 @@
             <tr><th>키워드</th><th>좌표계</th><th>사용 시점</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>Opt</code></td><td>Redundant internal</td><td>대부분의 분자 — 기본 선택.</td></tr>
+            <tr><td><code>Opt</code></td><td>Redundant internal</td><td>대부분의 분자. 기본 선택.</td></tr>
             <tr><td><code>COpt</code></td><td>Cartesian</td><td>큰 시스템, 단편(fragment) 최적화, 매우 평탄한 표면.</td></tr>
           </tbody>
         </table>
@@ -312,7 +312,7 @@ MAX step             0.0002345678 bohr      0.0040000000      YES
             <tr><td><code>Lindh</code></td><td>Lindh 모델. 평탄한 표면에 효과적.</td></tr>
             <tr><td><code>Swart</code></td><td>Swart 모델. 전이금속에서 안정적.</td></tr>
             <tr><td><code>Schlegel</code></td><td>Schlegel 모델. 일반 유기.</td></tr>
-            <tr><td><code>Unit</code></td><td>단위 행렬. 매우 어려운 경우의 마지막 보루.</td></tr>
+            <tr><td><code>Unit</code></td><td>단위 행렬. 다른 옵션이 모두 안 될 때 시도.</td></tr>
             <tr><td><code>Read</code></td><td>이전 진동수 계산의 <code>.hess</code> 파일을 읽음.</td></tr>
           </tbody>
         </table>
@@ -348,8 +348,8 @@ MAX step             0.0002345678 bohr      0.0040000000      YES
         </ul>
 
         <p>
-          안정점을 찾았으면, 그 점이 정말 최소인지(허수 진동수가 없는지)는
-          진동수 계산으로 확인할 차례다.
+          찾은 안정점이 정말 최소인지(허수 진동수가 없는지)는
+          진동수 계산으로 확인한다.
         </p>
       </article>
 

@@ -6,7 +6,7 @@ title: "E6. Si vc-relax"
 
 ## Goal
 
-Start from a **deliberately wrong lattice constant** (10.00 bohr) and let a
+Start from a deliberately wrong lattice constant (10.00 bohr) and let a
 variable-cell relaxation find the PBE equilibrium. Learn to read a BFGS
 trajectory, and close with the Pulay-stress rerun rule.
 
@@ -78,7 +78,7 @@ K_POINTS (automatic)
 mpirun -np 6 pw.x -nk 6 -in si.vcrelax.in > si.vcrelax.out
 ```
 
-## Output and figure: measured
+## Output and figure
 
 <figure>
   <img src="assets/images/qe-e06-vcrelax.png"
@@ -100,9 +100,9 @@ mpirun -np 6 pw.x -nk 6 -in si.vcrelax.in > si.vcrelax.out
 The final cell appears in the `Begin final coordinates` block at the end of
 the output (a `CELL_PARAMETERS (alat= 10.0)` matrix with scale 0.5168). The
 roughly 1% lattice overestimate of PBE is a well-known systematic trend,
-and here it is, measured.
+and this run shows it.
 
-**The closing rule**: run a fresh `scf` on the final structure. The
+Finally, **run a fresh `scf` on the final structure**. The
 plane-wave basis changes with the cell (Pulay stress), so the energy of the
 last vc-relax step was computed in the old basis
 ([Chapter 09](09-relaxation.html)).

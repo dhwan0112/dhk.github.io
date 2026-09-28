@@ -69,7 +69,7 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 10 · METHODS &amp; MODELS</div>
         <h1 class="page-title">DLPNO-CCSD(T)</h1>
-        <p class="page-lede">The gold-standard correlation method, now affordable for large molecules — chemical accuracy at a reasonable cost.</p>
+        <p class="page-lede">Applying CCSD(T) to large molecules with the local-correlation approximation: precision tiers, CBS extrapolation, and composite workflows.</p>
       </header>
 
       <article class="content">
@@ -78,20 +78,20 @@
           <ul>
             <li><a href="#why">Why DLPNO-CCSD(T)</a></li>
             <li><a href="#basic">Basic usage</a></li>
-            <li><a href="#thresholds">Precision tiers — Loose / Normal / Tight</a></li>
+            <li><a href="#thresholds">Precision tiers: Loose / Normal / Tight</a></li>
             <li><a href="#cbs">Complete basis-set extrapolation (CBS)</a></li>
-            <li><a href="#f12">F12 — fast approach to the basis-set limit</a></li>
-            <li><a href="#open-shell">Open shell — UHF reference</a></li>
+            <li><a href="#f12">F12 explicit correlation</a></li>
+            <li><a href="#open-shell">Open shell (UHF reference)</a></li>
             <li><a href="#workflow">Recommended workflow</a></li>
-            <li><a href="#multiref">One step further — multireference (CASSCF · NEVPT2)</a></li>
+            <li><a href="#multiref">When multireference is needed (CASSCF · NEVPT2)</a></li>
           </ul>
         </div>
 
         <h2 id="why">Why DLPNO-CCSD(T)</h2>
         <p>
-          CCSD(T) is the "gold standard" of single-reference quantum chemistry. For typical
-          closed-shell species it reproduces relative energies to within ±1 kcal/mol — the
-          so-called chemical accuracy. The catch is that canonical CCSD(T) scales as
+          CCSD(T) is commonly used as the reference method of single-reference quantum chemistry. For typical
+          closed-shell species it reproduces relative energies to within ±1 kcal/mol (the
+          so-called chemical accuracy). However, canonical CCSD(T) scales as
           O(N<sup>7</sup>), which makes it prohibitively expensive for systems beyond ~20
           atoms.
         </p>
@@ -100,9 +100,8 @@
           The DLPNO (Domain-based Local Pair Natural Orbital) approximation dramatically
           reduces this cost. Using local orbitals and domain-based pair natural orbitals it
           achieves asymptotically linear scaling while recovering about 99.9 % of the canonical
-          CCSD(T) correlation energy. The manual summarises the situation simply: "if
-          DLPNO-MP2 is feasible, DLPNO-CCSD(T) is feasible too." In practice this puts
-          molecules of several hundred atoms within reach.
+          CCSD(T) correlation energy. If a system is small enough for DLPNO-MP2, DLPNO-CCSD(T)
+          is usually feasible too, and molecules of several hundred atoms are within reach.
         </p>
 
         <h2 id="basic">Basic usage</h2>
@@ -133,7 +132,7 @@
           </tbody>
         </table>
 
-        <h2 id="thresholds">Precision tiers — Loose / Normal / Tight</h2>
+        <h2 id="thresholds">Precision tiers: Loose / Normal / Tight</h2>
         <p>DLPNO cutoff thresholds are consolidated into three tiers:</p>
 
         <table>
@@ -171,9 +170,9 @@
 <span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
 
         <p>
-          Syntax: <code>Extrapolate(X/Y,basis)</code> — no space after the comma, or it fails to
+          Syntax: <code>Extrapolate(X/Y,basis)</code>, with no space after the comma, or it fails to
           parse. <code>X</code> and <code>Y</code> are cardinal numbers (2 = DZ, 3 = TZ, 4 = QZ,
-          5 = 5Z); <code>basis</code> is the family name — <code>cc</code> (Dunning),
+          5 = 5Z); <code>basis</code> is the family name: <code>cc</code> (Dunning),
           <code>def2</code>, <code>aug-cc</code>, etc. With DLPNO you must also add
           <code>AutoAux</code> (it builds the auxiliary basis on the fly).
         </p>
@@ -188,7 +187,7 @@
           </tbody>
         </table>
 
-        <h3>EP2 · EP3 — efficient extrapolation for larger bases</h3>
+        <h3>EP2 · EP3 extrapolation</h3>
         <p>
           Running CCSD(T) directly with a large basis (e.g. cc-pV5Z) is often too expensive,
           but MP2 may be feasible. EP2 / EP3 combine "large-basis MP2 + small-basis
@@ -198,7 +197,7 @@
         <pre data-lang="orca"><code><span class="cmt"># EP2: small basis for CC, large basis for MP2 extrapolation</span>
 <span class="kw">!</span> <span class="kw2">DLPNO-CCSD(T) ExtrapolateEP2(2/3,cc) AutoAux TightSCF</span></code></pre>
 
-        <h2 id="f12">F12 — fast approach to the basis-set limit</h2>
+        <h2 id="f12">F12 explicit correlation</h2>
         <p>
           F12 explicit-correlation methods reach near-CBS accuracy with a smaller basis.
           DLPNO-CCSD(T)-F12 combines the two ideas:
@@ -214,7 +213,7 @@
           extrapolation.
         </p>
 
-        <h2 id="open-shell">Open shell — UHF reference</h2>
+        <h2 id="open-shell">Open shell (UHF reference)</h2>
         <p>For radicals or multiplet systems, use a UHF reference ("UHF-DLPNO-CCSD(T)"):</p>
 
         <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">UHF DLPNO-CCSD(T) cc-pVTZ cc-pVTZ/C TightSCF</span>
@@ -238,18 +237,18 @@
         <h2 id="workflow">Recommended workflow</h2>
         <p>
           DLPNO-CCSD(T) is usually used as a single-point method. Analytical gradients are
-          available but expensive, so the standard "composite" workflow is to optimise with a
+          available but expensive, so the usual "composite" workflow is to optimise with a
           cheap method (DFT) and refine the energy with CCSD(T) on top.
         </p>
 
         <ol>
           <li><strong>Optimise + frequencies</strong>: B3LYP-D4/def2-TZVP or r2SCAN-3c. Obtain the thermal correction ΔG<sub>therm</sub>.</li>
-          <li><strong>DLPNO-CCSD(T) single point</strong>: CBS extrapolation or F12 on the optimised geometry — high-precision electronic energy E<sub>elec</sub><sup>CC</sup>.</li>
+          <li><strong>DLPNO-CCSD(T) single point</strong>: CBS extrapolation or F12 on the optimised geometry, giving the high-precision electronic energy E<sub>elec</sub><sup>CC</sup>.</li>
           <li><strong>Solvation correction</strong>: if needed, ΔG<sub>solv</sub> from (DFT/SMD) − (DFT/gas).</li>
           <li><strong>Final free energy</strong>: G<sub>final</sub> = E<sub>elec</sub><sup>CC</sup> + ΔG<sub>therm</sub><sup>DFT</sup> + ΔG<sub>solv</sub>.</li>
         </ol>
 
-        <p>Run this flow as <strong>three separate files</strong> (not one <code>$new_job</code> input — see the warning below):</p>
+        <p>Run this flow as <strong>three separate files</strong> (not one <code>$new_job</code> input; see the warning below):</p>
 
         <pre data-lang="orca"><code><span class="cmt"># -- step1.inp -- DFT geometry + frequencies (D4 dispersion ON) -> step1.xyz</span>
 <span class="kw">!</span> <span class="kw2">B3LYP D4 def2-TZVP RIJCOSX def2/J TightOpt Freq</span>
@@ -282,8 +281,8 @@
 
         <p>
           When reporting reaction equilibria or free-energy barriers, this "DFT geometry +
-          CCSD(T) precision energy + SMD solvation" combination is the most standard recipe in
-          modern quantum chemistry and is routinely accepted by journals.
+          CCSD(T) precision energy + SMD solvation" combination is a widely used recipe
+          and is routinely accepted by journals.
         </p>
 
         <div class="note">
@@ -292,22 +291,21 @@
             The DLPNO approximation is not limited to CCSD(T); it is also available for CCSD,
             MP2, and B2PLYP (double hybrid). For example,
             <code>! DLPNO-B2PLYP D4 def2-TZVP def2-TZVP/C</code> cuts double-hybrid cost
-            substantially — very useful for precision single points on medium-to-large
+            substantially, which is very useful for precision single points on medium-to-large
             molecules.
           </p>
         </div>
 
-        <h2 id="multiref">One step further — multireference (CASSCF · NEVPT2)</h2>
+        <h2 id="multiref">When multireference is needed (CASSCF · NEVPT2)</h2>
         <p>
-          DLPNO-CCSD(T) is the apex of single-reference theory. But where two or more Slater
-          determinants carry comparable weight — molecules midway through bond breaking,
-          non-colinear magnetic states in transition-metal and lanthanide complexes, singlet
-          diradicals — the single-reference assumption breaks down. From there CASSCF, which solves
+          Where two or more Slater determinants carry comparable weight, as in molecules midway
+          through bond breaking, non-colinear magnetic states in transition-metal and lanthanide
+          complexes, and singlet diradicals, the single-reference assumption breaks down. From there CASSCF, which solves
           the active space explicitly, is the starting point, with NEVPT2 adding dynamic correlation.
         </p>
         <p>
           Choosing the active space, state-averaging, NEVPT2, spin-orbit coupling · SINGLE_ANISO,
-          and the metal/ligand fragment merge now live in their own chapter →
+          and the metal/ligand fragment merge are covered in
           <a href="casscf.html"><strong>13 · CASSCF · Multireference</strong></a>.
         </p>
 

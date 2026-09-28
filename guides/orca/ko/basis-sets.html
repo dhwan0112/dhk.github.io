@@ -68,20 +68,20 @@
       <header class="page-header">
         <div class="page-eyebrow">CHAPTER 11 · 방법론 선택</div>
         <h1 class="page-title">기저집합 가이드</h1>
-        <p class="page-lede">def2, cc-pVnZ, SARC. 어떤 상황에서 어느 기저집합을 골라야 할까요.</p>
+        <p class="page-lede">def2, cc-pVnZ, SARC 등 주요 기저집합과 상황별 선택 기준.</p>
       </header>
 
       <article class="content">
         <div class="toc">
-          <div class="toc-title">이 페이지에서 다룹니다</div>
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
           <ul>
             <li><a href="#concept">기저집합이란</a></li>
-            <li><a href="#families">주요 패밀리 — def2, cc, ANO</a></li>
-            <li><a href="#size">크기 — DZ, TZ, QZ</a></li>
+            <li><a href="#families">주요 패밀리: def2, cc, ANO</a></li>
+            <li><a href="#size">크기: DZ, TZ, QZ</a></li>
             <li><a href="#diffuse">확산 함수(diffuse functions)</a></li>
             <li><a href="#aux">보조 기저집합</a></li>
             <li><a href="#ecp">유효 핵 포텐셜(ECP)</a></li>
-            <li><a href="#sarc">SARC — 무거운 원소를 위한 기저집합</a></li>
+            <li><a href="#sarc">SARC: 무거운 원소용 기저집합</a></li>
             <li><a href="#recommendations">상황별 권장</a></li>
             <li><a href="#bsse">BSSE와 counterpoise 보정</a></li>
           </ul>
@@ -94,14 +94,14 @@
           기저집합을 키울수록 정확도는 좋아지지만, 비용은 4차~6차 멱승으로 늘어난다.
         </p>
 
-        <h2 id="families">주요 패밀리 — def2, cc, ANO</h2>
+        <h2 id="families">주요 패밀리: def2, cc, ANO</h2>
 
         <table>
           <thead>
             <tr><th>패밀리</th><th>설계자</th><th>특징 / 용도</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>def2-</code> (Karlsruhe)</td><td>Ahlrichs, Weigend</td><td>1~86번 원소를 모두 일관된 정확도로 묶음. <strong>DFT의 사실상 표준</strong>.</td></tr>
+            <tr><td><code>def2-</code> (Karlsruhe)</td><td>Ahlrichs, Weigend</td><td>1~86번 원소를 모두 일관된 정확도로 묶음. <strong>DFT에서 가장 흔히 쓰임</strong>.</td></tr>
             <tr><td><code>cc-pVnZ</code> (Dunning)</td><td>Dunning</td><td>상관 계산에 최적화. CCSD(T)·CBS 외삽에 표준.</td></tr>
             <tr><td><code>aug-cc-pVnZ</code></td><td>Dunning</td><td>cc-pVnZ + 확산 함수. 음이온, 들뜸 상태.</td></tr>
             <tr><td><code>ANO-RCC</code></td><td>Roos 그룹</td><td>다중참조 계산용. 핵 상관까지 다룸.</td></tr>
@@ -110,7 +110,7 @@
           </tbody>
         </table>
 
-        <h2 id="size">크기 — DZ, TZ, QZ</h2>
+        <h2 id="size">크기: DZ, TZ, QZ</h2>
         <p>
           “Double-zeta(DZ)”, “Triple-zeta(TZ)” 같은 표기는 valence 궤도 하나를 함수 몇 개로 표현하는지를 뜻한다.
           거기에 분극 함수(d, f)와 확산 함수의 유무가 기저집합 크기를 더 정한다.
@@ -125,12 +125,12 @@
             <tr><td><code>def2-TZVP</code></td><td><code>cc-pVTZ</code></td><td>TZ + 분극. <strong>일상 표준</strong>.</td></tr>
             <tr><td><code>def2-TZVPP</code></td><td><code>cc-pVTZ</code></td><td>TZ + 추가 분극. 정밀 단일점.</td></tr>
             <tr><td><code>def2-QZVPP</code></td><td><code>cc-pVQZ</code></td><td>QZ. CBS 외삽의 다음 단계.</td></tr>
-            <tr><td><code>def2-TZVP(-f)</code></td><td>—</td><td>비금속의 f 함수만 제거 — DFT 단일점에서 비용/정확도 균형.</td></tr>
+            <tr><td><code>def2-TZVP(-f)</code></td><td>—</td><td>비금속의 f 함수만 제거. DFT 단일점에서 비용/정확도 균형.</td></tr>
           </tbody>
         </table>
 
         <div class="tip">
-          <div class="note-title">일상의 황금 콤보</div>
+          <div class="note-title">무난한 시작 조합</div>
           <p>
             DFT 구조 최적화: <code>def2-SVP</code> 또는 <code>def2-TZVP</code>.<br />
             DFT 정밀 단일점: <code>def2-TZVPP</code> 또는 <code>def2-QZVPP</code>.<br />
@@ -147,7 +147,7 @@
 
         <ul>
           <li><strong>음이온</strong>: 음전하로 인해 전자가 원자 주변에 느슨하게 묶임.</li>
-          <li><strong>들뜬 상태</strong>: 특히 리이드버그 상태(고에너지 들뜸).</li>
+          <li><strong>들뜬 상태</strong>: 특히 리드베리 상태(고에너지 들뜸).</li>
           <li><strong>편극도, 초편극도</strong>: 큰 외장(field)에 대한 응답.</li>
           <li><strong>약한 상호작용</strong>: 수소결합, π-π 적층 등.</li>
         </ul>
@@ -165,8 +165,8 @@
 
         <h2 id="aux">보조 기저집합</h2>
         <p>
-          RI 가속, RIJCOSX, MP2/CC 계산은 4-인덱스 적분을 “3-인덱스 + 보조 기저집합”로 쪼개서 처리한다.
-          그래서 보조 기저집합(auxiliary basis)를 같이 지정해야 한다.
+          RI 가속, RIJCOSX, MP2/CC 계산은 4-인덱스 적분을 “3-인덱스 + 보조 기저집합”으로 쪼개서 처리한다.
+          그래서 보조 기저집합(auxiliary basis)을 같이 지정해야 한다.
           보조 기저집합을 잘못 고르면 정확도가 새니 주의해야 한다.
         </p>
 
@@ -175,9 +175,9 @@
             <tr><th>접미사</th><th>용도</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>/J</code> 또는 <code>def2/J</code></td><td>Coulomb RI 전용 — RIJCOSX, RI-J에 사용.</td></tr>
-            <tr><td><code>/JK</code> 또는 <code>def2/JK</code></td><td>Coulomb + Exchange RI — RI-JK에 사용.</td></tr>
-            <tr><td><code>/C</code> 접미사</td><td>상관(correlation) 계산용 — MP2, CC에 사용.</td></tr>
+            <tr><td><code>/J</code> 또는 <code>def2/J</code></td><td>Coulomb RI 전용. RIJCOSX, RI-J에 사용.</td></tr>
+            <tr><td><code>/JK</code> 또는 <code>def2/JK</code></td><td>Coulomb + Exchange RI. RI-JK에 사용.</td></tr>
+            <tr><td><code>/C</code> 접미사</td><td>상관(correlation) 계산용. MP2, CC에 사용.</td></tr>
           </tbody>
         </table>
 
@@ -215,7 +215,7 @@
 <span class="kw">*</span></code></pre>
 
         <p>
-          더 정밀하게 가야 한다면 <strong>스칼라 상대론적 기저집합</strong>(ZORA, DKH, X2C)를 써야 한다.
+          더 정밀하게 가야 한다면 <strong>스칼라 상대론적 기저집합</strong>(ZORA, DKH, X2C)을 써야 한다.
           이 경우 ECP 대신 모든 전자를 명시적으로 다루는 “all-electron” 기저집합을 쓴다.
         </p>
 
@@ -226,7 +226,7 @@
   Ag   0.0   0.0   0.0
 <span class="kw">*</span></code></pre>
 
-        <h2 id="sarc">SARC — 무거운 원소를 위한 기저집합</h2>
+        <h2 id="sarc">SARC: 무거운 원소용 기저집합</h2>
         <p>
           4d, 5d, 4f, 5f 원소(대략 37번 Rb부터 100번 Fm까지)에는 SARC(Segmented All-electron Relativistically Contracted) 기저집합이 좋다.
           DFT 수준에서 정밀하고, 상대론 처리(ZORA, DKH)와 잘 맞물린다.
@@ -258,7 +258,7 @@
           <tbody>
             <tr><td>유기 분자 구조 최적화</td><td><code>def2-SVP</code> 또는 <code>def2-TZVP</code></td><td><code>def2/J</code></td></tr>
             <tr><td>DFT 정밀 단일점</td><td><code>def2-TZVPP</code></td><td><code>def2/J</code></td></tr>
-            <tr><td>3d 전이금속 DFT</td><td><code>def2-TZVP</code> (자동 ECP 없음 — 모든 전자 명시)</td><td><code>def2/J</code></td></tr>
+            <tr><td>3d 전이금속 DFT</td><td><code>def2-TZVP</code> (자동 ECP 없음, 모든 전자 명시)</td><td><code>def2/J</code></td></tr>
             <tr><td>4d·5d 전이금속</td><td><code>def2-TZVP</code> (def2-ECP) 또는 <code>SARC-ZORA-TZVP</code></td><td><code>def2/J</code> 또는 <code>SARC/J</code></td></tr>
             <tr><td>란타나이드</td><td><code>SARC2-ZORA-QZVP</code></td><td><code>SARC/J</code></td></tr>
             <tr><td>DLPNO-CCSD(T) 단일점</td><td><code>cc-pVTZ</code> + CBS 외삽</td><td><code>cc-pVTZ/C</code></td></tr>
@@ -283,7 +283,7 @@
           기저집합 슈퍼포지션 오차(BSSE)는 같은 기저집합에서 일부 상쇄되는데, 기저집합이 섞이면 그 상쇄가 깨진다.
         </p>
 
-        <h2 id="bsse">BSSE와 counterpoise 보정 — 분자 간 상호작용 정량화</h2>
+        <h2 id="bsse">BSSE와 counterpoise 보정</h2>
         <p>
           두 분자가 가까이 있으면 각자의 기저집합이 상대 분자 영역까지 “빌려” 쓰게 돼,
           dimer 에너지가 monomer 에너지 합보다 인위적으로 낮아진다. 이게
@@ -293,7 +293,7 @@
         </p>
 
         <p>
-          가장 정석적인 해결책은 Boys-Bernardi <strong>counterpoise (CP) 보정</strong>이다.
+          흔히 쓰는 해결책은 Boys-Bernardi <strong>counterpoise (CP) 보정</strong>이다.
           ORCA 에서는 <strong>고스트 원자(ghost atom)</strong>를 원소 기호 뒤에 콜론
           <code>:</code> 을 붙여 정의한다. 고스트 원자는 기저집합만 두고 핵·전자는 없는 “가상의 원자”다.
         </p>
@@ -382,12 +382,12 @@
         </table>
 
         <div class="tip">
-          <div class="note-title">CP 보정의 “반쪽 진리”</div>
+          <div class="note-title">CP 보정의 한계</div>
           <p>
             CP 보정이 진짜 결합 에너지(complete basis-set limit, ΔE<sub>CBS</sub>)를
             정확히 되살려 주는 건 아니다. 작은 기저집합에서는 BSSE 가 결합을 키우는
             동시에 기저집합의 불완전성(BSIE, basis-set incompleteness error)이 결합을
-            줄여서, 두 오차가 일부 상쇄되기도 한다. 표준 권장은
+            줄여서, 두 오차가 일부 상쇄되기도 한다. 흔히 쓰는 절충은
             <code>ΔE<sub>best</sub> ≈ (ΔE<sub>raw</sub> + ΔE<sub>CP</sub>) / 2</code>
             (Halfway estimate)거나, def2-QZVPP 이상의 큰 기저집합을 쓰는 것이다.
           </p>

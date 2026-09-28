@@ -79,7 +79,7 @@ K_POINTS (tpiba_b)
 `tpiba_b` is Cartesian in 2π/a. QE's primitive-vector convention for
 `ibrav=2` can differ from the textbook fcc setting, so literature
 fractional coordinates pasted into `crystal_b` produce a wrong path.
-**When unsure, `tpiba_b` is the safe choice**
+When unsure, use `tpiba_b`
 ([Chapter 10](10-dos-bands.html)).
 
 The post-processor input:
@@ -105,10 +105,10 @@ bands.x -in si.bandspp.in > si.bandspp.out
 ```
 
 The `high-symmetry point` lines in `si.bandspp.out` give the tick
-positions along the path. Measured: 0.000 (L), 0.866 (Γ), 1.866 (X),
+positions along the path. In my run: 0.000 (L), 0.866 (Γ), 1.866 (X),
 2.366 (W), 2.720 (K), 3.780 (Γ).
 
-## Output and figure: measured
+## Output and figure
 
 <figure>
   <img src="assets/images/qe-e08-bands.png"
@@ -116,15 +116,15 @@ positions along the path. Measured: 0.000 (L), 0.866 (Γ), 1.866 (X),
   <figcaption>
     Measured silicon band structure (QE 7.5, PBE). The valence maximum sits
     at Γ and the conduction minimum on the Γ–X line (at about 0.85 of the
-    way to X): an <strong>indirect-gap</strong> semiconductor.
+    way to X): an indirect-gap semiconductor.
   </figcaption>
 </figure>
 
 - The zero is the VBM (the scf `highest occupied level`, measured
   6.212 eV).
-- **Measured indirect gap: 0.57 eV** (VBM at Γ, CBM at 0.83 of Γ–X), and a
-  **direct gap at Γ of 2.56 eV**. The experimental indirect gap is
-  1.12 eV: the systematic PBE underestimate, on display.
+- Indirect gap: 0.57 eV (VBM at Γ, CBM at 0.83 of Γ–X), and a direct gap
+  at Γ of 2.56 eV. The experimental indirect gap is 1.12 eV; PBE
+  systematically underestimates it.
 
 ## Exercises
 
@@ -143,7 +143,7 @@ positions along the path. Measured: 0.000 (L), 0.866 (Γ), 1.866 (X),
     builds no density and needs the scf products under the same
     <code>prefix</code>/<code>outdir</code>. And a PBE gap below experiment
     does not mean your run is broken; it is a
-    <strong>known limitation of the functional</strong>. If the gap itself
+    known limitation of the functional. If the gap itself
     is the target, move to hybrids or GW.
   </p>
 </div>

@@ -97,18 +97,17 @@
 </li>
 <li><a href="#43">4.3 데이터 파일에서 읽기</a></li>
 <li><a href="#44">4.4 경계 조건과 박스 모양</a></li>
-<li><a href="#45">4.5 시스템 만들기의 흔한 패턴 세 가지</a><ul>
+<li><a href="#45">4.5 시스템 만들기의 흔한 패턴</a><ul>
 <li><a href="#a">패턴 A: 단순 액체</a></li>
 <li><a href="#b">패턴 B: 결정 슬랩 + 진공</a></li>
 <li><a href="#c">패턴 C: 분자 시스템</a></li>
 </ul>
 </li>
-<li><a href="#46">4.6 다음 단계</a></li>
 </ul>
 </div>
 <hr />
 <h2 id="41">4.1 매뉴얼이 제시하는 세 가지 방법</h2>
-<p>LAMMPS 매뉴얼은 박스와 원자를 만드는 방법으로 다음 세 가지를 제시합니다.</p>
+<p>LAMMPS 매뉴얼은 박스와 원자를 만드는 방법으로 다음 세 가지를 든다.</p>
 <table>
 <thead>
 <tr>
@@ -135,12 +134,12 @@
 </tr>
 </tbody>
 </table>
-<p>세 방법 중 두 가지 이상을 한 입력에서 섞어 쓸 수도 있습니다.
+<p>한 입력에서 두 가지 이상을 섞어 써도 된다.
 예컨대 금속 슬랩은 격자에서 만들고, 그 위에 흡착할 분자는 데이터 파일에서
-읽는 식입니다.</p>
+읽는 식이다.</p>
 <h2 id="42">4.2 격자에서 만들기</h2>
-<p>가장 간단한 방법은 <code>lattice</code> 명령으로 결정 격자를 정의한 뒤 그 위에
-원자를 채우는 것입니다.</p>
+<p>가장 간단하게는 <code>lattice</code> 명령으로 결정 격자를 정의하고 그 위에
+원자를 채운다.</p>
 <pre><code class="language-lammps">units           lj
 atom_style      atomic
 
@@ -153,17 +152,17 @@ mass            1 1.0
 </code></pre>
 <p>각 줄의 의미:</p>
 <ul>
-<li><code>lattice fcc 0.8442</code> — fcc 격자, 환원 밀도 0.8442 (LJ 단위계)</li>
-<li><code>region box block 0 10 0 10 0 10</code> — <code>box</code> 라는 이름의 직육면체 영역,
+<li><code>lattice fcc 0.8442</code>: fcc 격자, 환원 밀도 0.8442 (LJ 단위계)</li>
+<li><code>region box block 0 10 0 10 0 10</code>: <code>box</code> 라는 이름의 직육면체 영역,
   격자 단위로 각 축 0~10</li>
-<li><code>create_box 1 box</code> — 위 region 안에 원자 타입 1개를 위한 박스 생성</li>
-<li><code>create_atoms 1 box</code> — 타입 1 원자로 채우기</li>
+<li><code>create_box 1 box</code>: 위 region 안에 원자 타입 1개를 위한 박스 생성</li>
+<li><code>create_atoms 1 box</code>: 타입 1 원자로 채우기</li>
 </ul>
-<p>격자 종류는 <code>fcc</code>, <code>bcc</code>, <code>hcp</code>, <code>sc</code>(단순입방), <code>diamond</code>, <code>custom</code> 등이
-있습니다. <code>region</code> 은 <code>block</code>(직육면체) 외에 <code>sphere</code>, <code>cylinder</code>, <code>prism</code>
-(비직교 박스용) 등을 지원합니다.</p>
+<p>격자 종류로는 <code>fcc</code>, <code>bcc</code>, <code>hcp</code>, <code>sc</code>(단순입방), <code>diamond</code>, <code>custom</code> 등이
+있다. <code>region</code> 은 <code>block</code>(직육면체) 말고도 <code>sphere</code>, <code>cylinder</code>, <code>prism</code>
+(비직교 박스용) 등을 지원한다.</p>
 <h3 id="_1">격자 상수 단위</h3>
-<p><code>units real</code> 또는 <code>units metal</code> 에서는 격자 상수를 Å 단위로 직접 줍니다.</p>
+<p><code>units real</code> 이나 <code>units metal</code> 에서는 격자 상수를 Å 단위로 직접 준다.</p>
 <pre><code class="language-lammps">units           metal
 atom_style      atomic
 
@@ -174,16 +173,16 @@ create_atoms    1 slab
 
 mass            1 63.546
 </code></pre>
-<p><code>units lj</code> 에서는 격자 상수 자리에 "환원 밀도"가 들어가는 점이 다릅니다.</p>
+<p><code>units lj</code> 에서는 격자 상수 자리에 "환원 밀도"가 들어간다는 점이 다르다.</p>
 <h2 id="43">4.3 데이터 파일에서 읽기</h2>
-<p>분자 시스템처럼 토폴로지(결합, 각도, 다이히드럴)가 복잡하면 외부 도구로
-데이터 파일을 만든 뒤 <code>read_data</code> 로 읽어들이는 것이 훨씬 편합니다.</p>
+<p>분자 시스템처럼 토폴로지(결합, 각도, 이면각)가 복잡하면 외부 도구로
+데이터 파일을 만든 뒤 <code>read_data</code> 로 읽어 들이는 편이 훨씬 편하다.</p>
 <pre><code class="language-lammps">units           real
 atom_style      full
 
 read_data       system.data
 </code></pre>
-<p>데이터 파일은 텍스트이며, 다음과 같은 헤더와 섹션으로 구성됩니다.</p>
+<p>데이터 파일은 텍스트이고, 다음과 같은 헤더와 섹션으로 이루어진다.</p>
 <pre><code class="language-text">LAMMPS data file from custom tool
 
    1234 atoms
@@ -218,12 +217,12 @@ Bonds
 ...
 </code></pre>
 <ul>
-<li>헤더에는 박스 크기, 원자/결합/각도/다이히드럴 개수와 종류 수가 들어갑니다.</li>
-<li><code>Atoms</code> 섹션의 형식은 <code>atom_style</code> 에 따라 달라집니다.
-  <code>full</code> 의 경우 <code>atom-ID  molecule-ID  type  charge  x  y  z</code> 순서입니다.</li>
+<li>헤더에는 박스 크기, 원자/결합/각도/이면각 개수와 종류 수가 들어간다.</li>
+<li><code>Atoms</code> 섹션의 형식은 <code>atom_style</code> 에 따라 다르다.
+  <code>full</code> 이라면 <code>atom-ID  molecule-ID  type  charge  x  y  z</code> 순서다.</li>
 <li>토폴로지를 쓴다면 <code>Bonds</code>, <code>Angles</code>, <code>Dihedrals</code>, <code>Impropers</code> 섹션도 차례대로.</li>
 </ul>
-<p>데이터 파일을 직접 손으로 작성하는 일은 드물고, 보통은 다음 도구로 생성합니다.</p>
+<p>데이터 파일을 손으로 직접 쓰는 일은 드물고, 보통은 다음 도구로 만든다.</p>
 <ul>
 <li><strong>VMD + TopoTools</strong> (가장 흔함)</li>
 <li><strong>OpenBabel / Avogadro</strong></li>
@@ -231,23 +230,23 @@ Bonds
 <li><strong>MDAnalysis / ASE</strong> 등 Python 라이브러리</li>
 </ul>
 <h2 id="44">4.4 경계 조건과 박스 모양</h2>
-<p><code>boundary</code> 명령은 세 축의 경계 조건을 정합니다.</p>
+<p><code>boundary</code> 명령은 세 축의 경계 조건을 정한다.</p>
 <pre><code class="language-lammps">boundary        p p p     # 3D 주기적 (기본)
 boundary        p p f     # x, y는 주기적; z는 고정 (슬랩에 흔함)
 boundary        f f f     # 클러스터 (모든 면 비주기)
 </code></pre>
 <ul>
-<li><code>p</code> — 주기적(periodic)</li>
-<li><code>f</code> — 고정(fixed). 원자가 이 면을 넘으면 사라집니다("lost atom" 오류).</li>
-<li><code>s</code> — 축소형(shrink-wrapped). 박스가 원자를 따라 줄어듭니다.</li>
-<li><code>m</code> — minimum shrink-wrapped. <code>s</code> + 최소 박스 크기 보장.</li>
+<li><code>p</code>: 주기적(periodic)</li>
+<li><code>f</code>: 고정(fixed). 원자가 이 면을 넘으면 사라진다("lost atom" 오류).</li>
+<li><code>s</code>: 축소형(shrink-wrapped). 박스가 원자를 따라 줄어든다.</li>
+<li><code>m</code>: minimum shrink-wrapped. <code>s</code> + 최소 박스 크기 보장.</li>
 </ul>
-<p>슬랩 시뮬레이션(표면 위 흡착, 박막 등)에서는 보통 <code>p p f</code> 또는 <code>p p m</code>
-조합을 사용합니다. 이 경우 장범위 정전기에는 슬랩 보정 (<code>kspace_modify slab</code>)이
-함께 필요할 수 있습니다.</p>
-<p>박스 자체가 비직교(triclinic)라면 <code>lattice</code> 명령 옵션이나 <code>region prism</code>
-또는 <code>read_data</code> 헤더의 <code>xy xz yz</code> 항목으로 기울임을 정의합니다.</p>
-<h2 id="45">4.5 시스템 만들기의 흔한 패턴 세 가지</h2>
+<p>슬랩 시뮬레이션(표면 흡착, 박막 등)에서는 보통 <code>p p f</code> 나 <code>p p m</code>
+조합을 쓴다. 이때 장범위 정전기에는 슬랩 보정(<code>kspace_modify slab</code>)이
+함께 필요할 수 있다.</p>
+<p>박스가 비직교(triclinic)라면 <code>lattice</code> 명령 옵션이나 <code>region prism</code>,
+또는 <code>read_data</code> 헤더의 <code>xy xz yz</code> 항목으로 기울기를 정의한다.</p>
+<h2 id="45">4.5 시스템 만들기의 흔한 패턴</h2>
 <h3 id="a">패턴 A: 단순 액체</h3>
 <pre><code class="language-lammps">units           lj
 atom_style      atomic
@@ -278,12 +277,8 @@ atom_style      full
 read_data       system.data
 include         ff_opls.in   # 힘장 정의는 별도 파일에
 </code></pre>
-<p>응용 단계로 가면 패턴 B와 패턴 C를 결합해 "결정 슬랩 + 그 위에 분자 시스템"을
-구성하게 되는데, 이는 <a href="cu-overview.html">Cu 응용 시리즈</a>에서 자세히 다룹니다.</p>
-<h2 id="46">4.6 다음 단계</h2>
-<p>박스와 원자가 만들어졌다면, 이제 그 원자들이 서로 어떻게 상호작용할지
-정의할 차례입니다. 다음 장에서는 LAMMPS의 상호작용 모델
-(<code>pair_style</code>, bonded styles, <code>kspace_style</code>)을 개관합니다.</p>
+<p>응용 단계에서는 패턴 B와 C를 합쳐 "결정 슬랩 + 그 위의 분자 시스템"을
+만들게 된다. 자세한 내용은 <a href="cu-overview.html">Cu 응용 시리즈</a>에 있다.</p>
       </article>
 <nav class="page-nav"><a class="prev" href="03-units-atomstyle.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">단위계와 atom_style</div></a><a class="next" href="05-forcefield.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">상호작용 모델</div></a></nav>
     </main>

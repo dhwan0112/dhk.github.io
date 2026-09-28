@@ -114,8 +114,8 @@
       <article class="content">
 <h2 id="goal">Goal</h2>
 <p>In <a href="ex-11-feo-hubbard.html">E11</a> the U of 4.6 eV was "a given". This time,
-<strong>compute the U by linear response (DFPT)</strong>: no empirical parameters, and a
-value that belongs to this system, this pseudopotential, and this
+compute U by linear response (DFPT): no empirical parameters, and a
+value specific to this system, this pseudopotential, and this
 projector. Background in <a href="14-hubbard-hp.html">Chapter 14</a>.</p>
 <pre><code>pw.x (scf with U ≈ 0, conv_thr 1e-12) → hp.x → FeO.Hubbard_parameters.dat
 </code></pre>
@@ -173,12 +173,12 @@ U Fe2-3d 1.0d-8
   iverbosity   = 2           ! print per-iteration chi values (worth watching)
 /
 </code></pre>
-<p>A measured note on <code>conv_thr_chi</code>: we first ran with 1.0d-8, and even
+<p>A note on <code>conv_thr_chi</code>: I first ran with 1.0d-8, and even
 after the χ values had stabilized to seven digits, the residual kept
 bouncing around a noise floor near 10⁻⁷ (checked out to 46 iterations)
 without ever crossing the threshold. For systems whose GGA ground state is
 metallic, like FeO, that is where the numerical noise of the response
-function lives, so we relaxed the threshold to 1.0d-6. The relative
+function lives, so I relaxed the threshold to 1.0d-6. The relative
 scatter of χ is below 0.1%, which moves U by less than 0.01 eV.</p>
 <h2 id="run">Run</h2>
 <pre><code class="language-bash">#!/bin/bash
@@ -192,7 +192,7 @@ cat FeO.Hubbard_parameters.dat
 <p>hp.x runs one perturbation series per inequivalent Hubbard atom, so it
 takes a while (<code>-nk</code> pools apply, and q-points can be split with
 <code>start_q</code>/<code>last_q</code>).</p>
-<h2 id="what-to-check-measured">What to check: measured</h2>
+<h2 id="what-to-check">What to check</h2>
 <table>
 <thead>
 <tr>
@@ -222,9 +222,9 @@ takes a while (<code>-nk</code> pools apply, and q-points can be split with
 <p><code>FeO.Hubbard_parameters.dat</code> lists the per-atom U along with the full χ₀
 and χ matrices. The computed U = 5.22 eV sits 0.6 eV above the
 conventional 4.6 eV used in <a href="ex-11-feo-hubbard.html">E11</a>. Neither number
-is "the right one" in isolation; the pair illustrates that U only has
-meaning together with its projector, pseudopotential, and magnetic order.
-The principle: for your own system, use the U computed for it.</p>
+is correct on its own; U only has meaning together with its projector,
+pseudopotential, and magnetic order. For your own system, use the U
+computed for it.</p>
 <h2 id="exercises">Exercises</h2>
 <ol>
 <li>Change <code>nq</code> from 1×1×1 to 2×2×2 and watch U shift. A U without q-grid

@@ -113,11 +113,11 @@
       </header>
       <article class="content">
 <h2 id="goal">Goal</h2>
-<p>Add <strong>three <code>HUBBARD</code> lines</strong> to the input of <a href="ex-10-feo-afm.html">E10</a> and
-turn on DFT+U. Measure what U does to the Fe-3d manifold, and then walk
-into the famous trap of this system, the case where <strong>the run stays
-metallic even with U on</strong>, and learn to diagnose it. Knowing this trap is
-what lets you read FeO+U results in the literature critically.</p>
+<p>Add three <code>HUBBARD</code> lines to the input of <a href="ex-10-feo-afm.html">E10</a> and
+turn on DFT+U. Measure what U does to the Fe-3d manifold, then look at a
+known pitfall of this system: <strong>the run stays metallic even with U on</strong>.
+The example shows how to diagnose it, which also helps when reading FeO+U
+results in the literature.</p>
 <h2 id="new-cards-and-variables">New cards and variables</h2>
 <table>
 <thead>
@@ -137,7 +137,7 @@ what lets you read FeO+U results in the literature critically.</p>
 </tr>
 <tr>
 <td><code>starting_ns_eigenvalue</code></td>
-<td>Steering the d occupations toward a chosen minimum (see the trap section)</td>
+<td>Steering the d occupations toward a chosen minimum (see the section on the metallic solution)</td>
 </tr>
 </tbody>
 </table>
@@ -155,11 +155,11 @@ HUBBARD (ortho-atomic)
 U Fe1-3d 4.6
 U Fe2-3d 4.6
 </code></pre>
-<p>Computing the U proper to your own system is <a href="ex-12-feo-hp.html">E12</a>.</p>
+<p>Computing U for your own system is <a href="ex-12-feo-hp.html">E12</a>.</p>
 <h2 id="run">Run</h2>
 <pre><code class="language-bash">mpirun -np 8 pw.x -nk 4 -in feo_u.scf.in &gt; feo_u.scf.out
 </code></pre>
-<h2 id="what-to-check-measured">What to check: measured</h2>
+<h2 id="what-to-check">What to check</h2>
 <table>
 <thead>
 <tr>
@@ -177,17 +177,17 @@ U Fe2-3d 4.6
 <tr>
 <td>total / absolute magnetization</td>
 <td>0.00 / 7.17 μB</td>
-<td>−0.00 / <strong>7.50 μB</strong></td>
+<td>−0.00 / 7.50 μB</td>
 </tr>
 <tr>
 <td>Fe local moments</td>
 <td>±3.31 μB</td>
-<td><strong>±3.46 μB</strong> (U strengthens the d localization)</td>
+<td>±3.46 μB (U strengthens the d localization)</td>
 </tr>
 <tr>
 <td>Electronic structure</td>
 <td>Metal</td>
-<td><strong>Still (semi)metallic: see the trap below</strong></td>
+<td>Still (semi)metallic: see below</td>
 </tr>
 </tbody>
 </table>
@@ -195,56 +195,55 @@ U Fe2-3d 4.6
   <img src="assets/images/qe-e10-e11-feo-dos.png"
        alt="FeO spin-resolved DOS: GGA vs GGA+U" />
   <figcaption>
-    Measured spin-resolved DOS of FeO (QE 7.5). With U on (right), the
+    Spin-resolved DOS of FeO (QE 7.5). With U on (right), the
     occupied and unoccupied d manifolds split apart and Hubbard gaps open
-    above and below. But in the ideal cubic cell a <strong>narrow band of
-    minority-spin t2g character stays pinned at the Fermi level</strong>:
-    the measured face of the "U alone does not make it an insulator" trap.
+    above and below. But in the ideal cubic cell a narrow band of
+    minority-spin t2g character stays pinned at the Fermi level, so U alone
+    does not make it an insulator.
   </figcaption>
 </figure>
 
-<h2 id="the-trap-why-it-stays-metallic-with-u-on-with-measurements">The trap: why it stays metallic with U on (with measurements)</h2>
-<p>The DOS shows U doing real work (larger moments, wide Hubbard splitting).
+<h2 id="why-it-stays-metallic-with-u-on">Why it stays metallic with U on</h2>
+<p>U does change the electronic structure (larger moments, wide Hubbard splitting).
 The problem is that the single minority-spin electron of Fe²⁺ must choose
-among <strong>three t2g orbitals that are exactly degenerate in the ideal cubic
-cell</strong>. Unable to pick one, it spreads across all three and forms a narrow
+among three t2g orbitals that are exactly degenerate in the ideal cubic
+cell. Unable to pick one, it spreads across all three and forms a narrow
 metallic band. Since QE 7.1 the starting d occupations are read from the
 pseudopotential (previously hardcoded), so the same input can land in
 different metallic solutions on different versions, and <strong>neither is the
-correct ground state</strong> (the mailing-list case cited in
-<a href="13-dft-plus-u.html">Chapter 13</a>).</p>
-<p>The standard prescription is to steer the occupations:</p>
+correct ground state</strong> (see <a href="13-dft-plus-u.html">Chapter 13</a>).</p>
+<p>The usual prescription is to steer the occupations:</p>
 <pre><code class="language-fortran">&amp;SYSTEM
   ...
   starting_ns_eigenvalue(5,2,1) = 1.d0   ! Fe1: fill the top minority eigenvalue
   starting_ns_eigenvalue(5,1,2) = 1.d0   ! Fe2: mirrored spin channel
 /
 </code></pre>
-<p>We report what actually happened when we tried:</p>
+<p>Here is what happened when I tried:</p>
 <ol>
-<li>With the seed above, the SCF <strong>returned to the same metallic solution</strong>
+<li>With the seed above, the SCF returned to the same metallic solution
    (energies agree to 4×10⁻⁷ Ry).</li>
 <li>A second attempt that pinned the full minority occupation pattern to
    [1,0,0,0,0], with <code>mixing_beta</code> lowered to 0.1 and <code>degauss</code> to 0.005,
    oscillated near 10⁻⁴ Ry for 98 iterations without converging.</li>
 </ol>
-<p>In this geometry (ideal rocksalt) and setup, the metallic basin is simply
+<p>In this geometry (ideal rocksalt) and setup, the metallic basin is
 very deep. Real FeO distorts rhombohedrally along [111] below its Néel
 temperature, and that distortion lifts the t2g degeneracy so that orbital
 order and the insulating state settle in together. To reach the full
 insulating solution you would combine (1) the experimentally distorted
 structure, (2) a broader search over <code>starting_ns_eigenvalue</code> patterns,
-and (3) the <strong>orbital-resolved DFT+U</strong> of QE 7.5 (different U for t2g and
-eg, introduced for precisely this situation). A living example of
-"converged does not mean correct".</p>
+and (3) the orbital-resolved DFT+U of QE 7.5 (different U for t2g and
+eg, introduced for this situation). The SCF converged here, but the result
+is not the correct ground state.</p>
 <h2 id="exercises">Exercises</h2>
 <ol>
 <li>Use <a href="files/E11-feo-hubbard/scan_U.sh">scan_U.sh</a> to scan U = 0, 2, 4,
    6, 8 eV and tabulate the Fe moment and the Hubbard splitting in the
    DOS.</li>
 <li>Switch the projector between <code>atomic</code> and <code>ortho-atomic</code> at fixed U and
-   compare. You will feel in your hands that "U comes packaged with its
-   projector".</li>
+   compare. The value of U only means something together with its
+   projector.</li>
 <li>Add a ~3% rhombohedral distortion along [111] to <code>CELL_PARAMETERS</code> and
    rerun with the occupation seed. Does a gap open now?</li>
 <li>Try DFT+U+J0 by adding <code>J0 Fe1-3d 0.8</code>.</li>

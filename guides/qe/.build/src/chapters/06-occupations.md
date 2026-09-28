@@ -55,9 +55,8 @@ The scan below is from [Example E5](ex-05-al-metal.html): fcc Al at
        alt="Al total energy vs degauss for gaussian, mv, and fd smearing" />
   <figcaption>
     Measured fcc Al (QE 7.5). Cold smearing (mv) moves by only 0.3 mRy from
-    0.01 to 0.05 Ry, essentially flat, while gaussian drifts by 3 mRy and
-    Fermi-Dirac by 22 mRy. This is the measured basis for "mv needs no
-    extrapolation".
+    0.01 to 0.05 Ry, while gaussian drifts by 3 mRy and Fermi-Dirac by
+    22 mRy. This is why mv needs no extrapolation in practice.
   </figcaption>
 </figure>
 
@@ -68,9 +67,9 @@ without smearing and gives the cleanest DOS. Its constraints:
 
 - It requires a **Γ-centered automatic grid with zero shift**
   (`K_POINTS automatic` with shifts `0 0 0`).
-- Use it in the **nscf step for DOS and bands**, not in the SCF itself
+- Use it in the nscf step for DOS and bands, not in the SCF itself
   ([Chapter 10](10-dos-bands.html)).
-- Measured caveat: on QE 7.5 we found that projwfc.x writes all-zero PDOS
+- Caveat: on QE 7.5 I found that projwfc.x writes all-zero PDOS
   on top of a `'tetrahedra_opt'` nscf. If you need PDOS, use the classic
   `'tetrahedra'` ([Example E7](ex-07-si-dos.html)).
 
@@ -80,7 +79,7 @@ without smearing and gives the cleanest DOS. Its constraints:
     Setting degauss to "whatever converges nicely" and forgetting about it.
     The smearing width is an approximation that stays in your results, so
     always check that your target property is insensitive to it. In magnetic
-    systems, an oversized degauss is a classic cause of the
+    systems, an oversized degauss is a common cause of the
     <strong>magnetic moment collapsing to zero</strong>
     (<a href="12-magnetism.html">Chapter 12</a>). Also, k-grid convergence
     and degauss convergence are coupled in metals; scan them together.
