@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>grep · sed · awk · Shell Scripting Guide</title>
+  <meta name="description" content="grep finds lines, sed edits them, awk computes with columns, and a handful of small tools join them through pipes." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/text.html">KO</a>
+    <a href="text.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Shell</div>
+    <div class="brand-subtitle">Scripting guide · bash</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="basics.html"><span class="nav-num">01</span>Your first script</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Syntax</div>
+      <ul class="nav-list">
+        <li><a href="control.html"><span class="nav-num">02</span>Conditions and loops</a></li>
+        <li><a href="functions.html"><span class="nav-num">03</span>Functions and arguments</a></li>
+        <li><a href="robust.html"><span class="nav-num">04</span>Writing safer scripts</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Text processing</div>
+      <ul class="nav-list">
+        <li><a href="text.html"><span class="nav-num">05</span>grep · sed · awk</a></li>
+        <li><a href="extract.html"><span class="nav-num">06</span>Pulling numbers from outputs</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Job submission</div>
+      <ul class="nav-list">
+        <li><a href="batch.html"><span class="nav-num">07</span>PBS · Slurm job scripts</a></li>
+        <li><a href="arrays.html"><span class="nav-num">08</span>Job arrays and parameter sweeps</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reference</div>
+      <ul class="nav-list">
+        <li><a href="cheatsheet.html"><span class="nav-num">09</span>Cheat sheet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 05 · Text processing</div>
+        <h1 class="page-title">grep · sed · awk</h1>
+        <p class="page-lede">grep finds lines, sed edits them, awk computes with columns, and a handful of small tools join them through pipes.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#files">Example files</a></li>
+            <li><a href="#grep">grep: finding lines</a></li>
+            <li><a href="#regex">Regular expression basics</a></li>
+            <li><a href="#sed">sed: editing lines</a></li>
+            <li><a href="#awk">awk: working with columns</a></li>
+            <li><a href="#tools">sort · uniq · cut · paste · tr · column · wc</a></li>
+            <li><a href="#xyz">Practice on xyz files</a></li>
+          </ul>
+        </div>
+
+        <h2 id="files">Example files</h2>
+        <p>
+          The examples use two xyz files and one ORCA output. <code>opt.out</code> is the water geometry optimisation + frequency
+          output (3623 lines) from the <a href="../../orca/en/index.html">ORCA guide</a>.
+        </p>
+
+        <pre data-lang="bash"><code>$ cat methanol.xyz
+6
+methanol
+C     -0.046520    0.662749    0.000000
+O     -0.046520   -0.754989    0.000000
+H     -1.086345    0.976632    0.000000
+H      0.437275    1.070835    0.889981
+H      0.437275    1.070835   -0.889981
+H      0.861339   -1.051121    0.000000</code></pre>
+
+        <p>
+          In an xyz file the first line is the atom count, the second is a comment, and every line after that holds an element
+          symbol and x, y, z coordinates in Å. <code>water.xyz</code> has the same layout with three atoms.
+        </p>
+
+        <h2 id="grep">grep: finding lines</h2>
+        <p><code>grep pattern file</code> prints every line that contains the pattern.</p>
+
+        <pre data-lang="bash"><code>$ grep -c '^H' methanol.xyz
+4
+$ grep -n '^O' water.xyz methanol.xyz
+water.xyz:3:O      0.000000    0.000000    0.119262
+methanol.xyz:4:O     -0.046520   -0.754989    0.000000
+$ grep -v '^H' methanol.xyz
+6
+methanol
+C     -0.046520    0.662749    0.000000
+O     -0.046520   -0.754989    0.000000</code></pre>
+
+        <p>You only need a few options.</p>
+
+        <table>
+          <thead>
+            <tr><th>Option</th><th>Effect</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>-i</code></td><td>Ignore case</td></tr>
+            <tr><td><code>-n</code></td><td>Show line numbers</td></tr>
+            <tr><td><code>-c</code></td><td>Print only the number of matching lines</td></tr>
+            <tr><td><code>-v</code></td><td>Print lines that do <em>not</em> match</td></tr>
+            <tr><td><code>-l</code></td><td>Print only the names of files that contain a match</td></tr>
+            <tr><td><code>-r</code></td><td>Search every file below a directory</td></tr>
+            <tr><td><code>-A N</code>, <code>-B N</code></td><td>Also print N lines after / before each match</td></tr>
+            <tr><td><code>-w</code></td><td>Match whole words only</td></tr>
+            <tr><td><code>-E</code></td><td>Extended regex (<code>+</code>, <code>|</code>, <code>()</code> work without backslashes)</td></tr>
+            <tr><td><code>-F</code></td><td>Treat the pattern as a fixed string, not a regex</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          <code>-r -l</code> tells you which of many job directories finished. <code>-A</code> and <code>-B</code> are handy when you
+          want a table header together with the lines around it.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep -r -l 'TERMINATED NORMALLY' ../orca
+../orca/05-casscf-h2/h2_casscf.out
+../orca/04-solvation-smd/water.out
+../orca/03-dlpno-ccsdt/water.out
+../orca/02-opt-freq/water.out
+../orca/01-single-point/water.out
+$ grep -B1 -A1 'THE OPTIMIZATION HAS CONVERGED' opt.out
+                    ***********************HURRAY********************
+                    ***        THE OPTIMIZATION HAS CONVERGED     ***
+                    *************************************************
+$ grep -c 'FINAL SINGLE POINT ENERGY' opt.out
+5</code></pre>
+
+        <p>
+          The 5 is four optimisation cycles plus the final energy evaluation after convergence.
+          <code>-w</code> only matches when the pattern is bounded by non-word characters. <code>TightOpt</code> in the input line
+          below contains <code>Opt</code> but not as a whole word, so the second command prints nothing.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep 'Opt' water.inp
+! B3LYP D4 def2-TZVP TightOpt Freq
+$ grep -w 'Opt' water.inp</code></pre>
+
+        <h2 id="regex">Regular expression basics</h2>
+        <p>grep, sed and awk read patterns as regular expressions. For output files this much is enough.</p>
+
+        <table>
+          <thead>
+            <tr><th>Symbol</th><th>Meaning</th><th>Example</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>.</code></td><td>Any single character</td><td><code>H.</code> matches <code>H1</code>, <code>He</code>, <code>H </code></td></tr>
+            <tr><td><code>*</code></td><td>Previous character, zero or more times</td><td><code>^H.*-</code>: starts with H and has a <code>-</code> later</td></tr>
+            <tr><td><code>+</code></td><td>Previous character, one or more times (<code>-E</code>)</td><td><code>[0-9]+</code>: one or more digits</td></tr>
+            <tr><td><code>[...]</code></td><td>One of the listed characters</td><td><code>[CHO]</code>, <code>[0-9.]</code></td></tr>
+            <tr><td><code>^</code>, <code>$</code></td><td>Start and end of line</td><td><code>^H</code>, <code>Eh$</code></td></tr>
+            <tr><td><code>\s</code></td><td>Whitespace (GNU extension)</td><td><code>^\s+</code>: leading indentation</td></tr>
+            <tr><td><code>a|b</code></td><td>a or b (<code>-E</code>)</td><td><code>^(C|O) </code></td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ grep -E '^(C|O) ' methanol.xyz
+C     -0.046520    0.662749    0.000000
+O     -0.046520   -0.754989    0.000000
+$ grep -E '^\s+[0-9]+:\s+[0-9.]+ cm' opt.out
+     0:       0.00 cm**-1
+     1:       0.00 cm**-1
+     2:       0.00 cm**-1
+     3:       0.00 cm**-1
+     4:       0.00 cm**-1
+     5:       0.00 cm**-1
+     6:    1615.68 cm**-1
+     7:    3780.78 cm**-1
+     8:    3885.42 cm**-1</code></pre>
+
+        <p>
+          If the text you are looking for contains <code>*</code>, <code>.</code> or <code>[</code>, add <code>-F</code>.
+          Without it, the <code>*</code> in <code>cm**-1</code> is read as a repetition and unrelated lines match.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep 'cm**-1' opt.out | head -3
+Rotational constants in cm-1:            27.545905            14.281345             9.405174 
+Rotational constants in cm-1:    27.545929    14.281357     9.405182 
+Chem.Eur.J. 2012 18 9955 using a reference frequency of 100.0 cm-1
+$ grep -F 'cm**-1' opt.out | head -3
+     0:       0.00 cm**-1
+     1:       0.00 cm**-1
+     2:       0.00 cm**-1</code></pre>
+
+        <div class="tip">
+          <div class="note-title">Single-quote your patterns</div>
+          <p>
+            Inside single quotes the shell leaves <code>*</code> and <code>$</code> alone. Use double quotes only when the pattern
+            has to include a shell variable.
+          </p>
+        </div>
+
+        <h2 id="sed">sed: editing lines</h2>
+        <p>
+          sed reads a file line by line, applies its commands and prints the result. The original file is not touched.
+          The command you will use most is substitution, <code>s/find/replace/</code>.
+        </p>
+
+        <pre data-lang="bash"><code>$ sed 's/0/X/' water.xyz
+3
+water
+O      X.000000    0.000000    0.119262
+H      X.000000    0.763239   -0.477047
+H      X.000000   -0.763239   -0.477047
+$ sed 's/0/X/g' water.xyz
+3
+water
+O      X.XXXXXX    X.XXXXXX    X.119262
+H      X.XXXXXX    X.763239   -X.477X47
+H      X.XXXXXX   -X.763239   -X.477X47</code></pre>
+
+        <p>
+          Without <code>g</code> only the first match on each line changes. If the replacement contains <code>/</code>, pick a different
+          delimiter so you don't have to escape it.
+        </p>
+
+        <pre data-lang="bash"><code>$ sed 's|water|water, B3LYP-D4/def2-TZVP|' water.xyz
+3
+water, B3LYP-D4/def2-TZVP
+O      0.000000    0.000000    0.119262
+H      0.000000    0.763239   -0.477047
+H      0.000000   -0.763239   -0.477047</code></pre>
+
+        <p>
+          <code>-n</code> turns off automatic printing and <code>p</code> prints the addressed lines, so together they select lines.
+          An address can be a line number (<code>3,5</code>), the last line (<code>$</code>), a regex (<code>/^H/</code>) or a range
+          between two regexes (<code>/start/,/end/</code>). <code>d</code> deletes the addressed lines.
+        </p>
+
+        <pre data-lang="bash"><code>$ sed -n '3,5p' methanol.xyz
+C     -0.046520    0.662749    0.000000
+O     -0.046520   -0.754989    0.000000
+H     -1.086345    0.976632    0.000000
+$ sed '/^H/d' methanol.xyz
+6
+methanol
+C     -0.046520    0.662749    0.000000
+O     -0.046520   -0.754989    0.000000
+$ sed -n '/VIBRATIONAL FREQUENCIES/,/NORMAL MODES/p' opt.out
+VIBRATIONAL FREQUENCIES
+-----------------------
+
+Scaling factor for frequencies =  1.000000000  (already applied!)
+
+     0:       0.00 cm**-1
+     1:       0.00 cm**-1
+     2:       0.00 cm**-1
+     3:       0.00 cm**-1
+     4:       0.00 cm**-1
+     5:       0.00 cm**-1
+     6:    1615.68 cm**-1
+     7:    3780.78 cm**-1
+     8:    3885.42 cm**-1
+
+
+------------
+NORMAL MODES</code></pre>
+
+        <h3>Editing files in place: -i</h3>
+        <p>
+          With <code>-i</code> sed writes the result back to the file instead of the screen. There is no undo, so get used to
+          <code>-i.bak</code>, which keeps a backup with that suffix.
+        </p>
+
+        <pre data-lang="bash"><code>$ sed -i.bak '2s/.*/renamed/' w2.xyz
+$ ls w2.xyz*
+w2.xyz
+w2.xyz.bak
+$ head -2 w2.xyz
+3
+renamed</code></pre>
+
+        <div class="warning">
+          <div class="note-title">sed -i differs on macOS</div>
+          <p>
+            GNU sed on Linux edits without a backup with <code>sed -i 's/a/b/' f</code>. BSD sed on macOS always takes a suffix
+            after <code>-i</code>, so the no-backup form there is <code>sed -i '' 's/a/b/' f</code>.
+            <code>sed -i.bak</code> behaves the same on both, which makes it the safe choice in scripts.
+          </p>
+        </div>
+
+        <h2 id="awk">awk: working with columns</h2>
+        <p>
+          awk splits each line on whitespace into <code>$1</code>, <code>$2</code>, …; <code>$0</code> is the whole line,
+          <code>NF</code> the number of fields on that line, <code>$NF</code> the last field, and <code>NR</code> the current line number.
+          A program is a list of <code>pattern {action}</code> pairs, and each action runs only on lines that match its pattern.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk 'NR &gt; 2 {print NR, NF, $1, $NF}' methanol.xyz
+3 4 C 0.000000
+4 4 O 0.000000
+5 4 H 0.000000
+6 4 H 0.889981
+7 4 H -0.889981
+8 4 H 0.000000
+$ awk '/^H/ {print $2}' methanol.xyz
+-1.086345
+0.437275
+0.437275
+0.861339
+$ awk '$1 == "H" &amp;&amp; $4 &gt; 0' methanol.xyz
+H      0.437275    1.070835    0.889981</code></pre>
+
+        <p>
+          With no action, awk prints the whole line. Be careful with header lines when the pattern is a comparison:
+          <code>$4 &lt; 0</code> without <code>NR &gt; 2</code> also matches the first two lines, which have no fourth field.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk '$4 &lt; 0' methanol.xyz
+6
+methanol
+H      0.437275    1.070835   -0.889981</code></pre>
+
+        <p>
+          For other separators use <code>-F</code>: <code>-F,</code> for CSV, <code>-F:</code> for colons.
+          Pass shell variables in with <code>-v name=value</code>.
+        </p>
+
+        <h3>BEGIN, END, sums and averages</h3>
+        <p>
+          A <code>BEGIN</code> block runs once before the first line, an <code>END</code> block once after the last.
+          Variables start at 0 without being declared, so collecting a sum and a count and dividing in <code>END</code> gives an average.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk 'NR &gt; 2 {z += $4; n++} END {print z, n, z/n}' water.xyz
+-0.834832 3 -0.278277
+$ awk 'NR &gt; 2 {z += $4; n++} END {printf "mean z = %.4f over %d atoms\n", z/n, n}' water.xyz
+mean z = -0.2783 over 3 atoms</code></pre>
+
+        <p>
+          <code>printf</code> takes C-style format strings: <code>%d</code> integer, <code>%.4f</code> four decimals,
+          <code>%-8s</code> string left-aligned in 8 columns, <code>%12.6f</code> right-aligned in 12. You add the newline <code>\n</code> yourself.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk 'BEGIN {print "element  x"} NR &gt; 2 {printf "%-8s %8.3f\n", $1, $2}' methanol.xyz
+element  x
+C          -0.047
+O          -0.047
+H          -1.086
+H           0.437
+H           0.437
+H           0.861</code></pre>
+
+        <h3>Use awk for floating-point arithmetic</h3>
+        <p>bash arithmetic <code>$(( ))</code> is integer-only. Division truncates, and a decimal point is a syntax error.</p>
+
+        <pre data-lang="bash"><code>$ echo $(( 3 / 2 ))
+1
+$ echo $(( -76.426 * 627.5 ))
+bash: line 1: -76.426 * 627.5 : arithmetic syntax error: invalid arithmetic operator (error token is ".426 * 627.5 ")
+$ awk 'BEGIN {print -76.426369457144 * 627.5095}'
+-47958.3
+$ awk 'BEGIN {printf "%.2f\n", -76.426369457144 * 627.5095}'
+-47958.27</code></pre>
+
+        <p>
+          awk does all arithmetic in double precision, but <code>print</code> shows only six significant digits. For energies,
+          where the digits matter, set the precision with <code>printf</code>.
+        </p>
+
+        <h2 id="tools">sort · uniq · cut · paste · tr · column · wc</h2>
+        <p>Small tools that sit between grep, sed and awk in a pipeline.</p>
+
+        <table>
+          <thead>
+            <tr><th>Command</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>sort</code></td><td>Sort lines. <code>-n</code> numeric, <code>-g</code> numeric including exponents, <code>-r</code> reverse, <code>-k4,4</code> by the fourth column</td></tr>
+            <tr><td><code>uniq</code></td><td>Collapse adjacent duplicate lines; <code>-c</code> adds counts. Usually follows <code>sort</code></td></tr>
+            <tr><td><code>cut</code></td><td>Cut columns. <code>-d, -f2</code> second comma-separated field, <code>-c1-2</code> characters 1–2</td></tr>
+            <tr><td><code>paste</code></td><td>Join files side by side; <code>-d,</code> sets the separator</td></tr>
+            <tr><td><code>tr</code></td><td>Translate characters: <code>tr 'A-Z' 'a-z'</code>, <code>tr ' ' '\n'</code></td></tr>
+            <tr><td><code>column -t</code></td><td>Align columns for reading; <code>-s,</code> sets the input separator</td></tr>
+            <tr><td><code>wc -l</code></td><td>Count lines</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ tail -n +3 methanol.xyz | awk '{print $1}' | sort | uniq -c
+      1 C
+      4 H
+      1 O
+$ tail -n +3 methanol.xyz | sort -k4,4g
+H      0.437275    1.070835   -0.889981
+C     -0.046520    0.662749    0.000000
+H      0.861339   -1.051121    0.000000
+H     -1.086345    0.976632    0.000000
+O     -0.046520   -0.754989    0.000000
+H      0.437275    1.070835    0.889981
+$ paste -d, el.txt z.txt
+O,0.119262
+H,-0.477047
+H,-0.477047
+$ printf 'name,E\nwater,-76.3213\nmethanol,-115.5\n' | column -t -s,
+name      E
+water     -76.3213
+methanol  -115.5</code></pre>
+
+        <p>
+          <code>tail -n +3</code> prints from line 3 to the end, a quick way to skip the two xyz header lines.
+          <code>uniq</code> only merges duplicates that are next to each other, so without <code>sort</code> in front the counts are wrong.
+        </p>
+
+        <h2 id="xyz">Practice on xyz files</h2>
+
+        <h3>Atoms per element</h3>
+        <p>
+          The <code>sort | uniq -c</code> above can also be done in a single awk call, since awk arrays take strings as keys.
+          The order of <code>for (e in n)</code> is unspecified, so pipe through <code>sort</code> if order matters.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk 'NR &gt; 2 {n[$1]++} END {for (e in n) print e, n[e]}' methanol.xyz | sort
+C 1
+H 4
+O 1</code></pre>
+
+        <h3>Shifting coordinates</h3>
+        <p>
+          Move the water molecule 1.5 Å along z. The two header lines are printed unchanged and <code>next</code> skips to the next line.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk -v dz=1.5 'NR &lt;= 2 {print; next} {printf "%-2s %12.6f %12.6f %12.6f\n", $1, $2, $3, $4 + dz}' water.xyz
+3
+water
+O      0.000000     0.000000     1.619262
+H      0.000000     0.763239     1.022953
+H      0.000000    -0.763239     1.022953</code></pre>
+
+        <p>
+          To move the geometric centre to the origin you need the average before you can print anything, so read the file twice.
+          <code>NR == FNR</code> is true only while reading the first file (<code>FNR</code> restarts at 1 for each file).
+        </p>
+
+        <pre data-lang="bash"><code>$ awk 'NR == FNR {if (FNR &gt; 2) {x += $2; y += $3; z += $4; n++}; next}
+       FNR &lt;= 2 {print; next}
+       {printf "%-2s %12.6f %12.6f %12.6f\n", $1, $2 - x/n, $3 - y/n, $4 - z/n}' methanol.xyz methanol.xyz
+6
+methanol
+C     -0.139271     0.333592     0.000000
+O     -0.139271    -1.084146     0.000000
+H     -1.179096     0.647475     0.000000
+H      0.344524     0.741678     0.889981
+H      0.344524     0.741678    -0.889981
+H      0.768588    -1.380278     0.000000</code></pre>
+
+        <h3>Converting to other formats</h3>
+        <p>
+          Turn the file into an ORCA coordinate block (<code>* xyz charge multiplicity</code> … <code>*</code>), assuming a neutral singlet.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk 'NR == 1 {print "* xyz 0 1"} NR &gt; 2 {printf "  %-2s %12.6f %12.6f %12.6f\n", $1, $2, $3, $4} END {print "*"}' methanol.xyz
+* xyz 0 1
+  C     -0.046520     0.662749     0.000000
+  O     -0.046520    -0.754989     0.000000
+  H     -1.086345     0.976632     0.000000
+  H      0.437275     1.070835     0.889981
+  H      0.437275     1.070835    -0.889981
+  H      0.861339    -1.051121     0.000000
+*</code></pre>
+
+        <p>For a spreadsheet or Python, number the atoms and join the fields with commas.</p>
+
+        <pre data-lang="bash"><code>$ awk 'BEGIN {print "idx,el,x,y,z"} NR &gt; 2 {print NR - 2 "," $1 "," $2 "," $3 "," $4}' water.xyz
+idx,el,x,y,z
+1,O,0.000000,0.000000,0.119262
+2,H,0.000000,0.763239,-0.477047
+3,H,0.000000,-0.763239,-0.477047</code></pre>
+
+        <p>
+          In awk, values written next to each other are concatenated; <code>print a, b</code> with a comma puts a space between them.
+          Pulling energies and geometries out of real output files is the subject of the <a href="extract.html">next chapter</a>.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="robust.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Writing safer scripts</div>
+        </a>
+        <a class="next" href="extract.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Pulling numbers from outputs</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

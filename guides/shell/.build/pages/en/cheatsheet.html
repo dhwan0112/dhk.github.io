@@ -1,0 +1,218 @@
+<!--
+title: Cheat sheet
+eyebrow: CHAPTER 09 · Reference
+h1: Cheat sheet
+lede: The syntax, text tools and scheduler commands from the earlier chapters, collected in tables.
+-->
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#vars">Variables and expansion</a></li>
+            <li><a href="#tests">Tests</a></li>
+            <li><a href="#loops">Conditionals and loops</a></li>
+            <li><a href="#functions">Functions and arguments</a></li>
+            <li><a href="#redirect">Redirection and pipes</a></li>
+            <li><a href="#safety">Safety</a></li>
+            <li><a href="#text">grep · sed · awk</a></li>
+            <li><a href="#scheduler">PBS and Slurm</a></li>
+          </ul>
+        </div>
+
+        <h2 id="vars">Variables and expansion</h2>
+        <table>
+          <thead>
+            <tr><th>Syntax</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>mol=water</code></td><td>set a variable; no spaces around <code>=</code></td></tr>
+            <tr><td><code>"$mol"</code>, <code>"${mol}_opt.inp"</code></td><td>read it; braces when letters follow</td></tr>
+            <tr><td><code>'$mol'</code></td><td>single quotes keep text literal</td></tr>
+            <tr><td><code>n=$(grep -c "^H" water.xyz)</code></td><td>command substitution: output into a variable</td></tr>
+            <tr><td><code>$(( nprocs * 2 ))</code></td><td>integer arithmetic; decimals need <code>awk</code> or <code>bc</code></td></tr>
+            <tr><td><code>export OMP_NUM_THREADS=8</code></td><td>environment variable, visible to child programs</td></tr>
+            <tr><td><code>${f%.xyz}</code></td><td>remove <code>.xyz</code> from the end</td></tr>
+            <tr><td><code>${f##*/}</code> / <code>${f%/*}</code></td><td>file name only / directory only</td></tr>
+            <tr><td><code>${f#*_}</code> / <code>${f%%_*}</code></td><td>remove up to the first <code>_</code> / from the first <code>_</code> on</td></tr>
+            <tr><td><code>${f/.xyz/.inp}</code></td><td>replace the first match; <code>${f//a/b}</code> replaces all</td></tr>
+            <tr><td><code>${n:-4}</code></td><td>4 if unset or empty</td></tr>
+            <tr><td><code>${#mol}</code></td><td>string length</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="tests">Tests</h2>
+        <table>
+          <thead>
+            <tr><th>Test</th><th>True when</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>[[ -f $f ]]</code>, <code>-d</code>, <code>-e</code></td><td>file / directory / anything exists</td></tr>
+            <tr><td><code>[[ -s $f ]]</code></td><td>file exists and is not empty</td></tr>
+            <tr><td><code>[[ -z $s ]]</code> / <code>[[ -n $s ]]</code></td><td>string is empty / not empty</td></tr>
+            <tr><td><code>[[ $a == $b ]]</code>, <code>!=</code></td><td>string comparison</td></tr>
+            <tr><td><code>[[ $f == *.xyz ]]</code></td><td>pattern match (leave the right side unquoted)</td></tr>
+            <tr><td><code>[[ $n -lt 8 ]]</code></td><td>integer comparison: <code>-eq -ne -lt -le -gt -ge</code></td></tr>
+            <tr><td><code>(( n &gt; 8 ))</code></td><td>integer comparison, arithmetic syntax</td></tr>
+            <tr><td><code>!</code>, <code>&amp;&amp;</code>, <code>||</code></td><td>not, and, or inside <code>[[ ]]</code></td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="loops">Conditionals and loops</h2>
+        <table>
+          <thead>
+            <tr><th>Form</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>if cmd; then ...; elif ...; else ...; fi</code></td><td>true when the command's exit status is 0</td></tr>
+            <tr><td><code>A &amp;&amp; B</code> / <code>A || B</code></td><td>B if A succeeds / if A fails</td></tr>
+            <tr><td><code>for f in *.xyz; do ...; done</code></td><td>loop over files; never <code>$(ls)</code></td></tr>
+            <tr><td><code>shopt -s nullglob</code></td><td>no match gives an empty list</td></tr>
+            <tr><td><code>for i in {1..10}</code>, <code>{01..10}</code></td><td>number range; no variables inside</td></tr>
+            <tr><td><code>for (( i=0; i&lt;n; i++ ))</code></td><td>C-style, for ranges that use variables</td></tr>
+            <tr><td><code>while read -r a b; do ...; done &lt; list.txt</code></td><td>file line by line; piping into it loses variable changes</td></tr>
+            <tr><td><code>done &lt; &lt;(find . -name '*.out')</code></td><td>command output line by line (process substitution)</td></tr>
+            <tr><td><code>case $f in *.xyz) ... ;; *) ... ;; esac</code></td><td>branch on patterns</td></tr>
+            <tr><td><code>continue</code> / <code>break</code></td><td>skip to the next item / leave the loop</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="functions">Functions and arguments</h2>
+        <table>
+          <thead>
+            <tr><th>Syntax</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>name() { ...; }</code></td><td>define a function; call it as <code>name arg1 arg2</code></td></tr>
+            <tr><td><code>local x=$1</code></td><td>variable visible only inside the function</td></tr>
+            <tr><td><code>$0</code>, <code>$1</code> ... <code>${10}</code></td><td>script name, arguments</td></tr>
+            <tr><td><code>$#</code></td><td>number of arguments</td></tr>
+            <tr><td><code>"$@"</code> / <code>"$*"</code></td><td>arguments as separate words / as one string</td></tr>
+            <tr><td><code>shift</code>, <code>shift 2</code></td><td>drop leading arguments</td></tr>
+            <tr><td><code>return 1</code></td><td>function exit status (0–255)</td></tr>
+            <tr><td><code>e=$(orca_energy water.out)</code></td><td>get a value back through output</td></tr>
+            <tr><td><code>while getopts "m:n:h" opt</code></td><td>parse options; value in <code>$OPTARG</code>, then <code>shift $((OPTIND - 1))</code></td></tr>
+            <tr><td><code>source lib.sh</code>, <code>. lib.sh</code></td><td>run another file in the current shell</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="redirect">Redirection and pipes</h2>
+        <table>
+          <thead>
+            <tr><th>Syntax</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>cmd &gt; out</code> / <code>cmd &gt;&gt; out</code></td><td>standard output to a file, overwrite / append</td></tr>
+            <tr><td><code>cmd 2&gt; err</code></td><td>standard error only</td></tr>
+            <tr><td><code>cmd &gt; log 2&gt;&amp;1</code>, <code>cmd &amp;&gt; log</code></td><td>both into one file</td></tr>
+            <tr><td><code>cmd 2&gt;/dev/null</code></td><td>discard error messages</td></tr>
+            <tr><td><code>echo "msg" &gt;&amp;2</code></td><td>print to standard error</td></tr>
+            <tr><td><code>cmd &lt; file</code></td><td>file as standard input</td></tr>
+            <tr><td><code>a | b</code></td><td>output of a into b</td></tr>
+            <tr><td><code>cmd | tee log</code></td><td>show on screen and write to a file</td></tr>
+            <tr><td><code>cat &gt; f.inp &lt;&lt;EOF</code> ... <code>EOF</code></td><td>here-document; variables and <code>$( )</code> are expanded</td></tr>
+            <tr><td><code>&lt;&lt;'EOF'</code></td><td>no expansion, text kept literally</td></tr>
+            <tr><td><code>&lt;&lt;-EOF</code></td><td>strips leading tabs (not spaces)</td></tr>
+            <tr><td><code>cmd &lt;&lt;&lt; "$var"</code></td><td>here-string: one string as input</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="safety">Safety</h2>
+        <table>
+          <thead>
+            <tr><th>Syntax</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>set -euo pipefail</code></td><td>stop on failure, error on unset variables, catch failures mid-pipeline</td></tr>
+            <tr><td><code>grep ... || true</code></td><td>allow "no match" under <code>-e</code></td></tr>
+            <tr><td><code>i=$((i + 1))</code></td><td>instead of <code>((i++))</code>, which trips <code>-e</code> when i is 0</td></tr>
+            <tr><td><code>${1:-}</code></td><td>missing argument as empty string under <code>-u</code></td></tr>
+            <tr><td><code>cd "$d" || exit 1</code></td><td>stop if the directory change fails</td></tr>
+            <tr><td><code>command -v orca</code></td><td>check a program exists and get its path</td></tr>
+            <tr><td><code>tmp=$(mktemp -d)</code></td><td>temporary directory with a unique name</td></tr>
+            <tr><td><code>trap 'rm -rf "$tmp"' EXIT</code></td><td>clean up when the script ends</td></tr>
+            <tr><td><code>date '+%F %T'</code></td><td>timestamp like <code>2026-09-29 00:15:54</code></td></tr>
+            <tr><td><code>bash -n script.sh</code></td><td>syntax check without running</td></tr>
+            <tr><td><code>bash -x script.sh</code></td><td>print each command as it runs</td></tr>
+            <tr><td><code>shellcheck script.sh</code></td><td>find common mistakes</td></tr>
+            <tr><td><code>sed -i 's/\r$//' script.sh</code></td><td>remove Windows line endings (CRLF)</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="text">grep · sed · awk</h2>
+        <p>Only the forms used most often on ORCA outputs. <a href="text.html">Chapter 05</a> and <a href="extract.html">chapter 06</a> explain them in detail.</p>
+
+        <table>
+          <thead>
+            <tr><th>Command</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>grep -n "FINAL SINGLE POINT ENERGY" water.out</code></td><td>matching lines with line numbers</td></tr>
+            <tr><td><code>grep -c "FINAL SINGLE POINT ENERGY" water.out</code></td><td>number of matching lines (e.g. optimisation steps)</td></tr>
+            <tr><td><code>grep -A 10 "^VIBRATIONAL FREQUENCIES" water.out</code></td><td>the match and 10 lines after it</td></tr>
+            <tr><td><code>grep -B 2 "TERMINATED NORMALLY" water.out</code></td><td>the match and 2 lines before it</td></tr>
+            <tr><td><code>grep -l "TERMINATED NORMALLY" */*.out</code></td><td>names of files that match; <code>-L</code> for files that do not</td></tr>
+            <tr><td><code>grep -r --include='*.out' -l "TERMINATED NORMALLY" jobs</code></td><td>search a directory tree</td></tr>
+            <tr><td><code>grep -q "..." f</code></td><td>exit status only, no output (for <code>if</code>)</td></tr>
+            <tr><td><code>sed -n '10,20p' water.out</code></td><td>lines 10 to 20 only</td></tr>
+            <tr><td><code>sed -n '/CARTESIAN COORDINATES (ANGSTROEM)/,+4p' water.out</code></td><td>from the pattern plus 4 lines</td></tr>
+            <tr><td><code>sed -i 's/nprocs 4/nprocs 8/' */*.inp</code></td><td>replace in place; <code>-i.bak</code> keeps the original</td></tr>
+            <tr><td><code>sed '/^#/d' f</code></td><td>delete lines starting with <code>#</code></td></tr>
+            <tr><td><code>awk '{print $5}'</code></td><td>fifth whitespace-separated column</td></tr>
+            <tr><td><code>awk '{print $NF}'</code></td><td>last column (<code>NF</code> is the number of fields)</td></tr>
+            <tr><td><code>awk 'NR &gt; 2 {print $1}' water.xyz</code></td><td>first column from line 3 on (<code>NR</code> is the line number)</td></tr>
+            <tr><td><code>awk -F, '{print $2}' data.csv</code></td><td>second comma-separated column</td></tr>
+            <tr><td><code>awk '/FINAL SINGLE POINT ENERGY/ {e=$5} END {print e}' water.out</code></td><td>value from the last matching line</td></tr>
+            <tr><td><code>awk '{s += $2} END {print s / NR}' f</code></td><td>mean of the second column</td></tr>
+            <tr><td><code>awk -v x="$e" 'BEGIN {printf "%.2f\n", x * 627.509}'</code></td><td>decimal arithmetic on a shell variable (Hartree to kcal/mol)</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ grep -n "FINAL SINGLE POINT ENERGY" water.out | tail -n 1
+3124:FINAL SINGLE POINT ENERGY       -76.426369457144
+$ awk '/FINAL SINGLE POINT ENERGY/ {e=$5} END {print e}' water.out
+-76.426369457144
+$ grep -L "ORCA TERMINATED NORMALLY" jobs/*/*.out
+jobs/methane_opt/methane_opt.out</code></pre>
+
+        <h2 id="scheduler">PBS and Slurm</h2>
+        <p>
+          The PBS column is for PBS Pro. Queue names, memory units and defaults differ between clusters, so keep your site's documentation at hand.
+          Full job scripts are in <a href="batch.html">chapter 07</a> and arrays in <a href="arrays.html">chapter 08</a>.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Task</th><th>PBS Pro</th><th>Slurm</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Submit</td><td><code>qsub job.pbs</code></td><td><code>sbatch job.sh</code></td></tr>
+            <tr><td>List my jobs</td><td><code>qstat -u $USER</code></td><td><code>squeue -u $USER</code></td></tr>
+            <tr><td>Job details</td><td><code>qstat -f &lt;jobid&gt;</code></td><td><code>scontrol show job &lt;jobid&gt;</code></td></tr>
+            <tr><td>Finished jobs</td><td><code>qstat -x &lt;jobid&gt;</code></td><td><code>sacct -j &lt;jobid&gt;</code></td></tr>
+            <tr><td>Cancel</td><td><code>qdel &lt;jobid&gt;</code></td><td><code>scancel &lt;jobid&gt;</code></td></tr>
+            <tr><td>Interactive job</td><td><code>qsub -I -l select=1:ncpus=4</code></td><td><code>srun --pty -c 4 bash</code></td></tr>
+            <tr><td>Job name</td><td><code>#PBS -N opt</code></td><td><code>#SBATCH --job-name=opt</code> (<code>-J opt</code>)</td></tr>
+            <tr><td>Cores and memory</td><td><code>#PBS -l select=1:ncpus=8:mem=16gb</code></td><td><code>#SBATCH --ntasks=1</code><br /><code>#SBATCH --cpus-per-task=8</code><br /><code>#SBATCH --mem=16G</code></td></tr>
+            <tr><td>8 MPI processes (ORCA <code>%pal</code>)</td><td><code>#PBS -l select=1:ncpus=8:mpiprocs=8</code></td><td><code>#SBATCH --ntasks=8</code></td></tr>
+            <tr><td>Time limit</td><td><code>#PBS -l walltime=24:00:00</code></td><td><code>#SBATCH --time=24:00:00</code></td></tr>
+            <tr><td>Queue / partition</td><td><code>#PBS -q normal</code></td><td><code>#SBATCH --partition=normal</code></td></tr>
+            <tr><td>Output file</td><td><code>#PBS -j oe</code> (merge stderr into stdout)</td><td><code>#SBATCH --output=%x-%j.out</code></td></tr>
+            <tr><td>Job array</td><td><code>#PBS -J 1-10</code></td><td><code>#SBATCH --array=1-10</code></td></tr>
+            <tr><td>Array index</td><td><code>$PBS_ARRAY_INDEX</code></td><td><code>$SLURM_ARRAY_TASK_ID</code></td></tr>
+            <tr><td>Submission directory</td><td><code>$PBS_O_WORKDIR</code></td><td><code>$SLURM_SUBMIT_DIR</code></td></tr>
+            <tr><td>Job ID</td><td><code>$PBS_JOBID</code></td><td><code>$SLURM_JOB_ID</code></td></tr>
+            <tr><td>Cores granted</td><td><code>$NCPUS</code></td><td><code>$SLURM_CPUS_PER_TASK</code>, <code>$SLURM_NTASKS</code></td></tr>
+          </tbody>
+        </table>
+
+        <div class="warning">
+          <div class="note-title">Same letter, different meaning</div>
+          <p>
+            PBS <code>-N</code> is the job name, but Slurm <code>-N</code> is the number of nodes. PBS <code>-J</code> is an array, but Slurm <code>-J</code> is the job name.
+            When porting scripts, Slurm's long options (<code>--job-name</code>, <code>--nodes</code>, <code>--array</code>) avoid the confusion.
+          </p>
+        </div>
+
+        <p>
+          PBS jobs start in your home directory, so the script needs <code>cd "$PBS_O_WORKDIR"</code> near the top.
+          Slurm jobs start in the submission directory. To test a job script locally, <code>cd "${PBS_O_WORKDIR:-$PWD}"</code> gives it a fallback.
+        </p>

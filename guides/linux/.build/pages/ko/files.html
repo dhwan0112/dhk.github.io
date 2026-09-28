@@ -1,0 +1,261 @@
+<!--
+title: 파일과 디렉터리
+eyebrow: CHAPTER 02 · 기본기
+h1: 파일과 디렉터리
+lede: 경로를 읽고, 디렉터리 사이를 오가고, 파일을 만들고 옮기고 지운다.
+-->
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
+          <ul>
+            <li><a href="#tree">디렉터리 구조</a></li>
+            <li><a href="#paths">절대 경로와 상대 경로</a></li>
+            <li><a href="#move">이동하고 둘러보기</a></li>
+            <li><a href="#manage">만들기, 복사, 이동, 삭제</a></li>
+            <li><a href="#wildcards">와일드카드</a></li>
+            <li><a href="#names">파일 이름 규칙</a></li>
+            <li><a href="#project">계산 디렉터리 정리하기</a></li>
+          </ul>
+        </div>
+
+        <h2 id="tree">디렉터리 구조</h2>
+        <p>
+          Linux에는 C 드라이브, D 드라이브 같은 구분이 없다. 모든 파일이 <code>/</code>(루트)에서 시작하는 나무 하나에 매달려 있다.
+          폴더는 보통 <strong>디렉터리</strong>라고 부른다.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>경로</th><th>내용</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>/</code></td><td>맨 꼭대기. 모든 경로가 여기서 시작한다.</td></tr>
+            <tr><td><code>/home/kim</code></td><td>사용자 <code>kim</code>의 홈 디렉터리. 자기 파일은 여기 둔다. <code>~</code>로 줄여 쓴다.</td></tr>
+            <tr><td><code>/usr/bin</code>, <code>/bin</code></td><td><code>ls</code>, <code>grep</code> 같은 프로그램 실행 파일</td></tr>
+            <tr><td><code>/etc</code></td><td>시스템 설정 파일</td></tr>
+            <tr><td><code>/tmp</code></td><td>임시 파일. 재부팅하면 지워질 수 있다.</td></tr>
+            <tr><td><code>/mnt/c</code></td><td>WSL에서 보이는 Windows C 드라이브</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          <code>/</code>와 <code>~</code>를 헷갈리기 쉽다. <code>/</code>는 시스템 전체의 뿌리이고, 일반 사용자는 거기에 파일을 만들 수 없다.
+          <code>~</code>는 내 홈이다. 클러스터에서는 홈 말고도 용량이 큰 작업용 디렉터리(scratch 등)를 따로 주는 경우가 많은데,
+          경로와 용량 한도는 클러스터마다 다르니 사이트 문서를 확인한다(<a href="hpc.html">09장</a>).
+        </p>
+
+        <h2 id="paths">절대 경로와 상대 경로</h2>
+        <p>
+          <strong>절대 경로</strong>는 <code>/</code>로 시작하는 전체 주소다. 어디서 쓰든 같은 곳을 가리킨다.
+          <strong>상대 경로</strong>는 지금 있는 디렉터리를 기준으로 한 주소다.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>표기</th><th>뜻</th><th>예</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>/</code>로 시작</td><td>절대 경로</td><td><code>/home/kim/proj/h2o-opt/water.inp</code></td></tr>
+            <tr><td><code>~</code></td><td>홈 디렉터리</td><td><code>~/proj/h2o-opt</code></td></tr>
+            <tr><td><code>.</code></td><td>현재 디렉터리</td><td><code>./run.sh</code></td></tr>
+            <tr><td><code>..</code></td><td>한 단계 위 디렉터리</td><td><code>../h2o-sp/water.out</code></td></tr>
+            <tr><td>그 외</td><td>현재 디렉터리 기준 상대 경로</td><td><code>h2o-opt/water.inp</code></td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          <code>~/proj/h2o-opt</code>에 있을 때 <code>water.inp</code>, <code>./water.inp</code>, <code>~/proj/h2o-opt/water.inp</code>는 모두 같은 파일이다.
+          작업 스크립트 안에서는 어디서 실행될지 모르니 절대 경로를 쓰는 편이 안전하다.
+        </p>
+
+        <h2 id="move">이동하고 둘러보기</h2>
+        <p><code>cd</code>(change directory)로 디렉터리를 옮기고, <code>pwd</code>로 현재 위치를 확인한다.</p>
+
+        <pre data-lang="bash"><code>$ cd ~/proj
+$ pwd
+/home/kim/proj
+$ ls
+h2o-opt  h2o-sp
+$ cd h2o-opt
+$ cd ../h2o-sp
+$ pwd
+/home/kim/proj/h2o-sp
+$ cd
+$ pwd
+/home/kim
+$ cd -
+/home/kim/proj/h2o-sp</code></pre>
+
+        <p>인자 없이 <code>cd</code>만 치면 홈으로 가고, <code>cd -</code>는 바로 전에 있던 디렉터리로 돌아간다.</p>
+
+        <h3>ls 옵션</h3>
+        <p><code>ls -l</code>은 한 줄에 파일 하나씩 권한, 크기, 수정 시각을 보여 준다. 옵션은 <code>-la</code>처럼 붙여 쓸 수 있다.</p>
+
+        <pre data-lang="bash"><code>$ ls -la ~/proj/h2o-sp
+total 60
+drwxr-xr-x 2 kim kim  4096 Sep 28 18:12 .
+drwxr-xr-x 4 kim kim  4096 Sep 28 18:12 ..
+-rw-r--r-- 1 kim kim   186 Sep 28 18:12 water.inp
+-rw-r--r-- 1 kim kim 48678 Sep 28 18:12 water.out</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>옵션</th><th>하는 일</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>-l</code></td><td>자세히 (권한, 소유자, 크기, 시각). 각 열의 뜻은 <a href="permissions.html">04장</a>에서 다룬다.</td></tr>
+            <tr><td><code>-a</code></td><td>숨김 파일까지 모두</td></tr>
+            <tr><td><code>-h</code></td><td>크기를 <code>167K</code>, <code>2.1G</code>처럼 읽기 쉽게 (<code>-l</code>과 함께)</td></tr>
+            <tr><td><code>-t</code></td><td>최근에 수정된 순서로 정렬</td></tr>
+            <tr><td><code>-r</code></td><td>정렬 순서 뒤집기. <code>ls -ltr</code>이면 가장 최근 파일이 맨 아래에 온다.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>숨김 파일</h3>
+        <p>
+          이름이 <code>.</code>으로 시작하는 파일은 <code>ls</code>에 나오지 않는다. 설정 파일이 대부분 이렇게 숨어 있다.
+        </p>
+
+        <pre data-lang="bash"><code>$ cd
+$ ls
+proj
+$ ls -a
+.  ..  .bash_history  .bashrc  .cache  .profile  .ssh  proj</code></pre>
+
+        <p><code>.bashrc</code>는 05장, <code>.ssh</code>는 <a href="ssh.html">06장</a>에서 다시 나온다.</p>
+
+        <h3>Tab 자동 완성</h3>
+        <p>
+          파일 이름을 몇 글자 치고 <code>Tab</code>을 누르면 셸이 나머지를 채운다. 후보가 여러 개면 한 번 더 눌러 목록을 본다.
+          <code>cd ~/proj/h2</code>까지 치고 <code>Tab</code>을 두 번 누르면 <code>h2o-opt/</code>와 <code>h2o-sp/</code>가 나온다.
+          오타가 줄고, 완성이 안 되면 경로가 틀렸다는 뜻이라 확인용으로도 쓸 만하다.
+        </p>
+
+        <h2 id="manage">만들기, 복사, 이동, 삭제</h2>
+        <table>
+          <thead>
+            <tr><th>명령</th><th>하는 일</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>mkdir dir</code></td><td>디렉터리 만들기</td></tr>
+            <tr><td><code>mkdir -p a/b/c</code></td><td>중간 디렉터리까지 한꺼번에. 이미 있어도 오류를 내지 않는다.</td></tr>
+            <tr><td><code>cp src dst</code></td><td>파일 복사</td></tr>
+            <tr><td><code>cp -r src dst</code></td><td>디렉터리를 통째로 복사</td></tr>
+            <tr><td><code>mv src dst</code></td><td>이동. 같은 디렉터리 안에서 쓰면 이름 바꾸기가 된다.</td></tr>
+            <tr><td><code>rm file</code></td><td>파일 삭제</td></tr>
+            <tr><td><code>rm -r dir</code></td><td>디렉터리와 그 안의 모든 것 삭제</td></tr>
+            <tr><td><code>rmdir dir</code></td><td>빈 디렉터리만 삭제</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ cd ~/proj
+$ mkdir ch4-conf/conf01
+mkdir: cannot create directory ‘ch4-conf/conf01’: No such file or directory
+$ mkdir -p ch4-conf/conf01 ch4-conf/conf02
+$ cp h2o-sp h2o-sp-copy
+cp: -r not specified; omitting directory 'h2o-sp'
+$ cp -r h2o-sp h2o-sp-copy
+$ mv h2o-sp-copy h2o-sp-old
+$ rmdir h2o-sp-old
+rmdir: failed to remove 'h2o-sp-old': Directory not empty
+$ rm -r h2o-sp-old</code></pre>
+
+        <p>
+          계산을 조금 바꿔 다시 돌릴 때는 기존 디렉터리를 <code>cp -r</code>로 복사하고 입력 파일만 고치는 식으로 많이 쓴다.
+          이때 출력 파일까지 딸려 오니, 새 디렉터리에서 옛 <code>.out</code>이나 <code>.gbw</code>를 지우고 시작한다.
+        </p>
+
+        <div class="caution">
+          <div class="note-title">rm에는 휴지통이 없다</div>
+          <p>
+            <code>rm</code>으로 지운 파일은 되살릴 방법이 사실상 없다. <code>cp</code>와 <code>mv</code>도 같은 이름의 파일이 있으면 묻지 않고 덮어쓴다.
+            <code>rm -r</code>을 칠 때는 경로를 한 번 더 읽고, 와일드카드를 쓸 때는 먼저 <code>ls</code>로 무엇이 걸리는지 본다.
+            <code>rm -i</code>, <code>cp -i</code>, <code>mv -i</code>는 파일마다 확인을 묻는다. 클러스터 scratch 디렉터리는 백업이 없는 곳이 많다.
+          </p>
+        </div>
+
+        <h2 id="wildcards">와일드카드</h2>
+        <p>
+          파일 이름 자리에 특수 문자를 쓰면 셸이 맞는 파일 이름들로 바꿔 넣는다. 명령이 실행되기 전에 셸이 펼치는 것이라
+          <code>ls</code>, <code>cp</code>, <code>rm</code>, <code>grep</code> 어디에나 쓸 수 있다.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>패턴</th><th>뜻</th><th>예</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>*</code></td><td>아무 글자 0개 이상</td><td><code>*.xyz</code>: 모든 xyz 파일</td></tr>
+            <tr><td><code>?</code></td><td>아무 글자 정확히 1개</td><td><code>conf0?.xyz</code>: conf01 ~ conf09</td></tr>
+            <tr><td><code>[12]</code></td><td>괄호 안 글자 중 하나</td><td><code>conf0[12].*</code>: conf01, conf02</td></tr>
+            <tr><td><code>[0-9]</code></td><td>범위 안 글자 하나</td><td><code>conf[0-9][0-9].out</code></td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ ls
+conf01.out  conf01.xyz  conf02.out  conf02.xyz  conf03.xyz  conf10.xyz
+$ ls *.xyz
+conf01.xyz  conf02.xyz  conf03.xyz  conf10.xyz
+$ ls conf0?.xyz
+conf01.xyz  conf02.xyz  conf03.xyz
+$ ls conf0[12].*
+conf01.out  conf01.xyz  conf02.out  conf02.xyz
+$ ls *.log
+ls: cannot access '*.log': No such file or directory</code></pre>
+
+        <p>
+          <code>conf0?.xyz</code>에 <code>conf10.xyz</code>는 걸리지 않는다. 맞는 파일이 하나도 없으면 bash는 패턴을 그대로 넘기고,
+          <code>ls</code>는 <code>*.log</code>라는 이름의 파일을 찾다가 실패한다.
+        </p>
+
+        <h2 id="names">파일 이름 규칙</h2>
+        <p>
+          셸은 공백으로 인자를 나눈다. 그래서 이름에 공백이 있으면 한 파일이 두 개로 읽힌다.
+          아래에서 <code>rm</code>은 <code>my water.xyz</code>가 아니라 <code>my</code>와 <code>water.xyz</code>를 지우려 했고, 엉뚱하게 <code>water.xyz</code>를 지웠다.
+        </p>
+
+        <pre data-lang="bash"><code>$ ls
+my water.xyz  water.xyz
+$ rm my water.xyz
+rm: cannot remove 'my': No such file or directory
+$ ls
+my water.xyz</code></pre>
+
+        <p>
+          공백이 든 이름은 따옴표로 감싸거나(<code>"my water.xyz"</code>) 공백 앞에 역슬래시를 붙인다(<code>my\ water.xyz</code>). Tab 완성은 역슬래시를 알아서 넣어 준다.
+          하지만 애초에 공백 없는 이름을 쓰는 편이 낫다. 영문자, 숫자, <code>-</code>, <code>_</code>, <code>.</code>만 쓰면 어떤 프로그램에서도 문제가 없다.
+          한글 이름이나 괄호, <code>&amp;</code>가 들어간 이름도 계산 프로그램과 스크립트에서 말썽을 일으킨다.
+        </p>
+
+        <h2 id="project">계산 디렉터리 정리하기</h2>
+        <p>
+          ORCA, xtb, QE는 모두 현재 디렉터리에 중간 파일을 많이 쓴다. 계산 하나에 디렉터리 하나를 주면 서로 덮어쓸 일이 없고,
+          나중에 어떤 입력으로 어떤 출력이 나왔는지 헷갈리지 않는다. 예를 들면 이렇게 정리한다.
+        </p>
+
+        <pre data-lang="output"><code>proj
+├── ch4-conf
+│   ├── conf01
+│   │   └── ch4.inp
+│   └── conf02
+│       └── ch4.inp
+├── h2o-freq
+│   └── water.inp
+├── h2o-opt
+│   ├── run.pbs
+│   ├── water.inp
+│   └── water.xyz
+├── notes
+│   └── log.md
+├── scripts
+│   └── get-energy.sh
+└── structures
+    ├── methane.xyz
+    └── water.xyz
+
+9 directories, 10 files</code></pre>
+
+        <p>
+          이 그림은 <code>tree proj</code>로 그렸다(<code>sudo apt install tree</code>). 디렉터리 이름에 분자와 계산 종류를 넣고,
+          같은 방식으로 이름을 붙이면 나중에 <code>*/water.out</code> 같은 와일드카드로 한꺼번에 다루기 쉽다.
+          그런 반복 작업을 스크립트로 묶는 법은 <a href="../../shell/ko/index.html">셸 스크립팅 가이드</a>에서 다룬다.
+        </p>

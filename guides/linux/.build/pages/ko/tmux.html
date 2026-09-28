@@ -1,0 +1,137 @@
+<!--
+title: tmux
+eyebrow: CHAPTER 08 · 원격 작업
+h1: tmux
+lede: ssh 접속이 끊겨도 셸이 살아 있게 하고, 터미널 하나를 여러 창과 칸으로 나눠 쓴다.
+-->
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
+          <ul>
+            <li><a href="#why">왜 필요한가</a></li>
+            <li><a href="#session">세션 만들기, 떼기, 다시 붙기</a></li>
+            <li><a href="#windows">창과 칸</a></li>
+            <li><a href="#scroll">스크롤</a></li>
+            <li><a href="#conf">~/.tmux.conf</a></li>
+            <li><a href="#login">로그인 노드에서의 주의</a></li>
+            <li><a href="#screen">screen</a></li>
+          </ul>
+        </div>
+
+        <h2 id="why">왜 필요한가</h2>
+        <p>
+          ssh 접속이 끊기면 그 접속에서 실행 중이던 전경 프로세스도 함께 종료된다. 와이파이가 잠깐 끊기거나 노트북 뚜껑을 닫는 것만으로
+          30분째 돌던 <code>rsync</code>, 컴파일, 출력 파일을 지켜보던 <code>tail -f</code>가 사라진다.
+        </p>
+        <p>
+          tmux(terminal multiplexer)는 서버에서 셸을 대신 들고 있는 프로그램이다. 내 ssh 접속은 tmux 화면을 들여다보는 창일 뿐이라,
+          접속이 끊겨도 tmux 안의 셸과 프로그램은 계속 돈다. 다시 접속해서 붙으면 떠날 때 화면 그대로다.
+          대부분의 클러스터에 설치돼 있다. 없다면 <code>screen</code>이 있을 가능성이 높다.
+        </p>
+
+        <h2 id="session">세션 만들기, 떼기, 다시 붙기</h2>
+        <p>
+          tmux의 단위는 세션이다. 클러스터에 접속한 뒤 이름을 붙여 새 세션을 만든다. 이름은 작업 내용을 알아볼 수 있게 짓는다.
+        </p>
+        <pre data-lang="bash"><code>$ ssh vanda
+$ tmux new -s h2o-opt</code></pre>
+        <p>
+          화면 아래에 초록색 상태 표시줄이 생기면 tmux 안에 들어온 것이다. tmux의 단축키는 모두 <strong>prefix</strong> 키 다음에 누른다.
+          기본 prefix는 <code>Ctrl-b</code>다. <code>Ctrl-b d</code>는 <code>Ctrl</code>과 <code>b</code>를 함께 눌렀다 떼고, 이어서 <code>d</code>를 누르라는 뜻이다.
+        </p>
+        <pre data-lang="bash"><code><span class="cmt"># 세션에서 떼기(detach): Ctrl-b d</span>
+[detached (from session h2o-opt)]
+
+<span class="cmt"># 돌고 있는 세션 목록</span>
+$ tmux ls
+h2o-opt: 1 windows (created Tue Sep 29 00:08:22 2026)
+md-run: 1 windows (created Tue Sep 29 00:08:22 2026)
+
+<span class="cmt"># 다시 붙기(attach)</span>
+$ tmux attach -t h2o-opt</code></pre>
+        <p>
+          떼고 나서 ssh를 끊어도, 접속이 저절로 끊겨도 세션은 남는다. 다시 접속해서 <code>tmux ls</code>로 확인하고 <code>tmux attach -t</code>로 붙는다.
+          세션이 하나뿐이면 <code>tmux attach</code>만 쳐도 된다. 세션이 하나도 없으면 <code>tmux ls</code>는 <code>no server running on ...</code>이라고 답한다.
+        </p>
+        <p>
+          다 쓴 세션은 안에서 <code>exit</code>로 마지막 셸을 닫거나, 밖에서 이름으로 끈다.
+        </p>
+        <pre data-lang="bash"><code>$ tmux kill-session -t md-run</code></pre>
+
+        <h2 id="windows">창과 칸</h2>
+        <p>
+          세션 하나에 창(window)을 여러 개 둘 수 있고, 창 하나를 칸(pane)으로 나눌 수 있다. 한 칸에서 입력 파일을 고치고
+          옆 칸에서 <code>qstat</code>을 보는 식으로 쓴다.
+        </p>
+        <table>
+          <thead>
+            <tr><th>키</th><th>동작</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Ctrl-b c</code></td><td>새 창</td></tr>
+            <tr><td><code>Ctrl-b n</code> / <code>Ctrl-b p</code></td><td>다음 / 이전 창</td></tr>
+            <tr><td><code>Ctrl-b 0</code>…<code>9</code></td><td>번호로 창 이동</td></tr>
+            <tr><td><code>Ctrl-b ,</code></td><td>창 이름 바꾸기</td></tr>
+            <tr><td><code>Ctrl-b %</code></td><td>좌우로 나누기</td></tr>
+            <tr><td><code>Ctrl-b "</code></td><td>위아래로 나누기</td></tr>
+            <tr><td><code>Ctrl-b</code> 방향키</td><td>칸 사이 이동</td></tr>
+            <tr><td><code>Ctrl-b z</code></td><td>현재 칸을 전체 화면으로 / 되돌리기</td></tr>
+            <tr><td><code>Ctrl-b x</code></td><td>현재 칸 닫기(확인을 묻는다)</td></tr>
+            <tr><td><code>Ctrl-b d</code></td><td>세션에서 떼기</td></tr>
+            <tr><td><code>Ctrl-b ?</code></td><td>단축키 전체 목록(<code>q</code>로 닫기)</td></tr>
+          </tbody>
+        </table>
+        <p>
+          상태 표시줄 왼쪽에 <code>0:bash 1:vim*</code>처럼 창 목록이 보이고, <code>*</code>가 현재 창이다.
+        </p>
+
+        <h2 id="scroll">스크롤</h2>
+        <p>
+          tmux 안에서는 터미널 프로그램의 스크롤바나 마우스 휠로 지난 출력을 볼 수 없다(아래의 mouse 설정을 켜기 전까지).
+          <code>Ctrl-b [</code>로 복사 모드에 들어가면 방향키, <code>PgUp</code>, <code>PgDn</code>으로 올라갈 수 있다. 빠져나올 때는 <code>q</code>를 누른다.
+        </p>
+
+        <h2 id="conf">~/.tmux.conf</h2>
+        <p>
+          클러스터 홈 디렉터리에 <code>~/.tmux.conf</code>를 만들면 tmux가 시작할 때 읽는다. 두 줄이면 쓰기가 훨씬 편해진다.
+        </p>
+        <pre data-lang="text"><code><span class="cmt"># 마우스로 칸 고르기, 크기 조절, 휠 스크롤</span>
+set -g mouse on
+<span class="cmt"># 칸마다 기억하는 출력 줄 수 (기본 2000)</span>
+set -g history-limit 50000</code></pre>
+        <p>
+          설정은 새로 시작한 tmux 서버에만 적용된다. 이미 떠 있는 세션에서는 <code>Ctrl-b :</code>를 누르고
+          <code>source-file ~/.tmux.conf</code>를 입력하면 다시 읽는다. mouse를 켜면 터미널 프로그램의 드래그 복사가 tmux에 가로채이는데,
+          대부분의 터미널에서 <code>Shift</code>를 누른 채 드래그하면 원래대로 복사된다.
+        </p>
+
+        <h2 id="login">로그인 노드에서의 주의</h2>
+
+        <div class="caution">
+          <div class="note-title">tmux 안이라도 계산은 스케줄러로</div>
+          <p>
+            tmux로 세션이 살아 있다고 해서 로그인 노드에서 ORCA나 LAMMPS를 직접 돌려도 된다는 뜻은 아니다. 로그인 노드는 모든 사용자가 나눠 쓰는
+            입구이고, 무거운 프로세스는 관리자가 강제로 끄는 경우가 많다. 계산은 작업 스크립트로 제출한다(<a href="hpc.html">09장</a>).
+            tmux는 전송, 편집, 컴파일, 작업 상태 확인처럼 가벼운 일에 쓴다.
+          </p>
+        </div>
+
+        <p>
+          클러스터에 따라 로그인 노드가 여러 대이고, 같은 주소로 접속해도 매번 다른 노드에 붙을 수 있다. tmux 세션은 그것을 만든 노드에만 있다.
+          다시 접속했는데 <code>tmux ls</code>에 세션이 없다면 <code>hostname</code>으로 지금 어느 노드인지 확인하고, 이전 노드 이름으로 직접 ssh한다.
+        </p>
+
+        <h2 id="screen">screen</h2>
+        <p>
+          <code>screen</code>은 tmux보다 오래된 같은 종류의 프로그램이다. 오래된 시스템에서 tmux가 없을 때 쓴다. 개념은 같고 키만 다르다.
+        </p>
+        <table>
+          <thead>
+            <tr><th>동작</th><th>tmux</th><th>screen</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>새 세션</td><td><code>tmux new -s NAME</code></td><td><code>screen -S NAME</code></td></tr>
+            <tr><td>떼기</td><td><code>Ctrl-b d</code></td><td><code>Ctrl-a d</code></td></tr>
+            <tr><td>목록</td><td><code>tmux ls</code></td><td><code>screen -ls</code></td></tr>
+            <tr><td>다시 붙기</td><td><code>tmux attach -t NAME</code></td><td><code>screen -r NAME</code></td></tr>
+          </tbody>
+        </table>

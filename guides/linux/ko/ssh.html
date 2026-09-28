@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ssh 접속과 키 · Linux 스타터팩</title>
+  <meta name="description" content="클러스터에 ssh로 접속하고, 키를 만들어 비밀번호 없이 들어가고, ~/.ssh/config로 긴 주소를 짧은 이름으로 줄인다." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="ssh.html" class="active">KO</a>
+    <a href="../en/ssh.html">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Linux</div>
+    <div class="brand-subtitle">스타터팩 · 계산화학 입문자용</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="setup.html"><span class="nav-num">01</span>터미널 준비</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">기본기</div>
+      <ul class="nav-list">
+        <li><a href="files.html"><span class="nav-num">02</span>파일과 디렉터리</a></li>
+        <li><a href="viewing.html"><span class="nav-num">03</span>파일 보기와 편집</a></li>
+        <li><a href="permissions.html"><span class="nav-num">04</span>권한</a></li>
+        <li><a href="processes.html"><span class="nav-num">05</span>프로세스와 환경 변수</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">원격 작업</div>
+      <ul class="nav-list">
+        <li><a href="ssh.html"><span class="nav-num">06</span>ssh 접속과 키</a></li>
+        <li><a href="transfer.html"><span class="nav-num">07</span>파일 전송</a></li>
+        <li><a href="tmux.html"><span class="nav-num">08</span>tmux</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">클러스터</div>
+      <ul class="nav-list">
+        <li><a href="hpc.html"><span class="nav-num">09</span>HPC 첫걸음</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">참고</div>
+      <ul class="nav-list">
+        <li><a href="software.html"><span class="nav-num">10</span>쓸 만한 프로그램</a></li>
+        <li><a href="cheatsheet.html"><span class="nav-num">11</span>치트시트</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 06 · 원격 작업</div>
+        <h1 class="page-title">ssh 접속과 키</h1>
+        <p class="page-lede">클러스터에 ssh로 접속하고, 키를 만들어 비밀번호 없이 들어가고, ~/.ssh/config로 긴 주소를 짧은 이름으로 줄인다.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
+          <ul>
+            <li><a href="#what">ssh란</a></li>
+            <li><a href="#first">첫 접속</a></li>
+            <li><a href="#keys">키 만들기</a></li>
+            <li><a href="#copy">공개 키를 서버에 올리기</a></li>
+            <li><a href="#config">~/.ssh/config</a></li>
+            <li><a href="#agent">ssh-agent</a></li>
+            <li><a href="#errors">자주 보는 오류</a></li>
+            <li><a href="#extra">X11 포워딩과 VS Code</a></li>
+          </ul>
+        </div>
+
+        <h2 id="what">ssh란</h2>
+        <p>
+          ssh(secure shell)는 다른 컴퓨터의 셸을 네트워크 너머에서 쓰게 해 주는 프로그램이다. 노트북에서 <code>ssh</code>를 실행하면
+          클러스터의 로그인 노드에 셸이 하나 열리고, 그 뒤로 치는 명령은 전부 클러스터에서 실행된다. 오가는 내용은 암호화된다.
+        </p>
+        <p>
+          ORCA나 Quantum ESPRESSO 계산은 노트북이 아니라 클러스터에서 돈다. 입력을 올리고, 작업을 제출하고, 출력을 확인하는 일이
+          모두 ssh 접속 위에서 이뤄진다. 다음 장의 <code>scp</code>, <code>rsync</code>도 ssh를 통로로 쓴다.
+          Linux, macOS, Windows 10 이후 버전에는 ssh 클라이언트가 기본으로 들어 있다.
+        </p>
+
+        <h2 id="first">첫 접속</h2>
+        <p>
+          형식은 <code>ssh 사용자이름@호스트</code>다. 호스트는 클러스터 로그인 노드의 주소로, 계정을 받을 때 안내받는다.
+          아래 예의 주소와 사용자 이름은 설명용이다.
+        </p>
+        <pre data-lang="bash"><code>$ ssh e0123456@vanda.nus.edu.sg</code></pre>
+        <p>처음 접속하는 서버라면 이런 질문이 먼저 나온다.</p>
+        <pre data-lang="output"><code>The authenticity of host 'vanda.nus.edu.sg (...)' can't be established.
+ED25519 key fingerprint is SHA256:...
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'vanda.nus.edu.sg' (ED25519) to the list of known hosts.
+e0123456@vanda.nus.edu.sg's password:</code></pre>
+        <p>
+          서버마다 고유한 호스트 키가 있고, 위의 fingerprint는 그 키의 요약값이다. <code>yes</code>라고 답하면
+          <code>~/.ssh/known_hosts</code>에 기록되고, 다음부터는 묻지 않는다. 클러스터 문서에 fingerprint가 공개돼 있다면
+          비교해 보고 답하는 것이 원칙이다. 비밀번호를 칠 때 화면에 아무것도 표시되지 않는 것은 정상이다.
+        </p>
+        <p>
+          접속하면 프롬프트가 클러스터의 것으로 바뀐다. 나올 때는 <code>exit</code>나 <code>Ctrl-D</code>를 쓴다.
+          학교 밖에서 접속할 때는 보통 학교 VPN에 먼저 연결해야 한다. 구체적인 방법은 클러스터 안내 문서를 따른다.
+        </p>
+
+        <h2 id="keys">키 만들기</h2>
+        <p>
+          매번 비밀번호를 치는 대신 키 쌍으로 인증할 수 있다. 키 쌍은 두 파일이다. 개인 키(<code>id_ed25519</code>)는 내 컴퓨터에만 두고,
+          공개 키(<code>id_ed25519.pub</code>)는 서버에 올린다. 서버는 공개 키로 내가 개인 키를 가졌는지 확인한다.
+          키는 노트북(또는 WSL)에서 한 번 만들면 된다.
+        </p>
+        <pre data-lang="bash"><code>$ ssh-keygen -t ed25519 -C "kim@laptop"
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/kim/.ssh/id_ed25519):
+Enter passphrase for "/home/kim/.ssh/id_ed25519" (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/kim/.ssh/id_ed25519
+Your public key has been saved in /home/kim/.ssh/id_ed25519.pub
+The key fingerprint is:
+SHA256:zQ5PSX1x2MqziJIYvYB5ZNZXFsTEXyfTCAD3WJLq+nM kim@laptop</code></pre>
+        <p>
+          파일 위치는 Enter로 기본값을 받는다. <code>-C</code> 뒤는 키에 붙는 메모라서 어느 컴퓨터의 키인지 알아볼 수 있게 적으면 된다.
+          passphrase는 개인 키 파일을 잠그는 암호다. 노트북을 잃어버려도 passphrase가 없으면 키를 쓸 수 없으니 설정해 두는 편이 좋다.
+          매번 치는 수고는 아래의 ssh-agent가 덜어 준다.
+        </p>
+        <pre data-lang="bash"><code>$ cat ~/.ssh/id_ed25519.pub
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJE3ZbxNBjHILtE8MNFKpTzBNAjrxmjLkruM0m/mfZLw kim@laptop</code></pre>
+
+        <div class="warning">
+          <div class="note-title">개인 키는 복사하지 않는다</div>
+          <p>
+            서버에 올리고 남에게 보여 줘도 되는 것은 <code>.pub</code>로 끝나는 공개 키뿐이다. <code>id_ed25519</code>는 이메일, 메신저,
+            클라우드 드라이브에 올리지 않는다. 컴퓨터가 여러 대면 컴퓨터마다 키를 따로 만든다.
+          </p>
+        </div>
+
+        <h2 id="copy">공개 키를 서버에 올리기</h2>
+        <p>
+          서버는 <code>~/.ssh/authorized_keys</code> 파일에 적힌 공개 키를 받아 준다. Linux, macOS, WSL에서는 <code>ssh-copy-id</code>가
+          이 일을 한다. 비밀번호를 한 번 묻고, 끝나면 <code>Number of key(s) added: 1</code>이라고 알려 준다.
+        </p>
+        <pre data-lang="bash"><code>$ ssh-copy-id -i ~/.ssh/id_ed25519.pub e0123456@vanda.nus.edu.sg</code></pre>
+        <p>
+          Windows PowerShell에는 <code>ssh-copy-id</code>가 없다. 공개 키를 파이프로 넘겨 서버 쪽에서 파일에 덧붙인다.
+        </p>
+        <pre data-lang="bash"><code><span class="cmt"># PowerShell에서 한 줄로</span>
+type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh e0123456@vanda.nus.edu.sg "mkdir -p ~/.ssh &amp;&amp; chmod 700 ~/.ssh &amp;&amp; cat &gt;&gt; ~/.ssh/authorized_keys &amp;&amp; chmod 600 ~/.ssh/authorized_keys"</code></pre>
+        <p>
+          이제 <code>ssh e0123456@vanda.nus.edu.sg</code>를 치면 비밀번호 대신 passphrase를 묻는다(설정했다면).
+          클러스터에 따라 키 인증을 막아 두거나 2단계 인증을 따로 요구하기도 하니, 안 되면 먼저 안내 문서를 확인한다.
+        </p>
+        <p>
+          ssh는 권한이 느슨한 키 파일을 거부한다. <code>~/.ssh</code>는 700, 개인 키와 <code>config</code>, <code>authorized_keys</code>는 600이어야 한다
+          (<a href="permissions.html">04장</a> 참고). 노트북과 서버 양쪽 모두 해당한다.
+        </p>
+        <pre data-lang="bash"><code>$ chmod 700 ~/.ssh
+$ chmod 600 ~/.ssh/id_ed25519 ~/.ssh/config
+$ ls -la ~/.ssh
+total 12
+drwx------ 2 kim kim 100 Sep 29 00:12 .
+drwxrwxr-x 5 kim kim 120 Sep 29 00:09 ..
+-rw------- 1 kim kim 202 Sep 29 00:12 config
+-rw------- 1 kim kim 444 Sep 29 00:07 id_ed25519
+-rw-r--r-- 1 kim kim  92 Sep 29 00:07 id_ed25519.pub</code></pre>
+
+        <h2 id="config">~/.ssh/config</h2>
+        <p>
+          <code>e0123456@vanda.nus.edu.sg</code>를 하루에 스무 번 치고 싶지는 않다. 노트북의 <code>~/.ssh/config</code>에 별명을 적어 두면
+          <code>ssh vanda</code>로 끝난다. 파일이 없으면 새로 만든다.
+        </p>
+        <pre data-lang="text"><code>Host vanda
+    HostName vanda.nus.edu.sg
+    User e0123456
+    IdentityFile ~/.ssh/id_ed25519
+    ServerAliveInterval 60</code></pre>
+        <table>
+          <thead>
+            <tr><th>항목</th><th>뜻</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Host</code></td><td>내가 부를 별명. <code>ssh vanda</code>의 <code>vanda</code></td></tr>
+            <tr><td><code>HostName</code></td><td>실제 주소</td></tr>
+            <tr><td><code>User</code></td><td>서버의 사용자 이름</td></tr>
+            <tr><td><code>IdentityFile</code></td><td>쓸 개인 키</td></tr>
+            <tr><td><code>ServerAliveInterval</code></td><td>60초마다 신호를 보내 한동안 입력이 없어도 접속이 끊기지 않게 한다</td></tr>
+          </tbody>
+        </table>
+        <p>
+          별명은 ssh를 쓰는 다른 명령에서도 통한다. <code>scp h2o.inp vanda:~/proj/</code>, <code>rsync ... vanda:...</code>,
+          VS Code Remote-SSH가 모두 이 파일을 읽는다. 설정이 제대로 읽혔는지는 <code>ssh -G</code>로 확인한다.
+        </p>
+        <pre data-lang="bash"><code>$ ssh -G vanda | grep -E '^(hostname|user|identityfile) '
+user e0123456
+hostname vanda.nus.edu.sg
+identityfile ~/.ssh/id_ed25519</code></pre>
+        <p>
+          바깥에서 바로 닿지 않는 서버는 게이트웨이를 거쳐 들어가야 할 때가 있다. <code>ProxyJump</code>에 거쳐 갈 호스트를 적으면
+          ssh가 두 단계를 알아서 잇는다. 명령줄에서는 <code>ssh -J vanda e0123456@inner.example.org</code>와 같다.
+        </p>
+        <pre data-lang="text"><code>Host inner
+    HostName inner.example.org
+    User e0123456
+    ProxyJump vanda</code></pre>
+
+        <h2 id="agent">ssh-agent</h2>
+        <p>
+          ssh-agent는 passphrase를 푼 개인 키를 메모리에 들고 있다가 ssh가 필요할 때 건네주는 프로그램이다. passphrase는 세션당 한 번만 치면 된다.
+          macOS와 데스크톱 Linux에서는 보통 이미 돌고 있다. WSL에서는 직접 띄운다.
+        </p>
+        <pre data-lang="bash"><code>$ eval "$(ssh-agent -s)"
+Agent pid 454122
+$ ssh-add ~/.ssh/id_ed25519
+Enter passphrase for /home/kim/.ssh/id_ed25519:
+Identity added: /home/kim/.ssh/id_ed25519 (kim@laptop)
+$ ssh-add -l
+256 SHA256:zQ5PSX1x2MqziJIYvYB5ZNZXFsTEXyfTCAD3WJLq+nM kim@laptop (ED25519)</code></pre>
+        <p>
+          <code>~/.ssh/config</code> 맨 아래에 <code>Host *</code> 블록을 두고 <code>AddKeysToAgent yes</code>를 넣으면
+          처음 접속할 때 푼 키가 agent에 자동으로 들어간다.
+        </p>
+
+        <h2 id="errors">자주 보는 오류</h2>
+        <table>
+          <thead>
+            <tr><th>메시지</th><th>흔한 원인과 대처</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Permission denied (publickey)</code></td><td>서버가 키를 받지 않았다. 공개 키가 서버 <code>authorized_keys</code>에 있는지, <code>User</code>가 맞는지, 양쪽 <code>~/.ssh</code> 권한이 700/600인지 본다. <code>ssh -v vanda</code>로 어떤 키를 시도했는지 볼 수 있다.</td></tr>
+            <tr><td><code>Connection timed out</code></td><td>서버까지 닿지 못했다. 학교 밖이라면 VPN부터 확인한다. 주소 오타나 클러스터 점검일 수도 있다.</td></tr>
+            <tr><td><code>Could not resolve hostname</code></td><td>주소 오타이거나 config의 <code>Host</code> 별명이 틀렸다.</td></tr>
+            <tr><td><code>REMOTE HOST IDENTIFICATION HAS CHANGED!</code></td><td>서버의 호스트 키가 <code>known_hosts</code>에 적힌 것과 다르다. 아래 참고.</td></tr>
+          </tbody>
+        </table>
+        <pre data-lang="output"><code>@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+...
+Offending ED25519 key in /home/kim/.ssh/known_hosts:3</code></pre>
+        <p>
+          클러스터를 재설치하거나 로그인 노드를 교체하면 호스트 키가 바뀌고 이 경고가 뜬다. 드물게는 실제로 중간에서 누가 가로채는 경우일 수도 있다.
+          클러스터 공지나 관리자에게 키 변경이 있었는지 확인한 뒤, 옛 기록을 지우고 다시 접속해 새 fingerprint를 받는다.
+        </p>
+        <pre data-lang="bash"><code>$ ssh-keygen -R vanda.nus.edu.sg
+# Host vanda.nus.edu.sg found: line 3
+/home/kim/.ssh/known_hosts updated.
+Original contents retained as /home/kim/.ssh/known_hosts.old</code></pre>
+
+        <h2 id="extra">X11 포워딩과 VS Code</h2>
+        <p>
+          클러스터에서 창을 띄우는 프로그램(예: VMD, gnuplot 창)을 노트북 화면에 보이게 하려면 <code>ssh -Y vanda</code>로 접속한다.
+          macOS는 XQuartz가 필요하고, Windows 11의 WSL은 별도 설정 없이 되는 경우가 많다. 네트워크 너머로 화면을 그리는 것이라 느리다.
+          큰 궤적은 파일을 받아 와서 로컬에서 여는 편이 낫다.
+        </p>
+        <p>
+          VS Code의 Remote-SSH 확장은 <code>~/.ssh/config</code>의 별명으로 접속해 클러스터의 파일을 로컬 편집기처럼 연다.
+          입력 파일을 고치기에 편하다. 다만 VS Code는 로그인 노드에 서버 프로그램을 띄우므로, 클러스터에 따라 사용을 제한하기도 한다.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="processes.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">프로세스와 환경 변수</div>
+        </a>
+        <a class="next" href="transfer.html">
+          <div class="page-nav-label">다음 →</div>
+          <div class="page-nav-title">파일 전송</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!--
+title: Job arrays and parameter sweeps
+eyebrow: CHAPTER 08 · Job submission
+h1: Job arrays and parameter sweeps
+lede: Submit dozens of similar calculations as one job array, generate their inputs automatically, and rerun only the ones that failed.
+-->
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#loop">The trouble with a qsub loop</a></li>
+            <li><a href="#pbs">PBS Pro job arrays</a></li>
+            <li><a href="#slurm">Slurm job arrays</a></li>
+            <li><a href="#map">Turning an index into an input</a></li>
+            <li><a href="#sweep">Generating inputs for a parameter sweep</a></li>
+            <li><a href="#collect">Collecting results</a></li>
+            <li><a href="#resubmit">Resubmitting only the failures</a></li>
+            <li><a href="#many">Many small jobs inside one allocation</a></li>
+          </ul>
+        </div>
+
+        <h2 id="loop">The trouble with a qsub loop</h2>
+        <p>With several job directories, the first idea is to submit them one by one in a loop.</p>
+
+        <pre data-lang="bash"><code><span class="kw">for</span> d <span class="kw">in</span> */; <span class="kw">do</span>
+    (<span class="kw">cd</span> <span class="str">"$d"</span> &amp;&amp; qsub ../run.pbs)
+<span class="kw">done</span></code></pre>
+
+        <p>
+          For ten jobs that is fine. For hundreds you end up with hundreds of job IDs to track, extra load on the scheduler, and on many
+          clusters a per-user limit on queued jobs. A job array is a single job that runs the same script many times with a different index.
+          You submit once, get one job ID, and each run (a subjob) receives its index in an environment variable.
+        </p>
+
+        <h2 id="pbs">PBS Pro job arrays</h2>
+        <p>
+          <code>#PBS -J 1-6</code> creates six subjobs, each with <code>$PBS_ARRAY_INDEX</code> set to a value from 1 to 6.
+          The resource request (<code>select</code>, <code>walltime</code>) applies to one subjob.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt">#PBS -N dft-grid</span>
+<span class="cmt">#PBS -l select=1:ncpus=4:mpiprocs=4:mem=8gb</span>
+<span class="cmt">#PBS -l walltime=04:00:00</span>
+<span class="cmt">#PBS -j oe</span>
+<span class="cmt">#PBS -J 1-6</span>
+
+<span class="kw">cd</span> <span class="str">"$PBS_O_WORKDIR"</span> || <span class="kw">exit</span> 1
+module load openmpi/4.1.6
+ORCA=<span class="str">"$HOME/opt/orca_6_1_0/orca"</span>
+
+NAME=$(sed -n <span class="str">"${PBS_ARRAY_INDEX}p"</span> list.txt)
+<span class="kw">cd</span> <span class="str">"$NAME"</span> || <span class="kw">exit</span> 1
+<span class="str">"$ORCA"</span> <span class="str">"$NAME.inp"</span> &gt; <span class="str">"$NAME.out"</span> 2&gt;&amp;1</code></pre>
+
+        <p>
+          Array job IDs carry brackets, like <code>1234[].server</code>. <code>qstat -u $USER</code> shows the whole array as one line;
+          add <code>-t</code> to see the individual subjobs. Each subjob writes its own log.
+        </p>
+
+        <pre data-lang="bash"><code>qstat -t -u $USER          <span class="cmt"># include subjobs</span>
+qdel <span class="str">"1234[]"</span>               <span class="cmt"># cancel the whole array</span>
+qdel <span class="str">"1234[3]"</span>              <span class="cmt"># cancel subjob 3 only</span></code></pre>
+
+        <p>
+          Brackets are glob characters in the shell, so quote them. PBS Pro requires at least two subjobs in the range, so <code>-J 1-1</code>
+          is rejected. A step is allowed, as in <code>-J 1-20:2</code>.
+        </p>
+
+        <h2 id="slurm">Slurm job arrays</h2>
+        <p>
+          In Slurm it is <code>--array=1-20</code>, and the index arrives in <code>$SLURM_ARRAY_TASK_ID</code>. Appending <code>%5</code> limits
+          the array to five subjobs running at once, which is good manners for large arrays on a shared cluster.
+          In the log name, <code>%A</code> is the array job ID and <code>%a</code> the subjob index.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt">#SBATCH --job-name=dft-grid</span>
+<span class="cmt">#SBATCH --nodes=1</span>
+<span class="cmt">#SBATCH --ntasks=4</span>
+<span class="cmt">#SBATCH --mem=8G</span>
+<span class="cmt">#SBATCH --time=04:00:00</span>
+<span class="cmt">#SBATCH --array=1-6%3</span>
+<span class="cmt">#SBATCH --output=dft-grid.%A_%a.log</span>
+
+module load openmpi/4.1.6
+ORCA=<span class="str">"$HOME/opt/orca_6_1_0/orca"</span>
+
+mapfile -t names &lt; list.txt
+NAME=${names[$((SLURM_ARRAY_TASK_ID - 1))]}
+
+<span class="kw">cd</span> <span class="str">"$NAME"</span> || <span class="kw">exit</span> 1
+<span class="str">"$ORCA"</span> <span class="str">"$NAME.inp"</span> &gt; <span class="str">"$NAME.out"</span> 2&gt;&amp;1</code></pre>
+
+        <p>
+          <code>squeue</code> lists the pending range, such as <code>1234_[4-6%3]</code>, separately from running subjobs such as <code>1234_1</code>.
+          <code>scancel 1234</code> cancels everything, <code>scancel 1234_5</code> just one subjob. Whether PBS Pro offers a similar limit on
+          concurrent subjobs depends on the version and site configuration; check your cluster's documentation.
+        </p>
+
+        <h2 id="map">Turning an index into an input</h2>
+        <p>
+          A subjob only gets a number. The simplest way to turn it into a job name is a list file with one name per line.
+          The two scripts above use two ways of reading it.
+        </p>
+
+        <pre data-lang="bash"><code>$ cat list.txt
+B3LYP_def2-SVP
+B3LYP_def2-TZVP
+PBE0_def2-SVP
+PBE0_def2-TZVP
+TPSS_def2-SVP
+TPSS_def2-TZVP
+$ IDX=4; sed -n "${IDX}p" list.txt
+PBE0_def2-TZVP
+$ mapfile -t names &lt; list.txt; echo "${#names[@]} jobs, #4 is ${names[3]}"
+6 jobs, #4 is PBE0_def2-TZVP</code></pre>
+
+        <p>
+          <code>sed -n "4p"</code> prints only line 4. <code>mapfile -t</code> reads the file into a bash array, one line per element; arrays
+          count from 0, hence the minus one. The array range must match the number of lines in the list. Passing <code>-J</code> or
+          <code>--array</code> on the command line saves editing the script, since command-line options override the directives inside it.
+        </p>
+
+        <pre data-lang="bash"><code>N=$(wc -l &lt; list.txt)
+qsub -J 1-<span class="str">"$N"</span> array.pbs            <span class="cmt"># PBS Pro</span>
+sbatch --array=1-<span class="str">"$N"</span>%5 array.sh     <span class="cmt"># Slurm</span></code></pre>
+
+        <h2 id="sweep">Generating inputs for a parameter sweep</h2>
+        <p>
+          Build water optimisation inputs for every combination of three functionals and two basis sets. Each combination gets its own
+          directory, and the list file is written along the way. The input files are written with a here-doc (<code>&lt;&lt;EOF</code> … <code>EOF</code>).
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># make_inputs.sh: one directory and ORCA input per functional/basis pair</span>
+<span class="kw">set</span> -euo pipefail
+
+functionals=(B3LYP PBE0 TPSS)
+basis_sets=(def2-SVP def2-TZVP)
+coords=$(tail -n +3 water.xyz)
+
+: &gt; list.txt
+<span class="kw">for</span> f <span class="kw">in</span> <span class="str">"${functionals[@]}"</span>; <span class="kw">do</span>
+    <span class="kw">for</span> b <span class="kw">in</span> <span class="str">"${basis_sets[@]}"</span>; <span class="kw">do</span>
+        name=<span class="str">"${f}_${b}"</span>
+        mkdir -p <span class="str">"$name"</span>
+        cat &gt; <span class="str">"$name/$name.inp"</span> &lt;&lt;EOF
+! $f D4 $b Opt
+%pal nprocs 4 end
+%maxcore 1500
+* xyz 0 1
+$coords
+*
+EOF
+        <span class="kw">echo</span> <span class="str">"$name"</span> &gt;&gt; list.txt
+    <span class="kw">done</span>
+<span class="kw">done</span></code></pre>
+
+        <pre data-lang="bash"><code>$ bash make_inputs.sh
+$ ls
+B3LYP_def2-SVP
+B3LYP_def2-TZVP
+PBE0_def2-SVP
+PBE0_def2-TZVP
+TPSS_def2-SVP
+TPSS_def2-TZVP
+list.txt
+make_inputs.sh
+water.xyz
+$ cat PBE0_def2-TZVP/PBE0_def2-TZVP.inp
+! PBE0 D4 def2-TZVP Opt
+%pal nprocs 4 end
+%maxcore 1500
+* xyz 0 1
+O      0.000000    0.000000    0.119262
+H      0.000000    0.763239   -0.477047
+H      0.000000   -0.763239   -0.477047
+*</code></pre>
+
+        <p>
+          <code>: &gt; list.txt</code> truncates the list file, so rerunning the script does not pile up duplicate names.
+          The coordinates are read from the xyz file and pasted in, so each input is self-contained and still works when only the input is
+          copied to scratch.
+        </p>
+
+        <h3>A LAMMPS temperature series</h3>
+        <p>
+          LAMMPS inputs use variables like <code>${T}</code>, and bash substitutes the same syntax. Quoting the here-doc delimiter,
+          <code>'EOF'</code>, tells bash to leave the body alone.
+        </p>
+
+        <pre data-lang="bash"><code>cat &gt; in.nvt &lt;&lt;<span class="str">'EOF'</span>
+units           lj
+atom_style      atomic
+lattice         fcc 0.8442
+region          box block 0 10 0 10 0 10
+create_box      1 box
+create_atoms    1 box
+mass            1 1.0
+velocity        all create ${T} 87287 loop geom
+pair_style      lj/cut 2.5
+pair_coeff      1 1 1.0 1.0 2.5
+fix             1 all nvt temp ${T} ${T} 0.5
+thermo          100
+run             5000
+EOF</code></pre>
+
+        <p>Without the quotes bash replaces <code>${T}</code> with its own variable, which is empty if unset:</p>
+
+        <pre data-lang="output"><code>fix             1 all nvt temp   0.5</code></pre>
+
+        <p>
+          Pass the temperature with LAMMPS's <code>-var</code> option. Keep one input file and change only the directory and temperature per subjob.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt"># temps.txt: 0.8, 1.0, 1.2, 1.4, one per line</span>
+T=$(sed -n <span class="str">"${SLURM_ARRAY_TASK_ID}p"</span> temps.txt)
+mkdir -p <span class="str">"T$T"</span> &amp;&amp; <span class="kw">cd</span> <span class="str">"T$T"</span> || <span class="kw">exit</span> 1
+lmp -var T <span class="str">"$T"</span> -in ../in.nvt -log log.lammps</code></pre>
+
+        <h2 id="collect">Collecting results</h2>
+        <p>
+          With one directory per calculation, the collection script stays simple. Looping over directories, checking for normal termination
+          and gathering energies into a CSV is shown in <a href="extract.html#table">chapter 06</a>.
+        </p>
+
+        <h2 id="resubmit">Resubmitting only the failures</h2>
+        <p>
+          If a few subjobs did not finish because of walltime or convergence problems, pick the failed names out of the list, write them to
+          a new list and resubmit with that. A missing output file (a subjob that never started) also counts as a failure.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># find_failed.sh: names from list.txt whose ORCA output is missing or unfinished</span>
+<span class="kw">while</span> <span class="kw">read</span> -r name; <span class="kw">do</span>
+    out=<span class="str">"$name/$name.out"</span>
+    <span class="kw">if</span> [[ ! -f $out ]] || ! grep -q <span class="str">'ORCA TERMINATED NORMALLY'</span> <span class="str">"$out"</span>; <span class="kw">then</span>
+        <span class="kw">echo</span> <span class="str">"$name"</span>
+    <span class="kw">fi</span>
+<span class="kw">done</span> &lt; list.txt &gt; failed.txt</code></pre>
+
+        <pre data-lang="bash"><code>$ bash find_failed.sh
+$ cat failed.txt
+PBE0_def2-SVP
+TPSS_def2-SVP
+$ grep -L "ORCA TERMINATED NORMALLY" */*.out
+PBE0_def2-SVP/PBE0_def2-SVP.out</code></pre>
+
+        <p>
+          Here <code>PBE0_def2-SVP</code> has a truncated output and <code>TPSS_def2-SVP</code> has none. <code>grep -L</code> (files <em>without</em>
+          a match) only finds the first, because grep cannot look inside a file that does not exist.
+        </p>
+        <p>
+          To resubmit, let the array script take the list file name from a variable, falling back to <code>list.txt</code>.
+        </p>
+
+        <pre data-lang="bash"><code>LIST=${LIST:-list.txt}
+IDX=${PBS_ARRAY_INDEX:-1}
+NAME=$(sed -n <span class="str">"${IDX}p"</span> <span class="str">"$LIST"</span>)
+[[ -n $NAME ]] || { <span class="kw">echo</span> <span class="str">"no line $IDX in $LIST"</span>; <span class="kw">exit</span> 1; }</code></pre>
+
+        <pre data-lang="bash"><code>N=$(wc -l &lt; failed.txt)
+qsub -J 1-<span class="str">"$N"</span> -v LIST=failed.txt array.pbs              <span class="cmt"># PBS Pro, N &gt;= 2</span>
+sbatch --array=1-<span class="str">"$N"</span> --export=ALL,LIST=failed.txt array.sh  <span class="cmt"># Slurm</span></code></pre>
+
+        <p>
+          If only one job failed, submit it to PBS Pro as a normal job without <code>-J</code>: <code>qsub -v LIST=failed.txt array.pbs</code>.
+          <code>PBS_ARRAY_INDEX</code> is then unset and <code>IDX</code> falls back to 1. A <code>#PBS -J</code> line left in the script would turn it back
+          into an array, so it is easier to always give the range on the command line. Before rerunning, look at why the jobs failed: raise the
+          walltime if it ran out, fix the input if the SCF did not converge, or the same failures come back.
+        </p>
+
+        <h2 id="many">Many small jobs inside one allocation</h2>
+        <p>
+          Calculations that finish in seconds, like xtb single points, spend longer in the queue than running if each gets its own job.
+          Request several cores in one job and run them side by side with <code>xargs -P</code> or GNU parallel. Start with a script that
+          handles one xyz file.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># run_one.sh: xtb single point for one xyz file, in its own directory</span>
+<span class="kw">set</span> -euo pipefail
+xyz=$(realpath <span class="str">"$1"</span>)
+name=$(basename <span class="str">"$xyz"</span> .xyz)
+mkdir -p <span class="str">"sp/$name"</span>
+<span class="kw">cd</span> <span class="str">"sp/$name"</span>
+xtb <span class="str">"$xyz"</span> &gt; sp.out 2&gt;&amp;1
+awk -v n=<span class="str">"$name"</span> <span class="str">'/TOTAL ENERGY/ {print n, $4}'</span> sp.out</code></pre>
+
+        <pre data-lang="bash"><code>$ export OMP_NUM_THREADS=1
+$ printf '%s\n' mols/*.xyz | xargs -P 4 -n 1 ./run_one.sh
+ammonia -4.426093057513
+methanol -8.225938944071
+methane -4.175074573917
+water -5.070222286727
+$ parallel -j 4 --keep-order ./run_one.sh ::: mols/*.xyz
+ammonia -4.426093057513
+methane -4.175074573917
+methanol -8.225938944071
+water -5.070222286727</code></pre>
+
+        <p>
+          <code>xargs -P 4 -n 1</code> takes one input line per command and runs up to four at a time. Output appears in completion order, which
+          can change from run to run. GNU parallel's <code>--keep-order</code> prints in input order. Each calculation gets its own directory because
+          xtb writes its result files under fixed names; running in one directory at the same time would overwrite them.
+        </p>
+
+        <div class="warning">
+          <div class="note-title">Stay within your cores</div>
+          <p>
+            Concurrent runs × threads per run must not exceed the cores you requested. In a job script, combine <code>-j "$NCPUS"</code> with
+            <code>OMP_NUM_THREADS=1</code>. Running this kind of parallel loop on a login node blocks a machine everyone shares, so always do it
+            inside a job.
+          </p>
+        </div>

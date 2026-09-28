@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>File transfer · Linux Starter Pack</title>
+  <meta name="description" content="Move a few files with scp, and use rsync to pull only the outputs you need from your job directories." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/transfer.html">KO</a>
+    <a href="transfer.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Linux</div>
+    <div class="brand-subtitle">Starter pack · for new computational chemists</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="setup.html"><span class="nav-num">01</span>Setting up a terminal</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Basics</div>
+      <ul class="nav-list">
+        <li><a href="files.html"><span class="nav-num">02</span>Files and directories</a></li>
+        <li><a href="viewing.html"><span class="nav-num">03</span>Viewing and editing files</a></li>
+        <li><a href="permissions.html"><span class="nav-num">04</span>Permissions</a></li>
+        <li><a href="processes.html"><span class="nav-num">05</span>Processes and environment</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Remote work</div>
+      <ul class="nav-list">
+        <li><a href="ssh.html"><span class="nav-num">06</span>ssh and keys</a></li>
+        <li><a href="transfer.html"><span class="nav-num">07</span>File transfer</a></li>
+        <li><a href="tmux.html"><span class="nav-num">08</span>tmux</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Clusters</div>
+      <ul class="nav-list">
+        <li><a href="hpc.html"><span class="nav-num">09</span>First steps on HPC</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reference</div>
+      <ul class="nav-list">
+        <li><a href="software.html"><span class="nav-num">10</span>Useful software</a></li>
+        <li><a href="cheatsheet.html"><span class="nav-num">11</span>Cheat sheet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 07 · Remote work</div>
+        <h1 class="page-title">File transfer</h1>
+        <p class="page-lede">Move a few files with scp, and use rsync to pull only the outputs you need from your job directories.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#scp">scp</a></li>
+            <li><a href="#rsync">rsync</a></li>
+            <li><a href="#slash">The trailing slash</a></li>
+            <li><a href="#filter">Pulling only some files</a></li>
+            <li><a href="#what">What not to copy</a></li>
+            <li><a href="#tar">Many small files: tar</a></li>
+            <li><a href="#gui">GUI programs</a></li>
+          </ul>
+        </div>
+
+        <p>
+          Every command in this chapter runs <strong>on your laptop</strong>. Remote paths are written <code>host:path</code>, and the host is the
+          <code>vanda</code> alias from <a href="ssh.html">chapter 06</a>. Without an alias, spell it out as <code>e0123456@vanda.nus.edu.sg:path</code>.
+        </p>
+
+        <h2 id="scp">scp</h2>
+        <p>
+          <code>scp</code> is <code>cp</code> across machines: <code>scp source destination</code>, with a host on one side.
+        </p>
+        <pre data-lang="bash"><code><span class="cmt"># upload: laptop → cluster</span>
+$ scp h2o.inp h2o.xyz vanda:~/proj/h2o-opt/
+
+<span class="cmt"># download into the current directory (.)</span>
+$ scp vanda:~/proj/h2o-opt/h2o.out .
+
+<span class="cmt"># a whole directory</span>
+$ scp -r vanda:~/proj/h2o-opt .</code></pre>
+        <p>
+          In a remote path, <code>~</code> is your home directory on the cluster. Forget the colon and scp happily copies to a local file called
+          <code>vanda</code>. For a handful of files, once, scp is all you need.
+        </p>
+
+        <h2 id="rsync">rsync</h2>
+        <p>
+          <code>rsync</code> compares both sides and sends only files that are missing or changed. That matters when you pull outputs several times
+          while a job is running, or when a transfer drops halfway and you restart it. Most clusters have it, and it is either preinstalled or one
+          install away on macOS and WSL.
+        </p>
+        <pre data-lang="bash"><code>$ rsync -avhP vanda:~/proj/h2o-opt/ ~/proj/h2o-opt/</code></pre>
+        <table>
+          <thead>
+            <tr><th>Option</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>-a</code></td><td>archive: recurse into directories, keep permissions and modification times</td></tr>
+            <tr><td><code>-v</code></td><td>list the files being transferred</td></tr>
+            <tr><td><code>-h</code></td><td>human-readable sizes such as 2.00M</td></tr>
+            <tr><td><code>-P</code></td><td>show progress and resume partially transferred files</td></tr>
+            <tr><td><code>-n</code>, <code>--dry-run</code></td><td>show what would be transferred without doing it</td></tr>
+          </tbody>
+        </table>
+        <p>Run the same command twice and the second run finishes almost instantly, because nothing changed:</p>
+        <pre data-lang="output"><code>sending incremental file list
+
+sent 233 bytes  received 14 bytes  494.00 bytes/sec
+total size is 600.17K  speedup is 2,429.83</code></pre>
+
+        <h2 id="slash">The trailing slash</h2>
+        <p>
+          This is the part of rsync that trips everyone up. Whether the <strong>source</strong> path ends in <code>/</code> changes the result.
+          Here is the same directory copied without and with the slash:
+        </p>
+        <pre data-lang="bash"><code>$ rsync -avh proj/h2o-opt a/
+sending incremental file list
+h2o-opt/
+h2o-opt/h2o.gbw
+h2o-opt/h2o.inp
+h2o-opt/h2o.out
+...
+$ rsync -avh proj/h2o-opt/ b/
+sending incremental file list
+h2o.gbw
+h2o.inp
+h2o.out
+...
+$ tree a b
+a
+└── h2o-opt
+    ├── h2o.gbw
+    ├── h2o.inp
+    ...
+b
+├── h2o.gbw
+├── h2o.inp
+...</code></pre>
+        <p>
+          Without the slash, the directory itself is copied (<code>a/h2o-opt/</code>). With it, the directory's <em>contents</em> land directly in the
+          destination. A slash on the destination makes no difference. A habit that avoids surprises: put a slash on both and give the destination the
+          same name as the source. <code>rsync -avh src/ dst/</code> then reads as "make dst match the contents of src".
+        </p>
+
+        <div class="warning">
+          <div class="note-title">Dry-run before --delete</div>
+          <p>
+            <code>--delete</code> removes files from the destination that are not in the source. Combined with a misplaced slash it can empty the wrong
+            directory. Always run it with <code>-n</code> first and read the list.
+          </p>
+        </div>
+
+        <h2 id="filter">Pulling only some files</h2>
+        <p>
+          Often you want just the <code>.out</code> and <code>.xyz</code> files from a set of job directories. Combine <code>--include</code> and
+          <code>--exclude</code>. Rules are checked in order and the first match wins.
+        </p>
+        <pre data-lang="bash"><code>$ rsync -avh --dry-run --include='*/' --include='*.out' --include='*.xyz' --exclude='*' \
+    vanda:~/proj/ ~/proj/
+sending incremental file list
+created directory /home/kim/proj
+./
+h2o-opt/
+h2o-opt/h2o.out
+h2o-opt/h2o.xyz
+h2o-opt/h2o_trj.xyz
+nh3-opt/
+nh3-opt/nh3.out
+nh3-opt/nh3.xyz
+nh3-opt/nh3_trj.xyz
+
+sent 264 bytes  received 69 bytes  666.00 bytes/sec
+total size is 600.17K  speedup is 1,802.31 (DRY RUN)</code></pre>
+        <p>
+          <code>--include='*/'</code> lets rsync descend into subdirectories, the next two rules keep matching files, and <code>--exclude='*'</code> drops
+          everything else. Put <code>--exclude='*'</code> first and nothing gets through. Quote the patterns so the shell does not expand them first.
+          When the list looks right, run it again without <code>--dry-run</code>.
+        </p>
+        <p>To take everything except a few large file types, use <code>--exclude</code> on its own:</p>
+        <pre data-lang="bash"><code>$ rsync -avhP --exclude='*.gbw' --exclude='*.tmp' vanda:~/proj/h2o-opt/ ~/proj/h2o-opt/</code></pre>
+
+        <h2 id="what">What not to copy</h2>
+        <p>
+          Besides results, calculations leave large intermediate files: ORCA's <code>.gbw</code> (wavefunction) and <code>.tmp</code> files, the wavefunction
+          files in Quantum ESPRESSO's <code>outdir</code>, big LAMMPS dump files. They can run to several GB and you rarely need them for analysis.
+          What you usually want is the text output (<code>.out</code>, <code>log.lammps</code>) and the structures (<code>.xyz</code>).
+        </p>
+        <p>Check sizes on the cluster before copying. <code>du -sh</code> gives the size of each directory:</p>
+        <pre data-lang="bash"><code>$ du -sh proj/*
+7.0M	proj/h2o-opt
+7.0M	proj/nh3-opt</code></pre>
+        <p>
+          A <code>.gbw</code> can serve as the starting guess for the next calculation, so even if you do not download it, leave it on the cluster until you
+          are sure the project is finished.
+        </p>
+
+        <h2 id="tar">Many small files: tar</h2>
+        <p>
+          Sending thousands of files one by one is slow because of the per-file overhead. Bundle and compress them with <code>tar</code> on the cluster,
+          transfer the single archive, then unpack it.
+        </p>
+        <pre data-lang="bash"><code><span class="cmt"># on the cluster: bundle, leaving out large scratch files</span>
+$ tar czf h2o-opt.tar.gz --exclude='*.gbw' --exclude='*.tmp' h2o-opt
+$ tar tzf h2o-opt.tar.gz
+h2o-opt/
+h2o-opt/h2o_trj.xyz
+h2o-opt/h2o.out
+h2o-opt/h2o.inp
+h2o-opt/h2o.xyz
+
+<span class="cmt"># on the laptop: fetch and unpack</span>
+$ rsync -avhP vanda:~/proj/h2o-opt.tar.gz .
+$ tar xzf h2o-opt.tar.gz</code></pre>
+        <p>
+          <code>c</code> creates, <code>t</code> lists, <code>x</code> extracts, <code>z</code> means gzip, and <code>f</code> says a file name follows.
+          Listing with <code>tar tzf</code> before extracting tells you whether the archive will scatter files into your current directory.
+          Text output compresses well.
+        </p>
+
+        <h2 id="gui">GUI programs</h2>
+        <p>
+          If you prefer drag and drop, use an SFTP client. They all run over ssh, so you log in with the same account and key.
+        </p>
+        <table>
+          <thead>
+            <tr><th>Program</th><th>OS</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>WinSCP</td><td>Windows</td><td>may ask to convert your key to PuTTY format (<code>.ppk</code>)</td></tr>
+            <tr><td>FileZilla</td><td>Windows, macOS, Linux</td><td>choose SFTP as the protocol</td></tr>
+            <tr><td>Cyberduck</td><td>Windows, macOS</td><td>reads aliases from <code>~/.ssh/config</code></td></tr>
+          </tbody>
+        </table>
+        <p>
+          Filtering and resuming are awkward in a GUI. If you pull from many job directories regularly, save the rsync command in a script
+          (<a href="../../shell/en/basics.html">shell scripting guide</a>).
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="ssh.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">ssh and keys</div>
+        </a>
+        <a class="next" href="tmux.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">tmux</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

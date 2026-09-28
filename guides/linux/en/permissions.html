@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Permissions · Linux Starter Pack</title>
+  <meta name="description" content="Read the rwx in ls -l, make scripts executable with chmod, and understand why sudo does not work on a cluster." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/permissions.html">KO</a>
+    <a href="permissions.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Linux</div>
+    <div class="brand-subtitle">Starter pack · for new computational chemists</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="setup.html"><span class="nav-num">01</span>Setting up a terminal</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Basics</div>
+      <ul class="nav-list">
+        <li><a href="files.html"><span class="nav-num">02</span>Files and directories</a></li>
+        <li><a href="viewing.html"><span class="nav-num">03</span>Viewing and editing files</a></li>
+        <li><a href="permissions.html"><span class="nav-num">04</span>Permissions</a></li>
+        <li><a href="processes.html"><span class="nav-num">05</span>Processes and environment</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Remote work</div>
+      <ul class="nav-list">
+        <li><a href="ssh.html"><span class="nav-num">06</span>ssh and keys</a></li>
+        <li><a href="transfer.html"><span class="nav-num">07</span>File transfer</a></li>
+        <li><a href="tmux.html"><span class="nav-num">08</span>tmux</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Clusters</div>
+      <ul class="nav-list">
+        <li><a href="hpc.html"><span class="nav-num">09</span>First steps on HPC</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reference</div>
+      <ul class="nav-list">
+        <li><a href="software.html"><span class="nav-num">10</span>Useful software</a></li>
+        <li><a href="cheatsheet.html"><span class="nav-num">11</span>Cheat sheet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 04 · Basics</div>
+        <h1 class="page-title">Permissions</h1>
+        <p class="page-lede">Read the rwx in ls -l, make scripts executable with chmod, and understand why sudo does not work on a cluster.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#columns">Reading ls -l</a></li>
+            <li><a href="#rwx">rwx for user, group and others</a></li>
+            <li><a href="#chmod">chmod</a></li>
+            <li><a href="#numeric">Numeric modes: 755, 644, 600</a></li>
+            <li><a href="#ssh">Why ssh keys must be 600</a></li>
+            <li><a href="#owner">Owners and groups</a></li>
+            <li><a href="#sudo">sudo and clusters</a></li>
+            <li><a href="#umask">umask</a></li>
+          </ul>
+        </div>
+
+        <p>
+          Linux was built for many people sharing one machine, which is exactly what a cluster is. Every file records who may read it, change it and run it.
+          Permissions usually get in your way in one of two ways: a script you wrote refuses to run with <code>Permission denied</code>,
+          or ssh rejects your key because its permissions are too open.
+        </p>
+
+        <h2 id="columns">Reading ls -l</h2>
+        <pre data-lang="bash"><code>$ ls -l
+total 56
+-rw-r--r-- 1 kim kim    62 Sep 29 00:10 get-energy.sh
+drwxr-xr-x 2 kim kim  4096 Sep 29 00:10 scripts
+-rw-r--r-- 1 kim kim 48678 Sep 29 00:10 water.out</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>Column</th><th>Example</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td><code>-rw-r--r--</code></td><td>Type (first character) and permissions (the other nine)</td></tr>
+            <tr><td>2</td><td><code>1</code></td><td>Number of hard links. You can ignore it.</td></tr>
+            <tr><td>3</td><td><code>kim</code></td><td>Owner</td></tr>
+            <tr><td>4</td><td><code>kim</code></td><td>Group</td></tr>
+            <tr><td>5</td><td><code>48678</code></td><td>Size in bytes. <code>ls -lh</code> shows <code>48K</code> instead.</td></tr>
+            <tr><td>6</td><td><code>Sep 29 00:10</code></td><td>Last modification time</td></tr>
+            <tr><td>7</td><td><code>water.out</code></td><td>Name</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          A first character of <code>-</code> means a regular file, <code>d</code> a directory, and <code>l</code> a symbolic link (a shortcut pointing to another file).
+        </p>
+
+        <h2 id="rwx">rwx for user, group and others</h2>
+        <p>Read the nine permission characters in groups of three.</p>
+
+        <pre data-lang="text"><code>-  rwx  r-x  r-x
+│   │    │    └─ o (other): everyone else
+│   │    └────── g (group): members of the file's group
+│   └─────────── u (user):  the owner
+└─────────────── type</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>Letter</th><th>On a file</th><th>On a directory</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>r</code></td><td>Read the contents</td><td>List the files inside (<code>ls</code>)</td></tr>
+            <tr><td><code>w</code></td><td>Change the contents</td><td>Create, delete or rename files inside</td></tr>
+            <tr><td><code>x</code></td><td>Run it as a program</td><td>Enter it (<code>cd</code>)</td></tr>
+            <tr><td><code>-</code></td><td colspan="2">Permission not granted</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          <code>-rw-r--r--</code> means only the owner can change the file and everyone else can only read it. Whether a file can be deleted depends not on the file
+          but on the <code>w</code> permission of the directory that holds it. Some system files cannot even be read.
+        </p>
+
+        <pre data-lang="bash"><code>$ cat /etc/shadow
+cat: /etc/shadow: Permission denied</code></pre>
+
+        <h2 id="chmod">chmod</h2>
+        <p>
+          <code>chmod</code> (change mode) changes permissions. The most common case is making a script you wrote executable.
+          New files do not get <code>x</code>, so they will not run as they are.
+        </p>
+
+        <pre data-lang="bash"><code>$ ./get-energy.sh water.out
+bash: ./get-energy.sh: Permission denied
+$ chmod +x get-energy.sh
+$ ls -l get-energy.sh
+-rwxr-xr-x 1 kim kim 62 Sep 29 00:10 get-energy.sh
+$ ./get-energy.sh water.out
+FINAL SINGLE POINT ENERGY       -76.321274411145</code></pre>
+
+        <p>
+          The <code>./</code> prefix is needed because of <code>PATH</code> (chapter 05): the shell does not look for commands in the current directory, so you give the path yourself.
+          Passing the file to bash, as in <code>bash get-energy.sh water.out</code>, works without execute permission.
+          Writing the script itself is covered in <a href="../../shell/en/basics.html">chapter 01 of the shell guide</a>.
+        </p>
+
+        <p>The symbolic form says <em>who</em> (<code>u</code>, <code>g</code>, <code>o</code>, or <code>a</code> for all) gets <em>what</em> added (<code>+</code>), removed (<code>-</code>) or set exactly (<code>=</code>).</p>
+
+        <table>
+          <thead>
+            <tr><th>Command</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>chmod +x run.sh</code></td><td>Add execute permission for everyone</td></tr>
+            <tr><td><code>chmod u+x run.sh</code></td><td>Add execute permission for the owner only</td></tr>
+            <tr><td><code>chmod go-r data.out</code></td><td>Remove read permission from group and others</td></tr>
+            <tr><td><code>chmod u=rwx,go=rx run.sh</code></td><td>Set exactly <code>rwxr-xr-x</code></td></tr>
+            <tr><td><code>chmod -R g+r results/</code></td><td>Apply to everything inside a directory</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="numeric">Numeric modes: 755, 644, 600</h2>
+        <p>
+          Count <code>r</code> as 4, <code>w</code> as 2 and <code>x</code> as 1, and add them up for each group of three. You will see this form in documentation and error messages.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Number</th><th>Letters</th><th>Typical use</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>755</code></td><td><code>rwxr-xr-x</code></td><td>Scripts, executables, directories</td></tr>
+            <tr><td><code>644</code></td><td><code>rw-r--r--</code></td><td>Ordinary files (inputs, outputs, text)</td></tr>
+            <tr><td><code>700</code></td><td><code>rwx------</code></td><td>A directory only you can enter (<code>~/.ssh</code>)</td></tr>
+            <tr><td><code>600</code></td><td><code>rw-------</code></td><td>A file only you can read (ssh private key)</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ chmod 644 get-energy.sh; ls -l get-energy.sh
+-rw-r--r-- 1 kim kim 62 Sep 29 00:10 get-energy.sh
+$ chmod 755 get-energy.sh; ls -l get-energy.sh
+-rwxr-xr-x 1 kim kim 62 Sep 29 00:10 get-energy.sh</code></pre>
+
+        <p>
+          Online advice sometimes suggests <code>chmod -R 777</code> to make a permission problem go away. On a shared cluster that lets anyone modify or delete your files. Do not use it.
+        </p>
+
+        <h2 id="ssh">Why ssh keys must be 600</h2>
+        <p>
+          An ssh private key is as good as a password, and ssh will not use one that other users can read.
+          This comes up when you copy a key over from <code>/mnt/c</code> in WSL or restore it from a backup.
+        </p>
+
+        <pre data-lang="output"><code>@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@         WARNING: UNPROTECTED PRIVATE KEY FILE!          @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Permissions 0644 for '/home/kim/.ssh/id_ed25519' are too open.
+It is required that your private key files are NOT accessible by others.
+This private key will be ignored.
+Load key "/home/kim/.ssh/id_ed25519": bad permissions</code></pre>
+
+        <pre data-lang="bash"><code>$ chmod 700 ~/.ssh
+$ chmod 600 ~/.ssh/id_ed25519
+$ ls -l ~/.ssh
+total 8
+-rw------- 1 kim kim 399 Sep 29 00:10 id_ed25519
+-rw-r--r-- 1 kim kim  92 Sep 29 00:10 id_ed25519.pub</code></pre>
+
+        <p>The public key (<code>.pub</code>) is meant to be shared, so 644 is fine for it. Creating and using keys is covered in <a href="ssh.html">chapter 06</a>.</p>
+
+        <h2 id="owner">Owners and groups</h2>
+        <p>
+          <code>id</code> or <code>groups</code> shows which groups you belong to. Some clusters create a group per lab or project and share a common directory through
+          group permissions. Group names and where shared directories live vary from site to site.
+        </p>
+
+        <pre data-lang="bash"><code>$ id
+uid=1000(kim) gid=1000(kim) groups=1000(kim),27(sudo)
+$ chgrp mygroup results.csv      <span class="cmt"># change the file's group (only to a group you are in)</span>
+$ chmod g+r results.csv          <span class="cmt"># let group members read it</span></code></pre>
+
+        <p>
+          <code>chown</code>, which changes a file's owner, is reserved for the administrator. To hand files to someone else, let them copy the files themselves.
+        </p>
+
+        <h2 id="sudo">sudo and clusters</h2>
+        <p>
+          <code>sudo</code> runs a single command as the administrator (root). On your laptop or in WSL you use it to install software system-wide, as in
+          <code>sudo apt install tree</code>, and it asks for the password you chose during setup.
+        </p>
+
+        <div class="note">
+          <div class="note-title">Clusters do not give you sudo</div>
+          <p>
+            Ordinary users on a shared cluster cannot use <code>sudo</code>. When installation instructions start with <code>sudo apt install</code>, that step will not work there.
+            Instead, load software that is already installed with <code>module load</code>, install into your home directory with conda, or compile from source into your home
+            (<a href="hpc.html">chapter 09</a>). If a system library is missing, ask the administrators.
+          </p>
+        </div>
+
+        <h2 id="umask">umask</h2>
+        <p>
+          The default permissions of new files come from <code>umask</code>, whose value lists the bits to <strong>remove</strong>.
+          With <code>022</code>, files are created as 644 and directories as 755. Ubuntu desktops use <code>002</code>, which gives 664 and 775, with group write permission.
+        </p>
+
+        <pre data-lang="bash"><code>$ umask
+0022</code></pre>
+
+        <p>
+          You rarely need to change it unless you share files with a group on the cluster. To change it, add a line such as <code>umask 027</code> to <code>~/.bashrc</code> (chapter 05).
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="viewing.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Viewing and editing files</div>
+        </a>
+        <a class="next" href="processes.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Processes and environment</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

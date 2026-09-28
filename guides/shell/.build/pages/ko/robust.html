@@ -1,0 +1,303 @@
+<!--
+title: 안전한 스크립트
+eyebrow: CHAPTER 04 · 문법
+h1: 안전한 스크립트
+lede: 오류가 나면 멈추고, 끝나면 뒷정리를 하고, 무엇을 했는지 기록을 남기는 스크립트를 쓴다.
+-->
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
+          <ul>
+            <li><a href="#strict">set -euo pipefail</a></li>
+            <li><a href="#caveats">set -e가 걸리는 곳과 안 걸리는 곳</a></li>
+            <li><a href="#quote">따옴표와 cd</a></li>
+            <li><a href="#example">예제: 임시 디렉터리에서 ORCA 돌리기</a></li>
+            <li><a href="#shellcheck">ShellCheck</a></li>
+            <li><a href="#crlf">Windows 줄바꿈 (CRLF)</a></li>
+          </ul>
+        </div>
+
+        <h2 id="strict">set -euo pipefail</h2>
+        <p>
+          bash는 기본적으로 명령 하나가 실패해도 다음 줄로 넘어간다. 입력 파일 복사가 실패했는데 계산을 돌리고,
+          디렉터리 이동이 실패했는데 엉뚱한 곳에서 <code>rm</code>을 실행한다. 스크립트 맨 위에 다음 줄을 넣으면 이런 일이 줄어든다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="kw">set</span> -euo pipefail</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>옵션</th><th>효과</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>-e</code></td><td>명령이 0이 아닌 종료 코드를 내면 스크립트를 멈춘다</td></tr>
+            <tr><td><code>-u</code></td><td>정의되지 않은 변수를 쓰면 오류로 멈춘다. 오타 난 변수 이름이 빈 문자열로 넘어가지 않는다</td></tr>
+            <tr><td><code>-o pipefail</code></td><td>파이프 중간 명령이 실패해도 파이프 전체를 실패로 본다</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          <code>pipefail</code>이 없으면 파이프의 종료 코드는 마지막 명령의 것이다. 파일 이름이 틀려 <code>grep</code>이 실패해도
+          <code>tail</code>이 성공했으니 전체가 성공으로 나온다.
+        </p>
+
+        <pre data-lang="bash"><code>$ e=$(grep "FINAL SINGLE POINT ENERGY" watr.out | tail -n 1); echo "status: $?"
+grep: watr.out: No such file or directory
+status: 0
+$ set -o pipefail
+$ e=$(grep "FINAL SINGLE POINT ENERGY" watr.out | tail -n 1); echo "status: $?"
+grep: watr.out: No such file or directory
+status: 2</code></pre>
+
+        <h2 id="caveats">set -e가 걸리는 곳과 안 걸리는 곳</h2>
+        <p>
+          <code>set -e</code>는 편하지만 규칙이 단순하지 않다. 처음 쓰면 아래 세 경우에서 스크립트가 말없이 멈춘다.
+        </p>
+        <p>
+          첫째, <code>grep</code>이 아무것도 못 찾으면 1을 돌려준다. 오류가 아니라 "없음"이라는 정상적인 답인데 <code>-e</code>는 실패로 본다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="kw">set</span> -e
+n=$(grep -c "ERROR" water.out)      <span class="cmt"># ERROR가 없으면 여기서 끝난다</span>
+echo "errors: $n"</code></pre>
+
+        <pre data-lang="bash"><code>$ bash e1.sh
+$ echo $?
+1</code></pre>
+
+        <p>
+          아무 메시지 없이 끝난다. 못 찾는 것이 정상일 수 있는 자리에는 <code>|| true</code>를 붙인다.
+          <code>n=$(grep -c "ERROR" water.out || true)</code>로 고치면 <code>errors: 0</code>이 찍힌다.
+        </p>
+        <p>
+          둘째, <code>((i++))</code>는 i가 0일 때 1을 돌려준다. <code>(( ))</code>는 안의 값이 0이면 실패로 끝나는데, 후위 증가는 증가 전 값인 0을 내놓기 때문이다.
+          카운터는 <code>i=$((i + 1))</code>로 쓴다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="kw">set</span> -e
+i=0
+((i++))            <span class="cmt"># 여기서 끝난다</span>
+echo "i = $i"</code></pre>
+
+        <p>
+          셋째, <code>-u</code>는 인자 없이 부른 스크립트의 <code>$1</code>도 정의되지 않은 변수로 본다.
+        </p>
+
+        <pre data-lang="bash"><code>$ cat e3.sh
+#!/bin/bash
+set -u
+mol=$1
+echo "mol = $mol"
+$ bash e3.sh
+e3.sh: line 3: $1: unbound variable</code></pre>
+
+        <p>
+          인자가 없을 수도 있는 자리에서는 <code>${1:-}</code>처럼 기본값을 준다. 빈 값이 되고 오류는 나지 않는다. 그다음 <code>[[ -z $mol ]]</code>로 검사해 사용법을 보여 준다.
+        </p>
+        <p>
+          반대로 <code>-e</code>가 걸리지 않는 곳도 있다. <code>if</code>, <code>while</code>의 조건, <code>&amp;&amp;</code>와 <code>||</code>의 왼쪽에서는 실패가 무시된다.
+          함수를 <code>if</code> 조건으로 부르면 그 함수 안 전체에서 <code>-e</code>가 꺼진다. <code>set -e</code>는 안전망일 뿐이고,
+          중요한 명령은 <code>|| exit 1</code>처럼 직접 검사하는 편이 확실하다.
+        </p>
+
+        <h2 id="quote">따옴표와 cd</h2>
+        <p>
+          변수는 <code>"$f"</code>, 명령 치환은 <code>"$(...)"</code>로 전부 감싼다. 감싸지 않아도 되는 자리를 외우는 것보다 늘 감싸는 편이 빠르다.
+          예외는 <code>[[ ]]</code> 안과 <code>$(( ))</code> 안 정도다.
+        </p>
+        <p>
+          <code>cd</code>는 실패하면 현재 위치에 그대로 남는다. 그다음 줄이 <code>rm -f *.tmp</code>라면 엉뚱한 디렉터리의 파일이 지워진다.
+          <code>cd</code> 뒤에는 늘 <code>|| exit 1</code>을 붙인다.
+        </p>
+
+        <pre data-lang="bash"><code>cd "$scratch" || exit 1
+rm -f ./*.tmp</code></pre>
+
+        <p>
+          프로그램이 있는지는 <code>command -v</code>로 확인한다. 찾으면 경로를 출력하고 0을, 못 찾으면 1을 돌려준다.
+          ORCA를 병렬로 돌릴 때는 전체 경로로 불러야 하므로, 여기서 얻은 경로를 그대로 쓰면 편하다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="kw">if</span> ! orca_bin=$(command -v orca); <span class="kw">then</span>
+    echo "error: orca not found in PATH" &gt;&amp;2
+    exit 1
+<span class="kw">fi</span></code></pre>
+
+        <div class="warning">
+          <div class="note-title">같은 이름의 다른 orca</div>
+          <p>
+            Ubuntu 데스크톱에는 GNOME 화면 낭독기가 <code>/usr/bin/orca</code>로 깔려 있다. ORCA를 <code>PATH</code>에 넣지 않은 채 스크립트를 돌리면
+            계산 대신 화면 낭독기가 뜬다. <code>type -a orca</code>로 어느 파일이 불리는지 확인하고, ORCA 디렉터리를 <code>PATH</code> 앞쪽에 둔다.
+          </p>
+        </div>
+
+        <h2 id="example">예제: 임시 디렉터리에서 ORCA 돌리기</h2>
+        <p>
+          계산 노드의 로컬 디스크에서 계산하고 출력만 가져오는 스크립트다. 지금까지 나온 방법을 한데 모았다.
+          <code>mktemp -d</code>는 겹치지 않는 이름으로 임시 디렉터리를 만든다. <code>trap '...' EXIT</code>는 스크립트가 끝날 때
+          정상 종료든 오류로 멈추든 지정한 명령을 실행한다. 여기서는 임시 디렉터리를 지운다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># 입력 파일마다 임시 디렉터리에서 ORCA를 돌리고 출력을 원래 위치로 가져온다</span>
+<span class="kw">set</span> -euo pipefail
+
+dry_run=0
+<span class="kw">if</span> [[ ${1:-} == "-n" ]]; <span class="kw">then</span>
+    dry_run=1
+    <span class="kw">shift</span>
+<span class="kw">fi</span>
+
+log() {
+    printf '[%s] %s\n' "$(date '+%F %T')" "$*"
+}
+
+<span class="kw">if</span> ! orca_bin=$(command -v orca); <span class="kw">then</span>
+    echo "error: orca not found in PATH" &gt;&amp;2
+    exit 1
+<span class="kw">fi</span>
+
+scratch=$(mktemp -d "${TMPDIR:-/tmp}/orca.XXXXXX")
+<span class="kw">trap</span> 'rm -rf "$scratch"' EXIT
+start_dir=$PWD
+
+<span class="kw">for</span> inp <span class="kw">in</span> "$@"; <span class="kw">do</span>
+    dir=$(dirname "$inp")
+    name=$(basename "$inp" .inp)
+
+    <span class="kw">if</span> (( dry_run )); <span class="kw">then</span>
+        log "would run $inp"
+        <span class="kw">continue</span>
+    <span class="kw">fi</span>
+
+    log "start $name"
+    cp "$inp" "$scratch/"
+    cd "$scratch" || exit 1
+    status=0
+    "$orca_bin" "$name.inp" &gt; "$name.out" || status=$?
+    cp "$name.out" "$start_dir/$dir/"
+    rm -f "$scratch"/*
+    cd "$start_dir"
+
+    <span class="kw">if</span> grep -q "ORCA TERMINATED NORMALLY" "$dir/$name.out"; <span class="kw">then</span>
+        log "done $name"
+    <span class="kw">else</span>
+        log "FAILED $name (exit status $status)"
+    <span class="kw">fi</span>
+<span class="kw">done</span></code></pre>
+
+        <pre data-lang="bash"><code>$ ./run_orca.sh -n */*.inp
+[2026-09-29 00:15:54] would run benzene/benzene.inp
+[2026-09-29 00:15:54] would run water/water.inp
+$ ./run_orca.sh */*.inp
+[2026-09-29 00:15:54] start benzene
+[2026-09-29 00:15:54] FAILED benzene (exit status 1)
+[2026-09-29 00:15:54] start water
+[2026-09-29 00:15:54] done water
+$ ls -d /tmp/orca.*
+ls: cannot access '/tmp/orca.*': No such file or directory</code></pre>
+
+        <p>몇 군데를 짚어 둔다.</p>
+        <ul>
+          <li><code>-n</code>을 주면 실제로 돌리지 않고 무엇을 할지만 찍는다. 파일 수백 개를 건드리는 스크립트는 먼저 이렇게 확인한다.</li>
+          <li><code>"$orca_bin" ... || status=$?</code>는 ORCA가 실패해도 <code>set -e</code>로 스크립트가 멈추지 않게 하면서 종료 코드를 남긴다. 계산 하나가 실패했다고 나머지를 버리지 않는다.</li>
+          <li><code>log</code>는 줄마다 <code>date '+%F %T'</code> 형식의 시각을 붙인다. 작업 스크립트의 출력 파일에 남으면 어느 계산에 시간이 얼마나 걸렸는지 나중에 알 수 있다.</li>
+          <li>trap이 임시 디렉터리를 지웠기 때문에 마지막 <code>ls</code>에서 아무것도 나오지 않는다.</li>
+        </ul>
+        <p>
+          스케줄러는 작업이 시간 초과로 끝날 때 먼저 SIGTERM을 보낸다. bash가 이 신호로 종료되면서 EXIT trap도 실행된다.
+          다만 SIGKILL로 강제 종료되면 어떤 trap도 돌지 않는다. PBS와 Slurm 스크립트에서 scratch를 다루는 법은 <a href="batch.html">07장</a>에 있다.
+        </p>
+
+        <h2 id="shellcheck">ShellCheck</h2>
+        <p>
+          <a href="https://www.shellcheck.net">ShellCheck</a>는 셸 스크립트의 흔한 실수를 찾아 주는 정적 분석 도구다.
+          웹사이트에 붙여 넣어도 되고, <code>apt install shellcheck</code>이나 <code>conda install -c conda-forge shellcheck</code>로 설치해도 된다.
+          아래는 이 장에서 다룬 실수가 모인 스크립트다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="kw">for</span> f <span class="kw">in</span> $(ls */*.out); <span class="kw">do</span>
+    cd $(dirname $f)
+    grep "ORCA TERMINATED NORMALLY" $(basename $f)
+    cd ..
+<span class="kw">done</span></code></pre>
+
+        <pre data-lang="bash"><code>$ shellcheck naive.sh
+
+In naive.sh line 2:
+for f in $(ls */*.out); do
+         ^-----------^ SC2045 (error): Iterating over ls output is fragile. Use globs.
+              ^-- SC2035 (info): Use ./*glob* or -- *glob* so names with dashes won't become options.
+
+
+In naive.sh line 3:
+    cd $(dirname $f)
+    ^--------------^ SC2164 (warning): Use 'cd ... || exit' or 'cd ... || return' in case cd fails.
+       ^-----------^ SC2046 (warning): Quote this to prevent word splitting.
+                 ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+    cd $(dirname "$f") || exit
+
+
+In naive.sh line 4:
+    grep "ORCA TERMINATED NORMALLY" $(basename $f)
+                                    ^------------^ SC2046 (warning): Quote this to prevent word splitting.
+                                               ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+    grep "ORCA TERMINATED NORMALLY" $(basename "$f")
+
+
+In naive.sh line 5:
+    cd ..
+    ^---^ SC2103 (info): Use a ( subshell ) to avoid having to cd back.
+
+For more information:
+  https://www.shellcheck.net/wiki/SC2045 -- Iterating over ls output is fragi...
+  https://www.shellcheck.net/wiki/SC2046 -- Quote this to prevent word splitt...
+  https://www.shellcheck.net/wiki/SC2164 -- Use 'cd ... || exit' or 'cd ... |...</code></pre>
+
+        <p>
+          경고마다 붙은 SC 번호를 검색하면 설명 페이지가 나온다. 지적을 모두 반영하면 다음과 같다. 괄호 <code>( )</code> 안은 하위 셸이라
+          그 안에서 <code>cd</code>해도 반복문의 위치는 바뀌지 않는다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="kw">for</span> f <span class="kw">in</span> */*.out; <span class="kw">do</span>
+    (
+        cd "$(dirname "$f")" || exit 1
+        grep -H "ORCA TERMINATED NORMALLY" "$(basename "$f")"
+    )
+<span class="kw">done</span></code></pre>
+
+        <h2 id="crlf">Windows 줄바꿈 (CRLF)</h2>
+        <p>
+          Windows 편집기에서 쓴 스크립트는 줄 끝이 <code>\r\n</code>(CRLF)이다. Linux는 <code>\n</code>만 줄바꿈으로 보므로
+          <code>\r</code>이 명령이나 경로의 일부로 붙는다. 첫 줄의 shebang에 붙으면 이런 오류가 난다.
+        </p>
+
+        <pre data-lang="bash"><code>$ ./crlf.sh
+bash: ./crlf.sh: /bin/bash^M: bad interpreter: No such file or directory
+$ bash crlf2.sh
+crlf2.sh: line 2: cd: $'jobs\r': No such file or directory
+crlf2.sh: line 3: $'ls\r': command not found</code></pre>
+
+        <p>
+          <code>^M</code>과 <code>\r</code>이 같은 글자다. <code>file</code>로 확인하고 <code>sed</code>나 <code>dos2unix</code>로 고친다.
+        </p>
+
+        <pre data-lang="bash"><code>$ file crlf.sh
+crlf.sh: Bourne-Again shell script, ASCII text executable, with CRLF line terminators
+$ sed -i 's/\r$//' crlf.sh
+$ file crlf.sh
+crlf.sh: Bourne-Again shell script, ASCII text executable</code></pre>
+
+        <p>
+          <code>dos2unix crlf.sh</code>도 같은 일을 하지만 클러스터에 깔려 있지 않을 때가 있다. <code>sed</code>는 어디에나 있다.
+          Windows에서 VS Code로 편집한다면 오른쪽 아래 상태 표시줄의 <code>CRLF</code>를 눌러 <code>LF</code>로 바꿔 저장한다.
+          Windows에서 옮겨 온 입력 파일이나 목록 파일도 같은 문제를 일으킨다.
+        </p>

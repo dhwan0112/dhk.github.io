@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PBS · Slurm job scripts · Shell Scripting Guide</title>
+  <meta name="description" content="The parts of a job script, environment setup, parallel ORCA, node-local scratch, and submitting and monitoring jobs, for both PBS Pro and Slurm." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/batch.html">KO</a>
+    <a href="batch.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Shell</div>
+    <div class="brand-subtitle">Scripting guide · bash</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="basics.html"><span class="nav-num">01</span>Your first script</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Syntax</div>
+      <ul class="nav-list">
+        <li><a href="control.html"><span class="nav-num">02</span>Conditions and loops</a></li>
+        <li><a href="functions.html"><span class="nav-num">03</span>Functions and arguments</a></li>
+        <li><a href="robust.html"><span class="nav-num">04</span>Writing safer scripts</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Text processing</div>
+      <ul class="nav-list">
+        <li><a href="text.html"><span class="nav-num">05</span>grep · sed · awk</a></li>
+        <li><a href="extract.html"><span class="nav-num">06</span>Pulling numbers from outputs</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Job submission</div>
+      <ul class="nav-list">
+        <li><a href="batch.html"><span class="nav-num">07</span>PBS · Slurm job scripts</a></li>
+        <li><a href="arrays.html"><span class="nav-num">08</span>Job arrays and parameter sweeps</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reference</div>
+      <ul class="nav-list">
+        <li><a href="cheatsheet.html"><span class="nav-num">09</span>Cheat sheet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 07 · Job submission</div>
+        <h1 class="page-title">PBS · Slurm job scripts</h1>
+        <p class="page-lede">The parts of a job script, environment setup, parallel ORCA, node-local scratch, and submitting and monitoring jobs, for both PBS Pro and Slurm.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#pbs">A PBS Pro job script</a></li>
+            <li><a href="#slurm">The same job in Slurm</a></li>
+            <li><a href="#env">module and conda</a></li>
+            <li><a href="#orca">Running ORCA in parallel</a></li>
+            <li><a href="#scratch">Node-local scratch</a></li>
+            <li><a href="#submit">Submitting, monitoring, cancelling</a></li>
+            <li><a href="#depend">Job dependencies</a></li>
+            <li><a href="#fail">Common failures</a></li>
+          </ul>
+        </div>
+
+        <p>
+          On a cluster you don't run calculations on the login node. You hand a job script to the scheduler, which runs it on a compute
+          node once resources are free. Logging in and the basic concepts are in the
+          <a href="../../linux/en/hpc.html">HPC chapter of the Linux starter pack</a>. This chapter is about the script itself.
+        </p>
+
+        <h2 id="pbs">A PBS Pro job script</h2>
+        <p>
+          A job script is an ordinary bash script with <code>#PBS</code> lines at the top. bash sees them as comments; <code>qsub</code>
+          reads them as resource requests. They must come before the first command.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt">#PBS -N water-opt</span>
+<span class="cmt">#PBS -l select=1:ncpus=8:mem=16gb</span>
+<span class="cmt">#PBS -l walltime=12:00:00</span>
+<span class="cmt">#PBS -j oe</span>
+<span class="cmt">#PBS -o water-opt.log</span>
+
+<span class="kw">cd</span> <span class="str">"$PBS_O_WORKDIR"</span> || <span class="kw">exit</span> 1
+<span class="kw">echo</span> <span class="str">"running on $(hostname) with $NCPUS cores"</span></code></pre>
+
+        <table>
+          <thead>
+            <tr><th>Line</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>-N water-opt</code></td><td>Job name, as shown by <code>qstat</code></td></tr>
+            <tr><td><code>-l select=1:ncpus=8:mem=16gb</code></td><td>One chunk (node) with 8 cores and 16 GB of memory</td></tr>
+            <tr><td><code>-l walltime=12:00:00</code></td><td>Maximum run time. The scheduler kills the job when it runs over</td></tr>
+            <tr><td><code>-j oe</code></td><td>Merge standard output and standard error into one file</td></tr>
+            <tr><td><code>-o file</code></td><td>Name of that log file. Default is <code>jobname.o&lt;jobid&gt;</code></td></tr>
+            <tr><td><code>-q queue</code></td><td>Queue name. Leave it out if the cluster has a default queue</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          The job starts in your home directory, so the first command is <code>cd "$PBS_O_WORKDIR"</code>, the directory where you ran
+          <code>qsub</code>. PBS Pro tells you the number of cores you got in <code>$NCPUS</code>. Queue names, per-node core and memory limits and
+          the maximum walltime vary between clusters; check your cluster's documentation or <code>qstat -Q</code>.
+        </p>
+
+        <h2 id="slurm">The same job in Slurm</h2>
+        <p>Slurm uses <code>#SBATCH</code> lines. The option names differ, but the request is the same.</p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt">#SBATCH --job-name=water-opt</span>
+<span class="cmt">#SBATCH --nodes=1</span>
+<span class="cmt">#SBATCH --ntasks=8</span>
+<span class="cmt">#SBATCH --cpus-per-task=1</span>
+<span class="cmt">#SBATCH --mem=16G</span>
+<span class="cmt">#SBATCH --time=12:00:00</span>
+<span class="cmt">#SBATCH --output=water-opt.%j.log</span>
+
+<span class="kw">cd</span> <span class="str">"$SLURM_SUBMIT_DIR"</span> || <span class="kw">exit</span> 1
+<span class="kw">echo</span> <span class="str">"running on $(hostname) with $SLURM_NTASKS tasks"</span></code></pre>
+
+        <table>
+          <thead>
+            <tr><th>PBS Pro</th><th>Slurm</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>-N name</code></td><td><code>--job-name=name</code></td></tr>
+            <tr><td><code>select=1:ncpus=8</code></td><td><code>--nodes=1</code> with <code>--ntasks</code> / <code>--cpus-per-task</code></td></tr>
+            <tr><td><code>mem=16gb</code></td><td><code>--mem=16G</code> (per node)</td></tr>
+            <tr><td><code>-l walltime=12:00:00</code></td><td><code>--time=12:00:00</code></td></tr>
+            <tr><td><code>-o file</code>, <code>-j oe</code></td><td><code>--output=file</code> (merged by default); <code>%j</code> is the job ID</td></tr>
+            <tr><td><code>$PBS_O_WORKDIR</code></td><td><code>$SLURM_SUBMIT_DIR</code> (Slurm already starts in the submit directory)</td></tr>
+            <tr><td><code>$NCPUS</code></td><td><code>$SLURM_NTASKS</code>, <code>$SLURM_CPUS_PER_TASK</code></td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          <code>--ntasks</code> is the number of MPI processes and <code>--cpus-per-task</code> the number of threads per process.
+          MPI programs such as ORCA want <code>--ntasks=8 --cpus-per-task=1</code>; OpenMP-only programs such as xtb want
+          <code>--ntasks=1 --cpus-per-task=8</code>.
+        </p>
+
+        <h2 id="env">module and conda</h2>
+        <p>
+          Job scripts run in a non-interactive shell, and non-interactive bash does not read <code>~/.bashrc</code>. The <code>conda activate</code>
+          and <code>PATH</code> settings that work in your terminal are missing inside the job, so set up the environment in the script.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt"># software provided by the cluster</span>
+module purge
+module load openmpi/4.1.6
+
+<span class="cmt"># conda environment: source conda.sh before activating</span>
+<span class="kw">source</span> <span class="str">"$HOME/miniforge3/etc/profile.d/conda.sh"</span>
+conda activate xtb
+
+<span class="cmt"># record what was picked up</span>
+<span class="kw">which</span> xtb mpirun
+module list</code></pre>
+
+        <p>
+          Calling <code>conda activate</code> without sourcing <code>conda.sh</code> fails with an error saying the shell is not initialised.
+          Find module names and versions with <code>module avail</code>. If a job reports <code>module: command not found</code>, your cluster needs
+          its module init file sourced first; the path is in the cluster documentation.
+        </p>
+
+        <h2 id="orca">Running ORCA in parallel</h2>
+        <p>Three things matter when ORCA runs on several cores.</p>
+        <ul>
+          <li>Call <code>orca</code> by its full path. ORCA locates its helper programs relative to its own path in parallel steps, and a bare <code>orca</code> makes parallel runs fail.</li>
+          <li>Make <code>%pal nprocs</code> in the input match the cores you requested. More processes than cores slows everything down; fewer leaves cores idle.</li>
+          <li>Load the OpenMPI version your ORCA build expects. The version is listed on the ORCA download page and in the release notes.</li>
+        </ul>
+
+        <pre data-lang="text"><code>! B3LYP def2-SVP Opt
+%pal nprocs 8 end
+%maxcore 1500
+* xyz 0 1
+  O   0.000000   0.000000   0.119262
+  H   0.000000   0.763239  -0.477047
+  H   0.000000  -0.763239  -0.477047
+*</code></pre>
+
+        <p>
+          <code>%maxcore</code> is memory per core in MB. ORCA sometimes goes over it, so keep <code>nprocs × maxcore</code> at about 75% of the
+          memory you request. Here 8 × 1500 MB = 12 GB against a 16 GB request.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt">#PBS -N water-opt</span>
+<span class="cmt">#PBS -l select=1:ncpus=8:mpiprocs=8:mem=16gb</span>
+<span class="cmt">#PBS -l walltime=12:00:00</span>
+<span class="cmt">#PBS -j oe</span>
+
+<span class="kw">cd</span> <span class="str">"$PBS_O_WORKDIR"</span> || <span class="kw">exit</span> 1
+
+module load openmpi/4.1.6
+<span class="kw">export</span> PATH=<span class="str">"$HOME/opt/orca_6_1_0:$PATH"</span>
+<span class="kw">export</span> LD_LIBRARY_PATH=<span class="str">"$HOME/opt/orca_6_1_0:${LD_LIBRARY_PATH:-}"</span>
+ORCA=$(<span class="kw">command</span> -v orca)
+
+<span class="str">"$ORCA"</span> water.inp &gt; water.out 2&gt;&amp;1</code></pre>
+
+        <p>
+          <code>mpiprocs=8</code> tells PBS Pro to reserve slots for 8 MPI processes. The ORCA install path and OpenMPI version are examples;
+          change them to match your setup.
+        </p>
+
+        <h2 id="scratch">Node-local scratch</h2>
+        <p>
+          ORCA writes many large temporary files during a run. On a shared file system (home or project directories) that is slow and
+          loads the file server for everyone. Copy the input to the compute node's local disk, run there, and bring back only the results.
+          PBS Pro often creates a per-job temporary directory and puts it in <code>$TMPDIR</code>. On Slurm clusters the location varies,
+          so look up the scratch path in your cluster's documentation.
+        </p>
+
+        <pre data-lang="bash"><code>JOB=water
+SCR=$(mktemp -d <span class="str">"${TMPDIR:-/tmp}/orca.XXXXXX"</span>)
+cp <span class="str">"$JOB.inp"</span> <span class="str">"$SCR"</span>/
+sed -i <span class="str">"s/^%pal.*/%pal nprocs $NCPUS end/"</span> <span class="str">"$SCR/$JOB.inp"</span>
+
+copy_back() {
+    cp <span class="str">"$SCR"</span>/*.xyz <span class="str">"$SCR"</span>/*.gbw <span class="str">"$SCR"</span>/*.hess <span class="str">"$PBS_O_WORKDIR"</span>/ 2&gt;/dev/null
+    rm -rf <span class="str">"$SCR"</span>
+}
+<span class="kw">trap</span> copy_back EXIT
+
+<span class="kw">cd</span> <span class="str">"$SCR"</span> || <span class="kw">exit</span> 1
+<span class="str">"$ORCA"</span> <span class="str">"$JOB.inp"</span> &gt; <span class="str">"$PBS_O_WORKDIR/$JOB.out"</span> 2&gt;&amp;1</code></pre>
+
+        <p>
+          <code>trap copy_back EXIT</code> runs <code>copy_back</code> however the script ends: normally, after an ORCA error, or on a
+          termination signal from the scheduler. The output file goes straight to the submit directory, so you can follow it with
+          <code>tail -f</code> while the job runs and it survives if the job dies. The <code>sed</code> line rewrites <code>%pal</code> to the number
+          of cores the job actually received. Traps and exit codes are covered in <a href="robust.html">chapter 04</a>.
+        </p>
+
+        <div class="warning">
+          <div class="note-title">Little time when walltime runs out</div>
+          <p>
+            When a job exceeds its walltime, the scheduler sends a termination signal and kills the job shortly afterwards. The copy has to
+            finish in that window, and large files such as <code>.gbw</code> may not make it. Request more walltime than you expect to need.
+          </p>
+        </div>
+
+        <h3>OpenMP thread count</h3>
+        <p>
+          OpenMP programs (xtb, CREST, the BLAS behind numpy) start <code>OMP_NUM_THREADS</code> threads. If it is unset they may try to use
+          every core on the node and collide with other jobs. Set it to the cores you received.
+        </p>
+
+        <pre data-lang="bash"><code><span class="kw">export</span> OMP_NUM_THREADS=<span class="str">"${NCPUS:-${SLURM_CPUS_PER_TASK:-1}}"</span></code></pre>
+
+        <h2 id="submit">Submitting, monitoring, cancelling</h2>
+        <table>
+          <thead>
+            <tr><th>Task</th><th>PBS Pro</th><th>Slurm</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Submit</td><td><code>qsub job.pbs</code></td><td><code>sbatch job.sh</code></td></tr>
+            <tr><td>My jobs</td><td><code>qstat -u $USER</code></td><td><code>squeue -u $USER</code></td></tr>
+            <tr><td>Job details</td><td><code>qstat -f jobid</code></td><td><code>scontrol show job jobid</code></td></tr>
+            <tr><td>Finished jobs</td><td><code>qstat -x -u $USER</code></td><td><code>sacct -j jobid</code></td></tr>
+            <tr><td>Cancel</td><td><code>qdel jobid</code></td><td><code>scancel jobid</code></td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          Job states are <code>Q</code> (queued), <code>R</code> (running) and <code>F</code> (finished, with <code>-x</code>) in PBS, and
+          <code>PD</code> (pending) and <code>R</code> (running) in Slurm. Slurm's <code>sacct</code> shows how much time and memory a finished job actually used.
+        </p>
+
+        <pre data-lang="bash"><code>sacct -j 123456 --format=JobID,JobName,State,Elapsed,MaxRSS,ExitCode</code></pre>
+
+        <h2 id="depend">Job dependencies</h2>
+        <p>
+          To start a frequency calculation only after the optimisation succeeds, give the second job a dependency. <code>afterok</code> means
+          "start only if the first job exits with status 0". If the first job fails, the second stays queued and you have to delete it yourself.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt"># PBS Pro: keep the job ID that qsub prints</span>
+OPT=$(qsub opt.pbs)
+qsub -W depend=afterok:<span class="str">"$OPT"</span> freq.pbs
+
+<span class="cmt"># Slurm: --parsable prints only the job ID</span>
+OPT=$(sbatch --parsable opt.sh)
+sbatch --dependency=afterok:<span class="str">"$OPT"</span> freq.sh</code></pre>
+
+        <h2 id="fail">Common failures</h2>
+        <table>
+          <thead>
+            <tr><th>Symptom</th><th>Cause and how to check</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Output stops midway with no <code>TERMINATED NORMALLY</code></td><td>Walltime exceeded. Look for the scheduler message at the end of the job log; Slurm's <code>sacct</code> shows <code>TIMEOUT</code></td></tr>
+            <tr><td>Sudden death, <code>Killed</code> or a memory message in the log</td><td>Out of memory. Lower <code>%maxcore</code> or raise <code>mem</code>. Slurm shows <code>OUT_OF_MEMORY</code></td></tr>
+            <tr><td><code>command not found</code>, missing shared libraries</td><td>module or conda not loaded inside the job. Put <code>which</code> in the script to check</td></tr>
+            <tr><td>MPI errors in ORCA's parallel steps</td><td><code>orca</code> not called by full path, or an OpenMPI version that doesn't match the ORCA build</td></tr>
+            <tr><td>Odd errors such as <code>$'\r': command not found</code></td><td>CRLF line endings from a Windows editor; see below</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          A script written in a Windows editor has <code>\r</code> at the end of every line, and bash reads it as part of the command.
+        </p>
+
+        <pre data-lang="bash"><code>$ bash job.sh
+job.sh: line 2: cd: $'run1\r': No such file or directory
+done
+$ file job.sh
+job.sh: Bourne-Again shell script, ASCII text executable, with CRLF line terminators
+$ sed -i 's/\r$//' job.sh</code></pre>
+
+        <p>
+          Strip the <code>\r</code> as in the last line, or run <code>dos2unix job.sh</code>. Setting your editor to LF line endings keeps it from coming back.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="extract.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Pulling numbers from outputs</div>
+        </a>
+        <a class="next" href="arrays.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Job arrays and parameter sweeps</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

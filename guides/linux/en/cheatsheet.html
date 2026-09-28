@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cheat sheet · Linux Starter Pack</title>
+  <meta name="description" content="The most used commands from chapters 02 to 09 on one page." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/cheatsheet.html">KO</a>
+    <a href="cheatsheet.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Linux</div>
+    <div class="brand-subtitle">Starter pack · for new computational chemists</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="setup.html"><span class="nav-num">01</span>Setting up a terminal</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Basics</div>
+      <ul class="nav-list">
+        <li><a href="files.html"><span class="nav-num">02</span>Files and directories</a></li>
+        <li><a href="viewing.html"><span class="nav-num">03</span>Viewing and editing files</a></li>
+        <li><a href="permissions.html"><span class="nav-num">04</span>Permissions</a></li>
+        <li><a href="processes.html"><span class="nav-num">05</span>Processes and environment</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Remote work</div>
+      <ul class="nav-list">
+        <li><a href="ssh.html"><span class="nav-num">06</span>ssh and keys</a></li>
+        <li><a href="transfer.html"><span class="nav-num">07</span>File transfer</a></li>
+        <li><a href="tmux.html"><span class="nav-num">08</span>tmux</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Clusters</div>
+      <ul class="nav-list">
+        <li><a href="hpc.html"><span class="nav-num">09</span>First steps on HPC</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reference</div>
+      <ul class="nav-list">
+        <li><a href="software.html"><span class="nav-num">10</span>Useful software</a></li>
+        <li><a href="cheatsheet.html"><span class="nav-num">11</span>Cheat sheet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 11 · Reference</div>
+        <h1 class="page-title">Cheat sheet</h1>
+        <p class="page-lede">The most used commands from chapters 02 to 09 on one page.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#keys">Keyboard</a></li>
+            <li><a href="#nav">Navigation and files</a></li>
+            <li><a href="#view">Viewing and searching</a></li>
+            <li><a href="#perm">Permissions</a></li>
+            <li><a href="#proc">Processes and environment</a></li>
+            <li><a href="#remote">ssh and transfer</a></li>
+            <li><a href="#tmux">tmux</a></li>
+            <li><a href="#sched">PBS and Slurm</a></li>
+          </ul>
+        </div>
+
+        <h2 id="keys">Keyboard</h2>
+        <table>
+          <thead>
+            <tr><th>Key</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Tab</code></td><td>complete commands and file names; press twice for the list of candidates</td></tr>
+            <tr><td><code>↑</code> / <code>↓</code></td><td>previous / next command</td></tr>
+            <tr><td><code>Ctrl-C</code></td><td>stop the running command</td></tr>
+            <tr><td><code>Ctrl-D</code></td><td>end of input; at an empty prompt, exit the shell (logs you out of ssh)</td></tr>
+            <tr><td><code>Ctrl-Z</code></td><td>pause the running command; <code>fg</code> resumes it, <code>bg</code> continues it in the background</td></tr>
+            <tr><td><code>Ctrl-R</code></td><td>search command history; press again for older matches</td></tr>
+            <tr><td><code>Ctrl-L</code></td><td>clear the screen (<code>clear</code>)</td></tr>
+            <tr><td><code>Ctrl-A</code> / <code>Ctrl-E</code></td><td>start / end of line</td></tr>
+            <tr><td><code>Ctrl-U</code></td><td>delete everything before the cursor</td></tr>
+            <tr><td><code>!!</code></td><td>repeat the last command, as in <code>sudo !!</code></td></tr>
+            <tr><td><code>!$</code></td><td>last argument of the previous command</td></tr>
+            <tr><td><code>history</code></td><td>list past commands; <code>!NUMBER</code> reruns one</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="nav">Navigation and files</h2>
+        <table>
+          <thead>
+            <tr><th>Command</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>pwd</code></td><td>current directory</td></tr>
+            <tr><td><code>ls -lh</code></td><td>long listing with readable sizes; <code>-a</code> includes hidden files, <code>-t</code> sorts by modification time</td></tr>
+            <tr><td><code>cd PATH</code></td><td>change directory; <code>cd</code> alone goes home, <code>cd ..</code> up, <code>cd -</code> back to the previous one</td></tr>
+            <tr><td><code>mkdir -p a/b/c</code></td><td>create nested directories in one go</td></tr>
+            <tr><td><code>cp a b</code>, <code>cp -r dir1 dir2</code></td><td>copy; directories need <code>-r</code></td></tr>
+            <tr><td><code>mv a b</code></td><td>move or rename</td></tr>
+            <tr><td><code>rm FILE</code>, <code>rm -r dir</code></td><td>delete; there is no recycle bin</td></tr>
+            <tr><td><code>*.out</code>, <code>h2o_?.xyz</code></td><td>wildcards: <code>*</code> any number of characters, <code>?</code> exactly one</td></tr>
+            <tr><td><code>find . -name '*.out'</code></td><td>find by name, including subdirectories</td></tr>
+            <tr><td><code>du -sh *</code></td><td>size of each item</td></tr>
+            <tr><td><code>df -h</code></td><td>size and free space per file system</td></tr>
+            <tr><td><code>tar czf a.tar.gz dir</code> / <code>tar xzf a.tar.gz</code></td><td>bundle and compress / extract; <code>tar tzf</code> lists</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="view">Viewing and searching</h2>
+        <table>
+          <thead>
+            <tr><th>Command</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>less h2o.out</code></td><td>page through a file; <code>/word</code> searches, <code>n</code> next match, <code>G</code> end, <code>q</code> quit</td></tr>
+            <tr><td><code>head -n 20</code> / <code>tail -n 20</code></td><td>first / last 20 lines</td></tr>
+            <tr><td><code>tail -f h2o.out</code></td><td>follow a growing output; <code>Ctrl-C</code> stops</td></tr>
+            <tr><td><code>grep 'FINAL SINGLE POINT' *.out</code></td><td>lines matching a pattern; <code>-n</code> line numbers, <code>-i</code> ignore case, <code>-r</code> recursive, <code>-c</code> count</td></tr>
+            <tr><td><code>wc -l</code></td><td>count lines</td></tr>
+            <tr><td><code>cmd | less</code></td><td>send output to another command (pipe)</td></tr>
+            <tr><td><code>cmd &gt; f</code>, <code>cmd &gt;&gt; f</code></td><td>write output to a file (overwrite / append)</td></tr>
+            <tr><td><code>cmd 2&gt;&amp;1</code></td><td>send errors to the same place</td></tr>
+            <tr><td><code>nano f</code></td><td>edit; <code>Ctrl-O</code> saves, <code>Ctrl-X</code> exits</td></tr>
+            <tr><td><code>vim f</code></td><td>edit; <code>i</code> to insert, then <code>Esc</code> and <code>:wq</code> to save and quit, <code>:q!</code> to quit without saving</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="perm">Permissions</h2>
+        <table>
+          <thead>
+            <tr><th>Command</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>ls -l</code></td><td><code>-rwxr-xr--</code>: read, write, execute for owner / group / others</td></tr>
+            <tr><td><code>chmod +x run.sh</code></td><td>make executable</td></tr>
+            <tr><td><code>chmod 600 f</code></td><td>only you can read and write (private key, <code>~/.ssh/config</code>)</td></tr>
+            <tr><td><code>chmod 700 dir</code></td><td>only you can enter (<code>~/.ssh</code>)</td></tr>
+            <tr><td><code>chmod -R g+r dir</code></td><td>give the group read access, recursively</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="proc">Processes and environment</h2>
+        <table>
+          <thead>
+            <tr><th>Command</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>top</code>, <code>htop</code></td><td>running processes, CPU and memory; <code>q</code> quits</td></tr>
+            <tr><td><code>ps ux</code></td><td>your processes</td></tr>
+            <tr><td><code>kill PID</code>, <code>kill -9 PID</code></td><td>ask to terminate / force kill</td></tr>
+            <tr><td><code>cmd &amp;</code></td><td>run in the background; <code>jobs</code> lists them</td></tr>
+            <tr><td><code>nohup cmd &gt; log 2&gt;&amp;1 &amp;</code></td><td>keep running after you log out</td></tr>
+            <tr><td><code>echo $PATH</code></td><td>show a variable</td></tr>
+            <tr><td><code>export OMP_NUM_THREADS=4</code></td><td>set an environment variable (current shell and its children)</td></tr>
+            <tr><td><code>which orca</code></td><td>which file a command runs</td></tr>
+            <tr><td><code>source ~/.bashrc</code></td><td>reload your shell config</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="remote">ssh and transfer</h2>
+        <table>
+          <thead>
+            <tr><th>Command</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>ssh user@host</code>, <code>ssh vanda</code></td><td>log in (aliases live in <code>~/.ssh/config</code>)</td></tr>
+            <tr><td><code>ssh-keygen -t ed25519</code></td><td>create a key pair</td></tr>
+            <tr><td><code>ssh-copy-id vanda</code></td><td>install your public key on the server</td></tr>
+            <tr><td><code>ssh-add</code>, <code>ssh-add -l</code></td><td>add a key to the agent / list keys</td></tr>
+            <tr><td><code>ssh-keygen -R host</code></td><td>remove an old host key from <code>known_hosts</code></td></tr>
+            <tr><td><code>ssh -v vanda</code></td><td>verbose connection log, for troubleshooting</td></tr>
+            <tr><td><code>scp f vanda:~/dir/</code></td><td>upload</td></tr>
+            <tr><td><code>scp vanda:~/dir/f .</code></td><td>download; <code>-r</code> for directories</td></tr>
+            <tr><td><code>rsync -avhP src/ dst/</code></td><td>sync only what changed; a trailing <code>/</code> on the source means "its contents"</td></tr>
+            <tr><td><code>rsync -n ...</code></td><td>dry run: show what would be transferred</td></tr>
+            <tr><td><code>--include='*/' --include='*.out' --exclude='*'</code></td><td>only certain extensions</td></tr>
+            <tr><td><code>--exclude='*.gbw'</code></td><td>skip certain files</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="tmux">tmux</h2>
+        <table>
+          <thead>
+            <tr><th>Command / keys</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>tmux new -s NAME</code></td><td>new session</td></tr>
+            <tr><td><code>tmux ls</code></td><td>list sessions</td></tr>
+            <tr><td><code>tmux attach -t NAME</code></td><td>reattach</td></tr>
+            <tr><td><code>tmux kill-session -t NAME</code></td><td>end a session</td></tr>
+            <tr><td><code>Ctrl-b d</code></td><td>detach</td></tr>
+            <tr><td><code>Ctrl-b c</code> / <code>n</code> / <code>p</code></td><td>new / next / previous window</td></tr>
+            <tr><td><code>Ctrl-b %</code> / <code>"</code></td><td>split left-right / top-bottom</td></tr>
+            <tr><td><code>Ctrl-b</code> arrow</td><td>move between panes</td></tr>
+            <tr><td><code>Ctrl-b z</code></td><td>zoom a pane / restore</td></tr>
+            <tr><td><code>Ctrl-b [</code></td><td>scroll (copy mode); <code>q</code> leaves</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="sched">PBS and Slurm</h2>
+        <table>
+          <thead>
+            <tr><th>Task</th><th>PBS Pro</th><th>Slurm</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>modules</td><td colspan="2"><code>module avail</code> · <code>module load NAME</code> · <code>module list</code> · <code>module purge</code></td></tr>
+            <tr><td>submit</td><td><code>qsub run.pbs</code></td><td><code>sbatch run.sh</code></td></tr>
+            <tr><td>my jobs</td><td><code>qstat -u $USER</code></td><td><code>squeue -u $USER</code></td></tr>
+            <tr><td>details</td><td><code>qstat -f ID</code></td><td><code>scontrol show job ID</code></td></tr>
+            <tr><td>cancel</td><td><code>qdel ID</code></td><td><code>scancel ID</code></td></tr>
+            <tr><td>interactive</td><td><code>qsub -I -l select=1:ncpus=4 -l walltime=1:00:00</code></td><td><code>srun --cpus-per-task=4 --time=1:00:00 --pty bash</code></td></tr>
+            <tr><td>resources</td><td><code>#PBS -l select=1:ncpus=8:mem=16gb</code></td><td><code>#SBATCH --ntasks=8 --mem=16G</code></td></tr>
+            <tr><td>time</td><td><code>#PBS -l walltime=02:00:00</code></td><td><code>#SBATCH --time=02:00:00</code></td></tr>
+            <tr><td>name</td><td><code>#PBS -N name</code></td><td><code>#SBATCH --job-name=name</code></td></tr>
+            <tr><td>submission directory</td><td><code>cd $PBS_O_WORKDIR</code></td><td><code>$SLURM_SUBMIT_DIR</code> (jobs start there by default)</td></tr>
+            <tr><td>output file</td><td><code>name.o&lt;ID&gt;</code></td><td><code>slurm-&lt;ID&gt;.out</code></td></tr>
+          </tbody>
+        </table>
+        <p>
+          Script syntax has its own page: the <a href="../../shell/en/cheatsheet.html">shell scripting cheat sheet</a>.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="software.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Useful software</div>
+        </a>
+        <a class="next" href="index.html">
+          <div class="page-nav-label">back to top ↑</div>
+          <div class="page-nav-title">Overview</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

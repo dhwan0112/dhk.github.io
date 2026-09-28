@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Viewing and editing files · Linux Starter Pack</title>
+  <meta name="description" content="Skim long output files, pull out the lines you need, and edit input files without leaving the terminal." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/viewing.html">KO</a>
+    <a href="viewing.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Linux</div>
+    <div class="brand-subtitle">Starter pack · for new computational chemists</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="setup.html"><span class="nav-num">01</span>Setting up a terminal</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Basics</div>
+      <ul class="nav-list">
+        <li><a href="files.html"><span class="nav-num">02</span>Files and directories</a></li>
+        <li><a href="viewing.html"><span class="nav-num">03</span>Viewing and editing files</a></li>
+        <li><a href="permissions.html"><span class="nav-num">04</span>Permissions</a></li>
+        <li><a href="processes.html"><span class="nav-num">05</span>Processes and environment</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Remote work</div>
+      <ul class="nav-list">
+        <li><a href="ssh.html"><span class="nav-num">06</span>ssh and keys</a></li>
+        <li><a href="transfer.html"><span class="nav-num">07</span>File transfer</a></li>
+        <li><a href="tmux.html"><span class="nav-num">08</span>tmux</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Clusters</div>
+      <ul class="nav-list">
+        <li><a href="hpc.html"><span class="nav-num">09</span>First steps on HPC</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reference</div>
+      <ul class="nav-list">
+        <li><a href="software.html"><span class="nav-num">10</span>Useful software</a></li>
+        <li><a href="cheatsheet.html"><span class="nav-num">11</span>Cheat sheet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 03 · Basics</div>
+        <h1 class="page-title">Viewing and editing files</h1>
+        <p class="page-lede">Skim long output files, pull out the lines you need, and edit input files without leaving the terminal.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#cat">cat and less</a></li>
+            <li><a href="#headtail">head, tail, wc</a></li>
+            <li><a href="#grep">Finding lines with grep</a></li>
+            <li><a href="#diff">Comparing files with diff</a></li>
+            <li><a href="#redirect">Redirection and pipes</a></li>
+            <li><a href="#nano">nano</a></li>
+            <li><a href="#vim">Surviving vim</a></li>
+            <li><a href="#crlf">Windows line endings</a></li>
+          </ul>
+        </div>
+
+        <p>
+          The examples use two water calculations from the <a href="../../orca/en/index.html">ORCA guide</a>:
+          <code>~/proj/h2o-sp</code> holds a B3LYP/def2-SVP single point and <code>~/proj/h2o-opt</code> a geometry optimisation with frequencies.
+        </p>
+
+        <h2 id="cat">cat and less</h2>
+        <p><code>cat</code> prints a whole file to the screen at once. Use it for short files such as inputs.</p>
+
+        <pre data-lang="bash"><code>$ cd ~/proj/h2o-sp
+$ cat water.inp
+# Single-point energy - water, B3LYP/def2-SVP
+! B3LYP def2-SVP
+* xyz 0 1
+  O   0.000000   0.000000   0.119262
+  H   0.000000   0.763239  -0.477047
+  H   0.000000  -0.763239  -0.477047
+*</code></pre>
+
+        <p>
+          Output files are another matter. Even this single point's <code>water.out</code> is 981 lines, and <code>cat</code> scrolls the start past before you can read it.
+          Page through long files with <code>less</code>.
+        </p>
+
+        <pre data-lang="bash"><code>$ less water.out</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>Key (inside less)</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Space</code> / <code>b</code></td><td>Forward / back one screen</td></tr>
+            <tr><td><code>↑</code> <code>↓</code></td><td>One line at a time</td></tr>
+            <tr><td><code>g</code> / <code>G</code></td><td>Start / end of file</td></tr>
+            <tr><td><code>/word</code> + <code>Enter</code></td><td>Search forward; <code>n</code> for the next match, <code>N</code> for the previous</td></tr>
+            <tr><td><code>?word</code> + <code>Enter</code></td><td>Search backward</td></tr>
+            <tr><td><code>q</code></td><td>Quit</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          In an ORCA output, <code>G</code> to jump to the end and then <code>?FINAL SINGLE</code> takes you straight to the last energy.
+          <code>less</code> only reads, so there is no risk of changing the file by accident.
+        </p>
+
+        <h2 id="headtail">head, tail, wc</h2>
+        <p><code>head</code> shows the first lines of a file and <code>tail</code> the last ones. <code>-n</code> sets how many (10 by default).</p>
+
+        <pre data-lang="bash"><code>$ tail -n 2 water.out
+                             ****ORCA TERMINATED NORMALLY****
+TOTAL RUN TIME: 0 days 0 hours 0 minutes 2 seconds 657 msec
+$ wc -l water.out ../h2o-opt/water.out
+   981 water.out
+  3623 ../h2o-opt/water.out
+  4604 total</code></pre>
+
+        <p>
+          ORCA prints <code>ORCA TERMINATED NORMALLY</code> at the end of a successful run, so <code>tail</code> is the first thing to check when a job finishes.
+          <code>wc -l</code> counts lines. An output much shorter than its siblings has probably died partway.
+        </p>
+
+        <h3>Watching a running calculation</h3>
+        <p>
+          <code>tail -f</code> shows the end of a file and then keeps waiting, printing new lines as they are written.
+          You can watch which SCF iteration a job has reached. <code>Ctrl+C</code> stops <code>tail</code>; the calculation keeps running.
+        </p>
+
+        <pre data-lang="bash"><code>$ tail -f water.out</code></pre>
+
+        <h2 id="grep">Finding lines with grep</h2>
+        <p>
+          <code>grep 'pattern' file</code> prints only the lines that contain the pattern. For finding one number in an output it is much faster than <code>less</code>.
+          Quote patterns that contain spaces.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep 'FINAL SINGLE POINT ENERGY' water.out
+FINAL SINGLE POINT ENERGY       -76.321274411145
+$ grep 'FINAL SINGLE POINT ENERGY' ../h2o-opt/water.out
+FINAL SINGLE POINT ENERGY       -76.426286364586
+FINAL SINGLE POINT ENERGY       -76.426353431114
+FINAL SINGLE POINT ENERGY       -76.426364583348
+FINAL SINGLE POINT ENERGY       -76.426366351564
+FINAL SINGLE POINT ENERGY       -76.426369457144</code></pre>
+
+        <p>
+          An optimisation prints an energy at every step, so you get several lines. The energy drops a little each time, and the last line is the energy of the
+          optimised geometry (in Hartree).
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Option</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>-i</code></td><td>Ignore case</td></tr>
+            <tr><td><code>-n</code></td><td>Show line numbers</td></tr>
+            <tr><td><code>-c</code></td><td>Print only the number of matching lines</td></tr>
+            <tr><td><code>-l</code></td><td>Print only the names of files that match</td></tr>
+            <tr><td><code>-r</code></td><td>Search a directory recursively</td></tr>
+            <tr><td><code>-v</code></td><td>Print lines that do <em>not</em> match</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ grep -n 'TERMINATED NORMALLY' water.out
+980:                             ****ORCA TERMINATED NORMALLY****
+$ grep -c 'GEOMETRY OPTIMIZATION CYCLE' ../h2o-opt/water.out
+4
+$ grep -l 'TERMINATED NORMALLY' ~/proj/*/water.out
+/home/kim/proj/h2o-opt/water.out
+/home/kim/proj/h2o-sp/water.out</code></pre>
+
+        <p>
+          The last command lists the calculations that finished normally. With dozens of jobs, that one line is how you find the ones that failed.
+          Regular expressions, and pulling out just the numbers with <code>sed</code> and <code>awk</code>, are covered in the shell guide under
+          <a href="../../shell/en/text.html">grep · sed · awk</a> and <a href="../../shell/en/extract.html">Pulling numbers from outputs</a>.
+        </p>
+
+        <h2 id="diff">Comparing files with diff</h2>
+        <p><code>diff</code> shows only the lines that differ between two files. Use it to see how two inputs differ.</p>
+
+        <pre data-lang="bash"><code>$ diff ~/proj/h2o-sp/water.inp ~/proj/h2o-opt/water.inp
+1,2c1,2
+&lt; # Single-point energy - water, B3LYP/def2-SVP
+&lt; ! B3LYP def2-SVP
+---
+&gt; # Geometry optimization + frequencies + thermochemistry - water
+&gt; ! B3LYP D4 def2-TZVP TightOpt Freq</code></pre>
+
+        <p>
+          <code>1,2c1,2</code> means lines 1–2 of the first file were changed into lines 1–2 of the second. <code>&lt;</code> marks lines from the first file, <code>&gt;</code> from the second.
+          The coordinates are identical; only the method and basis differ. No output at all means the files are the same.
+        </p>
+
+        <h2 id="redirect">Redirection and pipes</h2>
+        <p>
+          By default a command's output goes to the screen. You can send it to a file instead, or feed it into another command.
+          There are two output streams: normal output (stdout) and error messages (stderr).
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Syntax</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>cmd &gt; file</code></td><td>Write output to a file. If the file exists, its contents are <strong>erased</strong> first.</td></tr>
+            <tr><td><code>cmd &gt;&gt; file</code></td><td>Append to the end of the file</td></tr>
+            <tr><td><code>cmd 2&gt; file</code></td><td>Send only error messages to the file</td></tr>
+            <tr><td><code>cmd &gt; file 2&gt;&amp;1</code></td><td>Send output and errors to the same file</td></tr>
+            <tr><td><code>cmd1 | cmd2</code></td><td>Pipe: the output of the first becomes the input of the second</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ grep 'FINAL SINGLE POINT ENERGY' ../h2o-opt/water.out | tail -n 1
+FINAL SINGLE POINT ENERGY       -76.426369457144
+$ echo '# first line' &gt; notes.txt
+$ echo '# second line' &gt;&gt; notes.txt
+$ cat notes.txt
+# first line
+# second line
+$ ls water.inp nothing.out &gt; list.txt 2&gt;&amp;1
+$ cat list.txt
+ls: cannot access 'nothing.out': No such file or directory
+water.inp</code></pre>
+
+        <p>
+          You use the same syntax to run calculations. ORCA writes its results to the screen (stdout), so you capture them with <code>orca water.inp &gt; water.out</code>.
+        </p>
+
+        <div class="warning">
+          <div class="note-title">&gt; overwrites without asking</div>
+          <p>
+            Running <code>orca water.inp &gt; water.out</code> again wipes the previous <code>water.out</code>, even if that run took three days.
+            Rename the old output or use a fresh directory before rerunning. With <code>set -o noclobber</code>, <code>&gt;</code> refuses to overwrite an existing file.
+          </p>
+        </div>
+
+        <h2 id="nano">nano</h2>
+        <p>
+          The easiest editor that runs inside a terminal. Open a file with <code>nano water.inp</code>, move with the arrow keys and type.
+          Shortcuts are listed at the bottom of the screen; <code>^</code> means <code>Ctrl</code>.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Key</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Ctrl+O</code>, <code>Enter</code></td><td>Save</td></tr>
+            <tr><td><code>Ctrl+X</code></td><td>Exit (asks if there are unsaved changes)</td></tr>
+            <tr><td><code>Ctrl+W</code></td><td>Search</td></tr>
+            <tr><td><code>Ctrl+K</code> / <code>Ctrl+U</code></td><td>Cut line / paste</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="vim">Surviving vim</h2>
+        <p>
+          Some clusters have vim but not nano, and commands like <code>git commit</code> may drop you into vim.
+          vim has <strong>modes</strong>: when it opens, keystrokes are commands, not text. This is the minimum you need.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Key</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>i</code></td><td>Enter insert mode. When <code>-- INSERT --</code> shows at the bottom, you can type text.</td></tr>
+            <tr><td><code>Esc</code></td><td>Leave insert mode. If something looks wrong, press <code>Esc</code> first.</td></tr>
+            <tr><td><code>:wq</code> + <code>Enter</code></td><td>Save and quit</td></tr>
+            <tr><td><code>:q!</code> + <code>Enter</code></td><td>Quit without saving</td></tr>
+            <tr><td><code>/word</code> + <code>Enter</code></td><td>Search (as in <code>less</code>)</td></tr>
+            <tr><td><code>u</code></td><td>Undo</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          For longer editing on your own machine a graphical editor such as VS Code is more comfortable. Its Remote extensions open files in WSL or on a cluster directly
+          (<a href="software.html">chapter 10</a>).
+        </p>
+
+        <h2 id="crlf">Windows line endings</h2>
+        <p>
+          Linux ends each line with a single LF character; Windows uses two, CR+LF. A file written in Windows Notepad and copied to a cluster has an invisible CR
+          (<code>\r</code>) at the end of every line, and scripts then fail with confusing errors.
+        </p>
+
+        <pre data-lang="bash"><code>$ ./run.sh
+bash: ./run.sh: /bin/bash^M: bad interpreter: No such file or directory
+$ bash run.sh
+run.sh: line 2: cd: $'/home/kim/proj/h2o-opt\r': No such file or directory
+done</code></pre>
+
+        <p>
+          The <code>^M</code> and <code>\r</code> are the CR. If a directory clearly exists but the shell says it does not, suspect this first.
+          Calculation programs can also misread keywords or file names because of a trailing CR. Check with <code>file</code> and fix with <code>dos2unix</code>.
+        </p>
+
+        <pre data-lang="bash"><code>$ file run.sh water.inp
+run.sh:    Bourne-Again shell script, ASCII text executable, with CRLF line terminators
+water.inp: ASCII text, with CRLF line terminators
+$ cat -A water.inp
+! B3LYP def2-SVP^M$
+* xyzfile 0 1 water.xyz^M$
+
+<span class="cmt"># fix it (sudo apt install dos2unix)</span>
+$ dos2unix run.sh water.inp
+dos2unix: converting file run.sh to Unix format...
+dos2unix: converting file water.inp to Unix format...
+$ file run.sh water.inp
+run.sh:    Bourne-Again shell script, ASCII text executable
+water.inp: ASCII text</code></pre>
+
+        <p>
+          <code>cat -A</code> makes invisible characters visible: the <code>$</code> at the end of a line is the LF and the <code>^M</code> before it is the CR.
+          If the cluster has no <code>dos2unix</code>, <code>sed -i 's/\r$//' run.sh</code> does the same job. In VS Code or Notepad++ you can switch the line ending
+          to LF from the status bar in the bottom-right corner before saving.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="files.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Files and directories</div>
+        </a>
+        <a class="next" href="permissions.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Permissions</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

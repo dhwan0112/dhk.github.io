@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>작업 배열과 파라미터 스윕 · 셸 스크립팅 가이드</title>
+  <meta name="description" content="비슷한 계산 수십 개를 작업 배열 하나로 제출하고, 입력을 자동으로 만들고, 실패한 것만 다시 돌린다." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="arrays.html" class="active">KO</a>
+    <a href="../en/arrays.html">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Shell</div>
+    <div class="brand-subtitle">스크립팅 가이드 · bash</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="basics.html"><span class="nav-num">01</span>첫 스크립트</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">문법</div>
+      <ul class="nav-list">
+        <li><a href="control.html"><span class="nav-num">02</span>조건과 반복</a></li>
+        <li><a href="functions.html"><span class="nav-num">03</span>함수와 인자</a></li>
+        <li><a href="robust.html"><span class="nav-num">04</span>안전한 스크립트</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">텍스트 처리</div>
+      <ul class="nav-list">
+        <li><a href="text.html"><span class="nav-num">05</span>grep · sed · awk</a></li>
+        <li><a href="extract.html"><span class="nav-num">06</span>출력 파일에서 값 뽑기</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">작업 제출</div>
+      <ul class="nav-list">
+        <li><a href="batch.html"><span class="nav-num">07</span>PBS · Slurm 작업 스크립트</a></li>
+        <li><a href="arrays.html"><span class="nav-num">08</span>작업 배열과 파라미터 스윕</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">참고</div>
+      <ul class="nav-list">
+        <li><a href="cheatsheet.html"><span class="nav-num">09</span>치트시트</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 08 · 작업 제출</div>
+        <h1 class="page-title">작업 배열과 파라미터 스윕</h1>
+        <p class="page-lede">비슷한 계산 수십 개를 작업 배열 하나로 제출하고, 입력을 자동으로 만들고, 실패한 것만 다시 돌린다.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
+          <ul>
+            <li><a href="#loop">qsub 반복문의 문제</a></li>
+            <li><a href="#pbs">PBS Pro 작업 배열</a></li>
+            <li><a href="#slurm">Slurm 작업 배열</a></li>
+            <li><a href="#map">번호를 입력으로 바꾸기</a></li>
+            <li><a href="#sweep">파라미터 스윕 입력 만들기</a></li>
+            <li><a href="#collect">결과 모으기</a></li>
+            <li><a href="#resubmit">실패한 것만 다시 제출</a></li>
+            <li><a href="#many">작은 계산 여러 개를 작업 하나에서</a></li>
+          </ul>
+        </div>
+
+        <h2 id="loop">qsub 반복문의 문제</h2>
+        <p>계산 디렉터리가 여러 개 있으면 가장 먼저 떠오르는 방법은 반복문으로 하나씩 제출하는 것이다.</p>
+
+        <pre data-lang="bash"><code><span class="kw">for</span> d <span class="kw">in</span> */; <span class="kw">do</span>
+    (<span class="kw">cd</span> <span class="str">"$d"</span> &amp;&amp; qsub ../run.pbs)
+<span class="kw">done</span></code></pre>
+
+        <p>
+          열 개 정도면 문제없다. 수백 개가 되면 작업 번호가 수백 개 생겨 관리가 어렵고, 스케줄러에 부담을 주며,
+          많은 클러스터가 사용자당 대기 작업 수에 상한을 둔다. 작업 배열은 같은 스크립트를 번호만 바꿔 여러 번 실행하는 작업 하나다.
+          제출은 한 번, 작업 번호도 하나이고 각 실행(서브작업)은 자기 번호를 환경 변수로 받는다.
+        </p>
+
+        <h2 id="pbs">PBS Pro 작업 배열</h2>
+        <p>
+          <code>#PBS -J 1-6</code>을 넣으면 서브작업 여섯 개가 생기고, 각각 <code>$PBS_ARRAY_INDEX</code>에 1부터 6까지를 받는다.
+          자원 요청(<code>select</code>, <code>walltime</code>)은 서브작업 하나 기준이다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt">#PBS -N dft-grid</span>
+<span class="cmt">#PBS -l select=1:ncpus=4:mpiprocs=4:mem=8gb</span>
+<span class="cmt">#PBS -l walltime=04:00:00</span>
+<span class="cmt">#PBS -j oe</span>
+<span class="cmt">#PBS -J 1-6</span>
+
+<span class="kw">cd</span> <span class="str">"$PBS_O_WORKDIR"</span> || <span class="kw">exit</span> 1
+module load openmpi/4.1.6
+ORCA=<span class="str">"$HOME/opt/orca_6_1_0/orca"</span>
+
+NAME=$(sed -n <span class="str">"${PBS_ARRAY_INDEX}p"</span> list.txt)
+<span class="kw">cd</span> <span class="str">"$NAME"</span> || <span class="kw">exit</span> 1
+<span class="str">"$ORCA"</span> <span class="str">"$NAME.inp"</span> &gt; <span class="str">"$NAME.out"</span> 2&gt;&amp;1</code></pre>
+
+        <p>
+          작업 번호는 <code>1234[].서버</code>처럼 대괄호가 붙는다. <code>qstat -u $USER</code>는 배열 전체를 한 줄로 보여 주고,
+          서브작업 하나하나를 보려면 <code>qstat -t</code>를 쓴다. 서브작업 로그는 따로따로 생긴다.
+        </p>
+
+        <pre data-lang="bash"><code>qstat -t -u $USER          <span class="cmt"># 서브작업까지 표시</span>
+qdel <span class="str">"1234[]"</span>               <span class="cmt"># 배열 전체 취소</span>
+qdel <span class="str">"1234[3]"</span>              <span class="cmt"># 3번 서브작업만 취소</span></code></pre>
+
+        <p>
+          대괄호는 셸의 glob 문자라 따옴표로 감싼다. PBS Pro는 범위에 서브작업이 두 개 이상이어야 하므로 <code>-J 1-1</code>은 거부된다.
+          <code>-J 1-20:2</code>처럼 간격을 줄 수도 있다.
+        </p>
+
+        <h2 id="slurm">Slurm 작업 배열</h2>
+        <p>
+          Slurm은 <code>--array=1-20</code>이고 번호는 <code>$SLURM_ARRAY_TASK_ID</code>에 들어온다. <code>%5</code>를 붙이면
+          동시에 도는 서브작업을 다섯 개로 제한한다. 공용 클러스터에서 큰 배열을 올릴 때는 이 제한을 거는 편이 예의다.
+          로그 이름의 <code>%A</code>는 배열 작업 번호, <code>%a</code>는 서브작업 번호다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt">#SBATCH --job-name=dft-grid</span>
+<span class="cmt">#SBATCH --nodes=1</span>
+<span class="cmt">#SBATCH --ntasks=4</span>
+<span class="cmt">#SBATCH --mem=8G</span>
+<span class="cmt">#SBATCH --time=04:00:00</span>
+<span class="cmt">#SBATCH --array=1-6%3</span>
+<span class="cmt">#SBATCH --output=dft-grid.%A_%a.log</span>
+
+module load openmpi/4.1.6
+ORCA=<span class="str">"$HOME/opt/orca_6_1_0/orca"</span>
+
+mapfile -t names &lt; list.txt
+NAME=${names[$((SLURM_ARRAY_TASK_ID - 1))]}
+
+<span class="kw">cd</span> <span class="str">"$NAME"</span> || <span class="kw">exit</span> 1
+<span class="str">"$ORCA"</span> <span class="str">"$NAME.inp"</span> &gt; <span class="str">"$NAME.out"</span> 2&gt;&amp;1</code></pre>
+
+        <p>
+          <code>squeue</code>에서는 <code>1234_[4-6%3]</code>처럼 대기 중인 범위와 <code>1234_1</code>처럼 실행 중인 서브작업이 따로 보인다.
+          <code>scancel 1234</code>는 전체, <code>scancel 1234_5</code>는 하나만 취소한다. PBS Pro에 이런 동시 실행 제한이 있는지는
+          버전과 사이트 설정에 따라 다르니 클러스터 문서를 확인한다.
+        </p>
+
+        <h2 id="map">번호를 입력으로 바꾸기</h2>
+        <p>
+          서브작업이 받는 것은 숫자뿐이다. 숫자를 계산 이름으로 바꾸는 가장 단순한 방법은 이름을 한 줄에 하나씩 적은 목록 파일이다.
+          위 두 스크립트가 쓴 방법은 두 가지다.
+        </p>
+
+        <pre data-lang="bash"><code>$ cat list.txt
+B3LYP_def2-SVP
+B3LYP_def2-TZVP
+PBE0_def2-SVP
+PBE0_def2-TZVP
+TPSS_def2-SVP
+TPSS_def2-TZVP
+$ IDX=4; sed -n "${IDX}p" list.txt
+PBE0_def2-TZVP
+$ mapfile -t names &lt; list.txt; echo "${#names[@]} jobs, #4 is ${names[3]}"
+6 jobs, #4 is PBE0_def2-TZVP</code></pre>
+
+        <p>
+          <code>sed -n "4p"</code>는 넷째 줄만 출력한다. <code>mapfile -t</code>는 파일을 줄 단위로 bash 배열에 읽는데,
+          배열은 0부터 세므로 1을 빼야 한다. 배열 크기는 목록 줄 수와 맞춘다. 제출할 때 <code>-J</code>나 <code>--array</code>를 명령줄로 주면
+          스크립트를 고치지 않아도 된다. 명령줄 옵션이 스크립트 안의 지시어보다 우선한다.
+        </p>
+
+        <pre data-lang="bash"><code>N=$(wc -l &lt; list.txt)
+qsub -J 1-<span class="str">"$N"</span> array.pbs            <span class="cmt"># PBS Pro</span>
+sbatch --array=1-<span class="str">"$N"</span>%5 array.sh     <span class="cmt"># Slurm</span></code></pre>
+
+        <h2 id="sweep">파라미터 스윕 입력 만들기</h2>
+        <p>
+          범함수 세 개와 기저 두 개의 모든 조합으로 물 분자 최적화 입력을 만든다. 조합마다 디렉터리를 하나씩 만들고
+          목록 파일도 같이 쓴다. 입력 파일은 here-doc(<code>&lt;&lt;EOF</code> … <code>EOF</code>)으로 쓴다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># make_inputs.sh: one directory and ORCA input per functional/basis pair</span>
+<span class="kw">set</span> -euo pipefail
+
+functionals=(B3LYP PBE0 TPSS)
+basis_sets=(def2-SVP def2-TZVP)
+coords=$(tail -n +3 water.xyz)
+
+: &gt; list.txt
+<span class="kw">for</span> f <span class="kw">in</span> <span class="str">"${functionals[@]}"</span>; <span class="kw">do</span>
+    <span class="kw">for</span> b <span class="kw">in</span> <span class="str">"${basis_sets[@]}"</span>; <span class="kw">do</span>
+        name=<span class="str">"${f}_${b}"</span>
+        mkdir -p <span class="str">"$name"</span>
+        cat &gt; <span class="str">"$name/$name.inp"</span> &lt;&lt;EOF
+! $f D4 $b Opt
+%pal nprocs 4 end
+%maxcore 1500
+* xyz 0 1
+$coords
+*
+EOF
+        <span class="kw">echo</span> <span class="str">"$name"</span> &gt;&gt; list.txt
+    <span class="kw">done</span>
+<span class="kw">done</span></code></pre>
+
+        <pre data-lang="bash"><code>$ bash make_inputs.sh
+$ ls
+B3LYP_def2-SVP
+B3LYP_def2-TZVP
+PBE0_def2-SVP
+PBE0_def2-TZVP
+TPSS_def2-SVP
+TPSS_def2-TZVP
+list.txt
+make_inputs.sh
+water.xyz
+$ cat PBE0_def2-TZVP/PBE0_def2-TZVP.inp
+! PBE0 D4 def2-TZVP Opt
+%pal nprocs 4 end
+%maxcore 1500
+* xyz 0 1
+O      0.000000    0.000000    0.119262
+H      0.000000    0.763239   -0.477047
+H      0.000000   -0.763239   -0.477047
+*</code></pre>
+
+        <p>
+          <code>: &gt; list.txt</code>는 목록 파일을 빈 파일로 만든다. 다시 실행해도 이름이 중복해서 쌓이지 않는다.
+          좌표는 xyz 파일에서 읽어 넣었으므로 입력 파일이 다른 파일을 참조하지 않는다. scratch로 입력만 복사해 돌려도 문제가 없다.
+        </p>
+
+        <h3>LAMMPS 온도 시리즈</h3>
+        <p>
+          LAMMPS 입력은 <code>${T}</code> 같은 자기 변수를 쓰는데, bash도 같은 문법으로 변수를 치환한다. here-doc의 끝 표시를
+          <code>'EOF'</code>처럼 따옴표로 감싸면 bash가 본문을 건드리지 않는다.
+        </p>
+
+        <pre data-lang="bash"><code>cat &gt; in.nvt &lt;&lt;<span class="str">'EOF'</span>
+units           lj
+atom_style      atomic
+lattice         fcc 0.8442
+region          box block 0 10 0 10 0 10
+create_box      1 box
+create_atoms    1 box
+mass            1 1.0
+velocity        all create ${T} 87287 loop geom
+pair_style      lj/cut 2.5
+pair_coeff      1 1 1.0 1.0 2.5
+fix             1 all nvt temp ${T} ${T} 0.5
+thermo          100
+run             5000
+EOF</code></pre>
+
+        <p>따옴표가 없으면 bash가 <code>${T}</code>를 자기 변수로 바꿔 버린다. <code>T</code>가 정해져 있지 않으면 빈 문자열이 된다.</p>
+
+        <pre data-lang="output"><code>fix             1 all nvt temp   0.5</code></pre>
+
+        <p>
+          온도 값은 LAMMPS의 <code>-var</code> 옵션으로 넘긴다. 입력 파일은 하나만 두고 서브작업마다 디렉터리와 온도만 바꾼다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt"># temps.txt: 0.8, 1.0, 1.2, 1.4 한 줄에 하나</span>
+T=$(sed -n <span class="str">"${SLURM_ARRAY_TASK_ID}p"</span> temps.txt)
+mkdir -p <span class="str">"T$T"</span> &amp;&amp; <span class="kw">cd</span> <span class="str">"T$T"</span> || <span class="kw">exit</span> 1
+lmp -var T <span class="str">"$T"</span> -in ../in.nvt -log log.lammps</code></pre>
+
+        <h2 id="collect">결과 모으기</h2>
+        <p>
+          계산마다 디렉터리가 하나씩이면 결과를 모으는 스크립트도 단순해진다. 디렉터리를 돌며 정상 종료를 확인하고
+          에너지를 CSV로 모으는 방법은 <a href="extract.html#table">06장</a>에 있다.
+        </p>
+
+        <h2 id="resubmit">실패한 것만 다시 제출</h2>
+        <p>
+          배열 중 몇 개가 walltime이나 수렴 문제로 끝나지 못했다면, 목록 파일에서 실패한 이름만 골라 새 목록을 만들고 그것으로 다시 제출한다.
+          출력 파일이 아예 없는 경우(시작도 못 한 서브작업)도 실패로 센다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># find_failed.sh: names from list.txt whose ORCA output is missing or unfinished</span>
+<span class="kw">while</span> <span class="kw">read</span> -r name; <span class="kw">do</span>
+    out=<span class="str">"$name/$name.out"</span>
+    <span class="kw">if</span> [[ ! -f $out ]] || ! grep -q <span class="str">'ORCA TERMINATED NORMALLY'</span> <span class="str">"$out"</span>; <span class="kw">then</span>
+        <span class="kw">echo</span> <span class="str">"$name"</span>
+    <span class="kw">fi</span>
+<span class="kw">done</span> &lt; list.txt &gt; failed.txt</code></pre>
+
+        <pre data-lang="bash"><code>$ bash find_failed.sh
+$ cat failed.txt
+PBE0_def2-SVP
+TPSS_def2-SVP
+$ grep -L "ORCA TERMINATED NORMALLY" */*.out
+PBE0_def2-SVP/PBE0_def2-SVP.out</code></pre>
+
+        <p>
+          이 예에서 <code>PBE0_def2-SVP</code>는 출력이 중간에 끊겼고 <code>TPSS_def2-SVP</code>는 출력이 없다.
+          <code>grep -L</code>(맞는 줄이 <em>없는</em> 파일)은 앞의 것만 찾는다. 파일이 없는 경우는 grep이 볼 수 없기 때문이다.
+        </p>
+        <p>
+          다시 제출하려면 배열 스크립트가 목록 파일 이름을 변수로 받게 고친다. <code>LIST</code>가 없으면 <code>list.txt</code>를 쓴다.
+        </p>
+
+        <pre data-lang="bash"><code>LIST=${LIST:-list.txt}
+IDX=${PBS_ARRAY_INDEX:-1}
+NAME=$(sed -n <span class="str">"${IDX}p"</span> <span class="str">"$LIST"</span>)
+[[ -n $NAME ]] || { <span class="kw">echo</span> <span class="str">"no line $IDX in $LIST"</span>; <span class="kw">exit</span> 1; }</code></pre>
+
+        <pre data-lang="bash"><code>N=$(wc -l &lt; failed.txt)
+qsub -J 1-<span class="str">"$N"</span> -v LIST=failed.txt array.pbs              <span class="cmt"># PBS Pro, N &gt;= 2</span>
+sbatch --array=1-<span class="str">"$N"</span> --export=ALL,LIST=failed.txt array.sh  <span class="cmt"># Slurm</span></code></pre>
+
+        <p>
+          실패한 것이 하나뿐이면 PBS Pro에서는 <code>-J</code> 없이 <code>qsub -v LIST=failed.txt array.pbs</code>로 일반 작업으로 제출한다.
+          <code>PBS_ARRAY_INDEX</code>가 없으니 <code>IDX</code>가 1이 된다. 이때 스크립트 안에 <code>#PBS -J</code> 줄이 남아 있으면 다시 배열이 되므로,
+          배열 범위는 스크립트에 적지 않고 늘 명령줄로 주는 편이 편하다.
+          다시 돌리기 전에 실패 원인을 먼저 본다. walltime이 모자랐다면 늘리고, SCF가 수렴하지 않았다면 입력을 고쳐야 같은 실패를 되풀이하지 않는다.
+        </p>
+
+        <h2 id="many">작은 계산 여러 개를 작업 하나에서</h2>
+        <p>
+          xtb 단일점처럼 몇 초면 끝나는 계산은 하나마다 작업을 만들면 대기 시간이 계산 시간보다 길다. 코어 여러 개를 받은 작업 하나 안에서
+          <code>xargs -P</code>나 GNU parallel로 동시에 돌린다. 먼저 xyz 파일 하나를 처리하는 스크립트를 만든다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># run_one.sh: xtb single point for one xyz file, in its own directory</span>
+<span class="kw">set</span> -euo pipefail
+xyz=$(realpath <span class="str">"$1"</span>)
+name=$(basename <span class="str">"$xyz"</span> .xyz)
+mkdir -p <span class="str">"sp/$name"</span>
+<span class="kw">cd</span> <span class="str">"sp/$name"</span>
+xtb <span class="str">"$xyz"</span> &gt; sp.out 2&gt;&amp;1
+awk -v n=<span class="str">"$name"</span> <span class="str">'/TOTAL ENERGY/ {print n, $4}'</span> sp.out</code></pre>
+
+        <pre data-lang="bash"><code>$ export OMP_NUM_THREADS=1
+$ printf '%s\n' mols/*.xyz | xargs -P 4 -n 1 ./run_one.sh
+ammonia -4.426093057513
+methanol -8.225938944071
+methane -4.175074573917
+water -5.070222286727
+$ parallel -j 4 --keep-order ./run_one.sh ::: mols/*.xyz
+ammonia -4.426093057513
+methane -4.175074573917
+methanol -8.225938944071
+water -5.070222286727</code></pre>
+
+        <p>
+          <code>xargs -P 4 -n 1</code>은 입력 한 줄씩 받아 최대 네 개를 동시에 실행한다. 출력은 끝난 순서대로 나오므로 매번 달라질 수 있다.
+          GNU parallel의 <code>--keep-order</code>는 입력 순서대로 출력한다. 계산마다 디렉터리를 따로 쓰는 것은
+          xtb가 결과 파일을 고정된 이름으로 쓰기 때문이다. 같은 디렉터리에서 동시에 돌리면 서로 덮어쓴다.
+        </p>
+
+        <div class="warning">
+          <div class="note-title">받은 코어만큼만</div>
+          <p>
+            동시 실행 수 × 계산당 스레드 수가 요청한 코어 수를 넘지 않게 한다. 작업 스크립트에서는 <code>-j "$NCPUS"</code>와
+            <code>OMP_NUM_THREADS=1</code>을 함께 쓴다. 로그인 노드에서 이런 병렬 실행을 돌리면 다른 사용자가 쓰는 노드를 막게 되니
+            반드시 작업 안에서 돌린다.
+          </p>
+        </div>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="batch.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">PBS · Slurm 작업 스크립트</div>
+        </a>
+        <a class="next" href="cheatsheet.html">
+          <div class="page-nav-label">다음 →</div>
+          <div class="page-nav-title">치트시트</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

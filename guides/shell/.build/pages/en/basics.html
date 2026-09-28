@@ -1,0 +1,304 @@
+<!--
+title: Your first script
+eyebrow: CHAPTER 01 · Start
+h1: Your first script
+lede: Write and run a script file, then use variables, quoting, command substitution and a here-document to generate ORCA input files.
+-->
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#script">Script files and the shebang</a></li>
+            <li><a href="#run">Two ways to run a script</a></li>
+            <li><a href="#vars">Variables</a></li>
+            <li><a href="#quotes">Single and double quotes</a></li>
+            <li><a href="#subst">Command substitution and arithmetic</a></li>
+            <li><a href="#io">Input and output: read, echo, printf</a></li>
+            <li><a href="#heredoc">Writing input files with a here-document</a></li>
+            <li><a href="#expansion">Parameter expansion</a></li>
+          </ul>
+        </div>
+
+        <h2 id="script">Script files and the shebang</h2>
+        <p>
+          A script is a text file with the commands you would otherwise type at the terminal, one after another.
+          By convention it ends in <code>.sh</code>, but the extension is optional. Open an editor, create <code>hello.sh</code> and put in these four lines.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># my first script</span>
+echo "Hello from $(hostname)"
+echo "Current directory: $PWD"</code></pre>
+
+        <p>
+          The first line, <code>#!/bin/bash</code>, is the shebang. When the file is executed directly, it tells the kernel which program should read it.
+          It must be the very first line and start at the first character. Any other line starting with <code>#</code> is a comment and is ignored,
+          as is everything after a <code>#</code> in the middle of a line.
+        </p>
+        <p>
+          You will also see <code>#!/usr/bin/env bash</code>. It means "use the first bash found on <code>PATH</code>", which helps on systems where bash
+          is not in <code>/bin</code> or when you installed a newer bash with conda. On a cluster either form is fine.
+        </p>
+
+        <h2 id="run">Two ways to run a script</h2>
+        <p>The first is to hand the file to bash. No execute permission is needed.</p>
+
+        <pre data-lang="bash"><code>$ bash hello.sh
+Hello from kramers
+Current directory: /home/kim/scripts</code></pre>
+
+        <p>
+          The second is to run the file itself as a command. That requires execute permission. Without it the shell refuses;
+          after <code>chmod +x</code> it works.
+        </p>
+
+        <pre data-lang="bash"><code>$ ./hello.sh
+bash: ./hello.sh: Permission denied
+$ chmod +x hello.sh
+$ ./hello.sh
+Hello from kramers
+Current directory: /home/kim/scripts
+$ hello.sh
+bash: hello.sh: command not found</code></pre>
+
+        <p>
+          As the last line shows, dropping the <code>./</code> fails. A command without a path is only looked up in the directories listed in <code>PATH</code>,
+          and the current directory is normally not one of them. <code>./</code> spells out "the file in this directory".
+          If you collect your scripts in <code>~/bin</code> and add that directory to <code>PATH</code>, you can call them by name from anywhere.
+          Permissions and <code>PATH</code> are covered in the Linux starter pack chapters on <a href="../../linux/en/permissions.html">permissions</a>
+          and <a href="../../linux/en/processes.html">processes and environment variables</a>.
+        </p>
+        <p>
+          One more difference: <code>bash hello.sh</code> ignores the shebang and always uses bash. Running <code>sh hello.sh</code> may hand the file to dash
+          instead of bash on some systems, and lines with bash-only syntax then fail.
+        </p>
+
+        <h2 id="vars">Variables</h2>
+        <p>
+          Create a variable with <code>name=value</code>. <strong>There must be no spaces around <code>=</code>.</strong>
+          If you add spaces out of habit from other languages, bash reads something else entirely.
+        </p>
+
+        <pre data-lang="bash"><code>$ mol = water
+bash: mol: command not found
+$ mol= water
+bash: water: command not found
+$ mol=water
+$ echo $mol
+water</code></pre>
+
+        <p>
+          <code>mol = water</code> runs a command called <code>mol</code> with the arguments <code>=</code> and <code>water</code>.
+          <code>mol= water</code> sets <code>mol</code> to an empty string for the duration of a command called <code>water</code>.
+        </p>
+        <p>
+          To read a variable, write <code>$mol</code> or <code>${mol}</code>. The braces are needed when a letter or underscore follows the name directly.
+        </p>
+
+        <pre data-lang="bash"><code>$ echo "$mol_opt.inp"
+.inp
+$ echo "${mol}_opt.inp"
+water_opt.inp</code></pre>
+
+        <p>
+          In the first line bash looks for a variable called <code>mol_opt</code>. There is none, so it expands to nothing and only <code>.inp</code> is left.
+          No error is raised. When building file names, using braces by habit is the safe choice.
+        </p>
+        <p>
+          bash variables have no types; everything is a string. After <code>x=5; x+=1</code> the value is <code>51</code>, not 6.
+          Arithmetic goes through <code>$(( ))</code>, shown below.
+        </p>
+
+        <h2 id="quotes">Single and double quotes</h2>
+        <p>
+          Inside double quotes, <code>$variable</code> and <code>$(command)</code> are replaced by their values. Inside single quotes nothing is replaced.
+        </p>
+
+        <pre data-lang="bash"><code>$ echo 'single: $mol' "double: $mol"
+single: $mol double: water</code></pre>
+
+        <p>
+          Put double quotes around variables almost every time. An unquoted <code>$f</code> is split into separate words at spaces,
+          and characters like <code>*</code> are expanded as file names. A single space in a file name is enough for <code>cp $f backup/</code>
+          to look for two wrong files. <code>cp "$f" backup/</code> does not have this problem. <a href="robust.html">Chapter 04</a> comes back to this.
+        </p>
+
+        <h2 id="subst">Command substitution and arithmetic</h2>
+        <p>
+          <code>$(command)</code> is replaced by the output of the command. The older backtick form <code>`command`</code> does the same but is awkward to nest.
+        </p>
+
+        <pre data-lang="bash"><code>$ n=$(grep -c "^H" water.xyz)
+$ echo "H atoms: $n"
+H atoms: 2
+$ today=$(date +%F)
+$ echo "$today"
+2026-09-29</code></pre>
+
+        <p>
+          Integer arithmetic happens inside <code>$(( ))</code>. Within the parentheses variables do not need a <code>$</code>.
+          Division keeps only the quotient, and a decimal point is a syntax error.
+        </p>
+
+        <pre data-lang="bash"><code>$ echo $(( 7 / 2 )) $(( 7 % 2 )) $(( 2**10 ))
+3 1 1024
+$ nprocs=8; echo $(( nprocs * 2 ))
+16
+$ echo $(( 1.5 * 2 ))
+bash: 1.5 * 2 : arithmetic syntax error: invalid arithmetic operator (error token is ".5 * 2 ")</code></pre>
+
+        <p>For anything with decimals, such as energies, use <code>awk</code> or <code>bc</code>. Converting Hartree to kcal/mol:</p>
+
+        <pre data-lang="bash"><code>$ awk 'BEGIN { printf "%.2f\n", -76.426369457144 * 627.509 }'
+-47958.23
+$ echo "-76.426369457144 * 627.509" | bc -l
+-47958.234671682974296</code></pre>
+
+        <h2 id="io">Input and output: read, echo, printf</h2>
+        <p>
+          <code>read</code> takes one line from the keyboard and stores it in a variable. <code>-p</code> sets a prompt; <code>-r</code> keeps backslashes as they are.
+          Use <code>-r</code> unless you have a reason not to.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="kw">read</span> -r -p "Molecule name: " name
+echo "Writing ${name}_opt.inp"</code></pre>
+
+        <pre data-lang="bash"><code>$ ./ask.sh
+Molecule name: benzene
+Writing benzene_opt.inp</code></pre>
+
+        <p>
+          In practice, scripts that take arguments are easier to use than scripts that ask questions, not least because a job running under the scheduler
+          has no keyboard. Arguments are covered in <a href="functions.html">chapter 03</a>.
+        </p>
+        <p>
+          <code>echo</code> is fine for most output, but its handling of options like <code>-n</code> and <code>-e</code> varies between systems.
+          When you need aligned columns, tabs or exact newlines, use <code>printf</code>. It does not add a newline on its own, so include <code>\n</code>.
+        </p>
+
+        <pre data-lang="bash"><code>$ printf '%-10s %12.6f\n' water -76.426369457144 ammonia -56.55
+water        -76.426369
+ammonia      -56.550000</code></pre>
+
+        <p>If there are more arguments than the format uses, the format is applied again, which is handy for tables.</p>
+
+        <h2 id="heredoc">Writing input files with a here-document</h2>
+        <p>
+          A here-document passes the text between <code>&lt;&lt;EOF</code> and a line containing only <code>EOF</code> to a command as its input.
+          With <code>cat &gt; file &lt;&lt;EOF</code> that text becomes a file. Variables and command substitutions inside are expanded, so it works well as an input template.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># write an ORCA input file from a single coordinate file such as water.xyz</span>
+
+xyz=water.xyz
+mol=${xyz%.xyz}
+method="r2SCAN-3c"
+nprocs=8
+maxcore=3000
+charge=0
+mult=1
+
+cat &gt; "${mol}_opt.inp" &lt;&lt;EOF
+# ${mol}: geometry optimisation + frequencies
+! ${method} Opt Freq TightSCF
+%pal nprocs ${nprocs} end
+%maxcore ${maxcore}
+
+* xyz ${charge} ${mult}
+$(tail -n +3 "$xyz")
+*
+EOF
+
+echo "wrote ${mol}_opt.inp"</code></pre>
+
+        <p>
+          <code>tail -n +3</code> prints from line 3 to the end, which drops the atom count and comment line of the xyz file and keeps only the coordinates.
+        </p>
+
+        <pre data-lang="bash"><code>$ ./make_inp.sh
+wrote water_opt.inp
+$ cat water_opt.inp
+# water: geometry optimisation + frequencies
+! r2SCAN-3c Opt Freq TightSCF
+%pal nprocs 8 end
+%maxcore 3000
+
+* xyz 0 1
+O   0.000000   0.000000   0.119262
+H   0.000000   0.763239  -0.477047
+H   0.000000  -0.763239  -0.477047
+*</code></pre>
+
+        <p>
+          The closing <code>EOF</code> must start at the beginning of the line with nothing after it, not even a space. Any word works as the marker.
+        </p>
+        <p>
+          Quoting the marker, <code>&lt;&lt;'EOF'</code>, turns expansion off and the text is written exactly as it is.
+          Use it when the content must keep its <code>$</code> signs, for example when a script writes a job script.
+          To expand some variables and keep others, use an unquoted <code>&lt;&lt;EOF</code> and write <code>\$</code> for the ones to keep.
+        </p>
+
+        <pre data-lang="bash"><code>$ cat &lt;&lt;'EOF'
+! ${method} Opt
+cd $PBS_O_WORKDIR
+EOF
+! ${method} Opt
+cd $PBS_O_WORKDIR
+$ method=B3LYP
+$ cat &lt;&lt;EOF
+! ${method} Opt
+cd \$PBS_O_WORKDIR
+EOF
+! B3LYP Opt
+cd $PBS_O_WORKDIR</code></pre>
+
+        <div class="tip">
+          <div class="note-title">Inputs without coordinates</div>
+          <p>
+            If the file name in <code>$(tail -n +3 "$xyz")</code> is wrong, an error message goes to the screen and the input file is still written, just without coordinates.
+            Get into the habit of looking at the input with <code>cat</code> before running ORCA. <a href="control.html">Chapter 02</a> shows how to check that a file exists first.
+          </p>
+        </div>
+
+        <h2 id="expansion">Parameter expansion</h2>
+        <p>
+          Adding operators inside <code>${...}</code> lets you trim a variable's value. It strips extensions and directories from file names without
+          calling <code>basename</code> or <code>sed</code>, which is why it shows up in loops all the time.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Syntax</th><th>Meaning</th><th>With <code>f=conformers/ethanol_conf03.xyz</code></th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>${f%.xyz}</code></td><td>remove <code>.xyz</code> from the end</td><td><code>conformers/ethanol_conf03</code></td></tr>
+            <tr><td><code>${f##*/}</code></td><td>remove everything up to the last <code>/</code> (file name only)</td><td><code>ethanol_conf03.xyz</code></td></tr>
+            <tr><td><code>${f%/*}</code></td><td>remove the last <code>/</code> and what follows (directory only)</td><td><code>conformers</code></td></tr>
+            <tr><td><code>${f#*_}</code></td><td>remove up to the first <code>_</code></td><td><code>conf03.xyz</code></td></tr>
+            <tr><td><code>${f%%_*}</code></td><td>remove the first <code>_</code> and everything after</td><td><code>conformers/ethanol</code></td></tr>
+            <tr><td><code>${f/.xyz/.inp}</code></td><td>replace the first <code>.xyz</code> with <code>.inp</code></td><td><code>conformers/ethanol_conf03.inp</code></td></tr>
+            <tr><td><code>${n:-4}</code></td><td><code>4</code> if <code>n</code> is unset or empty</td><td>(default value)</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          <code>#</code> trims from the front, <code>%</code> from the back. A single symbol removes the shortest match, a double one the longest.
+          To get the bare name without directory or extension, do it in two steps.
+        </p>
+
+        <pre data-lang="bash"><code>$ f=conformers/ethanol_conf03.xyz
+$ base=${f##*/}
+$ echo "${base%.xyz}"
+ethanol_conf03
+$ unset nprocs
+$ echo "${nprocs:-4}"
+4
+$ nprocs=16
+$ echo "${nprocs:-4}"
+16</code></pre>
+
+        <p>
+          <code>${nprocs:-4}</code> is a common way to give a script a default. Writing <code>nprocs=${NCPUS:-4}</code> uses the requested core count
+          inside a PBS job and 4 when you test on the login node.
+        </p>

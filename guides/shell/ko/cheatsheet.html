@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>치트시트 · 셸 스크립팅 가이드</title>
+  <meta name="description" content="앞 장에서 다룬 문법, 텍스트 도구, 스케줄러 명령을 표로 모았다." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="cheatsheet.html" class="active">KO</a>
+    <a href="../en/cheatsheet.html">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Shell</div>
+    <div class="brand-subtitle">스크립팅 가이드 · bash</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="basics.html"><span class="nav-num">01</span>첫 스크립트</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">문법</div>
+      <ul class="nav-list">
+        <li><a href="control.html"><span class="nav-num">02</span>조건과 반복</a></li>
+        <li><a href="functions.html"><span class="nav-num">03</span>함수와 인자</a></li>
+        <li><a href="robust.html"><span class="nav-num">04</span>안전한 스크립트</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">텍스트 처리</div>
+      <ul class="nav-list">
+        <li><a href="text.html"><span class="nav-num">05</span>grep · sed · awk</a></li>
+        <li><a href="extract.html"><span class="nav-num">06</span>출력 파일에서 값 뽑기</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">작업 제출</div>
+      <ul class="nav-list">
+        <li><a href="batch.html"><span class="nav-num">07</span>PBS · Slurm 작업 스크립트</a></li>
+        <li><a href="arrays.html"><span class="nav-num">08</span>작업 배열과 파라미터 스윕</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">참고</div>
+      <ul class="nav-list">
+        <li><a href="cheatsheet.html"><span class="nav-num">09</span>치트시트</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 09 · 참고</div>
+        <h1 class="page-title">치트시트</h1>
+        <p class="page-lede">앞 장에서 다룬 문법, 텍스트 도구, 스케줄러 명령을 표로 모았다.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
+          <ul>
+            <li><a href="#vars">변수와 확장</a></li>
+            <li><a href="#tests">검사</a></li>
+            <li><a href="#loops">조건문과 반복문</a></li>
+            <li><a href="#functions">함수와 인자</a></li>
+            <li><a href="#redirect">리다이렉션과 파이프</a></li>
+            <li><a href="#safety">안전장치</a></li>
+            <li><a href="#text">grep · sed · awk</a></li>
+            <li><a href="#scheduler">PBS와 Slurm</a></li>
+          </ul>
+        </div>
+
+        <h2 id="vars">변수와 확장</h2>
+        <table>
+          <thead>
+            <tr><th>문법</th><th>뜻</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>mol=water</code></td><td>변수 만들기. <code>=</code> 양옆에 공백 없음</td></tr>
+            <tr><td><code>"$mol"</code>, <code>"${mol}_opt.inp"</code></td><td>값 꺼내기. 뒤에 글자가 붙으면 중괄호</td></tr>
+            <tr><td><code>'$mol'</code></td><td>작은따옴표 안은 글자 그대로</td></tr>
+            <tr><td><code>n=$(grep -c "^H" water.xyz)</code></td><td>명령 치환: 출력을 변수에</td></tr>
+            <tr><td><code>$(( nprocs * 2 ))</code></td><td>정수 산술. 소수는 <code>awk</code>나 <code>bc</code></td></tr>
+            <tr><td><code>export OMP_NUM_THREADS=8</code></td><td>하위 프로그램에도 보이는 환경 변수</td></tr>
+            <tr><td><code>${f%.xyz}</code></td><td>뒤에서 <code>.xyz</code> 떼기</td></tr>
+            <tr><td><code>${f##*/}</code> / <code>${f%/*}</code></td><td>파일 이름만 / 디렉터리만</td></tr>
+            <tr><td><code>${f#*_}</code> / <code>${f%%_*}</code></td><td>처음 <code>_</code>까지 떼기 / 처음 <code>_</code>부터 떼기</td></tr>
+            <tr><td><code>${f/.xyz/.inp}</code></td><td>처음 맞는 부분 바꾸기. <code>${f//a/b}</code>는 전부</td></tr>
+            <tr><td><code>${n:-4}</code></td><td>비었거나 없으면 4</td></tr>
+            <tr><td><code>${#mol}</code></td><td>문자열 길이</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="tests">검사</h2>
+        <table>
+          <thead>
+            <tr><th>검사</th><th>참인 경우</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>[[ -f $f ]]</code>, <code>-d</code>, <code>-e</code></td><td>파일 / 디렉터리 / 아무거나 있다</td></tr>
+            <tr><td><code>[[ -s $f ]]</code></td><td>파일이 있고 비어 있지 않다</td></tr>
+            <tr><td><code>[[ -z $s ]]</code> / <code>[[ -n $s ]]</code></td><td>문자열이 비었다 / 비어 있지 않다</td></tr>
+            <tr><td><code>[[ $a == $b ]]</code>, <code>!=</code></td><td>문자열 비교</td></tr>
+            <tr><td><code>[[ $f == *.xyz ]]</code></td><td>패턴 비교 (오른쪽을 따옴표로 감싸지 않는다)</td></tr>
+            <tr><td><code>[[ $n -lt 8 ]]</code></td><td>정수 비교: <code>-eq -ne -lt -le -gt -ge</code></td></tr>
+            <tr><td><code>(( n &gt; 8 ))</code></td><td>정수 비교, 산술 문법</td></tr>
+            <tr><td><code>!</code>, <code>&amp;&amp;</code>, <code>||</code></td><td><code>[[ ]]</code> 안의 부정, 그리고, 또는</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="loops">조건문과 반복문</h2>
+        <table>
+          <thead>
+            <tr><th>형식</th><th>메모</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>if 명령; then ...; elif ...; else ...; fi</code></td><td>명령의 종료 코드가 0이면 참</td></tr>
+            <tr><td><code>A &amp;&amp; B</code> / <code>A || B</code></td><td>A가 성공하면 B / 실패하면 B</td></tr>
+            <tr><td><code>for f in *.xyz; do ...; done</code></td><td>파일 반복. <code>$(ls)</code>는 쓰지 않는다</td></tr>
+            <tr><td><code>shopt -s nullglob</code></td><td>맞는 파일이 없으면 빈 목록</td></tr>
+            <tr><td><code>for i in {1..10}</code>, <code>{01..10}</code></td><td>숫자 범위. 변수는 못 쓴다</td></tr>
+            <tr><td><code>for (( i=0; i&lt;n; i++ ))</code></td><td>C 형식. 범위에 변수를 쓸 때</td></tr>
+            <tr><td><code>while read -r a b; do ...; done &lt; list.txt</code></td><td>파일을 한 줄씩. 파이프로 넘기면 변수가 밖에 안 남는다</td></tr>
+            <tr><td><code>done &lt; &lt;(find . -name '*.out')</code></td><td>명령 출력을 한 줄씩 (프로세스 치환)</td></tr>
+            <tr><td><code>case $f in *.xyz) ... ;; *) ... ;; esac</code></td><td>패턴별로 나누기</td></tr>
+            <tr><td><code>continue</code> / <code>break</code></td><td>이번 차례 건너뛰기 / 반복 끝내기</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="functions">함수와 인자</h2>
+        <table>
+          <thead>
+            <tr><th>문법</th><th>뜻</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>name() { ...; }</code></td><td>함수 정의. 부를 때는 <code>name arg1 arg2</code></td></tr>
+            <tr><td><code>local x=$1</code></td><td>함수 안에서만 보이는 변수</td></tr>
+            <tr><td><code>$0</code>, <code>$1</code> ... <code>${10}</code></td><td>스크립트 이름, 인자</td></tr>
+            <tr><td><code>$#</code></td><td>인자 개수</td></tr>
+            <tr><td><code>"$@"</code> / <code>"$*"</code></td><td>인자를 각각 / 한 문자열로</td></tr>
+            <tr><td><code>shift</code>, <code>shift 2</code></td><td>앞 인자 버리기</td></tr>
+            <tr><td><code>return 1</code></td><td>함수의 종료 코드 (0–255)</td></tr>
+            <tr><td><code>e=$(orca_energy water.out)</code></td><td>출력으로 값 돌려받기</td></tr>
+            <tr><td><code>while getopts "m:n:h" opt</code></td><td>옵션 파싱. 값은 <code>$OPTARG</code>, 끝나면 <code>shift $((OPTIND - 1))</code></td></tr>
+            <tr><td><code>source lib.sh</code>, <code>. lib.sh</code></td><td>다른 파일을 현재 셸에서 실행</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="redirect">리다이렉션과 파이프</h2>
+        <table>
+          <thead>
+            <tr><th>문법</th><th>뜻</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>cmd &gt; out</code> / <code>cmd &gt;&gt; out</code></td><td>표준 출력을 파일에 덮어쓰기 / 이어 쓰기</td></tr>
+            <tr><td><code>cmd 2&gt; err</code></td><td>표준 오류만 파일로</td></tr>
+            <tr><td><code>cmd &gt; log 2&gt;&amp;1</code>, <code>cmd &amp;&gt; log</code></td><td>둘 다 한 파일로</td></tr>
+            <tr><td><code>cmd 2&gt;/dev/null</code></td><td>오류 메시지 버리기</td></tr>
+            <tr><td><code>echo "msg" &gt;&amp;2</code></td><td>표준 오류로 찍기</td></tr>
+            <tr><td><code>cmd &lt; file</code></td><td>파일을 표준 입력으로</td></tr>
+            <tr><td><code>a | b</code></td><td>a의 출력을 b의 입력으로</td></tr>
+            <tr><td><code>cmd | tee log</code></td><td>화면에도 찍고 파일에도 쓰기</td></tr>
+            <tr><td><code>cat &gt; f.inp &lt;&lt;EOF</code> ... <code>EOF</code></td><td>here-document. 변수와 <code>$( )</code>가 펼쳐진다</td></tr>
+            <tr><td><code>&lt;&lt;'EOF'</code></td><td>펼치지 않고 글자 그대로</td></tr>
+            <tr><td><code>&lt;&lt;-EOF</code></td><td>줄 앞의 탭을 지운다 (공백은 안 지운다)</td></tr>
+            <tr><td><code>cmd &lt;&lt;&lt; "$var"</code></td><td>here-string: 문자열 하나를 입력으로</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="safety">안전장치</h2>
+        <table>
+          <thead>
+            <tr><th>문법</th><th>뜻</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>set -euo pipefail</code></td><td>실패하면 멈춤, 없는 변수는 오류, 파이프 중간 실패도 잡기</td></tr>
+            <tr><td><code>grep ... || true</code></td><td><code>-e</code> 아래에서 "못 찾음"을 허용</td></tr>
+            <tr><td><code>i=$((i + 1))</code></td><td><code>((i++))</code> 대신. i가 0일 때 <code>-e</code>에 걸리지 않는다</td></tr>
+            <tr><td><code>${1:-}</code></td><td><code>-u</code> 아래에서 없는 인자를 빈 값으로</td></tr>
+            <tr><td><code>cd "$d" || exit 1</code></td><td>이동 실패 시 멈추기</td></tr>
+            <tr><td><code>command -v orca</code></td><td>프로그램이 있는지 확인하고 경로 얻기</td></tr>
+            <tr><td><code>tmp=$(mktemp -d)</code></td><td>겹치지 않는 임시 디렉터리</td></tr>
+            <tr><td><code>trap 'rm -rf "$tmp"' EXIT</code></td><td>끝날 때 뒷정리</td></tr>
+            <tr><td><code>date '+%F %T'</code></td><td><code>2026-09-29 00:15:54</code> 형식 시각</td></tr>
+            <tr><td><code>bash -n script.sh</code></td><td>실행하지 않고 문법만 검사</td></tr>
+            <tr><td><code>bash -x script.sh</code></td><td>실행하는 명령을 한 줄씩 찍기</td></tr>
+            <tr><td><code>shellcheck script.sh</code></td><td>흔한 실수 찾기</td></tr>
+            <tr><td><code>sed -i 's/\r$//' script.sh</code></td><td>Windows 줄바꿈(CRLF) 지우기</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="text">grep · sed · awk</h2>
+        <p>ORCA 출력에서 자주 쓰는 형태만 모았다. 자세한 설명은 <a href="text.html">05장</a>과 <a href="extract.html">06장</a>에 있다.</p>
+
+        <table>
+          <thead>
+            <tr><th>명령</th><th>하는 일</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>grep -n "FINAL SINGLE POINT ENERGY" water.out</code></td><td>맞는 줄을 줄 번호와 함께</td></tr>
+            <tr><td><code>grep -c "FINAL SINGLE POINT ENERGY" water.out</code></td><td>맞는 줄 수 (최적화 단계 수를 셀 때)</td></tr>
+            <tr><td><code>grep -A 10 "^VIBRATIONAL FREQUENCIES" water.out</code></td><td>맞는 줄과 그 뒤 10줄</td></tr>
+            <tr><td><code>grep -B 2 "TERMINATED NORMALLY" water.out</code></td><td>맞는 줄과 그 앞 2줄</td></tr>
+            <tr><td><code>grep -l "TERMINATED NORMALLY" */*.out</code></td><td>맞는 줄이 있는 파일 이름만. <code>-L</code>은 없는 파일</td></tr>
+            <tr><td><code>grep -r --include='*.out' -l "TERMINATED NORMALLY" jobs</code></td><td>디렉터리 아래를 재귀로</td></tr>
+            <tr><td><code>grep -q "..." f</code></td><td>출력 없이 종료 코드만 (<code>if</code> 조건용)</td></tr>
+            <tr><td><code>sed -n '10,20p' water.out</code></td><td>10–20번째 줄만</td></tr>
+            <tr><td><code>sed -n '/CARTESIAN COORDINATES (ANGSTROEM)/,+4p' water.out</code></td><td>패턴부터 4줄 더</td></tr>
+            <tr><td><code>sed -i 's/nprocs 4/nprocs 8/' */*.inp</code></td><td>파일 안에서 바꾸기. <code>-i.bak</code>이면 원본을 남긴다</td></tr>
+            <tr><td><code>sed '/^#/d' f</code></td><td><code>#</code>으로 시작하는 줄 지우기</td></tr>
+            <tr><td><code>awk '{print $5}'</code></td><td>공백 기준 다섯째 열</td></tr>
+            <tr><td><code>awk '{print $NF}'</code></td><td>마지막 열 (<code>NF</code>는 열 개수)</td></tr>
+            <tr><td><code>awk 'NR &gt; 2 {print $1}' water.xyz</code></td><td>셋째 줄부터 첫 열 (<code>NR</code>은 줄 번호)</td></tr>
+            <tr><td><code>awk -F, '{print $2}' data.csv</code></td><td>쉼표로 나눈 둘째 열</td></tr>
+            <tr><td><code>awk '/FINAL SINGLE POINT ENERGY/ {e=$5} END {print e}' water.out</code></td><td>마지막으로 맞은 줄의 값</td></tr>
+            <tr><td><code>awk '{s += $2} END {print s / NR}' f</code></td><td>둘째 열 평균</td></tr>
+            <tr><td><code>awk -v x="$e" 'BEGIN {printf "%.2f\n", x * 627.509}'</code></td><td>셸 변수로 소수 계산 (Hartree → kcal/mol)</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ grep -n "FINAL SINGLE POINT ENERGY" water.out | tail -n 1
+3124:FINAL SINGLE POINT ENERGY       -76.426369457144
+$ awk '/FINAL SINGLE POINT ENERGY/ {e=$5} END {print e}' water.out
+-76.426369457144
+$ grep -L "ORCA TERMINATED NORMALLY" jobs/*/*.out
+jobs/methane_opt/methane_opt.out</code></pre>
+
+        <h2 id="scheduler">PBS와 Slurm</h2>
+        <p>
+          PBS는 PBS Pro 기준이다. 클러스터마다 큐 이름, 메모리 단위, 기본값이 다르니 사이트 문서를 함께 본다.
+          작업 스크립트 전체 예는 <a href="batch.html">07장</a>, 배열은 <a href="arrays.html">08장</a>에 있다.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>할 일</th><th>PBS Pro</th><th>Slurm</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>제출</td><td><code>qsub job.pbs</code></td><td><code>sbatch job.sh</code></td></tr>
+            <tr><td>내 작업 보기</td><td><code>qstat -u $USER</code></td><td><code>squeue -u $USER</code></td></tr>
+            <tr><td>작업 상세</td><td><code>qstat -f &lt;jobid&gt;</code></td><td><code>scontrol show job &lt;jobid&gt;</code></td></tr>
+            <tr><td>끝난 작업 기록</td><td><code>qstat -x &lt;jobid&gt;</code></td><td><code>sacct -j &lt;jobid&gt;</code></td></tr>
+            <tr><td>취소</td><td><code>qdel &lt;jobid&gt;</code></td><td><code>scancel &lt;jobid&gt;</code></td></tr>
+            <tr><td>대화형 작업</td><td><code>qsub -I -l select=1:ncpus=4</code></td><td><code>srun --pty -c 4 bash</code></td></tr>
+            <tr><td>작업 이름</td><td><code>#PBS -N opt</code></td><td><code>#SBATCH --job-name=opt</code> (<code>-J opt</code>)</td></tr>
+            <tr><td>코어와 메모리</td><td><code>#PBS -l select=1:ncpus=8:mem=16gb</code></td><td><code>#SBATCH --ntasks=1</code><br /><code>#SBATCH --cpus-per-task=8</code><br /><code>#SBATCH --mem=16G</code></td></tr>
+            <tr><td>MPI 프로세스 8개 (ORCA <code>%pal</code>)</td><td><code>#PBS -l select=1:ncpus=8:mpiprocs=8</code></td><td><code>#SBATCH --ntasks=8</code></td></tr>
+            <tr><td>시간 제한</td><td><code>#PBS -l walltime=24:00:00</code></td><td><code>#SBATCH --time=24:00:00</code></td></tr>
+            <tr><td>큐 / 파티션</td><td><code>#PBS -q normal</code></td><td><code>#SBATCH --partition=normal</code></td></tr>
+            <tr><td>출력 파일</td><td><code>#PBS -j oe</code> (표준 오류를 출력에 합침)</td><td><code>#SBATCH --output=%x-%j.out</code></td></tr>
+            <tr><td>작업 배열</td><td><code>#PBS -J 1-10</code></td><td><code>#SBATCH --array=1-10</code></td></tr>
+            <tr><td>배열 번호</td><td><code>$PBS_ARRAY_INDEX</code></td><td><code>$SLURM_ARRAY_TASK_ID</code></td></tr>
+            <tr><td>제출한 디렉터리</td><td><code>$PBS_O_WORKDIR</code></td><td><code>$SLURM_SUBMIT_DIR</code></td></tr>
+            <tr><td>작업 ID</td><td><code>$PBS_JOBID</code></td><td><code>$SLURM_JOB_ID</code></td></tr>
+            <tr><td>받은 코어 수</td><td><code>$NCPUS</code></td><td><code>$SLURM_CPUS_PER_TASK</code>, <code>$SLURM_NTASKS</code></td></tr>
+          </tbody>
+        </table>
+
+        <div class="warning">
+          <div class="note-title">같은 글자, 다른 뜻</div>
+          <p>
+            PBS의 <code>-N</code>은 작업 이름이지만 Slurm의 <code>-N</code>은 노드 수다. PBS의 <code>-J</code>는 배열이지만 Slurm의 <code>-J</code>는 작업 이름이다.
+            스크립트를 옮길 때는 한 글자 옵션보다 Slurm의 긴 옵션(<code>--job-name</code>, <code>--nodes</code>, <code>--array</code>)을 쓰면 헷갈리지 않는다.
+          </p>
+        </div>
+
+        <p>
+          PBS 작업은 홈 디렉터리에서 시작하므로 스크립트 첫머리에 <code>cd "$PBS_O_WORKDIR"</code>가 필요하다.
+          Slurm은 제출한 디렉터리에서 시작한다. 작업 스크립트를 로컬에서 시험할 때는 <code>cd "${PBS_O_WORKDIR:-$PWD}"</code>처럼 기본값을 주면 편하다.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="arrays.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">작업 배열과 파라미터 스윕</div>
+        </a>
+        <a class="next" href="index.html">
+          <div class="page-nav-label">처음으로 ↑</div>
+          <div class="page-nav-title">개요</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

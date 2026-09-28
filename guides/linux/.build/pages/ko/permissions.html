@@ -1,0 +1,207 @@
+<!--
+title: 권한
+eyebrow: CHAPTER 04 · 기본기
+h1: 권한
+lede: ls -l의 rwx를 읽고, chmod로 실행 권한을 주고, 클러스터에서 sudo가 안 되는 이유를 안다.
+-->
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
+          <ul>
+            <li><a href="#columns">ls -l 읽기</a></li>
+            <li><a href="#rwx">rwx와 사용자, 그룹, 기타</a></li>
+            <li><a href="#chmod">chmod</a></li>
+            <li><a href="#numeric">숫자 표기: 755, 644, 600</a></li>
+            <li><a href="#ssh">ssh 키가 600이어야 하는 이유</a></li>
+            <li><a href="#owner">소유자와 그룹</a></li>
+            <li><a href="#sudo">sudo와 클러스터</a></li>
+            <li><a href="#umask">umask</a></li>
+          </ul>
+        </div>
+
+        <p>
+          Linux는 여러 사람이 한 컴퓨터를 같이 쓰는 것을 전제로 만들어졌다. 클러스터가 바로 그런 곳이다. 그래서 파일마다
+          누가 읽고, 고치고, 실행할 수 있는지가 정해져 있다. 권한 때문에 막히는 일은 대개 두 가지다.
+          직접 만든 스크립트가 <code>Permission denied</code>로 실행되지 않거나, ssh 키 권한이 너무 열려 있어 접속이 거부되는 경우다.
+        </p>
+
+        <h2 id="columns">ls -l 읽기</h2>
+        <pre data-lang="bash"><code>$ ls -l
+total 56
+-rw-r--r-- 1 kim kim    62 Sep 29 00:10 get-energy.sh
+drwxr-xr-x 2 kim kim  4096 Sep 29 00:10 scripts
+-rw-r--r-- 1 kim kim 48678 Sep 29 00:10 water.out</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>열</th><th>예</th><th>뜻</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td><code>-rw-r--r--</code></td><td>종류(첫 글자)와 권한(나머지 9글자)</td></tr>
+            <tr><td>2</td><td><code>1</code></td><td>하드 링크 수. 신경 쓰지 않아도 된다.</td></tr>
+            <tr><td>3</td><td><code>kim</code></td><td>소유자</td></tr>
+            <tr><td>4</td><td><code>kim</code></td><td>그룹</td></tr>
+            <tr><td>5</td><td><code>48678</code></td><td>크기(바이트). <code>ls -lh</code>면 <code>48K</code>처럼 나온다.</td></tr>
+            <tr><td>6</td><td><code>Sep 29 00:10</code></td><td>마지막 수정 시각</td></tr>
+            <tr><td>7</td><td><code>water.out</code></td><td>이름</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          첫 글자가 <code>-</code>면 일반 파일, <code>d</code>면 디렉터리, <code>l</code>이면 심볼릭 링크(다른 파일을 가리키는 바로 가기)다.
+        </p>
+
+        <h2 id="rwx">rwx와 사용자, 그룹, 기타</h2>
+        <p>권한 9글자는 세 글자씩 끊어 읽는다.</p>
+
+        <pre data-lang="text"><code>-  rwx  r-x  r-x
+│   │    │    └─ o (other): 그 밖의 모든 사용자
+│   │    └────── g (group): 파일의 그룹에 속한 사용자
+│   └─────────── u (user):  소유자
+└─────────────── 종류</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>글자</th><th>파일에서</th><th>디렉터리에서</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>r</code></td><td>내용 읽기</td><td>안의 파일 목록 보기 (<code>ls</code>)</td></tr>
+            <tr><td><code>w</code></td><td>내용 고치기</td><td>안에 파일 만들기, 지우기, 이름 바꾸기</td></tr>
+            <tr><td><code>x</code></td><td>프로그램으로 실행</td><td>안으로 들어가기 (<code>cd</code>)</td></tr>
+            <tr><td><code>-</code></td><td colspan="2">해당 권한 없음</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          <code>-rw-r--r--</code>는 소유자만 고칠 수 있고 다른 사람은 읽기만 된다는 뜻이다. 파일을 지울 수 있는지는 파일이 아니라
+          그 파일이 든 디렉터리의 <code>w</code> 권한이 정한다. 시스템 파일은 읽기조차 막혀 있다.
+        </p>
+
+        <pre data-lang="bash"><code>$ cat /etc/shadow
+cat: /etc/shadow: Permission denied</code></pre>
+
+        <h2 id="chmod">chmod</h2>
+        <p>
+          권한은 <code>chmod</code>(change mode)로 바꾼다. 가장 흔한 경우는 직접 쓴 스크립트에 실행 권한을 주는 것이다.
+          새로 만든 파일에는 <code>x</code>가 없어서 그대로는 실행되지 않는다.
+        </p>
+
+        <pre data-lang="bash"><code>$ ./get-energy.sh water.out
+bash: ./get-energy.sh: Permission denied
+$ chmod +x get-energy.sh
+$ ls -l get-energy.sh
+-rwxr-xr-x 1 kim kim 62 Sep 29 00:10 get-energy.sh
+$ ./get-energy.sh water.out
+FINAL SINGLE POINT ENERGY       -76.321274411145</code></pre>
+
+        <p>
+          <code>./</code>를 붙이는 이유는 05장의 <code>PATH</code>와 관련이 있다. 셸은 현재 디렉터리에서 명령을 찾지 않으므로 경로를 직접 적어야 한다.
+          <code>bash get-energy.sh water.out</code>처럼 bash에 파일을 넘기면 실행 권한 없이도 돈다. 스크립트 자체를 쓰는 법은
+          <a href="../../shell/ko/basics.html">셸 가이드 01장</a>에 있다.
+        </p>
+
+        <p>문자 표기는 <em>누구</em>(<code>u</code>, <code>g</code>, <code>o</code>, 전부는 <code>a</code>)에게 <em>무엇</em>을 더하거나(<code>+</code>) 빼거나(<code>-</code>) 정확히 지정(<code>=</code>)하는지 적는다.</p>
+
+        <table>
+          <thead>
+            <tr><th>명령</th><th>하는 일</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>chmod +x run.sh</code></td><td>모두에게 실행 권한 추가</td></tr>
+            <tr><td><code>chmod u+x run.sh</code></td><td>소유자에게만 실행 권한 추가</td></tr>
+            <tr><td><code>chmod go-r data.out</code></td><td>그룹과 기타에게서 읽기 권한 제거</td></tr>
+            <tr><td><code>chmod u=rwx,go=rx run.sh</code></td><td>정확히 <code>rwxr-xr-x</code>로 설정</td></tr>
+            <tr><td><code>chmod -R g+r results/</code></td><td>디렉터리 안 전체에 적용</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="numeric">숫자 표기: 755, 644, 600</h2>
+        <p>
+          <code>r</code>=4, <code>w</code>=2, <code>x</code>=1로 놓고 세 자리마다 더하면 숫자 세 개가 된다. 문서나 오류 메시지에서 이 표기를 자주 본다.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>숫자</th><th>문자</th><th>주로 쓰는 곳</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>755</code></td><td><code>rwxr-xr-x</code></td><td>스크립트, 실행 파일, 디렉터리</td></tr>
+            <tr><td><code>644</code></td><td><code>rw-r--r--</code></td><td>일반 파일 (입력, 출력, 텍스트)</td></tr>
+            <tr><td><code>700</code></td><td><code>rwx------</code></td><td>나만 들어갈 디렉터리 (<code>~/.ssh</code>)</td></tr>
+            <tr><td><code>600</code></td><td><code>rw-------</code></td><td>나만 읽을 파일 (ssh 개인 키)</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ chmod 644 get-energy.sh; ls -l get-energy.sh
+-rw-r--r-- 1 kim kim 62 Sep 29 00:10 get-energy.sh
+$ chmod 755 get-energy.sh; ls -l get-energy.sh
+-rwxr-xr-x 1 kim kim 62 Sep 29 00:10 get-energy.sh</code></pre>
+
+        <p>
+          <code>chmod -R 777</code>로 권한 문제를 한 번에 풀라는 글을 인터넷에서 볼 수 있는데, 공용 클러스터에서는 누구나 내 파일을 고치고 지울 수 있게 된다. 쓰지 않는다.
+        </p>
+
+        <h2 id="ssh">ssh 키가 600이어야 하는 이유</h2>
+        <p>
+          ssh 개인 키는 비밀번호와 같다. ssh는 개인 키를 다른 사람이 읽을 수 있는 상태면 아예 쓰지 않는다.
+          WSL에서 <code>/mnt/c</code>의 키를 복사해 오거나 백업에서 되살렸을 때 자주 생긴다.
+        </p>
+
+        <pre data-lang="output"><code>@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@         WARNING: UNPROTECTED PRIVATE KEY FILE!          @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Permissions 0644 for '/home/kim/.ssh/id_ed25519' are too open.
+It is required that your private key files are NOT accessible by others.
+This private key will be ignored.
+Load key "/home/kim/.ssh/id_ed25519": bad permissions</code></pre>
+
+        <pre data-lang="bash"><code>$ chmod 700 ~/.ssh
+$ chmod 600 ~/.ssh/id_ed25519
+$ ls -l ~/.ssh
+total 8
+-rw------- 1 kim kim 399 Sep 29 00:10 id_ed25519
+-rw-r--r-- 1 kim kim  92 Sep 29 00:10 id_ed25519.pub</code></pre>
+
+        <p>공개 키(<code>.pub</code>)는 남에게 줘도 되는 파일이라 644로 둔다. 키를 만들고 쓰는 법은 <a href="ssh.html">06장</a>에서 다룬다.</p>
+
+        <h2 id="owner">소유자와 그룹</h2>
+        <p>
+          <code>id</code>나 <code>groups</code>로 내가 속한 그룹을 본다. 클러스터에서는 연구실이나 프로젝트 단위로 그룹을 만들어
+          공용 디렉터리를 그룹 권한으로 공유하는 경우가 있다. 그룹 이름과 공유 디렉터리 위치는 사이트마다 다르다.
+        </p>
+
+        <pre data-lang="bash"><code>$ id
+uid=1000(kim) gid=1000(kim) groups=1000(kim),27(sudo)
+$ chgrp mygroup results.csv      <span class="cmt"># 파일의 그룹 바꾸기 (내가 속한 그룹으로만)</span>
+$ chmod g+r results.csv          <span class="cmt"># 그룹 사람들이 읽을 수 있게</span></code></pre>
+
+        <p>
+          파일 소유자를 바꾸는 <code>chown</code>은 관리자만 쓸 수 있다. 다른 사람에게 파일을 넘기려면 그 사람이 직접 복사해 가게 한다.
+        </p>
+
+        <h2 id="sudo">sudo와 클러스터</h2>
+        <p>
+          <code>sudo</code>는 명령 하나를 관리자(root) 권한으로 실행한다. 내 노트북이나 WSL에서는 <code>sudo apt install tree</code>처럼
+          시스템 전체에 프로그램을 설치할 때 쓰고, 처음 설치할 때 정한 비밀번호를 묻는다.
+        </p>
+
+        <div class="note">
+          <div class="note-title">클러스터에는 sudo가 없다</div>
+          <p>
+            공용 클러스터에서 일반 사용자는 <code>sudo</code>를 쓸 수 없다. 인터넷 설치 안내가 <code>sudo apt install</code>로 시작하더라도 클러스터에서는 통하지 않는다.
+            대신 이미 설치된 프로그램을 <code>module load</code>로 불러오거나, conda로 홈 디렉터리에 설치하거나, 소스를 받아 홈에 컴파일한다
+            (<a href="hpc.html">09장</a>). 필요한 시스템 라이브러리가 없으면 관리자에게 요청한다.
+          </p>
+        </div>
+
+        <h2 id="umask">umask</h2>
+        <p>
+          새 파일의 기본 권한은 <code>umask</code>가 정한다. 값은 기본 권한에서 <strong>빼는</strong> 비트다.
+          <code>022</code>면 파일은 644, 디렉터리는 755로 만들어진다. Ubuntu 데스크톱은 <code>002</code>라서 그룹에도 쓰기 권한이 붙은 664, 775가 나온다.
+        </p>
+
+        <pre data-lang="bash"><code>$ umask
+0022</code></pre>
+
+        <p>
+          클러스터에서 그룹과 파일을 공유할 때 말고는 바꿀 일이 드물다. 바꾸려면 <code>~/.bashrc</code>에 <code>umask 027</code>처럼 적는다(05장).
+        </p>

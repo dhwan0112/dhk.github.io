@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>grep · sed · awk · 셸 스크립팅 가이드</title>
+  <meta name="description" content="줄을 찾는 grep, 줄을 고치는 sed, 열을 계산하는 awk와 작은 도구 몇 개를 파이프로 잇는다." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="text.html" class="active">KO</a>
+    <a href="../en/text.html">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Shell</div>
+    <div class="brand-subtitle">스크립팅 가이드 · bash</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="basics.html"><span class="nav-num">01</span>첫 스크립트</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">문법</div>
+      <ul class="nav-list">
+        <li><a href="control.html"><span class="nav-num">02</span>조건과 반복</a></li>
+        <li><a href="functions.html"><span class="nav-num">03</span>함수와 인자</a></li>
+        <li><a href="robust.html"><span class="nav-num">04</span>안전한 스크립트</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">텍스트 처리</div>
+      <ul class="nav-list">
+        <li><a href="text.html"><span class="nav-num">05</span>grep · sed · awk</a></li>
+        <li><a href="extract.html"><span class="nav-num">06</span>출력 파일에서 값 뽑기</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">작업 제출</div>
+      <ul class="nav-list">
+        <li><a href="batch.html"><span class="nav-num">07</span>PBS · Slurm 작업 스크립트</a></li>
+        <li><a href="arrays.html"><span class="nav-num">08</span>작업 배열과 파라미터 스윕</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">참고</div>
+      <ul class="nav-list">
+        <li><a href="cheatsheet.html"><span class="nav-num">09</span>치트시트</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 05 · 텍스트 처리</div>
+        <h1 class="page-title">grep · sed · awk</h1>
+        <p class="page-lede">줄을 찾는 grep, 줄을 고치는 sed, 열을 계산하는 awk와 작은 도구 몇 개를 파이프로 잇는다.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
+          <ul>
+            <li><a href="#files">예제 파일</a></li>
+            <li><a href="#grep">grep: 줄 찾기</a></li>
+            <li><a href="#regex">정규식 기초</a></li>
+            <li><a href="#sed">sed: 줄 고치기</a></li>
+            <li><a href="#awk">awk: 열 단위 계산</a></li>
+            <li><a href="#tools">sort · uniq · cut · paste · tr · column · wc</a></li>
+            <li><a href="#xyz">xyz 파일로 연습</a></li>
+          </ul>
+        </div>
+
+        <h2 id="files">예제 파일</h2>
+        <p>
+          이 장의 예제는 xyz 파일 두 개와 ORCA 출력 하나를 쓴다. <code>opt.out</code>은
+          <a href="../../orca/ko/index.html">ORCA 가이드</a>의 물 구조 최적화 + 진동수 계산 출력(3623줄)이다.
+        </p>
+
+        <pre data-lang="bash"><code>$ cat methanol.xyz
+6
+methanol
+C     -0.046520    0.662749    0.000000
+O     -0.046520   -0.754989    0.000000
+H     -1.086345    0.976632    0.000000
+H      0.437275    1.070835    0.889981
+H      0.437275    1.070835   -0.889981
+H      0.861339   -1.051121    0.000000</code></pre>
+
+        <p>
+          xyz 파일은 첫 줄이 원자 수, 둘째 줄이 주석, 셋째 줄부터 원소 기호와 x, y, z 좌표(Å)다.
+          <code>water.xyz</code>도 같은 형식에 원자가 세 개다.
+        </p>
+
+        <h2 id="grep">grep: 줄 찾기</h2>
+        <p><code>grep 패턴 파일</code>은 패턴이 들어 있는 줄을 그대로 출력한다.</p>
+
+        <pre data-lang="bash"><code>$ grep -c '^H' methanol.xyz
+4
+$ grep -n '^O' water.xyz methanol.xyz
+water.xyz:3:O      0.000000    0.000000    0.119262
+methanol.xyz:4:O     -0.046520   -0.754989    0.000000
+$ grep -v '^H' methanol.xyz
+6
+methanol
+C     -0.046520    0.662749    0.000000
+O     -0.046520   -0.754989    0.000000</code></pre>
+
+        <p>자주 쓰는 옵션은 많지 않다.</p>
+
+        <table>
+          <thead>
+            <tr><th>옵션</th><th>동작</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>-i</code></td><td>대소문자 무시</td></tr>
+            <tr><td><code>-n</code></td><td>줄 번호를 함께 출력</td></tr>
+            <tr><td><code>-c</code></td><td>맞는 줄의 개수만 출력</td></tr>
+            <tr><td><code>-v</code></td><td>맞지 <em>않는</em> 줄을 출력</td></tr>
+            <tr><td><code>-l</code></td><td>맞는 줄이 있는 파일 이름만 출력</td></tr>
+            <tr><td><code>-r</code></td><td>디렉터리 아래 파일을 모두 검색</td></tr>
+            <tr><td><code>-A N</code>, <code>-B N</code></td><td>맞는 줄 뒤(After), 앞(Before)으로 N줄 더 출력</td></tr>
+            <tr><td><code>-w</code></td><td>단어 전체가 맞을 때만</td></tr>
+            <tr><td><code>-E</code></td><td>확장 정규식 (<code>+</code>, <code>|</code>, <code>()</code>를 그대로 씀)</td></tr>
+            <tr><td><code>-F</code></td><td>패턴을 정규식이 아닌 고정 문자열로 취급</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          <code>-r -l</code>은 디렉터리 여러 개에서 어떤 계산이 끝났는지 볼 때 쓴다.
+          <code>-A</code>와 <code>-B</code>는 표 머리글 아래 몇 줄을 함께 보고 싶을 때 쓴다.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep -r -l 'TERMINATED NORMALLY' ../orca
+../orca/05-casscf-h2/h2_casscf.out
+../orca/04-solvation-smd/water.out
+../orca/03-dlpno-ccsdt/water.out
+../orca/02-opt-freq/water.out
+../orca/01-single-point/water.out
+$ grep -B1 -A1 'THE OPTIMIZATION HAS CONVERGED' opt.out
+                    ***********************HURRAY********************
+                    ***        THE OPTIMIZATION HAS CONVERGED     ***
+                    *************************************************
+$ grep -c 'FINAL SINGLE POINT ENERGY' opt.out
+5</code></pre>
+
+        <p>
+          마지막 줄의 5는 최적화 네 사이클과 수렴 후 마지막 에너지 계산을 합친 수다.
+          <code>-w</code>는 패턴 앞뒤가 단어 경계일 때만 맞춘다. 아래 입력 줄의 <code>TightOpt</code>에는
+          <code>Opt</code>가 들어 있지만 단어 전체는 아니어서, 두 번째 명령은 아무것도 출력하지 않는다.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep 'Opt' water.inp
+! B3LYP D4 def2-TZVP TightOpt Freq
+$ grep -w 'Opt' water.inp</code></pre>
+
+        <h2 id="regex">정규식 기초</h2>
+        <p>grep, sed, awk는 패턴을 정규식으로 읽는다. 계산 출력에서 쓰는 것은 아래 정도다.</p>
+
+        <table>
+          <thead>
+            <tr><th>기호</th><th>뜻</th><th>예</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>.</code></td><td>아무 문자 하나</td><td><code>H.</code>는 <code>H1</code>, <code>He</code>, <code>H </code></td></tr>
+            <tr><td><code>*</code></td><td>앞 문자가 0번 이상</td><td><code>^H.*-</code>는 H로 시작하고 뒤에 <code>-</code>가 있는 줄</td></tr>
+            <tr><td><code>+</code></td><td>앞 문자가 1번 이상 (<code>-E</code>)</td><td><code>[0-9]+</code>는 숫자 한 개 이상</td></tr>
+            <tr><td><code>[...]</code></td><td>괄호 안 문자 중 하나</td><td><code>[CHO]</code>, <code>[0-9.]</code></td></tr>
+            <tr><td><code>^</code>, <code>$</code></td><td>줄의 시작, 끝</td><td><code>^H</code>, <code>Eh$</code></td></tr>
+            <tr><td><code>\s</code></td><td>공백 문자 (GNU 확장)</td><td><code>^\s+</code>는 줄 앞 들여쓰기</td></tr>
+            <tr><td><code>a|b</code></td><td>a 또는 b (<code>-E</code>)</td><td><code>^(C|O) </code></td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ grep -E '^(C|O) ' methanol.xyz
+C     -0.046520    0.662749    0.000000
+O     -0.046520   -0.754989    0.000000
+$ grep -E '^\s+[0-9]+:\s+[0-9.]+ cm' opt.out
+     0:       0.00 cm**-1
+     1:       0.00 cm**-1
+     2:       0.00 cm**-1
+     3:       0.00 cm**-1
+     4:       0.00 cm**-1
+     5:       0.00 cm**-1
+     6:    1615.68 cm**-1
+     7:    3780.78 cm**-1
+     8:    3885.42 cm**-1</code></pre>
+
+        <p>
+          찾는 문자열에 <code>*</code>, <code>.</code>, <code>[</code> 같은 기호가 들어 있으면 <code>-F</code>를 붙인다.
+          붙이지 않으면 <code>cm**-1</code>의 <code>*</code>가 반복 기호로 읽혀 엉뚱한 줄이 걸린다.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep 'cm**-1' opt.out | head -3
+Rotational constants in cm-1:            27.545905            14.281345             9.405174 
+Rotational constants in cm-1:    27.545929    14.281357     9.405182 
+Chem.Eur.J. 2012 18 9955 using a reference frequency of 100.0 cm-1
+$ grep -F 'cm**-1' opt.out | head -3
+     0:       0.00 cm**-1
+     1:       0.00 cm**-1
+     2:       0.00 cm**-1</code></pre>
+
+        <div class="tip">
+          <div class="note-title">패턴은 작은따옴표로</div>
+          <p>
+            패턴을 작은따옴표로 감싸면 셸이 <code>*</code>, <code>$</code>를 먼저 해석하지 않는다.
+            셸 변수를 패턴에 넣어야 할 때만 큰따옴표를 쓴다.
+          </p>
+        </div>
+
+        <h2 id="sed">sed: 줄 고치기</h2>
+        <p>
+          sed는 파일을 한 줄씩 읽어 명령을 적용하고 결과를 화면에 낸다. 원본은 바뀌지 않는다.
+          가장 많이 쓰는 명령은 치환 <code>s/찾을것/바꿀것/</code>이다.
+        </p>
+
+        <pre data-lang="bash"><code>$ sed 's/0/X/' water.xyz
+3
+water
+O      X.000000    0.000000    0.119262
+H      X.000000    0.763239   -0.477047
+H      X.000000   -0.763239   -0.477047
+$ sed 's/0/X/g' water.xyz
+3
+water
+O      X.XXXXXX    X.XXXXXX    X.119262
+H      X.XXXXXX    X.763239   -X.477X47
+H      X.XXXXXX   -X.763239   -X.477X47</code></pre>
+
+        <p>
+          <code>g</code>가 없으면 줄마다 첫 번째만 바뀐다. 바꿀 내용에 <code>/</code>가 있으면 구분자를 다른 문자로 바꾸는 편이 읽기 쉽다.
+        </p>
+
+        <pre data-lang="bash"><code>$ sed 's|water|water, B3LYP-D4/def2-TZVP|' water.xyz
+3
+water, B3LYP-D4/def2-TZVP
+O      0.000000    0.000000    0.119262
+H      0.000000    0.763239   -0.477047
+H      0.000000   -0.763239   -0.477047</code></pre>
+
+        <p>
+          <code>-n</code>은 자동 출력을 끄고, <code>p</code>는 해당 줄을 출력한다. 둘을 같이 쓰면 원하는 줄만 뽑힌다.
+          주소는 줄 번호(<code>3,5</code>), 마지막 줄(<code>$</code>), 정규식(<code>/^H/</code>),
+          정규식 두 개 사이의 범위(<code>/시작/,/끝/</code>)로 줄 수 있다. <code>d</code>는 그 줄을 지운다.
+        </p>
+
+        <pre data-lang="bash"><code>$ sed -n '3,5p' methanol.xyz
+C     -0.046520    0.662749    0.000000
+O     -0.046520   -0.754989    0.000000
+H     -1.086345    0.976632    0.000000
+$ sed '/^H/d' methanol.xyz
+6
+methanol
+C     -0.046520    0.662749    0.000000
+O     -0.046520   -0.754989    0.000000
+$ sed -n '/VIBRATIONAL FREQUENCIES/,/NORMAL MODES/p' opt.out
+VIBRATIONAL FREQUENCIES
+-----------------------
+
+Scaling factor for frequencies =  1.000000000  (already applied!)
+
+     0:       0.00 cm**-1
+     1:       0.00 cm**-1
+     2:       0.00 cm**-1
+     3:       0.00 cm**-1
+     4:       0.00 cm**-1
+     5:       0.00 cm**-1
+     6:    1615.68 cm**-1
+     7:    3780.78 cm**-1
+     8:    3885.42 cm**-1
+
+
+------------
+NORMAL MODES</code></pre>
+
+        <h3>파일을 직접 고치기: -i</h3>
+        <p>
+          <code>-i</code>를 주면 결과를 화면 대신 원본 파일에 쓴다. 되돌릴 수 없으니 <code>-i.bak</code>처럼 확장자를 붙여
+          백업을 남기는 습관을 들인다.
+        </p>
+
+        <pre data-lang="bash"><code>$ sed -i.bak '2s/.*/renamed/' w2.xyz
+$ ls w2.xyz*
+w2.xyz
+w2.xyz.bak
+$ head -2 w2.xyz
+3
+renamed</code></pre>
+
+        <div class="warning">
+          <div class="note-title">macOS의 sed는 -i가 다르다</div>
+          <p>
+            Linux의 GNU sed는 <code>sed -i 's/a/b/' f</code>로 백업 없이 고친다. macOS의 BSD sed는 <code>-i</code> 뒤에
+            백업 확장자를 반드시 받기 때문에, 백업 없이 쓰려면 <code>sed -i '' 's/a/b/' f</code>라고 써야 한다.
+            <code>sed -i.bak</code>은 두 쪽에서 똑같이 동작하므로 스크립트에는 이 형태가 안전하다.
+          </p>
+        </div>
+
+        <h2 id="awk">awk: 열 단위 계산</h2>
+        <p>
+          awk는 각 줄을 공백 기준으로 나눠 <code>$1</code>, <code>$2</code>, … 에 담는다. <code>$0</code>은 줄 전체,
+          <code>NF</code>는 그 줄의 열 개수, <code>$NF</code>는 마지막 열, <code>NR</code>은 지금까지 읽은 줄 번호다.
+          프로그램은 <code>패턴 {동작}</code>의 나열이고, 패턴이 맞는 줄에만 동작이 실행된다.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk 'NR &gt; 2 {print NR, NF, $1, $NF}' methanol.xyz
+3 4 C 0.000000
+4 4 O 0.000000
+5 4 H 0.000000
+6 4 H 0.889981
+7 4 H -0.889981
+8 4 H 0.000000
+$ awk '/^H/ {print $2}' methanol.xyz
+-1.086345
+0.437275
+0.437275
+0.861339
+$ awk '$1 == "H" &amp;&amp; $4 &gt; 0' methanol.xyz
+H      0.437275    1.070835    0.889981</code></pre>
+
+        <p>
+          동작을 생략하면 줄 전체를 출력한다. 패턴을 조건식으로 쓸 때는 머리글 줄을 조심한다.
+          <code>NR &gt; 2</code> 없이 <code>$4 &lt; 0</code>만 쓰면 열이 없는 첫 두 줄도 걸린다.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk '$4 &lt; 0' methanol.xyz
+6
+methanol
+H      0.437275    1.070835   -0.889981</code></pre>
+
+        <p>
+          구분자가 공백이 아니면 <code>-F</code>로 준다. <code>-F,</code>는 CSV, <code>-F:</code>는 콜론이다.
+          셸 변수는 <code>-v 이름=값</code>으로 넘긴다.
+        </p>
+
+        <h3>BEGIN, END, 합과 평균</h3>
+        <p>
+          <code>BEGIN</code> 블록은 첫 줄을 읽기 전에, <code>END</code> 블록은 마지막 줄 뒤에 한 번 실행된다.
+          변수는 선언 없이 0에서 시작하므로 합계와 개수를 모았다가 <code>END</code>에서 나누면 평균이다.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk 'NR &gt; 2 {z += $4; n++} END {print z, n, z/n}' water.xyz
+-0.834832 3 -0.278277
+$ awk 'NR &gt; 2 {z += $4; n++} END {printf "mean z = %.4f over %d atoms\n", z/n, n}' water.xyz
+mean z = -0.2783 over 3 atoms</code></pre>
+
+        <p>
+          <code>printf</code>는 C와 같은 형식 문자열을 쓴다. <code>%d</code>는 정수, <code>%.4f</code>는 소수점 넷째 자리,
+          <code>%-8s</code>는 8칸 왼쪽 정렬 문자열, <code>%12.6f</code>는 12칸 오른쪽 정렬이다. 줄바꿈 <code>\n</code>은 직접 넣는다.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk 'BEGIN {print "element  x"} NR &gt; 2 {printf "%-8s %8.3f\n", $1, $2}' methanol.xyz
+element  x
+C          -0.047
+O          -0.047
+H          -1.086
+H           0.437
+H           0.437
+H           0.861</code></pre>
+
+        <h3>소수 계산은 awk로</h3>
+        <p>bash의 산술 <code>$(( ))</code>은 정수만 다룬다. 나눗셈은 버림이 되고, 소수점이 있으면 오류가 난다.</p>
+
+        <pre data-lang="bash"><code>$ echo $(( 3 / 2 ))
+1
+$ echo $(( -76.426 * 627.5 ))
+bash: line 1: -76.426 * 627.5 : arithmetic syntax error: invalid arithmetic operator (error token is ".426 * 627.5 ")
+$ awk 'BEGIN {print -76.426369457144 * 627.5095}'
+-47958.3
+$ awk 'BEGIN {printf "%.2f\n", -76.426369457144 * 627.5095}'
+-47958.27</code></pre>
+
+        <p>
+          awk는 모든 수를 배정도 실수로 계산한다. 다만 <code>print</code>는 유효숫자 여섯 자리까지만 보여 주므로,
+          에너지처럼 자릿수가 중요한 값은 <code>printf</code>로 자릿수를 정해서 출력한다.
+        </p>
+
+        <h2 id="tools">sort · uniq · cut · paste · tr · column · wc</h2>
+        <p>grep, sed, awk 사이에 끼워 쓰는 작은 도구들이다.</p>
+
+        <table>
+          <thead>
+            <tr><th>명령</th><th>하는 일</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>sort</code></td><td>줄 정렬. <code>-n</code> 숫자, <code>-g</code> 지수 표기 포함 숫자, <code>-r</code> 역순, <code>-k4,4</code> 넷째 열 기준</td></tr>
+            <tr><td><code>uniq</code></td><td>연속된 중복 줄 제거. <code>-c</code>는 개수를 붙인다. 보통 <code>sort</code> 뒤에 쓴다</td></tr>
+            <tr><td><code>cut</code></td><td>열 자르기. <code>-d, -f2</code>는 쉼표 구분 둘째 열, <code>-c1-2</code>는 1–2번째 글자</td></tr>
+            <tr><td><code>paste</code></td><td>파일 여러 개를 옆으로 붙인다. <code>-d,</code>로 구분자 지정</td></tr>
+            <tr><td><code>tr</code></td><td>문자 단위 바꾸기. <code>tr 'A-Z' 'a-z'</code>, <code>tr ' ' '\n'</code></td></tr>
+            <tr><td><code>column -t</code></td><td>열 맞춰 보기 좋게 출력. <code>-s,</code>로 구분자 지정</td></tr>
+            <tr><td><code>wc -l</code></td><td>줄 수 세기</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ tail -n +3 methanol.xyz | awk '{print $1}' | sort | uniq -c
+      1 C
+      4 H
+      1 O
+$ tail -n +3 methanol.xyz | sort -k4,4g
+H      0.437275    1.070835   -0.889981
+C     -0.046520    0.662749    0.000000
+H      0.861339   -1.051121    0.000000
+H     -1.086345    0.976632    0.000000
+O     -0.046520   -0.754989    0.000000
+H      0.437275    1.070835    0.889981
+$ paste -d, el.txt z.txt
+O,0.119262
+H,-0.477047
+H,-0.477047
+$ printf 'name,E\nwater,-76.3213\nmethanol,-115.5\n' | column -t -s,
+name      E
+water     -76.3213
+methanol  -115.5</code></pre>
+
+        <p>
+          <code>tail -n +3</code>은 셋째 줄부터 끝까지를 낸다. xyz 머리글 두 줄을 건너뛸 때 편하다.
+          <code>uniq</code>는 붙어 있는 중복만 합치므로 앞에 <code>sort</code>가 없으면 개수가 틀린다.
+        </p>
+
+        <h2 id="xyz">xyz 파일로 연습</h2>
+
+        <h3>원소별 원자 수</h3>
+        <p>
+          위의 <code>sort | uniq -c</code>를 awk 하나로 할 수도 있다. awk 배열은 문자열을 키로 받는다.
+          <code>for (e in n)</code>의 순서는 정해져 있지 않으니 순서가 필요하면 뒤에 <code>sort</code>를 붙인다.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk 'NR &gt; 2 {n[$1]++} END {for (e in n) print e, n[e]}' methanol.xyz | sort
+C 1
+H 4
+O 1</code></pre>
+
+        <h3>좌표 이동</h3>
+        <p>
+          물 분자를 z 방향으로 1.5 Å 옮긴다. 머리글 두 줄은 그대로 출력하고 <code>next</code>로 다음 줄로 넘어간다.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk -v dz=1.5 'NR &lt;= 2 {print; next} {printf "%-2s %12.6f %12.6f %12.6f\n", $1, $2, $3, $4 + dz}' water.xyz
+3
+water
+O      0.000000     0.000000     1.619262
+H      0.000000     0.763239     1.022953
+H      0.000000    -0.763239     1.022953</code></pre>
+
+        <p>
+          기하 중심을 원점으로 옮기려면 평균을 먼저 알아야 하므로 파일을 두 번 읽는다.
+          <code>NR == FNR</code>은 첫 번째 파일을 읽는 동안만 참이다(<code>FNR</code>은 파일마다 1부터 다시 센다).
+        </p>
+
+        <pre data-lang="bash"><code>$ awk 'NR == FNR {if (FNR &gt; 2) {x += $2; y += $3; z += $4; n++}; next}
+       FNR &lt;= 2 {print; next}
+       {printf "%-2s %12.6f %12.6f %12.6f\n", $1, $2 - x/n, $3 - y/n, $4 - z/n}' methanol.xyz methanol.xyz
+6
+methanol
+C     -0.139271     0.333592     0.000000
+O     -0.139271    -1.084146     0.000000
+H     -1.179096     0.647475     0.000000
+H      0.344524     0.741678     0.889981
+H      0.344524     0.741678    -0.889981
+H      0.768588    -1.380278     0.000000</code></pre>
+
+        <h3>다른 형식으로 바꾸기</h3>
+        <p>
+          ORCA 입력의 좌표 블록(<code>* xyz 전하 다중도</code> … <code>*</code>)으로 바꾼다. 전하 0, 단일항을 가정했다.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk 'NR == 1 {print "* xyz 0 1"} NR &gt; 2 {printf "  %-2s %12.6f %12.6f %12.6f\n", $1, $2, $3, $4} END {print "*"}' methanol.xyz
+* xyz 0 1
+  C     -0.046520     0.662749     0.000000
+  O     -0.046520    -0.754989     0.000000
+  H     -1.086345     0.976632     0.000000
+  H      0.437275     1.070835     0.889981
+  H      0.437275     1.070835    -0.889981
+  H      0.861339    -1.051121     0.000000
+*</code></pre>
+
+        <p>스프레드시트나 Python에서 읽을 CSV가 필요하면 번호를 붙여 쉼표로 잇는다.</p>
+
+        <pre data-lang="bash"><code>$ awk 'BEGIN {print "idx,el,x,y,z"} NR &gt; 2 {print NR - 2 "," $1 "," $2 "," $3 "," $4}' water.xyz
+idx,el,x,y,z
+1,O,0.000000,0.000000,0.119262
+2,H,0.000000,0.763239,-0.477047
+3,H,0.000000,-0.763239,-0.477047</code></pre>
+
+        <p>
+          awk에서 값을 공백 없이 나란히 쓰면 문자열이 이어 붙는다. <code>print a, b</code>처럼 쉼표를 쓰면 사이에 공백이 들어간다.
+          실제 출력 파일에서 에너지와 구조를 뽑는 방법은 <a href="extract.html">다음 장</a>에서 다룬다.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="robust.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">안전한 스크립트</div>
+        </a>
+        <a class="next" href="extract.html">
+          <div class="page-nav-label">다음 →</div>
+          <div class="page-nav-title">출력 파일에서 값 뽑기</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

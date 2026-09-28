@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Setting up a terminal · Linux Starter Pack</title>
+  <meta name="description" content="Get a terminal running bash on your operating system and type your first few commands." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/setup.html">KO</a>
+    <a href="setup.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Linux</div>
+    <div class="brand-subtitle">Starter pack · for new computational chemists</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="setup.html"><span class="nav-num">01</span>Setting up a terminal</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Basics</div>
+      <ul class="nav-list">
+        <li><a href="files.html"><span class="nav-num">02</span>Files and directories</a></li>
+        <li><a href="viewing.html"><span class="nav-num">03</span>Viewing and editing files</a></li>
+        <li><a href="permissions.html"><span class="nav-num">04</span>Permissions</a></li>
+        <li><a href="processes.html"><span class="nav-num">05</span>Processes and environment</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Remote work</div>
+      <ul class="nav-list">
+        <li><a href="ssh.html"><span class="nav-num">06</span>ssh and keys</a></li>
+        <li><a href="transfer.html"><span class="nav-num">07</span>File transfer</a></li>
+        <li><a href="tmux.html"><span class="nav-num">08</span>tmux</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Clusters</div>
+      <ul class="nav-list">
+        <li><a href="hpc.html"><span class="nav-num">09</span>First steps on HPC</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reference</div>
+      <ul class="nav-list">
+        <li><a href="software.html"><span class="nav-num">10</span>Useful software</a></li>
+        <li><a href="cheatsheet.html"><span class="nav-num">11</span>Cheat sheet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 01 · Start</div>
+        <h1 class="page-title">Setting up a terminal</h1>
+        <p class="page-lede">Get a terminal running bash on your operating system and type your first few commands.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#why">Why a terminal</a></li>
+            <li><a href="#windows">Windows: WSL2</a></li>
+            <li><a href="#macos">macOS</a></li>
+            <li><a href="#linux">Linux</a></li>
+            <li><a href="#shell">The shell and the prompt</a></li>
+            <li><a href="#first">First commands</a></li>
+            <li><a href="#help">Getting help</a></li>
+            <li><a href="#keys">Copy, paste and useful keys</a></li>
+          </ul>
+        </div>
+
+        <h2 id="why">Why a terminal</h2>
+        <p>
+          Most calculations run on remote Linux clusters. A cluster has no desktop; you connect with ssh and work by typing commands.
+          It helps to have the same kind of environment on your own machine, so you can prepare input files, run a small xtb job,
+          and practise searching outputs with grep before you touch the cluster.
+        </p>
+        <p>
+          The <strong>terminal</strong> is the window where you type and read text. The program inside it that reads your commands and runs them
+          is the <strong>shell</strong>. This guide uses bash, which is the default shell on nearly every cluster.
+        </p>
+
+        <h2 id="windows">Windows: WSL2</h2>
+        <p>
+          WSL (Windows Subsystem for Linux) runs a real Linux system inside Windows. Version 2 (WSL2) uses an actual Linux kernel, so it behaves
+          almost exactly like a cluster. On Windows 11 or a recent Windows 10 build, one command installs it.
+        </p>
+        <ol>
+          <li>Find PowerShell in the Start menu, right-click it and choose <strong>Run as administrator</strong>.</li>
+          <li>Run the command below and reboot when it finishes. Ubuntu is installed by default.</li>
+          <li>After the reboot an Ubuntu window opens and asks for a Linux username and password. They do not need to match your Windows account.</li>
+        </ol>
+
+        <pre data-lang="powershell"><code><span class="cmt"># PowerShell (administrator)</span>
+wsl --install
+
+<span class="cmt"># list installed distributions and their WSL version</span>
+wsl -l -v</code></pre>
+
+        <p>
+          Nothing appears on screen while you type the password. That is normal. You will need this password later for <code>sudo</code> when installing
+          software. Once setup finishes, update the package lists.
+        </p>
+
+        <pre data-lang="bash"><code>$ sudo apt update &amp;&amp; sudo apt upgrade</code></pre>
+
+        <p>
+          For the terminal window itself, use <strong>Windows Terminal</strong>. It ships with Windows 11; on Windows 10, get it from the Microsoft Store.
+          Pick Ubuntu from the drop-down when opening a new tab.
+        </p>
+
+        <h3>Where your Windows files are</h3>
+        <p>
+          Inside WSL, the Windows C: drive appears as <code>/mnt/c</code>. Your desktop is usually at <code>/mnt/c/Users/&lt;Windows username&gt;/Desktop</code>.
+          Going the other way, type <code>explorer.exe .</code> in a WSL terminal to open the current Linux directory in Windows Explorer.
+        </p>
+
+        <div class="warning">
+          <div class="note-title">Work in your Linux home</div>
+          <p>
+            Keep calculation directories under your Linux home (<code>~</code>, which is <code>/home/&lt;user&gt;</code>), not under <code>/mnt/c</code>.
+            <code>/mnt/c</code> is a bridge between the two systems: it is noticeably slow with many files, and it does not show permissions (chapter 04) properly.
+            Files written with Windows Notepad also use different line endings, which causes its own problems (<a href="viewing.html#crlf">chapter 03</a>).
+          </p>
+        </div>
+
+        <h2 id="macos">macOS</h2>
+        <p>
+          macOS is a Unix system, so there is little to install. Open <strong>Applications → Utilities → Terminal</strong>.
+          Many people prefer <a href="https://iterm2.com/">iTerm2</a> for its tabs and split panes.
+        </p>
+        <p>
+          Since macOS Catalina (10.15) the default shell has been zsh instead of bash. For interactive use the commands are nearly identical, and you can follow
+          this guide as is. Two differences matter later: the bash that ships with macOS is the old version 3.2, and basic tools such as <code>sed</code> and
+          <code>date</code> are BSD versions whose options differ from the GNU versions on Linux. A command that works on the cluster may fail on your Mac for that reason.
+        </p>
+        <p>Install Apple's developer tools and the Homebrew package manager; most other software is easy to get after that.</p>
+
+        <pre data-lang="bash"><code><span class="cmt"># git, make, compilers: Xcode Command Line Tools</span>
+$ xcode-select --install
+
+<span class="cmt"># Homebrew (the command from brew.sh)</span>
+$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+<span class="cmt"># a current bash and the GNU tools, if you need them</span>
+$ brew install bash coreutils</code></pre>
+
+        <h2 id="linux">Linux</h2>
+        <p>
+          On a desktop Linux such as Ubuntu you are already set. <code>Ctrl+Alt+T</code> opens a terminal on Ubuntu, and the default shell is bash.
+        </p>
+
+        <h3>Other options</h3>
+        <p>
+          If you only need to connect to a cluster from Windows, ssh clients such as <a href="https://mobaxterm.mobatek.net/">MobaXterm</a> or PuTTY work too.
+          MobaXterm has a built-in file transfer pane. These are windows onto a remote machine, though; they do not give you Linux locally.
+          For practising and testing scripts on your own machine, WSL is the better choice.
+        </p>
+
+        <h2 id="shell">The shell and the prompt</h2>
+        <p>When a terminal opens you see a line like this with a blinking cursor after it. This is the <strong>prompt</strong>.</p>
+
+        <pre data-lang="text"><code>kim@laptop:~$</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>Part</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>kim</code></td><td>The user you are logged in as</td></tr>
+            <tr><td><code>laptop</code></td><td>The machine (host) name. On a cluster this becomes the login node's name.</td></tr>
+            <tr><td><code>~</code></td><td>The current directory. <code>~</code> is short for your home directory.</td></tr>
+            <tr><td><code>$</code></td><td>Waiting for input. For the administrator (root) it shows <code>#</code>.</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          zsh on macOS ends with <code>%</code> instead, as in <code>kim@MacBook ~ %</code>. The exact look depends on configuration, but you read it the same way.
+          Because the host name is in the prompt, it tells you whether you are typing on your laptop or on the cluster.
+        </p>
+
+        <h2 id="first">First commands</h2>
+        <p>Type a command and press <code>Enter</code>. Case matters: the command is <code>pwd</code>, not <code>PWD</code>.</p>
+
+        <pre data-lang="bash"><code>$ whoami
+kim
+$ pwd
+/home/kim
+$ ls
+$ date
+Tue Sep 29 10:15:32 +08 2026</code></pre>
+
+        <ul>
+          <li><code>whoami</code>: your username.</li>
+          <li><code>pwd</code> (print working directory): the full path of the directory you are in.</li>
+          <li><code>ls</code> (list): the files in the current directory. A fresh home directory is empty, so it prints nothing.</li>
+          <li><code>date</code>: the current date and time.</li>
+        </ul>
+        <p>
+          Linux commands are often silent when they succeed. If the prompt comes back with no output, things usually went fine.
+          When there is an error, read the whole message. <code>command not found</code> means the name was mistyped or the program is not installed.
+        </p>
+
+        <h2 id="help">Getting help</h2>
+        <p>There is no need to memorise options. Most commands come with documentation.</p>
+
+        <pre data-lang="bash"><code><span class="cmt"># the full manual page; arrows or Space to scroll, q to quit</span>
+$ man ls
+
+<span class="cmt"># a short summary of options</span>
+$ ls --help</code></pre>
+
+        <p>
+          Inside <code>man</code>, press <code>/</code> and type a word to search (the same keys as <code>less</code> in chapter 03).
+          Some built-in macOS commands do not understand <code>--help</code>; use <code>man</code> there.
+          Commands built into the shell, such as <code>cd</code>, are documented with <code>help cd</code>.
+        </p>
+
+        <h2 id="keys">Copy, paste and useful keys</h2>
+        <p>
+          In a terminal, <code>Ctrl+C</code> does not copy. It <strong>interrupts the running command</strong>. That is why copy and paste shortcuts differ between programs.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Terminal</th><th>Copy</th><th>Paste</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Linux (GNOME Terminal etc.)</td><td><code>Ctrl+Shift+C</code></td><td><code>Ctrl+Shift+V</code></td></tr>
+            <tr><td>Windows Terminal</td><td><code>Ctrl+C</code> with text selected</td><td><code>Ctrl+V</code></td></tr>
+            <tr><td>macOS Terminal, iTerm2</td><td><code>Cmd+C</code></td><td><code>Cmd+V</code></td></tr>
+            <tr><td>PuTTY</td><td>Selecting with the mouse copies</td><td>Right-click</td></tr>
+          </tbody>
+        </table>
+
+        <table>
+          <thead>
+            <tr><th>Key</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>↑</code> <code>↓</code></td><td>Recall earlier commands</td></tr>
+            <tr><td><code>Tab</code></td><td>Complete file and command names (chapter 02)</td></tr>
+            <tr><td><code>Ctrl+C</code></td><td>Stop the running command, or discard the line you are typing</td></tr>
+            <tr><td><code>Ctrl+L</code></td><td>Clear the screen (same as <code>clear</code>)</td></tr>
+            <tr><td><code>Ctrl+A</code> / <code>Ctrl+E</code></td><td>Jump to the start / end of the line</td></tr>
+            <tr><td><code>Ctrl+R</code></td><td>Search your command history by text</td></tr>
+          </tbody>
+        </table>
+
+        <div class="tip">
+          <div class="note-title">Commands copied from the web</div>
+          <p>
+            Copying from a web page or PDF sometimes turns straight quotes into curly ones (“ ”) or brings the leading <code>$</code> along.
+            Glance over a pasted command before pressing <code>Enter</code>.
+          </p>
+        </div>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="index.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Overview</div>
+        </a>
+        <a class="next" href="files.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Files and directories</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

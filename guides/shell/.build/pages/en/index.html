@@ -1,0 +1,95 @@
+<!--
+title: Shell Scripting Guide
+description: A bash scripting guide for computational chemists. Automating repetitive work, pulling numbers out of output files, and PBS and Slurm job scripts.
+-->
+      <section class="hero">
+        <h1 class="hero-title">
+          <em>Shell</em> scripting<br />
+          <span class="hero-title-accent">less repetition with bash</span>
+        </h1>
+        <p class="hero-tagline">
+          Running the same calculation on fifty molecules, then pulling one energy out of each of fifty outputs into a table.
+          By hand that takes an afternoon; a twenty-line script does it in seconds. This guide is about writing those twenty lines.
+        </p>
+        <div class="hero-meta">
+          <span>Shell</span> bash 4+ · <span>Examples</span> ORCA · Quantum ESPRESSO · LAMMPS outputs · <span>Schedulers</span> PBS Pro · Slurm
+        </div>
+      </section>
+
+      <article class="content">
+        <h2>About this guide</h2>
+        <p>
+          A shell script is the commands you would type in a terminal, saved in a file. The syntax is a little odd and has
+          a few traps, but the part you need for computational work is small: variables and loops, three text tools
+          (grep, sed, awk), and the format a job scheduler expects.
+        </p>
+        <p>
+          If the terminal itself is new to you, start with the <a href="../../linux/en/index.html">Linux starter pack</a>.
+          This guide assumes you know commands like <code>cd</code>, <code>ls</code> and <code>cp</code>, and how file permissions work.
+        </p>
+
+        <h2>Chapters</h2>
+        <div class="cards">
+          <a class="card" href="basics.html">
+            <div class="card-num">01 · BASICS</div>
+            <div class="card-title">Your first script</div>
+            <div class="card-desc">Shebang, execute permission, variables and quoting, command substitution.</div>
+          </a>
+          <a class="card" href="control.html">
+            <div class="card-num">02 · CONTROL</div>
+            <div class="card-title">Conditions and loops</div>
+            <div class="card-desc">if and test, for and while, case.</div>
+          </a>
+          <a class="card" href="functions.html">
+            <div class="card-num">03 · FUNCTIONS</div>
+            <div class="card-title">Functions and arguments</div>
+            <div class="card-desc">$1 and $@, getopts, functions and return values.</div>
+          </a>
+          <a class="card" href="robust.html">
+            <div class="card-num">04 · ROBUST</div>
+            <div class="card-title">Writing safer scripts</div>
+            <div class="card-desc">set -euo pipefail, exit codes, trap, ShellCheck.</div>
+          </a>
+          <a class="card" href="text.html">
+            <div class="card-num">05 · TEXT</div>
+            <div class="card-title">grep · sed · awk</div>
+            <div class="card-desc">Search, replace, cut by column, chain with pipes.</div>
+          </a>
+          <a class="card" href="extract.html">
+            <div class="card-num">06 · EXTRACT</div>
+            <div class="card-title">Pulling numbers from outputs</div>
+            <div class="card-desc">ORCA energies and frequencies, QE total energy, LAMMPS thermo tables.</div>
+          </a>
+          <a class="card" href="batch.html">
+            <div class="card-num">07 · BATCH</div>
+            <div class="card-title">PBS · Slurm job scripts</div>
+            <div class="card-desc">Requesting resources, setting up the environment, using scratch.</div>
+          </a>
+          <a class="card" href="arrays.html">
+            <div class="card-num">08 · ARRAYS</div>
+            <div class="card-title">Job arrays and parameter sweeps</div>
+            <div class="card-desc">Submitting many molecules or many parameter values at once.</div>
+          </a>
+          <a class="card" href="cheatsheet.html">
+            <div class="card-num">09 · CHEAT SHEET</div>
+            <div class="card-title">Cheat sheet</div>
+            <div class="card-desc">Syntax, text tools and scheduler commands on one page.</div>
+          </a>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>Conventions</h2>
+        <p>
+          In code boxes, a line starting with <code>$</code> is a command typed at the terminal, and the rest is output.
+          Boxes without <code>$</code> show the contents of a script file.
+        </p>
+
+        <div class="note">
+          <div class="note-title">bash only</div>
+          <p>
+            Other shells exist, such as zsh (the macOS default) and fish, but cluster login shells and job scripts are almost always bash.
+            With <code>#!/bin/bash</code> as the first line, a script runs under bash whatever your interactive shell is.
+          </p>
+        </div>
+      </article>

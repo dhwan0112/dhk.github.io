@@ -1,0 +1,108 @@
+<!--
+title: Linux 스타터팩
+description: 계산화학을 막 시작한 사람을 위한 Linux 입문서. 터미널 준비부터 파일 다루기, ssh와 tmux, HPC 클러스터 첫 작업까지.
+-->
+      <section class="hero">
+        <h1 class="hero-title">
+          <em>Linux</em><br />
+          <span class="hero-title-accent">스타터팩</span>
+        </h1>
+        <p class="hero-tagline">
+          계산화학을 시작하면 첫 주 안에 검은 터미널 창과 마주친다. 이 가이드는 그 창에서 길을 잃지 않을 만큼의 Linux를 다룬다.
+          터미널 준비, 파일과 권한, 원격 접속, 클러스터에 첫 작업을 올리는 데까지 간다.
+        </p>
+        <div class="hero-meta">
+          <span>대상</span> Linux와 계산화학 입문자 · <span>셸</span> bash · <span>환경</span> Windows(WSL) · macOS · Linux
+        </div>
+      </section>
+
+      <article class="content">
+        <h2>이 가이드에 관하여</h2>
+        <p>
+          ORCA, Quantum ESPRESSO, LAMMPS 같은 프로그램은 대부분 Linux 클러스터에서 돈다. 입력 파일을 올리고, 작업을 제출하고,
+          끝난 출력을 받아 오는 일은 전부 터미널에서 한다. 명령어를 수백 개 외울 필요는 없다. 매일 쓰는 것은 스무 개 남짓이고,
+          나머지는 필요할 때 찾아보면 된다.
+        </p>
+        <p>
+          각 장은 앞 장을 안다고 가정하고 쓰였다. 처음이라면 01장부터 순서대로 읽고, 이미 터미널이 익숙하다면
+          06장(ssh)이나 09장(HPC)으로 바로 넘어가도 된다. 반복 작업을 스크립트로 묶는 법은
+          <a href="../../shell/ko/index.html">셸 스크립팅 가이드</a>에 따로 정리했다.
+        </p>
+
+        <h2>주제별로 들어가기</h2>
+        <div class="cards">
+          <a class="card" href="setup.html">
+            <div class="card-num">01 · SETUP</div>
+            <div class="card-title">터미널 준비</div>
+            <div class="card-desc">Windows는 WSL, macOS는 기본 터미널. 첫 명령까지.</div>
+          </a>
+          <a class="card" href="files.html">
+            <div class="card-num">02 · FILES</div>
+            <div class="card-title">파일과 디렉터리</div>
+            <div class="card-desc">경로, 이동, 복사와 삭제, 와일드카드.</div>
+          </a>
+          <a class="card" href="viewing.html">
+            <div class="card-num">03 · VIEWING</div>
+            <div class="card-title">파일 보기와 편집</div>
+            <div class="card-desc">less, head, tail, grep 맛보기, nano와 vim 최소한.</div>
+          </a>
+          <a class="card" href="permissions.html">
+            <div class="card-num">04 · PERMISSIONS</div>
+            <div class="card-title">권한</div>
+            <div class="card-desc">rwx 읽는 법, chmod, 실행 권한이 필요한 이유.</div>
+          </a>
+          <a class="card" href="processes.html">
+            <div class="card-num">05 · PROCESSES</div>
+            <div class="card-title">프로세스와 환경 변수</div>
+            <div class="card-desc">top과 kill, PATH, .bashrc, 백그라운드 실행.</div>
+          </a>
+          <a class="card" href="ssh.html">
+            <div class="card-num">06 · SSH</div>
+            <div class="card-title">ssh 접속과 키</div>
+            <div class="card-desc">키 만들기, ~/.ssh/config, 비밀번호 없이 접속하기.</div>
+          </a>
+          <a class="card" href="transfer.html">
+            <div class="card-num">07 · TRANSFER</div>
+            <div class="card-title">파일 전송</div>
+            <div class="card-desc">scp와 rsync, 필요한 파일만 골라 받기.</div>
+          </a>
+          <a class="card" href="tmux.html">
+            <div class="card-num">08 · TMUX</div>
+            <div class="card-title">tmux</div>
+            <div class="card-desc">접속이 끊겨도 살아 있는 세션, 창 나누기.</div>
+          </a>
+          <a class="card" href="hpc.html">
+            <div class="card-num">09 · HPC</div>
+            <div class="card-title">HPC 첫걸음</div>
+            <div class="card-desc">로그인 노드와 계산 노드, module, conda, 첫 작업 제출.</div>
+          </a>
+          <a class="card" href="software.html">
+            <div class="card-num">10 · SOFTWARE</div>
+            <div class="card-title">쓸 만한 프로그램</div>
+            <div class="card-desc">편집기, 시각화, 모니터링, 파일 찾기 도구.</div>
+          </a>
+          <a class="card" href="cheatsheet.html">
+            <div class="card-num">11 · CHEAT SHEET</div>
+            <div class="card-title">치트시트</div>
+            <div class="card-desc">자주 쓰는 명령을 한 장에.</div>
+          </a>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>표기</h2>
+        <p>
+          코드 상자에서 <code>$</code>로 시작하는 줄은 입력하는 명령이고, 그 아래는 출력이다. <code>$</code>는 입력하지 않는다.
+          <code>&lt;파일&gt;</code>처럼 꺾쇠로 감싼 부분은 자기 상황에 맞게 바꿔 넣는다.
+        </p>
+        <pre data-lang="bash"><code>$ pwd
+/home/kim</code></pre>
+
+        <div class="note">
+          <div class="note-title">막혔을 때</div>
+          <p>
+            명령 대부분은 <code>man &lt;명령&gt;</code>이나 <code>&lt;명령&gt; --help</code>로 설명을 볼 수 있다.
+            <code>man</code> 화면은 <code>q</code>로 나간다.
+          </p>
+        </div>
+      </article>

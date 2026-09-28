@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ssh and keys · Linux Starter Pack</title>
+  <meta name="description" content="Log in to a cluster with ssh, set up a key so you stop typing your password, and shorten long addresses with ~/.ssh/config." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/ssh.html">KO</a>
+    <a href="ssh.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Linux</div>
+    <div class="brand-subtitle">Starter pack · for new computational chemists</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="setup.html"><span class="nav-num">01</span>Setting up a terminal</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Basics</div>
+      <ul class="nav-list">
+        <li><a href="files.html"><span class="nav-num">02</span>Files and directories</a></li>
+        <li><a href="viewing.html"><span class="nav-num">03</span>Viewing and editing files</a></li>
+        <li><a href="permissions.html"><span class="nav-num">04</span>Permissions</a></li>
+        <li><a href="processes.html"><span class="nav-num">05</span>Processes and environment</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Remote work</div>
+      <ul class="nav-list">
+        <li><a href="ssh.html"><span class="nav-num">06</span>ssh and keys</a></li>
+        <li><a href="transfer.html"><span class="nav-num">07</span>File transfer</a></li>
+        <li><a href="tmux.html"><span class="nav-num">08</span>tmux</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Clusters</div>
+      <ul class="nav-list">
+        <li><a href="hpc.html"><span class="nav-num">09</span>First steps on HPC</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reference</div>
+      <ul class="nav-list">
+        <li><a href="software.html"><span class="nav-num">10</span>Useful software</a></li>
+        <li><a href="cheatsheet.html"><span class="nav-num">11</span>Cheat sheet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 06 · Remote work</div>
+        <h1 class="page-title">ssh and keys</h1>
+        <p class="page-lede">Log in to a cluster with ssh, set up a key so you stop typing your password, and shorten long addresses with ~/.ssh/config.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#what">What ssh is</a></li>
+            <li><a href="#first">First login</a></li>
+            <li><a href="#keys">Creating a key</a></li>
+            <li><a href="#copy">Putting the public key on the server</a></li>
+            <li><a href="#config">~/.ssh/config</a></li>
+            <li><a href="#agent">ssh-agent</a></li>
+            <li><a href="#errors">Common errors</a></li>
+            <li><a href="#extra">X11 forwarding and VS Code</a></li>
+          </ul>
+        </div>
+
+        <h2 id="what">What ssh is</h2>
+        <p>
+          ssh (secure shell) gives you a shell on another computer over the network. Run <code>ssh</code> on your laptop and a shell opens on the
+          cluster's login node; every command you type from then on runs on the cluster. The connection is encrypted.
+        </p>
+        <p>
+          Your ORCA and Quantum ESPRESSO jobs run on the cluster, not on your laptop. Uploading inputs, submitting jobs and checking outputs all happen
+          over an ssh connection, and the <code>scp</code> and <code>rsync</code> commands in the next chapter use ssh underneath.
+          Linux, macOS and Windows 10 onwards all ship an ssh client.
+        </p>
+
+        <h2 id="first">First login</h2>
+        <p>
+          The form is <code>ssh username@host</code>. The host is the address of the cluster's login node, which you get along with your account.
+          The address and username below are examples.
+        </p>
+        <pre data-lang="bash"><code>$ ssh e0123456@vanda.nus.edu.sg</code></pre>
+        <p>The first time you connect to a server, ssh asks this:</p>
+        <pre data-lang="output"><code>The authenticity of host 'vanda.nus.edu.sg (...)' can't be established.
+ED25519 key fingerprint is SHA256:...
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'vanda.nus.edu.sg' (ED25519) to the list of known hosts.
+e0123456@vanda.nus.edu.sg's password:</code></pre>
+        <p>
+          Every server has its own host key, and the fingerprint is a short summary of it. Answering <code>yes</code> records it in
+          <code>~/.ssh/known_hosts</code>, and ssh will not ask again. If the cluster documentation publishes its fingerprints, compare before you answer.
+          Nothing appears on screen while you type the password; that is normal.
+        </p>
+        <p>
+          Once you are in, the prompt changes to the cluster's. Leave with <code>exit</code> or <code>Ctrl-D</code>.
+          From off campus you usually need to connect to the university VPN first; follow your cluster's instructions.
+        </p>
+
+        <h2 id="keys">Creating a key</h2>
+        <p>
+          Instead of a password you can authenticate with a key pair. A key pair is two files. The private key (<code>id_ed25519</code>) stays on your
+          computer; the public key (<code>id_ed25519.pub</code>) goes on the server, which uses it to check that you hold the private key.
+          You create the pair once, on your laptop (or in WSL).
+        </p>
+        <pre data-lang="bash"><code>$ ssh-keygen -t ed25519 -C "kim@laptop"
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/kim/.ssh/id_ed25519):
+Enter passphrase for "/home/kim/.ssh/id_ed25519" (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/kim/.ssh/id_ed25519
+Your public key has been saved in /home/kim/.ssh/id_ed25519.pub
+The key fingerprint is:
+SHA256:zQ5PSX1x2MqziJIYvYB5ZNZXFsTEXyfTCAD3WJLq+nM kim@laptop</code></pre>
+        <p>
+          Press Enter to accept the default location. The text after <code>-C</code> is a label stored in the key, so you can tell later which machine it came from.
+          The passphrase encrypts the private key file: if your laptop is lost, the key is useless without it. Set one. ssh-agent, below, saves you from
+          typing it every time.
+        </p>
+        <pre data-lang="bash"><code>$ cat ~/.ssh/id_ed25519.pub
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJE3ZbxNBjHILtE8MNFKpTzBNAjrxmjLkruM0m/mfZLw kim@laptop</code></pre>
+
+        <div class="warning">
+          <div class="note-title">Never copy the private key around</div>
+          <p>
+            Only the file ending in <code>.pub</code> is safe to upload or show to anyone. Do not email, message or put <code>id_ed25519</code> in a cloud drive.
+            If you use several computers, make a separate key on each.
+          </p>
+        </div>
+
+        <h2 id="copy">Putting the public key on the server</h2>
+        <p>
+          The server accepts any public key listed in its <code>~/.ssh/authorized_keys</code>. On Linux, macOS and WSL, <code>ssh-copy-id</code> adds it for you.
+          It asks for your password once and reports <code>Number of key(s) added: 1</code> when done.
+        </p>
+        <pre data-lang="bash"><code>$ ssh-copy-id -i ~/.ssh/id_ed25519.pub e0123456@vanda.nus.edu.sg</code></pre>
+        <p>
+          Windows PowerShell has no <code>ssh-copy-id</code>. Pipe the public key over ssh and append it on the server side instead:
+        </p>
+        <pre data-lang="bash"><code><span class="cmt"># one line, in PowerShell</span>
+type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh e0123456@vanda.nus.edu.sg "mkdir -p ~/.ssh &amp;&amp; chmod 700 ~/.ssh &amp;&amp; cat &gt;&gt; ~/.ssh/authorized_keys &amp;&amp; chmod 600 ~/.ssh/authorized_keys"</code></pre>
+        <p>
+          Now <code>ssh e0123456@vanda.nus.edu.sg</code> asks for your key's passphrase (if you set one) instead of the password.
+          Some clusters disable key login or require a second factor on top; if it does not work, check the documentation first.
+        </p>
+        <p>
+          ssh refuses key files with loose permissions. <code>~/.ssh</code> must be 700, and the private key, <code>config</code> and
+          <code>authorized_keys</code> 600 (see <a href="permissions.html">chapter 04</a>). This applies on both the laptop and the server.
+        </p>
+        <pre data-lang="bash"><code>$ chmod 700 ~/.ssh
+$ chmod 600 ~/.ssh/id_ed25519 ~/.ssh/config
+$ ls -la ~/.ssh
+total 12
+drwx------ 2 kim kim 100 Sep 29 00:12 .
+drwxrwxr-x 5 kim kim 120 Sep 29 00:09 ..
+-rw------- 1 kim kim 202 Sep 29 00:12 config
+-rw------- 1 kim kim 444 Sep 29 00:07 id_ed25519
+-rw-r--r-- 1 kim kim  92 Sep 29 00:07 id_ed25519.pub</code></pre>
+
+        <h2 id="config">~/.ssh/config</h2>
+        <p>
+          Typing <code>e0123456@vanda.nus.edu.sg</code> twenty times a day gets old. Put an alias in <code>~/.ssh/config</code> on your laptop and
+          <code>ssh vanda</code> is enough. Create the file if it does not exist.
+        </p>
+        <pre data-lang="text"><code>Host vanda
+    HostName vanda.nus.edu.sg
+    User e0123456
+    IdentityFile ~/.ssh/id_ed25519
+    ServerAliveInterval 60</code></pre>
+        <table>
+          <thead>
+            <tr><th>Keyword</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Host</code></td><td>The alias you type, the <code>vanda</code> in <code>ssh vanda</code></td></tr>
+            <tr><td><code>HostName</code></td><td>The real address</td></tr>
+            <tr><td><code>User</code></td><td>Your username on the server</td></tr>
+            <tr><td><code>IdentityFile</code></td><td>Which private key to use</td></tr>
+            <tr><td><code>ServerAliveInterval</code></td><td>Send a keep-alive every 60 seconds so an idle connection is not dropped</td></tr>
+          </tbody>
+        </table>
+        <p>
+          The alias works in everything that uses ssh: <code>scp h2o.inp vanda:~/proj/</code>, <code>rsync ... vanda:...</code>, and VS Code Remote-SSH
+          all read this file. <code>ssh -G</code> shows what ssh actually resolved:
+        </p>
+        <pre data-lang="bash"><code>$ ssh -G vanda | grep -E '^(hostname|user|identityfile) '
+user e0123456
+hostname vanda.nus.edu.sg
+identityfile ~/.ssh/id_ed25519</code></pre>
+        <p>
+          Some machines are not reachable from outside and have to be reached through a gateway. Put the gateway in <code>ProxyJump</code> and ssh chains
+          the two hops for you. On the command line the same thing is <code>ssh -J vanda e0123456@inner.example.org</code>.
+        </p>
+        <pre data-lang="text"><code>Host inner
+    HostName inner.example.org
+    User e0123456
+    ProxyJump vanda</code></pre>
+
+        <h2 id="agent">ssh-agent</h2>
+        <p>
+          ssh-agent holds your unlocked private key in memory and hands it to ssh when needed, so you type the passphrase once per session.
+          macOS and desktop Linux usually have one running already. In WSL you start it yourself:
+        </p>
+        <pre data-lang="bash"><code>$ eval "$(ssh-agent -s)"
+Agent pid 454122
+$ ssh-add ~/.ssh/id_ed25519
+Enter passphrase for /home/kim/.ssh/id_ed25519:
+Identity added: /home/kim/.ssh/id_ed25519 (kim@laptop)
+$ ssh-add -l
+256 SHA256:zQ5PSX1x2MqziJIYvYB5ZNZXFsTEXyfTCAD3WJLq+nM kim@laptop (ED25519)</code></pre>
+        <p>
+          A <code>Host *</code> block at the bottom of <code>~/.ssh/config</code> containing <code>AddKeysToAgent yes</code> adds the key to the agent
+          automatically the first time you unlock it.
+        </p>
+
+        <h2 id="errors">Common errors</h2>
+        <table>
+          <thead>
+            <tr><th>Message</th><th>Usual cause and fix</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Permission denied (publickey)</code></td><td>The server did not accept your key. Check that the public key is in the server's <code>authorized_keys</code>, that <code>User</code> is right, and that <code>~/.ssh</code> is 700/600 on both sides. <code>ssh -v vanda</code> shows which keys were tried.</td></tr>
+            <tr><td><code>Connection timed out</code></td><td>You never reached the server. Off campus, check the VPN first. It can also be a typo in the address or cluster maintenance.</td></tr>
+            <tr><td><code>Could not resolve hostname</code></td><td>A typo in the address, or the <code>Host</code> alias in your config does not match.</td></tr>
+            <tr><td><code>REMOTE HOST IDENTIFICATION HAS CHANGED!</code></td><td>The server's host key differs from the one in <code>known_hosts</code>. See below.</td></tr>
+          </tbody>
+        </table>
+        <pre data-lang="output"><code>@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+...
+Offending ED25519 key in /home/kim/.ssh/known_hosts:3</code></pre>
+        <p>
+          This appears when a cluster is reinstalled or a login node replaced, because the host key changes. Rarely, it really is someone intercepting
+          the connection. Confirm with the cluster announcements or the admins that the key changed, then delete the old entry and reconnect to accept the new fingerprint.
+        </p>
+        <pre data-lang="bash"><code>$ ssh-keygen -R vanda.nus.edu.sg
+# Host vanda.nus.edu.sg found: line 3
+/home/kim/.ssh/known_hosts updated.
+Original contents retained as /home/kim/.ssh/known_hosts.old</code></pre>
+
+        <h2 id="extra">X11 forwarding and VS Code</h2>
+        <p>
+          To see windows from programs running on the cluster (VMD, a gnuplot window) on your laptop, connect with <code>ssh -Y vanda</code>.
+          macOS needs XQuartz; WSL on Windows 11 often works without extra setup. The screen is drawn over the network, so it is slow.
+          For a large trajectory, copy the file back and open it locally.
+        </p>
+        <p>
+          VS Code's Remote-SSH extension connects using the aliases in <code>~/.ssh/config</code> and lets you edit cluster files as if they were local,
+          which is handy for input files. It does start a server process on the login node, and some clusters restrict it for that reason.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="processes.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Processes and environment</div>
+        </a>
+        <a class="next" href="transfer.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">File transfer</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

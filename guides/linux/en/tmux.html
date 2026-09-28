@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>tmux · Linux Starter Pack</title>
+  <meta name="description" content="Keep your shell alive when the ssh connection drops, and split one terminal into several windows and panes." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/tmux.html">KO</a>
+    <a href="tmux.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Linux</div>
+    <div class="brand-subtitle">Starter pack · for new computational chemists</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="setup.html"><span class="nav-num">01</span>Setting up a terminal</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Basics</div>
+      <ul class="nav-list">
+        <li><a href="files.html"><span class="nav-num">02</span>Files and directories</a></li>
+        <li><a href="viewing.html"><span class="nav-num">03</span>Viewing and editing files</a></li>
+        <li><a href="permissions.html"><span class="nav-num">04</span>Permissions</a></li>
+        <li><a href="processes.html"><span class="nav-num">05</span>Processes and environment</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Remote work</div>
+      <ul class="nav-list">
+        <li><a href="ssh.html"><span class="nav-num">06</span>ssh and keys</a></li>
+        <li><a href="transfer.html"><span class="nav-num">07</span>File transfer</a></li>
+        <li><a href="tmux.html"><span class="nav-num">08</span>tmux</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Clusters</div>
+      <ul class="nav-list">
+        <li><a href="hpc.html"><span class="nav-num">09</span>First steps on HPC</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reference</div>
+      <ul class="nav-list">
+        <li><a href="software.html"><span class="nav-num">10</span>Useful software</a></li>
+        <li><a href="cheatsheet.html"><span class="nav-num">11</span>Cheat sheet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 08 · Remote work</div>
+        <h1 class="page-title">tmux</h1>
+        <p class="page-lede">Keep your shell alive when the ssh connection drops, and split one terminal into several windows and panes.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#why">Why you need it</a></li>
+            <li><a href="#session">Create, detach, reattach</a></li>
+            <li><a href="#windows">Windows and panes</a></li>
+            <li><a href="#scroll">Scrolling</a></li>
+            <li><a href="#conf">~/.tmux.conf</a></li>
+            <li><a href="#login">A warning about login nodes</a></li>
+            <li><a href="#screen">screen</a></li>
+          </ul>
+        </div>
+
+        <h2 id="why">Why you need it</h2>
+        <p>
+          When an ssh connection drops, the foreground processes started from it are killed too. A brief Wi-Fi dropout or closing the laptop lid is
+          enough to lose an <code>rsync</code> that has been running for half an hour, a compile, or the <code>tail -f</code> you were watching an output with.
+        </p>
+        <p>
+          tmux (terminal multiplexer) holds the shell on the server for you. Your ssh connection is just a view onto the tmux screen, so when it drops,
+          the shell and programs inside tmux keep running. Reconnect, reattach, and everything is where you left it.
+          Most clusters have tmux installed; if not, <code>screen</code> is probably there.
+        </p>
+
+        <h2 id="session">Create, detach, reattach</h2>
+        <p>
+          tmux works in sessions. After logging in to the cluster, start a named session. Pick a name that tells you what it is for.
+        </p>
+        <pre data-lang="bash"><code>$ ssh vanda
+$ tmux new -s h2o-opt</code></pre>
+        <p>
+          A green status bar at the bottom means you are inside tmux. Every tmux shortcut starts with the <strong>prefix</strong> key, <code>Ctrl-b</code>
+          by default. <code>Ctrl-b d</code> means: press <code>Ctrl</code> and <code>b</code> together, release, then press <code>d</code>.
+        </p>
+        <pre data-lang="bash"><code><span class="cmt"># detach from the session: Ctrl-b d</span>
+[detached (from session h2o-opt)]
+
+<span class="cmt"># list running sessions</span>
+$ tmux ls
+h2o-opt: 1 windows (created Tue Sep 29 00:08:22 2026)
+md-run: 1 windows (created Tue Sep 29 00:08:22 2026)
+
+<span class="cmt"># reattach</span>
+$ tmux attach -t h2o-opt</code></pre>
+        <p>
+          Once detached, the session survives whether you log out or the connection dies. Log back in, check with <code>tmux ls</code>, reattach with
+          <code>tmux attach -t</code>. With only one session, plain <code>tmux attach</code> is enough. With none, <code>tmux ls</code> answers
+          <code>no server running on ...</code>.
+        </p>
+        <p>
+          To end a session, close its last shell with <code>exit</code> from inside, or kill it by name from outside:
+        </p>
+        <pre data-lang="bash"><code>$ tmux kill-session -t md-run</code></pre>
+
+        <h2 id="windows">Windows and panes</h2>
+        <p>
+          A session can hold several windows, and a window can be split into panes. Edit an input file in one pane and keep <code>qstat</code> in the other.
+        </p>
+        <table>
+          <thead>
+            <tr><th>Keys</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Ctrl-b c</code></td><td>new window</td></tr>
+            <tr><td><code>Ctrl-b n</code> / <code>Ctrl-b p</code></td><td>next / previous window</td></tr>
+            <tr><td><code>Ctrl-b 0</code>…<code>9</code></td><td>go to window by number</td></tr>
+            <tr><td><code>Ctrl-b ,</code></td><td>rename window</td></tr>
+            <tr><td><code>Ctrl-b %</code></td><td>split left/right</td></tr>
+            <tr><td><code>Ctrl-b "</code></td><td>split top/bottom</td></tr>
+            <tr><td><code>Ctrl-b</code> arrow</td><td>move between panes</td></tr>
+            <tr><td><code>Ctrl-b z</code></td><td>zoom the current pane to full size and back</td></tr>
+            <tr><td><code>Ctrl-b x</code></td><td>close the current pane (asks first)</td></tr>
+            <tr><td><code>Ctrl-b d</code></td><td>detach</td></tr>
+            <tr><td><code>Ctrl-b ?</code></td><td>list all key bindings (<code>q</code> to close)</td></tr>
+          </tbody>
+        </table>
+        <p>
+          The left of the status bar lists windows as <code>0:bash 1:vim*</code>; the <code>*</code> marks the current one.
+        </p>
+
+        <h2 id="scroll">Scrolling</h2>
+        <p>
+          Inside tmux, your terminal's scrollbar and mouse wheel do not show earlier output (until you enable the mouse option below).
+          Press <code>Ctrl-b [</code> to enter copy mode, then scroll with the arrow keys, <code>PgUp</code> and <code>PgDn</code>. Press <code>q</code> to leave.
+        </p>
+
+        <h2 id="conf">~/.tmux.conf</h2>
+        <p>
+          tmux reads <code>~/.tmux.conf</code> in your cluster home directory when it starts. Two lines make it much nicer to use:
+        </p>
+        <pre data-lang="text"><code><span class="cmt"># click to select panes, drag to resize, scroll with the wheel</span>
+set -g mouse on
+<span class="cmt"># lines of output remembered per pane (default 2000)</span>
+set -g history-limit 50000</code></pre>
+        <p>
+          The file is read when the tmux server starts. In a session that is already running, press <code>Ctrl-b :</code> and type
+          <code>source-file ~/.tmux.conf</code>. With the mouse on, tmux captures click-and-drag, so your terminal's normal text selection stops working;
+          in most terminals holding <code>Shift</code> while dragging brings it back.
+        </p>
+
+        <h2 id="login">A warning about login nodes</h2>
+
+        <div class="caution">
+          <div class="note-title">Calculations still go through the scheduler</div>
+          <p>
+            A session that survives disconnects does not make it fine to run ORCA or LAMMPS directly on the login node. The login node is a shared entry
+            point, and heavy processes there are often killed by the admins. Submit calculations as jobs (<a href="hpc.html">chapter 09</a>).
+            Use tmux for light work: transfers, editing, compiling, watching the queue.
+          </p>
+        </div>
+
+        <p>
+          Some clusters have several login nodes behind one address, and each login can land on a different one. A tmux session exists only on the node
+          where you created it. If <code>tmux ls</code> shows nothing after reconnecting, run <code>hostname</code> to see where you are and ssh to the
+          previous node by name.
+        </p>
+
+        <h2 id="screen">screen</h2>
+        <p>
+          <code>screen</code> is an older program that does the same job. Use it on old systems without tmux. Same ideas, different keys:
+        </p>
+        <table>
+          <thead>
+            <tr><th>Action</th><th>tmux</th><th>screen</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>new session</td><td><code>tmux new -s NAME</code></td><td><code>screen -S NAME</code></td></tr>
+            <tr><td>detach</td><td><code>Ctrl-b d</code></td><td><code>Ctrl-a d</code></td></tr>
+            <tr><td>list</td><td><code>tmux ls</code></td><td><code>screen -ls</code></td></tr>
+            <tr><td>reattach</td><td><code>tmux attach -t NAME</code></td><td><code>screen -r NAME</code></td></tr>
+          </tbody>
+        </table>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="transfer.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">File transfer</div>
+        </a>
+        <a class="next" href="hpc.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">First steps on HPC</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -96,6 +96,60 @@ permalink: /guides/
                     <span class="tag">AIMD</span>
                 </div>
             </article>
+
+            <article class="post-preview">
+                <div class="post-header">
+                    <h2 class="post-title">
+                        <a href="{{ '/guides/linux/' | relative_url }}">Linux 스타터팩</a>
+                    </h2>
+                    <div class="post-meta">
+                        <span class="post-category"><i class="fas fa-terminal"></i> Linux · HPC</span>
+                        <span class="post-category"><i class="fas fa-graduation-cap"></i> 입문 · 한국어/English</span>
+                    </div>
+                </div>
+                <div class="post-excerpt">
+                    <p>
+                        계산화학을 막 시작한 사람을 위한 Linux 입문서입니다. WSL과 macOS 터미널 준비에서 시작해
+                        파일과 권한, 프로세스와 환경 변수, ssh 키와 파일 전송, tmux, HPC 클러스터 첫 작업 제출,
+                        쓸 만한 프로그램 목록과 치트시트까지 11개 챕터로 구성했습니다. 모든 명령은 직접 실행해
+                        실제 출력을 실었습니다.
+                    </p>
+                    <a href="{{ '/guides/linux/' | relative_url }}" class="read-more">가이드 열기 →</a>
+                </div>
+                <div class="post-tags">
+                    <span class="tag">Linux</span>
+                    <span class="tag">WSL</span>
+                    <span class="tag">ssh · rsync · tmux</span>
+                    <span class="tag">HPC</span>
+                </div>
+            </article>
+
+            <article class="post-preview">
+                <div class="post-header">
+                    <h2 class="post-title">
+                        <a href="{{ '/guides/shell/' | relative_url }}">셸 스크립팅 가이드</a>
+                    </h2>
+                    <div class="post-meta">
+                        <span class="post-category"><i class="fas fa-code"></i> bash · Automation</span>
+                        <span class="post-category"><i class="fas fa-book"></i> 한국어/English</span>
+                    </div>
+                </div>
+                <div class="post-excerpt">
+                    <p>
+                        계산화학 연구자를 위한 bash 스크립팅 가이드입니다. 변수와 반복문, 함수와 getopts,
+                        set -euo pipefail과 trap으로 안전하게 쓰는 법, grep · sed · awk로 ORCA · QE · LAMMPS · xtb
+                        출력에서 값 뽑기, PBS · Slurm 작업 스크립트와 작업 배열, 파라미터 스윕까지 9개 챕터입니다.
+                        예제 스크립트는 모두 실행하고 ShellCheck로 검사했습니다.
+                    </p>
+                    <a href="{{ '/guides/shell/' | relative_url }}" class="read-more">가이드 열기 →</a>
+                </div>
+                <div class="post-tags">
+                    <span class="tag">bash</span>
+                    <span class="tag">grep · sed · awk</span>
+                    <span class="tag">PBS · Slurm</span>
+                    <span class="tag">Job arrays</span>
+                </div>
+            </article>
         </div>
     </div>
 </section>

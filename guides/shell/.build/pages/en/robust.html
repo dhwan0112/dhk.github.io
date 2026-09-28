@@ -1,0 +1,304 @@
+<!--
+title: Writing safer scripts
+eyebrow: CHAPTER 04 · Syntax
+h1: Writing safer scripts
+lede: Scripts that stop on errors, clean up after themselves and keep a record of what they did.
+-->
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#strict">set -euo pipefail</a></li>
+            <li><a href="#caveats">Where set -e applies and where it does not</a></li>
+            <li><a href="#quote">Quoting and cd</a></li>
+            <li><a href="#example">Example: running ORCA in a scratch directory</a></li>
+            <li><a href="#shellcheck">ShellCheck</a></li>
+            <li><a href="#crlf">Windows line endings (CRLF)</a></li>
+          </ul>
+        </div>
+
+        <h2 id="strict">set -euo pipefail</h2>
+        <p>
+          By default bash carries on to the next line when a command fails. The input copy fails but the calculation starts anyway;
+          the <code>cd</code> fails and <code>rm</code> runs in the wrong directory. This line at the top of a script prevents much of that.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="kw">set</span> -euo pipefail</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>Option</th><th>Effect</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>-e</code></td><td>stop the script when a command returns a non-zero exit status</td></tr>
+            <tr><td><code>-u</code></td><td>treat use of an undefined variable as an error, so a misspelled name does not quietly become an empty string</td></tr>
+            <tr><td><code>-o pipefail</code></td><td>a pipeline fails if any command in it fails, not only the last one</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          Without <code>pipefail</code>, a pipeline's exit status is that of its last command. When <code>grep</code> fails because of a wrong file name,
+          <code>tail</code> still succeeds, and so does the pipeline as a whole.
+        </p>
+
+        <pre data-lang="bash"><code>$ e=$(grep "FINAL SINGLE POINT ENERGY" watr.out | tail -n 1); echo "status: $?"
+grep: watr.out: No such file or directory
+status: 0
+$ set -o pipefail
+$ e=$(grep "FINAL SINGLE POINT ENERGY" watr.out | tail -n 1); echo "status: $?"
+grep: watr.out: No such file or directory
+status: 2</code></pre>
+
+        <h2 id="caveats">Where set -e applies and where it does not</h2>
+        <p>
+          <code>set -e</code> is convenient, but its rules are not simple. Newcomers usually see a script stop without a word in one of these three cases.
+        </p>
+        <p>
+          First, <code>grep</code> returns 1 when it finds nothing. That is a normal answer ("no match"), not an error, but <code>-e</code> treats it as a failure.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="kw">set</span> -e
+n=$(grep -c "ERROR" water.out)      <span class="cmt"># stops here if there is no ERROR</span>
+echo "errors: $n"</code></pre>
+
+        <pre data-lang="bash"><code>$ bash e1.sh
+$ echo $?
+1</code></pre>
+
+        <p>
+          It exits with no message at all. Where finding nothing is acceptable, add <code>|| true</code>:
+          <code>n=$(grep -c "ERROR" water.out || true)</code> prints <code>errors: 0</code>.
+        </p>
+        <p>
+          Second, <code>((i++))</code> returns 1 when i is 0. <code>(( ))</code> fails when its value is 0, and post-increment yields the old value, 0.
+          Write counters as <code>i=$((i + 1))</code>.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="kw">set</span> -e
+i=0
+((i++))            <span class="cmt"># stops here</span>
+echo "i = $i"</code></pre>
+
+        <p>
+          Third, <code>-u</code> considers <code>$1</code> undefined when the script is run without arguments.
+        </p>
+
+        <pre data-lang="bash"><code>$ cat e3.sh
+#!/bin/bash
+set -u
+mol=$1
+echo "mol = $mol"
+$ bash e3.sh
+e3.sh: line 3: $1: unbound variable</code></pre>
+
+        <p>
+          Where an argument may be missing, give it a default with <code>${1:-}</code>. It expands to an empty string without an error, and you can then
+          test it with <code>[[ -z $mol ]]</code> and print a usage message.
+        </p>
+        <p>
+          In the other direction, some places ignore <code>-e</code>: the condition of <code>if</code> and <code>while</code>, and the left side of <code>&amp;&amp;</code> and <code>||</code>.
+          When a function is called as an <code>if</code> condition, <code>-e</code> is off for the entire function body. Treat <code>set -e</code> as a safety net
+          and check important commands explicitly, for example with <code>|| exit 1</code>.
+        </p>
+
+        <h2 id="quote">Quoting and cd</h2>
+        <p>
+          Quote every variable as <code>"$f"</code> and every command substitution as <code>"$(...)"</code>. Quoting always is quicker than memorising where it is safe not to.
+          The exceptions are roughly the inside of <code>[[ ]]</code> and <code>$(( ))</code>.
+        </p>
+        <p>
+          A failed <code>cd</code> leaves you where you were. If the next line is <code>rm -f *.tmp</code>, it deletes files in the wrong directory.
+          Always follow <code>cd</code> with <code>|| exit 1</code>.
+        </p>
+
+        <pre data-lang="bash"><code>cd "$scratch" || exit 1
+rm -f ./*.tmp</code></pre>
+
+        <p>
+          Check that a program exists with <code>command -v</code>. It prints the path and returns 0 if found, 1 otherwise.
+          ORCA has to be called by its full path for parallel runs, so the path you get here is exactly what you need.
+        </p>
+
+        <pre data-lang="bash"><code><span class="kw">if</span> ! orca_bin=$(command -v orca); <span class="kw">then</span>
+    echo "error: orca not found in PATH" &gt;&amp;2
+    exit 1
+<span class="kw">fi</span></code></pre>
+
+        <div class="warning">
+          <div class="note-title">The other orca</div>
+          <p>
+            Ubuntu desktop ships the GNOME screen reader as <code>/usr/bin/orca</code>. Run a script without ORCA on your <code>PATH</code>
+            and you get a screen reader instead of a calculation. Check which file is picked up with <code>type -a orca</code>, and put the ORCA directory near the front of <code>PATH</code>.
+          </p>
+        </div>
+
+        <h2 id="example">Example: running ORCA in a scratch directory</h2>
+        <p>
+          This script runs each calculation on the node's local disk and copies only the output back. It pulls together everything above.
+          <code>mktemp -d</code> creates a temporary directory with a unique name. <code>trap '...' EXIT</code> runs the given command when the script ends,
+          whether it finishes normally or stops on an error; here it removes the temporary directory.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># run ORCA on each input in a temporary directory and copy the output back</span>
+<span class="kw">set</span> -euo pipefail
+
+dry_run=0
+<span class="kw">if</span> [[ ${1:-} == "-n" ]]; <span class="kw">then</span>
+    dry_run=1
+    <span class="kw">shift</span>
+<span class="kw">fi</span>
+
+log() {
+    printf '[%s] %s\n' "$(date '+%F %T')" "$*"
+}
+
+<span class="kw">if</span> ! orca_bin=$(command -v orca); <span class="kw">then</span>
+    echo "error: orca not found in PATH" &gt;&amp;2
+    exit 1
+<span class="kw">fi</span>
+
+scratch=$(mktemp -d "${TMPDIR:-/tmp}/orca.XXXXXX")
+<span class="kw">trap</span> 'rm -rf "$scratch"' EXIT
+start_dir=$PWD
+
+<span class="kw">for</span> inp <span class="kw">in</span> "$@"; <span class="kw">do</span>
+    dir=$(dirname "$inp")
+    name=$(basename "$inp" .inp)
+
+    <span class="kw">if</span> (( dry_run )); <span class="kw">then</span>
+        log "would run $inp"
+        <span class="kw">continue</span>
+    <span class="kw">fi</span>
+
+    log "start $name"
+    cp "$inp" "$scratch/"
+    cd "$scratch" || exit 1
+    status=0
+    "$orca_bin" "$name.inp" &gt; "$name.out" || status=$?
+    cp "$name.out" "$start_dir/$dir/"
+    rm -f "$scratch"/*
+    cd "$start_dir"
+
+    <span class="kw">if</span> grep -q "ORCA TERMINATED NORMALLY" "$dir/$name.out"; <span class="kw">then</span>
+        log "done $name"
+    <span class="kw">else</span>
+        log "FAILED $name (exit status $status)"
+    <span class="kw">fi</span>
+<span class="kw">done</span></code></pre>
+
+        <pre data-lang="bash"><code>$ ./run_orca.sh -n */*.inp
+[2026-09-29 00:15:54] would run benzene/benzene.inp
+[2026-09-29 00:15:54] would run water/water.inp
+$ ./run_orca.sh */*.inp
+[2026-09-29 00:15:54] start benzene
+[2026-09-29 00:15:54] FAILED benzene (exit status 1)
+[2026-09-29 00:15:54] start water
+[2026-09-29 00:15:54] done water
+$ ls -d /tmp/orca.*
+ls: cannot access '/tmp/orca.*': No such file or directory</code></pre>
+
+        <p>A few points worth noting:</p>
+        <ul>
+          <li>With <code>-n</code> the script only prints what it would do. Run scripts that touch hundreds of files this way first.</li>
+          <li><code>"$orca_bin" ... || status=$?</code> records ORCA's exit status without letting <code>set -e</code> stop the script. One failed calculation does not abandon the rest.</li>
+          <li><code>log</code> stamps every line with the time in <code>date '+%F %T'</code> format. Kept in the job's output file, it tells you later how long each calculation took.</li>
+          <li>The final <code>ls</code> finds nothing because the trap removed the temporary directory.</li>
+        </ul>
+        <p>
+          When a job hits its time limit, the scheduler first sends SIGTERM. bash exits on that signal and the EXIT trap still runs.
+          A SIGKILL, however, ends the process without running any trap. Handling scratch space in PBS and Slurm scripts is covered in <a href="batch.html">chapter 07</a>.
+        </p>
+
+        <h2 id="shellcheck">ShellCheck</h2>
+        <p>
+          <a href="https://www.shellcheck.net">ShellCheck</a> is a static analyser that catches common shell script mistakes.
+          Paste a script into the website, or install it with <code>apt install shellcheck</code> or <code>conda install -c conda-forge shellcheck</code>.
+          Here is a script that collects several mistakes from this chapter.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="kw">for</span> f <span class="kw">in</span> $(ls */*.out); <span class="kw">do</span>
+    cd $(dirname $f)
+    grep "ORCA TERMINATED NORMALLY" $(basename $f)
+    cd ..
+<span class="kw">done</span></code></pre>
+
+        <pre data-lang="bash"><code>$ shellcheck naive.sh
+
+In naive.sh line 2:
+for f in $(ls */*.out); do
+         ^-----------^ SC2045 (error): Iterating over ls output is fragile. Use globs.
+              ^-- SC2035 (info): Use ./*glob* or -- *glob* so names with dashes won't become options.
+
+
+In naive.sh line 3:
+    cd $(dirname $f)
+    ^--------------^ SC2164 (warning): Use 'cd ... || exit' or 'cd ... || return' in case cd fails.
+       ^-----------^ SC2046 (warning): Quote this to prevent word splitting.
+                 ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+    cd $(dirname "$f") || exit
+
+
+In naive.sh line 4:
+    grep "ORCA TERMINATED NORMALLY" $(basename $f)
+                                    ^------------^ SC2046 (warning): Quote this to prevent word splitting.
+                                               ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+    grep "ORCA TERMINATED NORMALLY" $(basename "$f")
+
+
+In naive.sh line 5:
+    cd ..
+    ^---^ SC2103 (info): Use a ( subshell ) to avoid having to cd back.
+
+For more information:
+  https://www.shellcheck.net/wiki/SC2045 -- Iterating over ls output is fragi...
+  https://www.shellcheck.net/wiki/SC2046 -- Quote this to prevent word splitt...
+  https://www.shellcheck.net/wiki/SC2164 -- Use 'cd ... || exit' or 'cd ... |...</code></pre>
+
+        <p>
+          Searching for an SC number brings up a page explaining it. With every suggestion applied, the script becomes the one below.
+          The parentheses <code>( )</code> start a subshell, so a <code>cd</code> inside them does not change the loop's working directory.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="kw">for</span> f <span class="kw">in</span> */*.out; <span class="kw">do</span>
+    (
+        cd "$(dirname "$f")" || exit 1
+        grep -H "ORCA TERMINATED NORMALLY" "$(basename "$f")"
+    )
+<span class="kw">done</span></code></pre>
+
+        <h2 id="crlf">Windows line endings (CRLF)</h2>
+        <p>
+          Scripts written in a Windows editor end each line with <code>\r\n</code> (CRLF). Linux treats only <code>\n</code> as a line break,
+          so the <code>\r</code> sticks to the end of commands and paths. On the shebang line it produces this error:
+        </p>
+
+        <pre data-lang="bash"><code>$ ./crlf.sh
+bash: ./crlf.sh: /bin/bash^M: bad interpreter: No such file or directory
+$ bash crlf2.sh
+crlf2.sh: line 2: cd: $'jobs\r': No such file or directory
+crlf2.sh: line 3: $'ls\r': command not found</code></pre>
+
+        <p>
+          <code>^M</code> and <code>\r</code> are the same character. Confirm with <code>file</code> and fix with <code>sed</code> or <code>dos2unix</code>.
+        </p>
+
+        <pre data-lang="bash"><code>$ file crlf.sh
+crlf.sh: Bourne-Again shell script, ASCII text executable, with CRLF line terminators
+$ sed -i 's/\r$//' crlf.sh
+$ file crlf.sh
+crlf.sh: Bourne-Again shell script, ASCII text executable</code></pre>
+
+        <p>
+          <code>dos2unix crlf.sh</code> does the same, but it is not always installed on clusters, whereas <code>sed</code> is everywhere.
+          If you edit in VS Code on Windows, click <code>CRLF</code> in the status bar at the bottom right, switch it to <code>LF</code> and save.
+          Input files and lists copied over from Windows cause the same problem.
+        </p>

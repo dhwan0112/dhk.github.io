@@ -1,0 +1,312 @@
+<!--
+title: Conditions and loops
+eyebrow: CHAPTER 02 · Syntax
+h1: Conditions and loops
+lede: Exit status and if, tests with [[ ]], for and while loops, and case, ending with a script that checks every job directory for a normal ORCA termination.
+-->
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#status">Exit status and $?</a></li>
+            <li><a href="#if">if, elif, else</a></li>
+            <li><a href="#test">Tests with [[ ]]</a></li>
+            <li><a href="#andor">&amp;&amp; and ||</a></li>
+            <li><a href="#for">for loops</a></li>
+            <li><a href="#while">Reading a file line by line with while read</a></li>
+            <li><a href="#case">case</a></li>
+            <li><a href="#example">Example: did the calculations finish normally?</a></li>
+          </ul>
+        </div>
+
+        <h2 id="status">Exit status and $?</h2>
+        <p>
+          Every command leaves behind an integer between 0 and 255 when it finishes: its exit status.
+          0 means success, anything else means failure. Every conditional in the shell is driven by this number.
+          The exit status of the previous command is in <code>$?</code>.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep -q "ORCA TERMINATED NORMALLY" water_sp.out
+$ echo $?
+0
+$ grep -q "ORCA TERMINATED NORMALLY" methane_opt.out
+$ echo $?
+1
+$ grep -q "ORCA TERMINATED NORMALLY" nofile.out
+grep: nofile.out: No such file or directory
+$ echo $?
+2</code></pre>
+
+        <p>
+          <code>grep</code> returns 0 if it finds a match, 1 if it does not, and 2 on an error such as a missing file. <code>-q</code> suppresses all output.
+        </p>
+        <p>
+          <code>$?</code> is overwritten by every command you run, and <code>echo</code> is a command too. If you need the value later, copy it into a variable straight away.
+        </p>
+
+        <pre data-lang="bash"><code>$ ls nofile
+ls: cannot access 'nofile': No such file or directory
+$ echo "exit status: $?"
+exit status: 2
+$ echo "now: $?"
+now: 0</code></pre>
+
+        <h2 id="if">if, elif, else</h2>
+        <p>
+          <code>if</code> is followed by a command. If that command's exit status is 0, the <code>then</code> block runs.
+          Unlike languages that put a boolean expression in parentheses, any command can serve as the condition.
+        </p>
+
+        <pre data-lang="bash"><code><span class="kw">if</span> grep -q "ORCA TERMINATED NORMALLY" water.out; <span class="kw">then</span>
+    echo "finished"
+<span class="kw">elif</span> grep -q "ERROR" water.out; <span class="kw">then</span>
+    echo "error"
+<span class="kw">else</span>
+    echo "still running or killed"
+<span class="kw">fi</span></code></pre>
+
+        <p>
+          To put <code>then</code> on the same line you need a <code>;</code> before it. The block is closed by <code>fi</code>.
+          Indentation has no meaning to bash but makes the code readable.
+        </p>
+
+        <h2 id="test">Tests with [[ ]]</h2>
+        <p>
+          Checks such as "does this file exist", "is this string empty" or "is this number larger" are written with <code>[[ ]]</code>.
+          The spaces after <code>[[</code> and before <code>]]</code> are required.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Test</th><th>True when</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>[[ -f $f ]]</code></td><td>a regular file exists</td></tr>
+            <tr><td><code>[[ -d $d ]]</code></td><td>a directory exists</td></tr>
+            <tr><td><code>[[ -e $p ]]</code></td><td>something exists, of any type</td></tr>
+            <tr><td><code>[[ -s $f ]]</code></td><td>the file exists and is not empty</td></tr>
+            <tr><td><code>[[ -z $s ]]</code> / <code>[[ -n $s ]]</code></td><td>the string is empty / not empty</td></tr>
+            <tr><td><code>[[ $a == $b ]]</code>, <code>!=</code></td><td>strings are equal, different. The right side may be a pattern like <code>*.xyz</code></td></tr>
+            <tr><td><code>[[ $n -lt 8 ]]</code></td><td>integer comparison: <code>-eq -ne -lt -le -gt -ge</code></td></tr>
+            <tr><td><code>[[ ! -f $f ]]</code></td><td>negation</td></tr>
+            <tr><td><code>[[ -f $a &amp;&amp; -f $b ]]</code></td><td>both true; <code>||</code> for either</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          Do not compare numbers with <code>&lt;</code> and <code>&gt;</code>. Inside <code>[[ ]]</code>, <code>&gt;</code> compares strings in dictionary order,
+          so <code>10</code> comes out smaller than <code>9</code>. Use <code>-gt</code> or the arithmetic form <code>(( ))</code> for integers.
+        </p>
+
+        <pre data-lang="bash"><code>$ [[ 10 &gt; 9 ]] &amp;&amp; echo yes || echo no
+no
+$ [[ 10 -gt 9 ]] &amp;&amp; echo yes || echo no
+yes
+$ n=12; (( n &gt; 8 )) &amp;&amp; echo big
+big
+$ f=conf03.xyz; [[ $f == *.xyz ]] &amp;&amp; echo "xyz file"
+xyz file</code></pre>
+
+        <p>
+          The <code>[ ]</code> in older scripts is another name for the <code>test</code> command. If the variable is not quoted it breaks as soon as the value is empty.
+          <code>[[ ]]</code> is bash syntax: no word splitting happens inside it and pattern matching works. Use <code>[[ ]]</code> in bash scripts.
+        </p>
+
+        <pre data-lang="bash"><code>$ x=
+$ [ $x = "" ] &amp;&amp; echo empty
+bash: [: =: unary operator expected
+$ [[ $x == "" ]] &amp;&amp; echo empty
+empty</code></pre>
+
+        <h2 id="andor">&amp;&amp; and ||</h2>
+        <p>
+          <code>A &amp;&amp; B</code> runs B only if A succeeded. <code>A || B</code> runs B only if A failed.
+          Short conditions are often written this way instead of with <code>if</code>.
+        </p>
+
+        <pre data-lang="bash"><code>mkdir -p opt &amp;&amp; cp water.xyz opt/
+[[ -f water.xyz ]] || echo "water.xyz is missing"
+cd "$workdir" || exit 1</code></pre>
+
+        <p>
+          <code>A &amp;&amp; B || C</code> looks like if-else but is not the same: C also runs when B fails. Only use it when B is something that cannot fail, like <code>echo</code>.
+        </p>
+
+        <h2 id="for">for loops</h2>
+        <p>
+          <code>for var in list</code> assigns each item in turn to the variable and runs the block. For files, put a wildcard where the list goes.
+        </p>
+
+        <pre data-lang="bash"><code><span class="kw">for</span> f <span class="kw">in</span> *.xyz; <span class="kw">do</span>
+    mol=${f%.xyz}
+    mkdir -p "$mol"
+    cp "$f" "$mol/"
+<span class="kw">done</span></code></pre>
+
+        <p>
+          You will often see <code>for f in $(ls *.xyz)</code>. It is wrong: the output of <code>ls</code> is split at spaces,
+          so a file with a space in its name becomes two items. A wildcard is never split.
+        </p>
+
+        <pre data-lang="bash"><code>$ for f in $(ls *.xyz); do echo "[$f]"; done
+[ethanol]
+[conf1.xyz]
+[methane.xyz]
+[water.xyz]
+$ for f in *.xyz; do echo "[$f]"; done
+[ethanol conf1.xyz]
+[methane.xyz]
+[water.xyz]</code></pre>
+
+        <p>
+          If nothing matches, bash leaves the pattern as literal text, so the loop runs once with a "file" called <code>*.gjf</code>.
+          With <code>shopt -s nullglob</code> the pattern becomes an empty list and the loop does not run at all.
+        </p>
+
+        <pre data-lang="bash"><code>$ for f in *.gjf; do echo "[$f]"; done
+[*.gjf]
+$ shopt -s nullglob
+$ for f in *.gjf; do echo "[$f]"; done
+$ shopt -u nullglob</code></pre>
+
+        <p>
+          Brace ranges produce lists of numbers. A leading zero as in <code>{01..10}</code> pads them to the same width.
+          Variables do not work inside the braces: <code>{1..$n}</code> is not expanded, so use <code>seq</code> or a C-style loop instead.
+        </p>
+
+        <pre data-lang="bash"><code>$ echo {1..5} {01..10..3} conf{a,b}
+1 2 3 4 5 01 04 07 10 confa confb
+$ n=3; echo {1..$n}
+{1..$n}
+$ for (( i=0; i&lt;5; i++ )); do
+&gt;     r=$(awk -v i="$i" 'BEGIN { printf "%.2f", 0.90 + 0.05*i }')
+&gt;     echo "scan_$i: R = $r"
+&gt; done
+scan_0: R = 0.90
+scan_1: R = 0.95
+scan_2: R = 1.00
+scan_3: R = 1.05
+scan_4: R = 1.10</code></pre>
+
+        <p>
+          The last example generates bond lengths for a scan. The loop counts in integers and <code>awk</code> computes the decimal values.
+          The <code>&gt;</code> at the start of the lines is the prompt bash shows while a command continues.
+        </p>
+
+        <h2 id="while">Reading a file line by line with while read</h2>
+        <p>Suppose <code>mols.txt</code> lists molecule names, charges and spin multiplicities.</p>
+
+        <pre data-lang="text"><code>water 0 1
+methane 0 1
+nitrate -1 1</code></pre>
+
+        <p>
+          Feeding the file to <code>while read -r</code> reads it one line at a time. With several variable names, the line is split at whitespace
+          and whatever is left over goes into the last variable.
+        </p>
+
+        <pre data-lang="bash"><code>$ while read -r name charge mult; do
+&gt;     echo "$name: charge $charge, mult $mult"
+&gt; done &lt; mols.txt
+water: charge 0, mult 1
+methane: charge 0, mult 1
+nitrate: charge -1, mult 1</code></pre>
+
+        <p>
+          Writing the same thing as <code>cat mols.txt | while read ...</code> has a catch: variables changed inside the loop do not survive it,
+          because each part of a pipeline runs in its own subshell.
+        </p>
+
+        <pre data-lang="bash"><code>$ count=0
+$ cat mols.txt | while read -r line; do count=$((count + 1)); done
+$ echo "count = $count"
+count = 0
+$ count=0
+$ while read -r line; do count=$((count + 1)); done &lt; mols.txt
+$ echo "count = $count"
+count = 3
+$ count=0
+$ while read -r f; do count=$((count + 1)); done &lt; &lt;(find jobs -name '*.out')
+$ echo "count = $count"
+count = 3</code></pre>
+
+        <p>
+          Redirect a file with <code>&lt; file</code> and another command's output with process substitution, <code>&lt; &lt;(command)</code>, and the loop runs in the current shell.
+          Mind the space between the two <code>&lt;</code>.
+        </p>
+
+        <div class="warning">
+          <div class="note-title">The missing last line</div>
+          <p>
+            Lists written in a Windows editor sometimes have no newline after the last line. <code>read</code> returns failure when it hits the end without a newline,
+            so that line is skipped. <code>while read -r line || [[ -n $line ]]</code> processes it as well.
+          </p>
+        </div>
+
+        <h2 id="case">case</h2>
+        <p>
+          To compare one value against several patterns, <code>case</code> reads better than a chain of <code>if</code>s. Here it dispatches on file extension.
+        </p>
+
+        <pre data-lang="bash"><code><span class="kw">for</span> f <span class="kw">in</span> water.xyz run.inp job.out notes.txt geom.gjf; <span class="kw">do</span>
+    <span class="kw">case</span> "$f" <span class="kw">in</span>
+        *.xyz)       echo "$f: coordinates" ;;
+        *.inp|*.gjf) echo "$f: input" ;;
+        *.out|*.log) echo "$f: output" ;;
+        *)           echo "$f: skipped" ;;
+    <span class="kw">esac</span>
+<span class="kw">done</span></code></pre>
+
+        <pre data-lang="output"><code>water.xyz: coordinates
+run.inp: input
+job.out: output
+notes.txt: skipped
+geom.gjf: input</code></pre>
+
+        <p>
+          Each branch ends with <code>;;</code> and only the first matching branch runs. <code>*)</code> catches everything else.
+          Inside any loop, <code>continue</code> skips to the next item and <code>break</code> leaves the loop.
+        </p>
+
+        <h2 id="example">Example: did the calculations finish normally?</h2>
+        <p>
+          Say <code>jobs/</code> holds one directory per calculation, each with an <code>.out</code> file named after the directory.
+          When ORCA finishes normally it writes <code>****ORCA TERMINATED NORMALLY****</code> at the end of the output. The script sorts jobs by whether that line is there.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># check each job directory under jobs/ for a normal ORCA termination</span>
+
+ok=0
+bad=0
+
+<span class="kw">for</span> d <span class="kw">in</span> jobs/*/; <span class="kw">do</span>
+    d=${d%/}
+    name=${d##*/}
+    out="$d/$name.out"
+
+    <span class="kw">if</span> [[ ! -f $out ]]; <span class="kw">then</span>
+        echo "NOOUT  $name"
+        bad=$((bad + 1))
+    <span class="kw">elif</span> grep -q "ORCA TERMINATED NORMALLY" "$out"; <span class="kw">then</span>
+        echo "OK     $name"
+        ok=$((ok + 1))
+    <span class="kw">else</span>
+        echo "FAIL   $name"
+        bad=$((bad + 1))
+    <span class="kw">fi</span>
+<span class="kw">done</span>
+
+echo "normal: $ok, not normal: $bad"</code></pre>
+
+        <pre data-lang="bash"><code>$ ./check_jobs.sh
+NOOUT  benzene_opt
+FAIL   methane_opt
+OK     water_opt
+OK     water_sp
+normal: 2, not normal: 2</code></pre>
+
+        <p>
+          The trailing <code>/</code> in <code>jobs/*/</code> selects directories only, and <code>${d%/}</code> removes it again.
+          A FAIL may simply be a job that is still running; check the queue with <code>qstat</code> or <code>squeue</code>.
+          Pulling the energies out as well and putting them in a table is the subject of <a href="extract.html">chapter 06</a>.
+        </p>

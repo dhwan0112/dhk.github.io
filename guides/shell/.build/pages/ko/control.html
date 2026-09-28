@@ -1,0 +1,313 @@
+<!--
+title: 조건과 반복
+eyebrow: CHAPTER 02 · 문법
+h1: 조건과 반복
+lede: 종료 코드와 if, [[ ]] 검사, for와 while, case를 익히고 계산 디렉터리 전체의 종료 상태를 한 번에 확인한다.
+-->
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
+          <ul>
+            <li><a href="#status">종료 코드와 $?</a></li>
+            <li><a href="#if">if, elif, else</a></li>
+            <li><a href="#test">[[ ]]로 검사하기</a></li>
+            <li><a href="#andor">&amp;&amp;와 ||</a></li>
+            <li><a href="#for">for 반복문</a></li>
+            <li><a href="#while">while read로 파일 한 줄씩 읽기</a></li>
+            <li><a href="#case">case</a></li>
+            <li><a href="#example">예제: 계산이 정상 종료했는지 확인하기</a></li>
+          </ul>
+        </div>
+
+        <h2 id="status">종료 코드와 $?</h2>
+        <p>
+          모든 명령은 끝날 때 0에서 255 사이의 정수를 남긴다. 이것을 종료 코드(exit status)라고 한다.
+          0은 성공, 나머지는 실패다. 셸의 조건문은 전부 이 숫자를 보고 움직인다.
+          바로 앞 명령의 종료 코드는 <code>$?</code>에 들어 있다.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep -q "ORCA TERMINATED NORMALLY" water_sp.out
+$ echo $?
+0
+$ grep -q "ORCA TERMINATED NORMALLY" methane_opt.out
+$ echo $?
+1
+$ grep -q "ORCA TERMINATED NORMALLY" nofile.out
+grep: nofile.out: No such file or directory
+$ echo $?
+2</code></pre>
+
+        <p>
+          <code>grep</code>은 찾으면 0, 못 찾으면 1, 파일이 없는 등 오류가 나면 2를 돌려준다. <code>-q</code>는 아무것도 출력하지 말라는 옵션이다.
+        </p>
+        <p>
+          <code>$?</code>는 명령을 하나 실행할 때마다 새로 덮어써진다. <code>echo</code>도 명령이다.
+          나중에 쓸 값이라면 바로 변수에 옮겨 둔다.
+        </p>
+
+        <pre data-lang="bash"><code>$ ls nofile
+ls: cannot access 'nofile': No such file or directory
+$ echo "exit status: $?"
+exit status: 2
+$ echo "now: $?"
+now: 0</code></pre>
+
+        <h2 id="if">if, elif, else</h2>
+        <p>
+          <code>if</code> 뒤에는 명령이 온다. 그 명령의 종료 코드가 0이면 <code>then</code> 블록을 실행한다.
+          괄호 안에 조건식을 쓰는 다른 언어와 달리, 아무 명령이나 조건이 될 수 있다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="kw">if</span> grep -q "ORCA TERMINATED NORMALLY" water.out; <span class="kw">then</span>
+    echo "finished"
+<span class="kw">elif</span> grep -q "ERROR" water.out; <span class="kw">then</span>
+    echo "error"
+<span class="kw">else</span>
+    echo "still running or killed"
+<span class="kw">fi</span></code></pre>
+
+        <p>
+          <code>then</code>을 같은 줄에 쓰려면 앞에 <code>;</code>가 필요하다. 블록은 <code>fi</code>로 닫는다.
+          들여쓰기는 문법상 의미가 없지만 읽기 편하도록 넣는다.
+        </p>
+
+        <h2 id="test">[[ ]]로 검사하기</h2>
+        <p>
+          파일이 있는지, 문자열이 비었는지, 숫자가 큰지 같은 조건은 <code>[[ ]]</code>로 검사한다. <code>[[</code> 뒤와 <code>]]</code> 앞에는 공백이 꼭 있어야 한다.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>검사</th><th>참인 경우</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>[[ -f $f ]]</code></td><td>일반 파일이 있다</td></tr>
+            <tr><td><code>[[ -d $d ]]</code></td><td>디렉터리가 있다</td></tr>
+            <tr><td><code>[[ -e $p ]]</code></td><td>종류와 상관없이 있다</td></tr>
+            <tr><td><code>[[ -s $f ]]</code></td><td>파일이 있고 비어 있지 않다</td></tr>
+            <tr><td><code>[[ -z $s ]]</code> / <code>[[ -n $s ]]</code></td><td>문자열이 비었다 / 비어 있지 않다</td></tr>
+            <tr><td><code>[[ $a == $b ]]</code>, <code>!=</code></td><td>문자열이 같다, 다르다. 오른쪽에 <code>*.xyz</code> 같은 패턴을 쓸 수 있다</td></tr>
+            <tr><td><code>[[ $n -lt 8 ]]</code></td><td>정수 비교. <code>-eq -ne -lt -le -gt -ge</code></td></tr>
+            <tr><td><code>[[ ! -f $f ]]</code></td><td>부정</td></tr>
+            <tr><td><code>[[ -f $a &amp;&amp; -f $b ]]</code></td><td>둘 다 참. <code>||</code>는 하나라도 참</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          숫자를 비교할 때 <code>&lt;</code>, <code>&gt;</code>를 쓰면 안 된다. <code>[[ ]]</code> 안의 <code>&gt;</code>는 사전 순 문자열 비교라서
+          <code>10</code>이 <code>9</code>보다 작다고 나온다. 정수는 <code>-gt</code>를 쓰거나 산술용 <code>(( ))</code>를 쓴다.
+        </p>
+
+        <pre data-lang="bash"><code>$ [[ 10 &gt; 9 ]] &amp;&amp; echo yes || echo no
+no
+$ [[ 10 -gt 9 ]] &amp;&amp; echo yes || echo no
+yes
+$ n=12; (( n &gt; 8 )) &amp;&amp; echo big
+big
+$ f=conf03.xyz; [[ $f == *.xyz ]] &amp;&amp; echo "xyz file"
+xyz file</code></pre>
+
+        <p>
+          오래된 스크립트에서 보이는 <code>[ ]</code>는 <code>test</code> 명령의 다른 이름이다. 변수를 따옴표로 감싸지 않으면 빈 값일 때 깨진다.
+          <code>[[ ]]</code>는 bash 문법이라 안에서 단어 분리가 일어나지 않고 패턴 비교도 된다. bash 스크립트에서는 <code>[[ ]]</code>를 쓴다.
+        </p>
+
+        <pre data-lang="bash"><code>$ x=
+$ [ $x = "" ] &amp;&amp; echo empty
+bash: [: =: unary operator expected
+$ [[ $x == "" ]] &amp;&amp; echo empty
+empty</code></pre>
+
+        <h2 id="andor">&amp;&amp;와 ||</h2>
+        <p>
+          <code>A &amp;&amp; B</code>는 A가 성공했을 때만 B를 실행한다. <code>A || B</code>는 A가 실패했을 때만 B를 실행한다.
+          짧은 조건은 <code>if</code> 대신 이렇게 쓴다.
+        </p>
+
+        <pre data-lang="bash"><code>mkdir -p opt &amp;&amp; cp water.xyz opt/
+[[ -f water.xyz ]] || echo "water.xyz is missing"
+cd "$workdir" || exit 1</code></pre>
+
+        <p>
+          <code>A &amp;&amp; B || C</code>는 if-else처럼 보이지만 같지 않다. B가 실패해도 C가 실행된다. B가 <code>echo</code>처럼 실패할 일이 없는 명령일 때만 쓴다.
+        </p>
+
+        <h2 id="for">for 반복문</h2>
+        <p>
+          <code>for 변수 in 목록</code>은 목록의 각 항목을 차례로 변수에 넣고 블록을 실행한다. 파일을 다룰 때는 목록 자리에 와일드카드를 쓴다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="kw">for</span> f <span class="kw">in</span> *.xyz; <span class="kw">do</span>
+    mol=${f%.xyz}
+    mkdir -p "$mol"
+    cp "$f" "$mol/"
+<span class="kw">done</span></code></pre>
+
+        <p>
+          <code>for f in $(ls *.xyz)</code>라고 쓰는 경우가 많은데 틀린 방법이다. <code>ls</code>의 출력이 공백에서 쪼개져서
+          이름에 공백이 있는 파일은 두 조각이 된다. 와일드카드는 쪼개지지 않는다.
+        </p>
+
+        <pre data-lang="bash"><code>$ for f in $(ls *.xyz); do echo "[$f]"; done
+[ethanol]
+[conf1.xyz]
+[methane.xyz]
+[water.xyz]
+$ for f in *.xyz; do echo "[$f]"; done
+[ethanol conf1.xyz]
+[methane.xyz]
+[water.xyz]</code></pre>
+
+        <p>
+          맞는 파일이 하나도 없으면 bash는 패턴을 글자 그대로 남긴다. 그래서 <code>*.gjf</code>라는 이름으로 반복문이 한 번 돈다.
+          <code>shopt -s nullglob</code>을 켜 두면 빈 목록이 되어 반복문이 아예 돌지 않는다.
+        </p>
+
+        <pre data-lang="bash"><code>$ for f in *.gjf; do echo "[$f]"; done
+[*.gjf]
+$ shopt -s nullglob
+$ for f in *.gjf; do echo "[$f]"; done
+$ shopt -u nullglob</code></pre>
+
+        <p>
+          숫자 목록은 중괄호 범위로 만든다. <code>{01..10}</code>처럼 앞에 0을 붙이면 자릿수가 맞춰진다.
+          다만 중괄호 안에는 변수를 쓸 수 없다. <code>{1..$n}</code>은 펼쳐지지 않으니 <code>seq</code>나 C 형식 for를 쓴다.
+        </p>
+
+        <pre data-lang="bash"><code>$ echo {1..5} {01..10..3} conf{a,b}
+1 2 3 4 5 01 04 07 10 confa confb
+$ n=3; echo {1..$n}
+{1..$n}
+$ for (( i=0; i&lt;5; i++ )); do
+&gt;     r=$(awk -v i="$i" 'BEGIN { printf "%.2f", 0.90 + 0.05*i }')
+&gt;     echo "scan_$i: R = $r"
+&gt; done
+scan_0: R = 0.90
+scan_1: R = 0.95
+scan_2: R = 1.00
+scan_3: R = 1.05
+scan_4: R = 1.10</code></pre>
+
+        <p>
+          마지막 예는 결합 길이 스캔 값을 만든다. 반복 횟수는 정수로 세고, 소수 값은 <code>awk</code>가 계산한다.
+          <code>&gt;</code>는 명령이 이어진다는 표시로 셸이 띄우는 프롬프트다.
+        </p>
+
+        <h2 id="while">while read로 파일 한 줄씩 읽기</h2>
+        <p>
+          분자 이름, 전하, 스핀 다중도를 적은 목록 파일 <code>mols.txt</code>가 있다고 하자.
+        </p>
+
+        <pre data-lang="text"><code>water 0 1
+methane 0 1
+nitrate -1 1</code></pre>
+
+        <p>
+          <code>while read -r</code>에 파일을 넘기면 한 줄씩 읽는다. 변수를 여러 개 주면 공백 기준으로 나눠 담고, 남는 부분은 마지막 변수에 들어간다.
+        </p>
+
+        <pre data-lang="bash"><code>$ while read -r name charge mult; do
+&gt;     echo "$name: charge $charge, mult $mult"
+&gt; done &lt; mols.txt
+water: charge 0, mult 1
+methane: charge 0, mult 1
+nitrate: charge -1, mult 1</code></pre>
+
+        <p>
+          같은 일을 <code>cat mols.txt | while read ...</code>로 쓰면 반복문 안에서 바꾼 변수가 밖으로 나오지 않는다.
+          파이프의 각 부분이 별도의 하위 셸에서 돌기 때문이다.
+        </p>
+
+        <pre data-lang="bash"><code>$ count=0
+$ cat mols.txt | while read -r line; do count=$((count + 1)); done
+$ echo "count = $count"
+count = 0
+$ count=0
+$ while read -r line; do count=$((count + 1)); done &lt; mols.txt
+$ echo "count = $count"
+count = 3
+$ count=0
+$ while read -r f; do count=$((count + 1)); done &lt; &lt;(find jobs -name '*.out')
+$ echo "count = $count"
+count = 3</code></pre>
+
+        <p>
+          파일은 <code>&lt; 파일</code>로, 다른 명령의 출력은 프로세스 치환 <code>&lt; &lt;(명령)</code>으로 넘기면 반복문이 현재 셸에서 돈다.
+          두 <code>&lt;</code> 사이의 공백을 빼먹지 않는다.
+        </p>
+
+        <div class="warning">
+          <div class="note-title">마지막 줄이 사라질 때</div>
+          <p>
+            Windows 편집기로 만든 목록 파일은 마지막 줄 끝에 줄바꿈이 없는 경우가 있다. <code>read</code>는 줄바꿈을 못 만나면 실패를 돌려주고,
+            마지막 줄은 반복문에서 빠진다. <code>while read -r line || [[ -n $line ]]</code>로 쓰면 그 줄도 처리한다.
+          </p>
+        </div>
+
+        <h2 id="case">case</h2>
+        <p>
+          값 하나를 여러 패턴과 비교할 때는 <code>if</code>를 늘어놓는 것보다 <code>case</code>가 읽기 쉽다. 확장자별로 처리를 나누는 예다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="kw">for</span> f <span class="kw">in</span> water.xyz run.inp job.out notes.txt geom.gjf; <span class="kw">do</span>
+    <span class="kw">case</span> "$f" <span class="kw">in</span>
+        *.xyz)       echo "$f: coordinates" ;;
+        *.inp|*.gjf) echo "$f: input" ;;
+        *.out|*.log) echo "$f: output" ;;
+        *)           echo "$f: skipped" ;;
+    <span class="kw">esac</span>
+<span class="kw">done</span></code></pre>
+
+        <pre data-lang="output"><code>water.xyz: coordinates
+run.inp: input
+job.out: output
+notes.txt: skipped
+geom.gjf: input</code></pre>
+
+        <p>
+          각 갈래는 <code>;;</code>로 끝나고, 위에서부터 처음 맞는 하나만 실행된다. <code>*)</code>는 나머지 전부를 받는다.
+          반복문 안에서 <code>continue</code>는 이번 차례를 건너뛰고, <code>break</code>는 반복문을 끝낸다.
+        </p>
+
+        <h2 id="example">예제: 계산이 정상 종료했는지 확인하기</h2>
+        <p>
+          <code>jobs/</code> 아래에 계산마다 디렉터리가 있고, 디렉터리 이름과 같은 이름의 <code>.out</code> 파일이 있다고 하자.
+          ORCA는 정상적으로 끝나면 출력 끝에 <code>****ORCA TERMINATED NORMALLY****</code>를 쓴다. 이 줄이 있는지로 상태를 나눈다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># jobs/ 아래 계산 디렉터리마다 ORCA가 정상 종료했는지 확인한다</span>
+
+ok=0
+bad=0
+
+<span class="kw">for</span> d <span class="kw">in</span> jobs/*/; <span class="kw">do</span>
+    d=${d%/}
+    name=${d##*/}
+    out="$d/$name.out"
+
+    <span class="kw">if</span> [[ ! -f $out ]]; <span class="kw">then</span>
+        echo "NOOUT  $name"
+        bad=$((bad + 1))
+    <span class="kw">elif</span> grep -q "ORCA TERMINATED NORMALLY" "$out"; <span class="kw">then</span>
+        echo "OK     $name"
+        ok=$((ok + 1))
+    <span class="kw">else</span>
+        echo "FAIL   $name"
+        bad=$((bad + 1))
+    <span class="kw">fi</span>
+<span class="kw">done</span>
+
+echo "normal: $ok, not normal: $bad"</code></pre>
+
+        <pre data-lang="bash"><code>$ ./check_jobs.sh
+NOOUT  benzene_opt
+FAIL   methane_opt
+OK     water_opt
+OK     water_sp
+normal: 2, not normal: 2</code></pre>
+
+        <p>
+          <code>jobs/*/</code>처럼 끝에 <code>/</code>를 붙이면 디렉터리만 고른다. 그 <code>/</code>는 <code>${d%/}</code>로 떼어 낸다.
+          FAIL은 아직 돌고 있는 계산일 수도 있다. 큐에 남은 작업인지는 <code>qstat</code>이나 <code>squeue</code>로 따로 확인한다.
+          출력에서 에너지까지 뽑아 표로 만드는 법은 <a href="extract.html">06장</a>에서 다룬다.
+        </p>

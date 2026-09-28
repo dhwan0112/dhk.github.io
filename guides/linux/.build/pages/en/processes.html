@@ -1,0 +1,272 @@
+<!--
+title: Processes and environment
+eyebrow: CHAPTER 05 · Basics
+h1: Processes and environment
+lede: See and stop running programs, and set up your shell with PATH and .bashrc.
+-->
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#ps">Seeing processes: ps, top, htop</a></li>
+            <li><a href="#kill">Stopping: Ctrl+C and kill</a></li>
+            <li><a href="#jobs">Running in the background</a></li>
+            <li><a href="#env">Environment variables</a></li>
+            <li><a href="#path">PATH and which</a></li>
+            <li><a href="#bashrc">.bashrc and .bash_profile</a></li>
+            <li><a href="#alias">Aliases</a></li>
+            <li><a href="#omp">Environment variables for calculations</a></li>
+          </ul>
+        </div>
+
+        <h2 id="ps">Seeing processes: ps, top, htop</h2>
+        <p>
+          Each running program is a <strong>process</strong>. Every process has a number, its PID, which you use to inspect or stop it.
+          <code>ps</code> lists the processes started from the current terminal.
+        </p>
+
+        <pre data-lang="bash"><code>$ ps
+    PID TTY          TIME CMD
+ 454500 pts/3    00:00:00 bash
+ 454505 pts/3    00:00:00 sleep
+ 454506 pts/3    00:00:00 ps</code></pre>
+
+        <p>
+          <code>ps -u $USER</code> shows all of your processes and <code>ps aux</code> everything on the machine. To find one by name, pipe it into <code>grep</code>.
+        </p>
+
+        <pre data-lang="bash"><code>$ ps aux | grep orca</code></pre>
+
+        <p>
+          <code>top</code> shows processes live, sorted by CPU use; <code>q</code> quits. <code>htop</code> is an easier-to-read version with colour and per-core bars,
+          but it may not be installed (<code>sudo apt install htop</code>).
+        </p>
+
+        <pre data-lang="output"><code>top - 00:13:21 up 11:37,  1 user,  load average: 9.72, 9.24, 5.89
+Tasks: 392 total,   2 running, 389 sleeping,   0 stopped,   1 zombie
+%Cpu(s): 23.6 us,  2.2 sy,  0.0 ni, 73.0 id,  1.1 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem :  30962.3 total,   2806.1 free,  12789.0 used,  16344.9 buff/cache
+MiB Swap:   8192.0 total,   8190.8 free,      1.2 used.  18173.4 avail Mem
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>Field</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>load average</code></td><td>Average number of processes running or waiting for a CPU over the last 1, 5 and 15 minutes. Above the core count (<code>nproc</code>) means overloaded.</td></tr>
+            <tr><td><code>%CPU</code></td><td>Usage where one full core is 100%. A program using 8 cores shows close to 800%.</td></tr>
+            <tr><td><code>RES</code></td><td>Memory actually in use</td></tr>
+            <tr><td><code>S</code></td><td>State: <code>R</code> running, <code>S</code> sleeping, <code>T</code> stopped, <code>Z</code> zombie</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          A parallel ORCA run shows processes such as <code>orca_scf_mpi</code>, one per core. If a job is running but <code>%CPU</code> stays near 100%,
+          the parallel settings have not taken effect.
+        </p>
+
+        <div class="warning">
+          <div class="note-title">Do not compute on the login node</div>
+          <p>
+            When you ssh into a cluster you land on a <strong>login node</strong>, a machine shared by hundreds of users. Heavy calculations there slow everyone down,
+            and administrators will kill the process or send you a warning. Send calculations to compute nodes through the scheduler (<code>qsub</code> under PBS, for example;
+            see <a href="hpc.html">chapter 09</a>). Keep the login node for managing files, editing and quick <code>grep</code>s.
+          </p>
+        </div>
+
+        <h2 id="kill">Stopping: Ctrl+C and kill</h2>
+        <p>
+          <code>Ctrl+C</code> interrupts the command running in the foreground. For a program running in another terminal, or one that has frozen, find its PID and use <code>kill</code>.
+        </p>
+
+        <pre data-lang="bash"><code>$ kill 454505          <span class="cmt"># ask it to terminate (SIGTERM)</span>
+$ kill -9 454505       <span class="cmt"># force it (SIGKILL)</span></code></pre>
+
+        <p>
+          Plain <code>kill</code> asks the program to clean up and exit, which is usually enough. <code>kill -9</code> cannot be refused and may leave temporary files behind.
+          Try <code>kill</code> first and use <code>-9</code> only if it does not work. You cannot kill other users' processes.
+          Jobs submitted through the scheduler are cancelled with <code>qdel &lt;job id&gt;</code> (PBS), not <code>kill</code>.
+        </p>
+
+        <h2 id="jobs">Running in the background</h2>
+        <p>
+          Ending a command with <code>&amp;</code> runs it in the background and gives you the prompt back immediately. A command already running in the foreground can be
+          paused with <code>Ctrl+Z</code> and then sent to the background with <code>bg</code>. The example uses <code>sleep</code> (wait for a number of seconds) in place of a long calculation.
+        </p>
+
+        <pre data-lang="bash"><code>$ sleep 600 &amp;
+[1] 453276
+$ sleep 900 &amp;
+[2] 453277
+$ jobs
+[1]-  Running                    sleep 600 &amp;
+[2]+  Running                    sleep 900 &amp;
+$ kill %1
+$ jobs
+[1]-  Terminated                 sleep 600
+[2]+  Running                    sleep 900 &amp;</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>Command</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>cmd &amp;</code></td><td>Run in the background</td></tr>
+            <tr><td><code>Ctrl+Z</code></td><td>Pause the foreground command</td></tr>
+            <tr><td><code>bg</code></td><td>Resume a paused command in the background</td></tr>
+            <tr><td><code>fg</code></td><td>Bring a background command to the foreground (<code>fg %2</code>)</td></tr>
+            <tr><td><code>jobs</code></td><td>List background jobs in this terminal</td></tr>
+            <tr><td><code>kill %1</code></td><td>Terminate job number 1</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Surviving a closed terminal: nohup</h3>
+        <p>
+          A program started with just <code>&amp;</code> can die when you close the terminal or the ssh connection drops. Prefixing it with <code>nohup</code> keeps it running.
+          Send its output to a file.
+        </p>
+
+        <pre data-lang="bash"><code>$ cd ~/proj/h2o-opt
+$ nohup orca water.inp &gt; water.out 2&gt;&amp;1 &amp;</code></pre>
+
+        <p>
+          Without a redirect, nohup prints <code>nohup: ignoring input and appending output to 'nohup.out'</code> and writes to <code>nohup.out</code>.
+          This is fine for short runs in WSL or on a personal workstation. On a cluster, use the scheduler, and do long interactive work inside <a href="tmux.html">tmux</a>.
+        </p>
+
+        <h2 id="env">Environment variables</h2>
+        <p>
+          The shell keeps settings in named variables, and <code>$</code> retrieves a value. Variables that are passed on to child processes (programs the shell starts)
+          are called <strong>environment variables</strong>.
+        </p>
+
+        <pre data-lang="bash"><code>$ echo $HOME
+/home/kim
+$ echo $USER
+kim
+$ name=water
+$ echo $name
+water
+$ bash -c 'echo child sees: [$name]'
+child sees: []
+$ export name
+$ bash -c 'echo child sees: [$name]'
+child sees: [water]</code></pre>
+
+        <p>
+          No spaces around <code>=</code>: <code>name = water</code> tries to run a command called <code>name</code>.
+          A plain variable exists only in the current shell; <code>export</code> makes it visible to programs the shell runs.
+          Anything ORCA or xtb reads from the environment has to be exported. <code>env</code> or <code>printenv</code> prints all environment variables.
+          Variables and quoting in scripts are covered in detail in the <a href="../../shell/en/basics.html">shell guide</a>.
+        </p>
+
+        <h2 id="path">PATH and which</h2>
+        <p>
+          When you type <code>ls</code>, the shell searches the directories listed in <code>PATH</code>, in order, for an executable called <code>ls</code>.
+          <code>command not found</code> means it was in none of them.
+        </p>
+
+        <pre data-lang="bash"><code>$ echo $PATH | tr ':' '\n'
+/usr/local/sbin
+/usr/local/bin
+/usr/sbin
+/usr/bin
+/sbin
+/bin
+/snap/bin
+$ which grep
+/usr/bin/grep
+$ command -v cd
+cd</code></pre>
+
+        <p>
+          In WSL the list continues with a long run of Windows paths starting with <code>/mnt/c/...</code>, so that Windows programs can be called from WSL.
+          <code>which</code> and <code>command -v</code> tell you which program will actually run. <code>command -v</code> also finds shell built-ins like <code>cd</code>, so prefer it in scripts.
+          If you install a program in your home directory, put its directory at the front of <code>PATH</code>.
+        </p>
+
+        <pre data-lang="bash"><code><span class="kw">export</span> PATH=$HOME/orca:$PATH</code></pre>
+
+        <p>
+          Leaving out the existing <code>$PATH</code>, as in <code>export PATH=$HOME/orca</code>, means the shell can no longer find even <code>ls</code>. Opening a new terminal restores it.
+        </p>
+
+        <div class="tip">
+          <div class="note-title">Ubuntu's orca is a screen reader</div>
+          <p>
+            On an Ubuntu desktop, <code>which orca</code> may return <code>/usr/bin/orca</code>. That is the GNOME screen reader, not the ORCA quantum chemistry program.
+            Put your ORCA directory first in <code>PATH</code>, and call ORCA by its full path (<code>$HOME/orca/orca water.inp</code>) for parallel runs.
+          </p>
+        </div>
+
+        <h2 id="bashrc">.bashrc and .bash_profile</h2>
+        <p>
+          Exported variables disappear when the terminal closes. Settings you want every time go into files that bash reads at startup.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>File</th><th>Read when</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>~/.bashrc</code></td><td>Every interactive shell: a new terminal tab, a WSL window</td></tr>
+            <tr><td><code>~/.bash_profile</code> (or <code>~/.profile</code> if absent)</td><td>Once at login, e.g. an ssh session</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          Keeping settings in two places gets confusing, so the usual approach is to put everything in <code>~/.bashrc</code> and have <code>~/.bash_profile</code> read it.
+          Ubuntu's default <code>~/.profile</code> already does this. On a cluster, check that <code>~/.bash_profile</code> contains these lines.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt"># ~/.bash_profile</span>
+<span class="kw">if</span> [ -f ~/.bashrc ]; <span class="kw">then</span>
+    <span class="kw">source</span> ~/.bashrc
+<span class="kw">fi</span></code></pre>
+
+        <p>
+          After editing <code>~/.bashrc</code>, open a new terminal or run <code>source ~/.bashrc</code>. <code>source</code> runs a file's contents in the current shell.
+          zsh on macOS reads <code>~/.zshrc</code> instead.
+        </p>
+
+        <h2 id="alias">Aliases</h2>
+        <p>An alias gives a long, frequently typed command a short name. Put aliases in <code>~/.bashrc</code> so they are always available.</p>
+
+        <pre data-lang="bash"><code><span class="cmt"># ~/.bashrc</span>
+<span class="kw">alias</span> ll='ls -lh'
+<span class="kw">alias</span> rm='rm -i'
+<span class="kw">alias</span> e='grep "FINAL SINGLE POINT ENERGY"'</code></pre>
+
+        <p>
+          With these, <code>e water.out</code> expands to <code>grep "FINAL SINGLE POINT ENERGY" water.out</code>. Aliases work only in interactive shells; they are not expanded inside scripts.
+        </p>
+
+        <h2 id="omp">Environment variables for calculations</h2>
+        <p>Calculation programs often take settings such as core count or memory from environment variables.</p>
+
+        <table>
+          <thead>
+            <tr><th>Variable / command</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>OMP_NUM_THREADS</code></td><td>Number of threads for OpenMP programs (xtb, CREST, numerical libraries)</td></tr>
+            <tr><td><code>OMP_STACKSIZE</code></td><td>Stack memory per thread. xtb recommends around <code>4G</code>.</td></tr>
+            <tr><td><code>ulimit -s unlimited</code></td><td>Lift the shell's stack size limit (8192 KB by default)</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ <span class="kw">export</span> OMP_NUM_THREADS=4
+$ echo $OMP_NUM_THREADS
+4
+$ ulimit -s
+8192
+$ ulimit -s unlimited
+$ ulimit -s
+unlimited</code></pre>
+
+        <p>
+          If <code>OMP_NUM_THREADS</code> is unset, a program tries to use every core on the machine. On a laptop that stalls everything else;
+          on a cluster it uses more cores than you requested. In job scripts, match it to the number of cores you asked for.
+          With too small a stack, xtb segfaults on larger molecules for no obvious reason. The specific settings are in the <a href="../../xtb/en/getting-started.html">xtb guide</a>.
+        </p>

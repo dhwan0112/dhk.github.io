@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Files and directories · Linux Starter Pack</title>
+  <meta name="description" content="Read paths, move between directories, and create, copy, move and delete files." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/files.html">KO</a>
+    <a href="files.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Linux</div>
+    <div class="brand-subtitle">Starter pack · for new computational chemists</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="setup.html"><span class="nav-num">01</span>Setting up a terminal</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Basics</div>
+      <ul class="nav-list">
+        <li><a href="files.html"><span class="nav-num">02</span>Files and directories</a></li>
+        <li><a href="viewing.html"><span class="nav-num">03</span>Viewing and editing files</a></li>
+        <li><a href="permissions.html"><span class="nav-num">04</span>Permissions</a></li>
+        <li><a href="processes.html"><span class="nav-num">05</span>Processes and environment</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Remote work</div>
+      <ul class="nav-list">
+        <li><a href="ssh.html"><span class="nav-num">06</span>ssh and keys</a></li>
+        <li><a href="transfer.html"><span class="nav-num">07</span>File transfer</a></li>
+        <li><a href="tmux.html"><span class="nav-num">08</span>tmux</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Clusters</div>
+      <ul class="nav-list">
+        <li><a href="hpc.html"><span class="nav-num">09</span>First steps on HPC</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reference</div>
+      <ul class="nav-list">
+        <li><a href="software.html"><span class="nav-num">10</span>Useful software</a></li>
+        <li><a href="cheatsheet.html"><span class="nav-num">11</span>Cheat sheet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 02 · Basics</div>
+        <h1 class="page-title">Files and directories</h1>
+        <p class="page-lede">Read paths, move between directories, and create, copy, move and delete files.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#tree">The directory tree</a></li>
+            <li><a href="#paths">Absolute and relative paths</a></li>
+            <li><a href="#move">Moving around and looking</a></li>
+            <li><a href="#manage">Create, copy, move, delete</a></li>
+            <li><a href="#wildcards">Wildcards</a></li>
+            <li><a href="#names">Naming files</a></li>
+            <li><a href="#project">Organising calculation directories</a></li>
+          </ul>
+        </div>
+
+        <h2 id="tree">The directory tree</h2>
+        <p>
+          Linux has no C: or D: drives. Every file hangs off a single tree that starts at <code>/</code>, the root.
+          Folders are usually called <strong>directories</strong>.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Path</th><th>Contents</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>/</code></td><td>The top. Every path starts here.</td></tr>
+            <tr><td><code>/home/kim</code></td><td>Home directory of user <code>kim</code>. Your own files go here. Written <code>~</code> for short.</td></tr>
+            <tr><td><code>/usr/bin</code>, <code>/bin</code></td><td>Program executables such as <code>ls</code> and <code>grep</code></td></tr>
+            <tr><td><code>/etc</code></td><td>System configuration files</td></tr>
+            <tr><td><code>/tmp</code></td><td>Temporary files. May be wiped on reboot.</td></tr>
+            <tr><td><code>/mnt/c</code></td><td>The Windows C: drive, as seen from WSL</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          <code>/</code> and <code>~</code> are easy to mix up. <code>/</code> is the root of the whole system, and ordinary users cannot create files there.
+          <code>~</code> is your home. Clusters usually give you a larger working area (often called scratch) besides your home; its path and quota
+          differ between clusters, so check your site's documentation (<a href="hpc.html">chapter 09</a>).
+        </p>
+
+        <h2 id="paths">Absolute and relative paths</h2>
+        <p>
+          An <strong>absolute path</strong> starts with <code>/</code> and spells out the full location. It means the same thing wherever you use it.
+          A <strong>relative path</strong> is interpreted from the directory you are currently in.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Form</th><th>Meaning</th><th>Example</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>starts with <code>/</code></td><td>Absolute path</td><td><code>/home/kim/proj/h2o-opt/water.inp</code></td></tr>
+            <tr><td><code>~</code></td><td>Home directory</td><td><code>~/proj/h2o-opt</code></td></tr>
+            <tr><td><code>.</code></td><td>Current directory</td><td><code>./run.sh</code></td></tr>
+            <tr><td><code>..</code></td><td>One level up</td><td><code>../h2o-sp/water.out</code></td></tr>
+            <tr><td>anything else</td><td>Relative to the current directory</td><td><code>h2o-opt/water.inp</code></td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          From inside <code>~/proj/h2o-opt</code>, <code>water.inp</code>, <code>./water.inp</code> and <code>~/proj/h2o-opt/water.inp</code> all name the same file.
+          In job scripts you often cannot be sure where the script will run, so absolute paths are safer there.
+        </p>
+
+        <h2 id="move">Moving around and looking</h2>
+        <p><code>cd</code> (change directory) moves you; <code>pwd</code> tells you where you are.</p>
+
+        <pre data-lang="bash"><code>$ cd ~/proj
+$ pwd
+/home/kim/proj
+$ ls
+h2o-opt  h2o-sp
+$ cd h2o-opt
+$ cd ../h2o-sp
+$ pwd
+/home/kim/proj/h2o-sp
+$ cd
+$ pwd
+/home/kim
+$ cd -
+/home/kim/proj/h2o-sp</code></pre>
+
+        <p><code>cd</code> on its own takes you home, and <code>cd -</code> goes back to the previous directory.</p>
+
+        <h3>ls options</h3>
+        <p><code>ls -l</code> gives one file per line with permissions, size and modification time. Options can be combined, as in <code>-la</code>.</p>
+
+        <pre data-lang="bash"><code>$ ls -la ~/proj/h2o-sp
+total 60
+drwxr-xr-x 2 kim kim  4096 Sep 28 18:12 .
+drwxr-xr-x 4 kim kim  4096 Sep 28 18:12 ..
+-rw-r--r-- 1 kim kim   186 Sep 28 18:12 water.inp
+-rw-r--r-- 1 kim kim 48678 Sep 28 18:12 water.out</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>Option</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>-l</code></td><td>Long format (permissions, owner, size, time). The columns are explained in <a href="permissions.html">chapter 04</a>.</td></tr>
+            <tr><td><code>-a</code></td><td>Include hidden files</td></tr>
+            <tr><td><code>-h</code></td><td>Human-readable sizes such as <code>167K</code> or <code>2.1G</code> (with <code>-l</code>)</td></tr>
+            <tr><td><code>-t</code></td><td>Sort by modification time, newest first</td></tr>
+            <tr><td><code>-r</code></td><td>Reverse the order. <code>ls -ltr</code> puts the newest file at the bottom.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Hidden files</h3>
+        <p>
+          Files whose names start with <code>.</code> are not shown by <code>ls</code>. Most configuration files are hidden this way.
+        </p>
+
+        <pre data-lang="bash"><code>$ cd
+$ ls
+proj
+$ ls -a
+.  ..  .bash_history  .bashrc  .cache  .profile  .ssh  proj</code></pre>
+
+        <p><code>.bashrc</code> comes back in chapter 05 and <code>.ssh</code> in <a href="ssh.html">chapter 06</a>.</p>
+
+        <h3>Tab completion</h3>
+        <p>
+          Type the first few letters of a name and press <code>Tab</code>; the shell fills in the rest. If there are several candidates, press it again to list them.
+          Typing <code>cd ~/proj/h2</code> and pressing <code>Tab</code> twice shows <code>h2o-opt/</code> and <code>h2o-sp/</code>.
+          It saves typing and catches mistakes: if a path will not complete, it probably does not exist.
+        </p>
+
+        <h2 id="manage">Create, copy, move, delete</h2>
+        <table>
+          <thead>
+            <tr><th>Command</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>mkdir dir</code></td><td>Create a directory</td></tr>
+            <tr><td><code>mkdir -p a/b/c</code></td><td>Create intermediate directories too; no error if it already exists</td></tr>
+            <tr><td><code>cp src dst</code></td><td>Copy a file</td></tr>
+            <tr><td><code>cp -r src dst</code></td><td>Copy a whole directory</td></tr>
+            <tr><td><code>mv src dst</code></td><td>Move. Within the same directory this renames.</td></tr>
+            <tr><td><code>rm file</code></td><td>Delete a file</td></tr>
+            <tr><td><code>rm -r dir</code></td><td>Delete a directory and everything in it</td></tr>
+            <tr><td><code>rmdir dir</code></td><td>Delete an empty directory only</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ cd ~/proj
+$ mkdir ch4-conf/conf01
+mkdir: cannot create directory ‘ch4-conf/conf01’: No such file or directory
+$ mkdir -p ch4-conf/conf01 ch4-conf/conf02
+$ cp h2o-sp h2o-sp-copy
+cp: -r not specified; omitting directory 'h2o-sp'
+$ cp -r h2o-sp h2o-sp-copy
+$ mv h2o-sp-copy h2o-sp-old
+$ rmdir h2o-sp-old
+rmdir: failed to remove 'h2o-sp-old': Directory not empty
+$ rm -r h2o-sp-old</code></pre>
+
+        <p>
+          A common pattern for rerunning a calculation with a small change is to <code>cp -r</code> the old directory and edit only the input.
+          The old outputs come along too, so delete the stale <code>.out</code> and <code>.gbw</code> files in the new directory before starting.
+        </p>
+
+        <div class="caution">
+          <div class="note-title">rm has no trash can</div>
+          <p>
+            Files removed with <code>rm</code> are, for practical purposes, gone. <code>cp</code> and <code>mv</code> also overwrite an existing file of the same name without asking.
+            Read the path twice before running <code>rm -r</code>, and when using wildcards, run <code>ls</code> with the same pattern first to see what matches.
+            <code>rm -i</code>, <code>cp -i</code> and <code>mv -i</code> ask before each file. Scratch space on clusters is often not backed up.
+          </p>
+        </div>
+
+        <h2 id="wildcards">Wildcards</h2>
+        <p>
+          Special characters in a file name are expanded by the shell into the list of matching names. The shell does this before the command runs,
+          so wildcards work with <code>ls</code>, <code>cp</code>, <code>rm</code>, <code>grep</code> and everything else.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Pattern</th><th>Matches</th><th>Example</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>*</code></td><td>Any characters, including none</td><td><code>*.xyz</code>: every xyz file</td></tr>
+            <tr><td><code>?</code></td><td>Exactly one character</td><td><code>conf0?.xyz</code>: conf01 to conf09</td></tr>
+            <tr><td><code>[12]</code></td><td>One of the listed characters</td><td><code>conf0[12].*</code>: conf01, conf02</td></tr>
+            <tr><td><code>[0-9]</code></td><td>One character in the range</td><td><code>conf[0-9][0-9].out</code></td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ ls
+conf01.out  conf01.xyz  conf02.out  conf02.xyz  conf03.xyz  conf10.xyz
+$ ls *.xyz
+conf01.xyz  conf02.xyz  conf03.xyz  conf10.xyz
+$ ls conf0?.xyz
+conf01.xyz  conf02.xyz  conf03.xyz
+$ ls conf0[12].*
+conf01.out  conf01.xyz  conf02.out  conf02.xyz
+$ ls *.log
+ls: cannot access '*.log': No such file or directory</code></pre>
+
+        <p>
+          <code>conf0?.xyz</code> does not match <code>conf10.xyz</code>. When nothing matches, bash passes the pattern through unchanged,
+          so <code>ls</code> goes looking for a file literally named <code>*.log</code> and fails.
+        </p>
+
+        <h2 id="names">Naming files</h2>
+        <p>
+          The shell splits arguments on spaces, so a name with a space in it is read as two names.
+          Below, <code>rm</code> did not try to delete <code>my water.xyz</code>; it tried to delete <code>my</code> and <code>water.xyz</code>, and removed the wrong file.
+        </p>
+
+        <pre data-lang="bash"><code>$ ls
+my water.xyz  water.xyz
+$ rm my water.xyz
+rm: cannot remove 'my': No such file or directory
+$ ls
+my water.xyz</code></pre>
+
+        <p>
+          Quote names that contain spaces (<code>"my water.xyz"</code>) or put a backslash before the space (<code>my\ water.xyz</code>); tab completion adds the backslash for you.
+          Better still, avoid spaces. Letters, digits, <code>-</code>, <code>_</code> and <code>.</code> are safe in every program.
+          Non-ASCII characters, parentheses and <code>&amp;</code> in names also cause trouble in calculation programs and scripts.
+        </p>
+
+        <h2 id="project">Organising calculation directories</h2>
+        <p>
+          ORCA, xtb and QE all write plenty of intermediate files into the current directory. Giving each calculation its own directory keeps them from
+          overwriting each other and makes it clear later which input produced which output. One way to lay it out:
+        </p>
+
+        <pre data-lang="output"><code>proj
+├── ch4-conf
+│   ├── conf01
+│   │   └── ch4.inp
+│   └── conf02
+│       └── ch4.inp
+├── h2o-freq
+│   └── water.inp
+├── h2o-opt
+│   ├── run.pbs
+│   ├── water.inp
+│   └── water.xyz
+├── notes
+│   └── log.md
+├── scripts
+│   └── get-energy.sh
+└── structures
+    ├── methane.xyz
+    └── water.xyz
+
+9 directories, 10 files</code></pre>
+
+        <p>
+          This view comes from <code>tree proj</code> (<code>sudo apt install tree</code>). Putting the molecule and the type of calculation in the directory name,
+          and naming consistently, makes it easy to handle everything at once later with a wildcard such as <code>*/water.out</code>.
+          Turning that kind of repetition into scripts is the subject of the <a href="../../shell/en/index.html">shell scripting guide</a>.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="setup.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Setting up a terminal</div>
+        </a>
+        <a class="next" href="viewing.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Viewing and editing files</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

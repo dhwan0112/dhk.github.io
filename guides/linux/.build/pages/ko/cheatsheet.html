@@ -1,0 +1,175 @@
+<!--
+title: 치트시트
+eyebrow: CHAPTER 11 · 참고
+h1: 치트시트
+lede: 02장부터 09장까지 나온 명령 중 자주 쓰는 것을 한 장에 모았다.
+-->
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
+          <ul>
+            <li><a href="#keys">키보드</a></li>
+            <li><a href="#nav">이동과 파일</a></li>
+            <li><a href="#view">보기와 찾기</a></li>
+            <li><a href="#perm">권한</a></li>
+            <li><a href="#proc">프로세스와 환경</a></li>
+            <li><a href="#remote">ssh와 전송</a></li>
+            <li><a href="#tmux">tmux</a></li>
+            <li><a href="#sched">PBS와 Slurm</a></li>
+          </ul>
+        </div>
+
+        <h2 id="keys">키보드</h2>
+        <table>
+          <thead>
+            <tr><th>키</th><th>동작</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Tab</code></td><td>명령, 파일 이름 자동 완성. 두 번 누르면 후보 목록</td></tr>
+            <tr><td><code>↑</code> / <code>↓</code></td><td>이전 / 다음 명령</td></tr>
+            <tr><td><code>Ctrl-C</code></td><td>실행 중인 명령 중단</td></tr>
+            <tr><td><code>Ctrl-D</code></td><td>입력 끝. 빈 프롬프트에서는 셸 종료(ssh 접속이면 로그아웃)</td></tr>
+            <tr><td><code>Ctrl-Z</code></td><td>실행 중인 명령 일시 정지. <code>fg</code>로 다시, <code>bg</code>로 백그라운드에서 계속</td></tr>
+            <tr><td><code>Ctrl-R</code></td><td>명령 기록 검색. 다시 누르면 더 이전 것</td></tr>
+            <tr><td><code>Ctrl-L</code></td><td>화면 지우기 (<code>clear</code>)</td></tr>
+            <tr><td><code>Ctrl-A</code> / <code>Ctrl-E</code></td><td>줄 맨 앞 / 맨 뒤로</td></tr>
+            <tr><td><code>Ctrl-U</code></td><td>커서 앞 내용 지우기</td></tr>
+            <tr><td><code>!!</code></td><td>직전 명령 다시. <code>sudo !!</code></td></tr>
+            <tr><td><code>!$</code></td><td>직전 명령의 마지막 인자</td></tr>
+            <tr><td><code>history</code></td><td>명령 기록 목록. <code>!번호</code>로 다시 실행</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="nav">이동과 파일</h2>
+        <table>
+          <thead>
+            <tr><th>명령</th><th>동작</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>pwd</code></td><td>현재 디렉터리</td></tr>
+            <tr><td><code>ls -lh</code></td><td>자세히, 크기는 읽기 쉽게. <code>-a</code>는 숨김 파일까지, <code>-t</code>는 수정 시각 순</td></tr>
+            <tr><td><code>cd 경로</code></td><td>이동. <code>cd</code>만 치면 홈, <code>cd ..</code>는 위로, <code>cd -</code>는 직전 위치</td></tr>
+            <tr><td><code>mkdir -p a/b/c</code></td><td>중간 디렉터리까지 한 번에 만들기</td></tr>
+            <tr><td><code>cp a b</code>, <code>cp -r dir1 dir2</code></td><td>복사. 디렉터리는 <code>-r</code></td></tr>
+            <tr><td><code>mv a b</code></td><td>이동, 이름 바꾸기</td></tr>
+            <tr><td><code>rm 파일</code>, <code>rm -r dir</code></td><td>삭제. 휴지통이 없다</td></tr>
+            <tr><td><code>*.out</code>, <code>h2o_?.xyz</code></td><td>와일드카드. <code>*</code>는 아무 글자나 여러 개, <code>?</code>는 한 글자</td></tr>
+            <tr><td><code>find . -name '*.out'</code></td><td>하위 디렉터리까지 이름으로 찾기</td></tr>
+            <tr><td><code>du -sh *</code></td><td>항목별 용량</td></tr>
+            <tr><td><code>df -h</code></td><td>파일 시스템별 크기와 여유</td></tr>
+            <tr><td><code>tar czf a.tar.gz dir</code> / <code>tar xzf a.tar.gz</code></td><td>묶고 압축 / 풀기. <code>tar tzf</code>는 목록</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="view">보기와 찾기</h2>
+        <table>
+          <thead>
+            <tr><th>명령</th><th>동작</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>less h2o.out</code></td><td>한 화면씩 보기. <code>/단어</code> 검색, <code>n</code> 다음, <code>G</code> 끝, <code>q</code> 나가기</td></tr>
+            <tr><td><code>head -n 20</code> / <code>tail -n 20</code></td><td>앞 / 뒤 20줄</td></tr>
+            <tr><td><code>tail -f h2o.out</code></td><td>늘어나는 출력 따라 보기. <code>Ctrl-C</code>로 멈춤</td></tr>
+            <tr><td><code>grep 'FINAL SINGLE POINT' *.out</code></td><td>패턴이 든 줄 찾기. <code>-n</code> 줄 번호, <code>-i</code> 대소문자 무시, <code>-r</code> 하위 디렉터리, <code>-c</code> 개수</td></tr>
+            <tr><td><code>wc -l</code></td><td>줄 수</td></tr>
+            <tr><td><code>cmd | less</code></td><td>출력을 다음 명령으로 넘기기(파이프)</td></tr>
+            <tr><td><code>cmd &gt; f</code>, <code>cmd &gt;&gt; f</code></td><td>출력을 파일로(덮어쓰기 / 덧붙이기)</td></tr>
+            <tr><td><code>cmd 2&gt;&amp;1</code></td><td>오류 출력도 같은 곳으로</td></tr>
+            <tr><td><code>nano f</code></td><td>편집. <code>Ctrl-O</code> 저장, <code>Ctrl-X</code> 종료</td></tr>
+            <tr><td><code>vim f</code></td><td>편집. <code>i</code> 입력, <code>Esc</code> 후 <code>:wq</code> 저장하고 종료, <code>:q!</code> 저장 안 하고 종료</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="perm">권한</h2>
+        <table>
+          <thead>
+            <tr><th>명령</th><th>동작</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>ls -l</code></td><td><code>-rwxr-xr--</code>: 소유자 / 그룹 / 나머지의 읽기·쓰기·실행</td></tr>
+            <tr><td><code>chmod +x run.sh</code></td><td>실행 권한 주기</td></tr>
+            <tr><td><code>chmod 600 f</code></td><td>나만 읽고 쓰기 (개인 키, <code>~/.ssh/config</code>)</td></tr>
+            <tr><td><code>chmod 700 dir</code></td><td>나만 접근 (<code>~/.ssh</code>)</td></tr>
+            <tr><td><code>chmod -R g+r dir</code></td><td>그룹에 읽기 권한을 하위까지</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="proc">프로세스와 환경</h2>
+        <table>
+          <thead>
+            <tr><th>명령</th><th>동작</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>top</code>, <code>htop</code></td><td>실행 중인 프로세스, CPU와 메모리. <code>q</code>로 나가기</td></tr>
+            <tr><td><code>ps ux</code></td><td>내 프로세스 목록</td></tr>
+            <tr><td><code>kill PID</code>, <code>kill -9 PID</code></td><td>종료 요청 / 강제 종료</td></tr>
+            <tr><td><code>cmd &amp;</code></td><td>백그라운드 실행. <code>jobs</code>로 목록</td></tr>
+            <tr><td><code>nohup cmd &gt; log 2&gt;&amp;1 &amp;</code></td><td>로그아웃해도 계속 실행</td></tr>
+            <tr><td><code>echo $PATH</code></td><td>변수 값 보기</td></tr>
+            <tr><td><code>export OMP_NUM_THREADS=4</code></td><td>환경 변수 설정 (현재 셸과 그 자식 프로세스)</td></tr>
+            <tr><td><code>which orca</code></td><td>명령이 어느 파일인지</td></tr>
+            <tr><td><code>source ~/.bashrc</code></td><td>설정 파일 다시 읽기</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="remote">ssh와 전송</h2>
+        <table>
+          <thead>
+            <tr><th>명령</th><th>동작</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>ssh user@host</code>, <code>ssh vanda</code></td><td>접속 (별명은 <code>~/.ssh/config</code>)</td></tr>
+            <tr><td><code>ssh-keygen -t ed25519</code></td><td>키 쌍 만들기</td></tr>
+            <tr><td><code>ssh-copy-id vanda</code></td><td>공개 키를 서버에 등록</td></tr>
+            <tr><td><code>ssh-add</code>, <code>ssh-add -l</code></td><td>agent에 키 넣기 / 목록</td></tr>
+            <tr><td><code>ssh-keygen -R host</code></td><td><code>known_hosts</code>에서 옛 호스트 키 지우기</td></tr>
+            <tr><td><code>ssh -v vanda</code></td><td>접속 과정 자세히(문제 진단)</td></tr>
+            <tr><td><code>scp f vanda:~/dir/</code></td><td>올리기</td></tr>
+            <tr><td><code>scp vanda:~/dir/f .</code></td><td>받기. 디렉터리는 <code>-r</code></td></tr>
+            <tr><td><code>rsync -avhP src/ dst/</code></td><td>바뀐 것만 동기화. 원본 끝 <code>/</code>는 "내용물"</td></tr>
+            <tr><td><code>rsync -n ...</code></td><td>dry-run. 무엇을 옮길지만 보기</td></tr>
+            <tr><td><code>--include='*/' --include='*.out' --exclude='*'</code></td><td>특정 확장자만</td></tr>
+            <tr><td><code>--exclude='*.gbw'</code></td><td>특정 파일 빼기</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="tmux">tmux</h2>
+        <table>
+          <thead>
+            <tr><th>명령 / 키</th><th>동작</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>tmux new -s NAME</code></td><td>새 세션</td></tr>
+            <tr><td><code>tmux ls</code></td><td>세션 목록</td></tr>
+            <tr><td><code>tmux attach -t NAME</code></td><td>다시 붙기</td></tr>
+            <tr><td><code>tmux kill-session -t NAME</code></td><td>세션 끝내기</td></tr>
+            <tr><td><code>Ctrl-b d</code></td><td>떼기</td></tr>
+            <tr><td><code>Ctrl-b c</code> / <code>n</code> / <code>p</code></td><td>새 창 / 다음 / 이전</td></tr>
+            <tr><td><code>Ctrl-b %</code> / <code>"</code></td><td>좌우 / 위아래로 나누기</td></tr>
+            <tr><td><code>Ctrl-b</code> 방향키</td><td>칸 이동</td></tr>
+            <tr><td><code>Ctrl-b z</code></td><td>칸 확대 / 되돌리기</td></tr>
+            <tr><td><code>Ctrl-b [</code></td><td>스크롤(복사 모드). <code>q</code>로 나가기</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="sched">PBS와 Slurm</h2>
+        <table>
+          <thead>
+            <tr><th>할 일</th><th>PBS Pro</th><th>Slurm</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>모듈</td><td colspan="2"><code>module avail</code> · <code>module load 이름</code> · <code>module list</code> · <code>module purge</code></td></tr>
+            <tr><td>제출</td><td><code>qsub run.pbs</code></td><td><code>sbatch run.sh</code></td></tr>
+            <tr><td>내 작업</td><td><code>qstat -u $USER</code></td><td><code>squeue -u $USER</code></td></tr>
+            <tr><td>자세히</td><td><code>qstat -f ID</code></td><td><code>scontrol show job ID</code></td></tr>
+            <tr><td>취소</td><td><code>qdel ID</code></td><td><code>scancel ID</code></td></tr>
+            <tr><td>대화형</td><td><code>qsub -I -l select=1:ncpus=4 -l walltime=1:00:00</code></td><td><code>srun --cpus-per-task=4 --time=1:00:00 --pty bash</code></td></tr>
+            <tr><td>자원</td><td><code>#PBS -l select=1:ncpus=8:mem=16gb</code></td><td><code>#SBATCH --ntasks=8 --mem=16G</code></td></tr>
+            <tr><td>시간</td><td><code>#PBS -l walltime=02:00:00</code></td><td><code>#SBATCH --time=02:00:00</code></td></tr>
+            <tr><td>이름</td><td><code>#PBS -N name</code></td><td><code>#SBATCH --job-name=name</code></td></tr>
+            <tr><td>제출 디렉터리</td><td><code>cd $PBS_O_WORKDIR</code></td><td><code>$SLURM_SUBMIT_DIR</code> (기본으로 거기서 시작)</td></tr>
+            <tr><td>출력 파일</td><td><code>name.o&lt;ID&gt;</code></td><td><code>slurm-&lt;ID&gt;.out</code></td></tr>
+          </tbody>
+        </table>
+        <p>
+          스크립트 문법은 <a href="../../shell/ko/cheatsheet.html">셸 스크립팅 치트시트</a>에 따로 정리했다.
+        </p>

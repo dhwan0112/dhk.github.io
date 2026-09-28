@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Linux Starter Pack</title>
+  <meta name="description" content="A Linux primer for people starting out in computational chemistry. From setting up a terminal to files, ssh, tmux and a first job on an HPC cluster." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/index.html">KO</a>
+    <a href="index.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Linux</div>
+    <div class="brand-subtitle">Starter pack · for new computational chemists</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="setup.html"><span class="nav-num">01</span>Setting up a terminal</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Basics</div>
+      <ul class="nav-list">
+        <li><a href="files.html"><span class="nav-num">02</span>Files and directories</a></li>
+        <li><a href="viewing.html"><span class="nav-num">03</span>Viewing and editing files</a></li>
+        <li><a href="permissions.html"><span class="nav-num">04</span>Permissions</a></li>
+        <li><a href="processes.html"><span class="nav-num">05</span>Processes and environment</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Remote work</div>
+      <ul class="nav-list">
+        <li><a href="ssh.html"><span class="nav-num">06</span>ssh and keys</a></li>
+        <li><a href="transfer.html"><span class="nav-num">07</span>File transfer</a></li>
+        <li><a href="tmux.html"><span class="nav-num">08</span>tmux</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Clusters</div>
+      <ul class="nav-list">
+        <li><a href="hpc.html"><span class="nav-num">09</span>First steps on HPC</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reference</div>
+      <ul class="nav-list">
+        <li><a href="software.html"><span class="nav-num">10</span>Useful software</a></li>
+        <li><a href="cheatsheet.html"><span class="nav-num">11</span>Cheat sheet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+<section class="hero">
+        <h1 class="hero-title">
+          <em>Linux</em><br />
+          <span class="hero-title-accent">starter pack</span>
+        </h1>
+        <p class="hero-tagline">
+          Within your first week in computational chemistry you will be staring at a black terminal window.
+          This guide covers enough Linux to find your way around it: setting up a terminal, files and permissions,
+          remote login, and getting a first job onto a cluster.
+        </p>
+        <div class="hero-meta">
+          <span>For</span> newcomers to Linux and computational chemistry · <span>Shell</span> bash · <span>Platforms</span> Windows (WSL) · macOS · Linux
+        </div>
+      </section>
+
+      <article class="content">
+        <h2>About this guide</h2>
+        <p>
+          Programs like ORCA, Quantum ESPRESSO and LAMMPS mostly run on Linux clusters. Uploading inputs, submitting jobs
+          and fetching the outputs all happen in a terminal. You don't need to memorise hundreds of commands: about twenty
+          cover daily work, and the rest you can look up when you need them.
+        </p>
+        <p>
+          Each chapter assumes the ones before it. If you are new, read from chapter 01 in order; if the terminal is already
+          familiar, skip ahead to chapter 06 (ssh) or 09 (HPC). Turning repetitive work into scripts is covered separately in the
+          <a href="../../shell/en/index.html">shell scripting guide</a>.
+        </p>
+
+        <h2>Chapters</h2>
+        <div class="cards">
+          <a class="card" href="setup.html">
+            <div class="card-num">01 · SETUP</div>
+            <div class="card-title">Setting up a terminal</div>
+            <div class="card-desc">WSL on Windows, Terminal on macOS, up to your first command.</div>
+          </a>
+          <a class="card" href="files.html">
+            <div class="card-num">02 · FILES</div>
+            <div class="card-title">Files and directories</div>
+            <div class="card-desc">Paths, moving around, copying and deleting, wildcards.</div>
+          </a>
+          <a class="card" href="viewing.html">
+            <div class="card-num">03 · VIEWING</div>
+            <div class="card-title">Viewing and editing files</div>
+            <div class="card-desc">less, head, tail, a first look at grep, just enough nano and vim.</div>
+          </a>
+          <a class="card" href="permissions.html">
+            <div class="card-num">04 · PERMISSIONS</div>
+            <div class="card-title">Permissions</div>
+            <div class="card-desc">Reading rwx, chmod, and why scripts need the execute bit.</div>
+          </a>
+          <a class="card" href="processes.html">
+            <div class="card-num">05 · PROCESSES</div>
+            <div class="card-title">Processes and environment</div>
+            <div class="card-desc">top and kill, PATH, .bashrc, running things in the background.</div>
+          </a>
+          <a class="card" href="ssh.html">
+            <div class="card-num">06 · SSH</div>
+            <div class="card-title">ssh and keys</div>
+            <div class="card-desc">Making a key, ~/.ssh/config, logging in without a password.</div>
+          </a>
+          <a class="card" href="transfer.html">
+            <div class="card-num">07 · TRANSFER</div>
+            <div class="card-title">File transfer</div>
+            <div class="card-desc">scp and rsync, fetching only the files you need.</div>
+          </a>
+          <a class="card" href="tmux.html">
+            <div class="card-num">08 · TMUX</div>
+            <div class="card-title">tmux</div>
+            <div class="card-desc">Sessions that survive a dropped connection, split panes.</div>
+          </a>
+          <a class="card" href="hpc.html">
+            <div class="card-num">09 · HPC</div>
+            <div class="card-title">First steps on HPC</div>
+            <div class="card-desc">Login vs compute nodes, modules, conda, submitting a first job.</div>
+          </a>
+          <a class="card" href="software.html">
+            <div class="card-num">10 · SOFTWARE</div>
+            <div class="card-title">Useful software</div>
+            <div class="card-desc">Editors, visualisation, monitoring, tools for finding files.</div>
+          </a>
+          <a class="card" href="cheatsheet.html">
+            <div class="card-num">11 · CHEAT SHEET</div>
+            <div class="card-title">Cheat sheet</div>
+            <div class="card-desc">The commands you use most, on one page.</div>
+          </a>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>Conventions</h2>
+        <p>
+          In code boxes, a line starting with <code>$</code> is a command you type, and the lines below it are output.
+          Don't type the <code>$</code> itself. Parts in angle brackets, like <code>&lt;file&gt;</code>, are placeholders for your own values.
+        </p>
+        <pre data-lang="bash"><code>$ pwd
+/home/kim</code></pre>
+
+        <div class="note">
+          <div class="note-title">When you're stuck</div>
+          <p>
+            Most commands explain themselves with <code>man &lt;command&gt;</code> or <code>&lt;command&gt; --help</code>.
+            Press <code>q</code> to leave a <code>man</code> page.
+          </p>
+        </div>
+      </article>
+
+      <nav class="page-nav">
+        <a class="next" href="setup.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Setting up a terminal</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Useful software · Linux Starter Pack</title>
+  <meta name="description" content="Terminals, editors, file transfer, command-line tools, visualisation and chemistry libraries that come up often in computational chemistry, grouped by what they are for." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/software.html">KO</a>
+    <a href="software.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Linux</div>
+    <div class="brand-subtitle">Starter pack · for new computational chemists</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="setup.html"><span class="nav-num">01</span>Setting up a terminal</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Basics</div>
+      <ul class="nav-list">
+        <li><a href="files.html"><span class="nav-num">02</span>Files and directories</a></li>
+        <li><a href="viewing.html"><span class="nav-num">03</span>Viewing and editing files</a></li>
+        <li><a href="permissions.html"><span class="nav-num">04</span>Permissions</a></li>
+        <li><a href="processes.html"><span class="nav-num">05</span>Processes and environment</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Remote work</div>
+      <ul class="nav-list">
+        <li><a href="ssh.html"><span class="nav-num">06</span>ssh and keys</a></li>
+        <li><a href="transfer.html"><span class="nav-num">07</span>File transfer</a></li>
+        <li><a href="tmux.html"><span class="nav-num">08</span>tmux</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Clusters</div>
+      <ul class="nav-list">
+        <li><a href="hpc.html"><span class="nav-num">09</span>First steps on HPC</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reference</div>
+      <ul class="nav-list">
+        <li><a href="software.html"><span class="nav-num">10</span>Useful software</a></li>
+        <li><a href="cheatsheet.html"><span class="nav-num">11</span>Cheat sheet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 10 · Reference</div>
+        <h1 class="page-title">Useful software</h1>
+        <p class="page-lede">Terminals, editors, file transfer, command-line tools, visualisation and chemistry libraries that come up often in computational chemistry, grouped by what they are for.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#install">How to read the install column</a></li>
+            <li><a href="#terminal">Terminals and remote access</a></li>
+            <li><a href="#editor">Editors</a></li>
+            <li><a href="#transfer">File transfer GUIs</a></li>
+            <li><a href="#cli">Command-line tools</a></li>
+            <li><a href="#env">Python environments</a></li>
+            <li><a href="#vis">Molecular and crystal visualisation</a></li>
+            <li><a href="#toolkit">Chemistry libraries and converters</a></li>
+            <li><a href="#plot">Plotting</a></li>
+            <li><a href="#git">Version control</a></li>
+          </ul>
+        </div>
+
+        <h2 id="install">How to read the install column</h2>
+        <p>
+          You do not need all of this. To start, a terminal, one editor and one viewer are enough. The install column means:
+        </p>
+        <ul>
+          <li><code>apt</code>: <code>sudo apt install NAME</code> on Ubuntu and WSL</li>
+          <li><code>brew</code>: <code>brew install NAME</code> with Homebrew on macOS; GUI apps use <code>brew install --cask NAME</code></li>
+          <li><code>conda</code>: <code>conda install -c conda-forge NAME</code>, which also works on clusters without admin rights</li>
+          <li>website: download the installer from the project's site</li>
+        </ul>
+        <p>
+          On a cluster you cannot use <code>sudo</code>. Check <code>module avail</code> first, and if the tool is not there, install it into your home
+          directory with conda (<a href="hpc.html">chapter 09</a>).
+        </p>
+
+        <h2 id="terminal">Terminals and remote access</h2>
+        <table>
+          <thead>
+            <tr><th>Program</th><th>What it is for</th><th>Install</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Windows Terminal</td><td>The standard Windows terminal; opens WSL and PowerShell in tabs</td><td>included in Windows 11; Microsoft Store</td></tr>
+            <tr><td>iTerm2</td><td>macOS terminal with good split panes and search</td><td>brew: <code>--cask iterm2</code></td></tr>
+            <tr><td>MobaXterm</td><td>Windows ssh client with an SFTP side panel and a built-in X11 server</td><td>website (free Home edition)</td></tr>
+            <tr><td>VS Code + Remote-SSH</td><td>Edit cluster files as if they were local; uses your <code>~/.ssh/config</code> aliases</td><td>website; brew: <code>--cask visual-studio-code</code></td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="editor">Editors</h2>
+        <table>
+          <thead>
+            <tr><th>Program</th><th>What it is for</th><th>Install</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>nano</td><td>Shows its shortcuts at the bottom, so it is easy on day one. Fine for changing a few lines of an input file</td><td>usually preinstalled; apt: <code>nano</code></td></tr>
+            <tr><td>vim</td><td>Available on every cluster. Takes time to learn but is fast over ssh. Start with <code>vimtutor</code></td><td>usually preinstalled; apt: <code>vim</code></td></tr>
+            <tr><td>VS Code</td><td>Local editing and scripting; remote files through Remote-SSH</td><td>website</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="transfer">File transfer GUIs</h2>
+        <table>
+          <thead>
+            <tr><th>Program</th><th>OS</th><th>Install</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>WinSCP</td><td>Windows</td><td>website</td></tr>
+            <tr><td>FileZilla</td><td>Windows, macOS, Linux</td><td>website; apt: <code>filezilla</code></td></tr>
+            <tr><td>Cyberduck</td><td>Windows, macOS</td><td>website; brew: <code>--cask cyberduck</code></td></tr>
+          </tbody>
+        </table>
+        <p>The command-line way is in <a href="transfer.html">chapter 07</a>.</p>
+
+        <h2 id="cli">Command-line tools</h2>
+        <p>
+          None of these are required, but each saves a little time every day. If a cluster lacks them, most can be installed into your home directory from conda-forge.
+        </p>
+        <table>
+          <thead>
+            <tr><th>Tool</th><th>What it is for</th><th>Install</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>htop</code>, <code>btop</code></td><td>Friendlier process, CPU and memory monitors than <code>top</code>. Useful in an interactive job to check that all cores are busy</td><td>apt, brew: <code>htop</code> / <code>btop</code>; conda: <code>btop</code></td></tr>
+            <tr><td><code>tree</code></td><td>Print a directory structure as a tree</td><td>apt, brew: <code>tree</code></td></tr>
+            <tr><td><code>ncdu</code></td><td>Browse interactively to find what is using your disk space, for when the quota is full</td><td>apt, brew, conda: <code>ncdu</code></td></tr>
+            <tr><td><code>fd</code></td><td>Find files with a shorter syntax than <code>find</code>: <code>fd '\.out$'</code></td><td>apt: <code>fd-find</code> (command is <code>fdfind</code>); brew: <code>fd</code>; conda: <code>fd-find</code></td></tr>
+            <tr><td><code>rg</code> (ripgrep)</td><td>A fast <code>grep -r</code>, e.g. for <code>FINAL SINGLE POINT ENERGY</code> across hundreds of outputs</td><td>apt, brew, conda: <code>ripgrep</code></td></tr>
+            <tr><td><code>fzf</code></td><td>Fuzzy-pick from any list by typing a few letters; makes <code>Ctrl-R</code> history search much better</td><td>apt, brew, conda: <code>fzf</code></td></tr>
+            <tr><td><code>bat</code></td><td><code>cat</code> with line numbers and syntax colours</td><td>apt: <code>bat</code> (command is <code>batcat</code>); brew, conda: <code>bat</code></td></tr>
+            <tr><td><code>jq</code></td><td>Read and extract values from JSON, which some programs and workflow tools write their results in</td><td>apt, brew, conda: <code>jq</code></td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="env">Python environments</h2>
+        <table>
+          <thead>
+            <tr><th>Tool</th><th>What it is for</th><th>Install</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>miniforge (conda, mamba)</td><td>A conda distribution that uses conda-forge by default, where most chemistry packages live. <code>mamba</code> is a faster drop-in for the same commands</td><td>installer script from the official GitHub releases</td></tr>
+            <tr><td>pip</td><td>Installs packages from PyPI. Inside a conda environment, use pip only for what conda does not have</td><td>comes with Python</td></tr>
+            <tr><td>venv</td><td>Python's built-in virtual environments: <code>python3 -m venv ~/venvs/chem</code></td><td>comes with Python; on Ubuntu, apt: <code>python3-venv</code></td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="vis">Molecular and crystal visualisation</h2>
+        <p>
+          These open <code>.xyz</code>, <code>.cif</code>, ORCA outputs, LAMMPS trajectories and similar files. Install them on your laptop and copy files over from the cluster.
+        </p>
+        <table>
+          <thead>
+            <tr><th>Program</th><th>Good at</th><th>Install</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Avogadro 2</td><td>Building molecules, generating input files, viewing optimisation paths and normal modes</td><td>website; apt: <code>avogadro</code></td></tr>
+            <tr><td>VMD</td><td>MD trajectories and large systems; reads LAMMPS dumps</td><td>website (free, registration required)</td></tr>
+            <tr><td>Jmol</td><td>Light, quick molecule viewer; vibration animations</td><td>website; apt: <code>jmol</code></td></tr>
+            <tr><td>ChimeraX</td><td>Biomolecules and publication-quality images</td><td>website (free for academic use)</td></tr>
+            <tr><td>PyMOL (open-source)</td><td>Proteins and ligands; scripted figures</td><td>apt: <code>pymol</code>; conda: <code>pymol-open-source</code></td></tr>
+            <tr><td>VESTA</td><td>Crystal structures and charge-density isosurfaces; Quantum ESPRESSO results</td><td>website</td></tr>
+            <tr><td>OVITO</td><td>Analysing and rendering MD trajectories with tens of thousands of atoms or more</td><td>website (basic version free)</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="toolkit">Chemistry libraries and converters</h2>
+        <table>
+          <thead>
+            <tr><th>Tool</th><th>What it is for</th><th>Install</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Open Babel</td><td>File format conversion (<code>obabel mol.sdf -O mol.xyz</code>), 3D structures from SMILES</td><td>apt: <code>openbabel</code>; brew: <code>open-babel</code>; conda: <code>openbabel</code></td></tr>
+            <tr><td>RDKit</td><td>SMILES handling, conformer generation, descriptors; a Python library</td><td>conda: <code>rdkit</code></td></tr>
+            <tr><td>ASE</td><td>Reading and writing structures, writing inputs for and reading results from many codes</td><td>conda: <code>ase</code></td></tr>
+            <tr><td>pymatgen</td><td>Crystal structures, symmetry, Materials Project data</td><td>conda: <code>pymatgen</code></td></tr>
+            <tr><td>cclib</td><td>Parses energies, geometries and frequencies from ORCA, Gaussian and other quantum chemistry outputs</td><td>conda: <code>cclib</code></td></tr>
+          </tbody>
+        </table>
+        <p>
+          For one or two numbers from an output, <code>grep</code> and <code>awk</code> are enough (<a href="../../shell/en/extract.html">extracting values from output files</a>).
+          cclib or ASE pay off when you handle many values in a structured way.
+        </p>
+
+        <h2 id="plot">Plotting</h2>
+        <table>
+          <thead>
+            <tr><th>Tool</th><th>What it is for</th><th>Install</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>gnuplot</td><td>Quick plots straight from the terminal: optimisation energies, LAMMPS thermo output</td><td>apt, brew, conda: <code>gnuplot</code></td></tr>
+            <tr><td>matplotlib</td><td>Python plotting library; figures for papers</td><td>conda: <code>matplotlib</code></td></tr>
+            <tr><td>xmgrace</td><td>Old, but some programs such as GROMACS write results in its <code>.xvg</code> format</td><td>apt: <code>grace</code></td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="git">Version control</h2>
+        <p>
+          git records the history of changes to files. Keeping analysis scripts, job script templates and sets of input files in a git repository lets you
+          answer "what settings did I use last month?". Leave large outputs and wavefunction files out of the repository.
+          Most clusters have git; locally it is <code>git</code> in both apt and brew.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="hpc.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">First steps on HPC</div>
+        </a>
+        <a class="next" href="cheatsheet.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Cheat sheet</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

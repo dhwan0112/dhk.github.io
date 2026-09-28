@@ -1,0 +1,170 @@
+<!--
+title: First steps on HPC
+eyebrow: CHAPTER 09 · Clusters
+h1: First steps on HPC
+lede: Learn the difference between login and compute nodes, load software, and submit your first job to the scheduler.
+-->
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#nodes">Login nodes and compute nodes</a></li>
+            <li><a href="#module">Loading software with module</a></li>
+            <li><a href="#conda">conda in your home directory</a></li>
+            <li><a href="#storage">Storage</a></li>
+            <li><a href="#job">Submitting a first job</a></li>
+            <li><a href="#slurm">On Slurm</a></li>
+            <li><a href="#interactive">Interactive jobs</a></li>
+            <li><a href="#etiquette">Etiquette</a></li>
+          </ul>
+        </div>
+
+        <h2 id="nodes">Login nodes and compute nodes</h2>
+        <p>
+          A cluster is tens to thousands of computers linked by a fast network. Each computer is a node. When you ssh in, you land on a
+          <strong>login node</strong>: a shared entry point where everyone organises files, writes inputs, submits jobs and does short compiles.
+          The calculations themselves run on <strong>compute nodes</strong>, which you normally do not ssh into directly.
+        </p>
+        <p>
+          Who gets which compute nodes, and when, is decided by the <strong>scheduler</strong>. You submit a job script stating the resources you need
+          ("8 cores, 16 GB of memory, 2 hours") and the commands to run. The scheduler puts the job in a queue and starts it on a compute node when the
+          resources are free. The two common schedulers are PBS Pro (used at NUS HPC, among others) and Slurm. The ideas are the same; the command names differ.
+        </p>
+
+        <h2 id="module">Loading software with module</h2>
+        <p>
+          A cluster has several versions of ORCA, Quantum ESPRESSO, LAMMPS, compilers and MPI libraries installed. Putting all of them on your
+          <code>PATH</code> would cause clashes, so you load only what you need with the <code>module</code> command. <code>module load</code> edits
+          environment variables such as <code>PATH</code> for you (<a href="processes.html">chapter 05</a>).
+        </p>
+        <pre data-lang="bash"><code>$ module avail              <span class="cmt"># everything available</span>
+$ module avail orca         <span class="cmt"># only modules with orca in the name</span>
+$ module load orca/6.0.1    <span class="cmt"># load one (names and versions differ per cluster)</span>
+$ module list               <span class="cmt"># what is loaded now</span>
+$ module unload orca/6.0.1  <span class="cmt"># unload one</span>
+$ module purge              <span class="cmt"># unload everything</span></code></pre>
+        <p>
+          Module names and versions differ between clusters, so do not copy the name above; check with <code>module avail</code>. Leaving out the version
+          loads the default, and the default can change when the admins update it. For calculations that go into a paper, pin the version.
+        </p>
+
+        <h2 id="conda">conda in your home directory</h2>
+        <p>
+          Tools that are not available as modules (xtb, CREST, ASE, pymatgen and so on) can be installed with conda. You have no admin rights on a cluster,
+          so install miniforge into your home directory; the steps are in the <a href="../../xtb/en/getting-started.html">xtb guide</a>.
+        </p>
+        <pre data-lang="bash"><code>$ conda create -n chem -c conda-forge python=3.12 ase xtb
+$ conda activate chem</code></pre>
+        <p>
+          A conda environment can take several GB. If your home quota is small, keep the number of environments down, remove unused ones with
+          <code>conda env remove -n NAME</code>, and clear the package cache with <code>conda clean --all</code>. Mixing a module-loaded MPI with a conda
+          environment easily leads to library clashes, so in a job script activate only what that job needs.
+        </p>
+
+        <h2 id="storage">Storage</h2>
+        <p>
+          Cluster storage is usually split by purpose. Names, paths, sizes and deletion policies differ per cluster, so read your site's documentation.
+        </p>
+        <table>
+          <thead>
+            <tr><th>Kind</th><th>Typical properties</th><th>Use for</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>home</td><td>small, often backed up</td><td>scripts, config files, conda</td></tr>
+            <tr><td>project / group</td><td>large, shared by the group</td><td>inputs, curated results, data you keep</td></tr>
+            <tr><td>scratch</td><td>fast and large, no backup, old files may be purged automatically</td><td>intermediate files while a job runs</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Go over your quota and nothing more can be written, so a running job dies in the middle of writing its output. Each cluster has its own quota
+          command; to see what is taking up space use <code>du</code>, and for free space on a file system use <code>df</code>.
+        </p>
+        <pre data-lang="bash"><code>$ du -sh ~/proj/*           <span class="cmt"># size of each directory</span>
+$ df -h ~                   <span class="cmt"># size and free space of the file system holding home</span></code></pre>
+
+        <h2 id="job">Submitting a first job</h2>
+        <p>
+          A minimal PBS Pro job script. Lines beginning with <code>#PBS</code> are comments to bash but resource requests to the scheduler.
+          Save it as <code>run.pbs</code> next to <code>h2o.inp</code> in the job directory <code>~/proj/h2o-opt/</code>.
+        </p>
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt">#PBS -N h2o-opt</span>
+<span class="cmt">#PBS -l select=1:ncpus=8:mem=16gb</span>
+<span class="cmt">#PBS -l walltime=02:00:00</span>
+<span class="cmt">#PBS -j oe</span>
+
+cd $PBS_O_WORKDIR
+module load orca/6.0.1
+$(which orca) h2o.inp &gt; h2o.out</code></pre>
+        <p>
+          <code>-N</code> is the job name; <code>select=1:ncpus=8:mem=16gb</code> asks for one node with 8 cores and 16 GB; <code>walltime</code> is the
+          time limit, after which the job is killed whether or not it has finished. <code>-j oe</code> merges standard output and error into one file.
+          The job starts in your home directory, so <code>cd $PBS_O_WORKDIR</code> moves back to where you submitted it.
+          ORCA must be called by its full path for parallel runs, hence <code>$(which orca)</code>, and <code>%pal nprocs 8 end</code> in the input must
+          match <code>ncpus</code> (see the <a href="../../orca/en/index.html">ORCA guide</a>).
+        </p>
+        <pre data-lang="bash"><code>$ cd ~/proj/h2o-opt
+$ qsub run.pbs              <span class="cmt"># submit; prints the job ID</span>
+$ qstat -u $USER            <span class="cmt"># status of your jobs</span>
+$ qstat -f &lt;jobid&gt;          <span class="cmt"># full details of one job</span>
+$ qdel &lt;jobid&gt;              <span class="cmt"># cancel</span></code></pre>
+        <p>
+          The <code>S</code> column of <code>qstat</code> is the state: <code>Q</code> queued, <code>R</code> running, <code>H</code> held.
+          When the job ends, a file <code>h2o-opt.o&lt;jobid&gt;</code> appears in the submission directory with messages from the scheduler and any errors
+          from the script. If <code>h2o.out</code> is empty, open that file first; a mistyped module name or running past the walltime are the usual suspects.
+        </p>
+
+        <div class="tip">
+          <div class="note-title">Start small</div>
+          <p>
+            Test a new script with a small molecule and a short walltime. It saves you from queueing for hours only to have the job fail in one second
+            on a typo in the module name.
+          </p>
+        </div>
+
+        <h2 id="slurm">On Slurm</h2>
+        <p>Same ideas. The common commands and directives side by side:</p>
+        <table>
+          <thead>
+            <tr><th>Task</th><th>PBS Pro</th><th>Slurm</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>submit</td><td><code>qsub run.pbs</code></td><td><code>sbatch run.sh</code></td></tr>
+            <tr><td>my jobs</td><td><code>qstat -u $USER</code></td><td><code>squeue -u $USER</code></td></tr>
+            <tr><td>cancel</td><td><code>qdel &lt;id&gt;</code></td><td><code>scancel &lt;id&gt;</code></td></tr>
+            <tr><td>job name</td><td><code>#PBS -N h2o-opt</code></td><td><code>#SBATCH --job-name=h2o-opt</code></td></tr>
+            <tr><td>cores and memory</td><td><code>#PBS -l select=1:ncpus=8:mem=16gb</code></td><td><code>#SBATCH --nodes=1 --ntasks=8 --mem=16G</code></td></tr>
+            <tr><td>time</td><td><code>#PBS -l walltime=02:00:00</code></td><td><code>#SBATCH --time=02:00:00</code></td></tr>
+            <tr><td>submission directory</td><td><code>$PBS_O_WORKDIR</code></td><td><code>$SLURM_SUBMIT_DIR</code> (jobs start there by default)</td></tr>
+            <tr><td>output file</td><td><code>name.o&lt;id&gt;</code></td><td><code>slurm-&lt;id&gt;.out</code></td></tr>
+            <tr><td>interactive job</td><td><code>qsub -I</code></td><td><code>srun --pty bash</code>, <code>salloc</code></td></tr>
+          </tbody>
+        </table>
+        <p>
+          Using scratch and submitting many jobs at once with job arrays are covered in the shell scripting guide chapters on
+          <a href="../../shell/en/batch.html">job scripts</a> and <a href="../../shell/en/arrays.html">job arrays</a>.
+        </p>
+
+        <h2 id="interactive">Interactive jobs</h2>
+        <p>
+          Sometimes you want to type commands on a compute node yourself: to check that a program runs, or for post-processing too heavy for the login node.
+          An interactive job gives you a shell on a compute node once resources are allocated.
+        </p>
+        <pre data-lang="bash"><code><span class="cmt"># PBS Pro</span>
+$ qsub -I -l select=1:ncpus=4:mem=8gb -l walltime=01:00:00
+
+<span class="cmt"># Slurm</span>
+$ srun --ntasks=1 --cpus-per-task=4 --mem=8G --time=01:00:00 --pty bash</code></pre>
+        <p>
+          When the hostname in the prompt changes to a compute node, you are in. <code>exit</code> releases the resources. If the queue is busy, the shell
+          may take a while to appear.
+        </p>
+
+        <h2 id="etiquette">Etiquette</h2>
+        <ul>
+          <li>Do not run calculations on the login node. Anything that keeps a core busy for more than a few seconds goes in a job.</li>
+          <li>Request what the program actually uses. Asking for 32 cores for a calculation that uses 8 lengthens everyone's wait, including yours, since the job waits until 32 are free.</li>
+          <li>Give walltime some margin, but do not ask for the maximum out of habit. Shorter jobs often slot into gaps sooner.</li>
+          <li>Do not submit thousands of tiny jobs separately. Use a job array or run several calculations inside one job.</li>
+          <li>Do not poll the scheduler constantly, as in <code>watch -n 1 qstat</code>.</li>
+          <li>Clean up scratch files from finished calculations.</li>
+        </ul>

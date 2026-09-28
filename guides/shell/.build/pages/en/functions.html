@@ -1,0 +1,268 @@
+<!--
+title: Functions and arguments
+eyebrow: CHAPTER 03 · Syntax
+h1: Functions and arguments
+lede: Group repeated code into functions and make scripts accept arguments and options.
+-->
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#define">Defining functions and local</a></li>
+            <li><a href="#args">Arguments: $1, $#, "$@"</a></li>
+            <li><a href="#shift">shift</a></li>
+            <li><a href="#return">Return codes and output</a></li>
+            <li><a href="#getopts">Options with getopts</a></li>
+            <li><a href="#source">Loading a function library with source</a></li>
+          </ul>
+        </div>
+
+        <h2 id="define">Defining functions and local</h2>
+        <p>
+          A function is defined as <code>name() { commands; }</code> and called by its name, like any other command. The parentheses always stay empty;
+          arguments are simply listed after the name when you call it. A function must be defined before it is called, so put functions near the top of the script.
+        </p>
+
+        <pre data-lang="bash"><code>greet() {
+    echo "hello, $1"
+}
+
+greet water       <span class="cmt"># hello, water</span></code></pre>
+
+        <p>
+          There is also a <code>function greet { ... }</code> form, but it is bash-only. The form above is more common.
+        </p>
+        <p>
+          Variables set inside a function are visible to the whole script by default, so a function can silently overwrite a variable of the same name outside it.
+          Declare variables that belong to the function with <code>local</code>.
+        </p>
+
+        <pre data-lang="bash"><code>$ mol=benzene
+$ set_mol() { mol=$1; }
+$ set_mol toluene; echo "$mol"
+toluene
+$ mol=benzene
+$ set_mol() { <span class="kw">local</span> mol=$1; echo "inside: $mol"; }
+$ set_mol toluene; echo "outside: $mol"
+inside: toluene
+outside: benzene</code></pre>
+
+        <h2 id="args">Arguments: $1, $#, "$@"</h2>
+        <p>
+          Functions and scripts receive arguments the same way: a script gets the arguments from the command line, a function gets the ones passed when it is called.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Variable</th><th>Contents</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>$0</code></td><td>script name (still the script name inside a function)</td></tr>
+            <tr><td><code>$1</code>, <code>$2</code>, ... <code>${10}</code></td><td>first, second argument. From the tenth on, braces are required</td></tr>
+            <tr><td><code>$#</code></td><td>number of arguments</td></tr>
+            <tr><td><code>"$@"</code></td><td>all arguments, each kept as a separate quoted word</td></tr>
+            <tr><td><code>"$*"</code></td><td>all arguments joined into a single string with spaces</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          The difference shows when you pass the arguments on to another command. Here a function that only counts its arguments receives a file name containing a space.
+        </p>
+
+        <pre data-lang="bash"><code>$ count_args() { echo "$# args"; }
+$ wrap_at()    { count_args "$@"; }
+$ wrap_star()  { count_args $*; }
+$ wrap_qstar() { count_args "$*"; }
+$ wrap_at water.xyz "ethanol conf1.xyz"
+2 args
+$ wrap_star water.xyz "ethanol conf1.xyz"
+3 args
+$ wrap_qstar water.xyz "ethanol conf1.xyz"
+1 args</code></pre>
+
+        <p>
+          Only <code>"$@"</code> passes on the two files correctly. Loop over arguments with <code>for f in "$@"</code> too.
+          Keep <code>"$*"</code> for printing the arguments on one line, in a log message for example.
+        </p>
+
+        <h2 id="shift">shift</h2>
+        <p>
+          <code>shift</code> drops <code>$1</code> and moves the rest down by one. It is useful when the first few arguments are settings and the rest are files.
+        </p>
+
+        <pre data-lang="bash"><code>$ f() { echo "cores: $1"; <span class="kw">shift</span>; echo "files: $*"; }
+$ f 8 a.xyz b.xyz
+cores: 8
+files: a.xyz b.xyz</code></pre>
+
+        <h2 id="return">Return codes and output</h2>
+        <p>
+          A bash function can hand back a result in two ways. One is <code>return</code>, which sets the exit status.
+          It only takes integers from 0 to 255 and is meant for success or failure. Without <code>return</code>, the exit status of the last command becomes the function's.
+        </p>
+
+        <pre data-lang="bash"><code>orca_done() {
+    grep -q "ORCA TERMINATED NORMALLY" "$1"
+}
+
+<span class="kw">if</span> orca_done water/water.out; <span class="kw">then</span>
+    echo "water finished"
+<span class="kw">fi</span></code></pre>
+
+        <p>
+          The other is to print the result and have the caller capture it with <code>$( )</code>. Strings and decimals such as energies are returned this way.
+        </p>
+
+        <pre data-lang="bash"><code>$ orca_energy() {
+&gt;     grep "FINAL SINGLE POINT ENERGY" "$1" | tail -n 1 | awk '{print $5}'
+&gt; }
+$ e=$(orca_energy water_opt/water_opt.out)
+$ echo "E = $e"
+E = -76.426369457144</code></pre>
+
+        <p>
+          A function used like this must not print anything else to standard output, or it ends up in the variable as well.
+          Send progress messages to standard error with <code>echo "..." &gt;&amp;2</code>.
+        </p>
+
+        <h2 id="getopts">Options with getopts</h2>
+        <p>
+          To let a script take options like <code>-m r2SCAN-3c -n 8</code>, use <code>getopts</code>.
+          The <code>make_inputs.sh</code> below creates a directory for each xyz file and writes an ORCA input into it. Method, core count and charge can be changed with options.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># create a directory per xyz file and write an ORCA input into it</span>
+
+usage() {
+    cat &lt;&lt;EOF
+Usage: ${0##*/} [-m method] [-n nprocs] [-c charge] file.xyz ...
+  -m  method line (default: r2SCAN-3c)
+  -n  number of cores (default: 4)
+  -c  total charge (default: 0)
+  -h  show this help
+EOF
+}
+
+method="r2SCAN-3c"
+nprocs=4
+charge=0
+
+<span class="kw">while</span> getopts "m:n:c:h" opt; <span class="kw">do</span>
+    <span class="kw">case</span> $opt <span class="kw">in</span>
+        m) method=$OPTARG ;;
+        n) nprocs=$OPTARG ;;
+        c) charge=$OPTARG ;;
+        h) usage; exit 0 ;;
+        *) usage &gt;&amp;2; exit 1 ;;
+    <span class="kw">esac</span>
+<span class="kw">done</span>
+<span class="kw">shift</span> $((OPTIND - 1))
+
+<span class="kw">if</span> [[ $# -eq 0 ]]; <span class="kw">then</span>
+    echo "error: no xyz files given" &gt;&amp;2
+    usage &gt;&amp;2
+    exit 1
+<span class="kw">fi</span>
+
+write_input() {
+    <span class="kw">local</span> xyz=$1
+    <span class="kw">local</span> mol=${xyz##*/}
+    mol=${mol%.xyz}
+
+    mkdir -p "$mol"
+    cat &gt; "$mol/$mol.inp" &lt;&lt;EOF
+! ${method} Opt Freq
+%pal nprocs ${nprocs} end
+%maxcore 3000
+
+* xyz ${charge} 1
+$(tail -n +3 "$xyz")
+*
+EOF
+    echo "$mol/$mol.inp"
+}
+
+<span class="kw">for</span> xyz <span class="kw">in</span> "$@"; <span class="kw">do</span>
+    write_input "$xyz"
+<span class="kw">done</span></code></pre>
+
+        <p>
+          The first argument to <code>getopts</code>, <code>"m:n:c:h"</code>, lists the accepted options. A letter followed by <code>:</code> takes a value,
+          which arrives in <code>$OPTARG</code>. After the options are read, <code>shift $((OPTIND - 1))</code> discards them and leaves only the file list in <code>"$@"</code>.
+        </p>
+
+        <pre data-lang="bash"><code>$ ./make_inputs.sh -m r2SCAN-3c -n 8 *.xyz
+ethanol conf1/ethanol conf1.inp
+methane/methane.inp
+water/water.inp
+$ ./make_inputs.sh -m "B3LYP D3BJ def2-SVP" -n 8 water.xyz
+water/water.inp
+$ head -n 2 water/water.inp
+! B3LYP D3BJ def2-SVP Opt Freq
+%pal nprocs 8 end</code></pre>
+
+        <p>
+          Quote a value that contains spaces. <code>ethanol conf1.xyz</code>, with a space in its name, went through fine because every variable in the script is quoted.
+          Called incorrectly, the script prints its usage and exits with status 1.
+        </p>
+
+        <pre data-lang="bash"><code>$ ./make_inputs.sh -n
+./make_inputs.sh: option requires an argument -- n
+Usage: make_inputs.sh [-m method] [-n nprocs] [-c charge] file.xyz ...
+  -m  method line (default: r2SCAN-3c)
+  -n  number of cores (default: 4)
+  -c  total charge (default: 0)
+  -h  show this help</code></pre>
+
+        <div class="tip">
+          <div class="note-title">Usage errors go to standard error</div>
+          <p>
+            Help requested with <code>-h</code> goes to standard output with exit status 0. Usage printed because of a mistake goes to standard error with <code>&gt;&amp;2</code>
+            and a non-zero status. That way another script calling this one can tell that it failed.
+          </p>
+        </div>
+
+        <p>
+          <code>getopts</code> only handles single-letter options like <code>-n 8</code>. Long options such as <code>--nprocs 8</code> need a hand-written
+          <code>while</code>/<code>case</code>/<code>shift</code> loop; for research scripts single letters are usually enough.
+        </p>
+
+        <h2 id="source">Loading a function library with source</h2>
+        <p>
+          If several scripts use the same functions, keep them in a separate file and load it with <code>source</code>.
+          <code>source file</code> runs the file line by line in the current shell. The short form is <code>. file</code>.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># orca_utils.sh: functions for other scripts to source</span>
+
+orca_done() {
+    grep -q "ORCA TERMINATED NORMALLY" "$1"
+}
+
+orca_energy() {
+    grep "FINAL SINGLE POINT ENERGY" "$1" | tail -n 1 | awk '{print $5}'
+}</code></pre>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># summary.sh: print the last energy or the status of each output file</span>
+<span class="kw">source</span> "$(dirname "$0")/orca_utils.sh"
+
+<span class="kw">for</span> out <span class="kw">in</span> "$@"; <span class="kw">do</span>
+    <span class="kw">if</span> orca_done "$out"; <span class="kw">then</span>
+        printf '%-40s %s\n' "$out" "$(orca_energy "$out")"
+    <span class="kw">else</span>
+        printf '%-40s %s\n' "$out" "not finished"
+    <span class="kw">fi</span>
+<span class="kw">done</span></code></pre>
+
+        <pre data-lang="bash"><code>$ ~/bin/summary.sh jobs/*/*.out
+jobs/methane_opt/methane_opt.out         not finished
+jobs/water_opt/water_opt.out             -76.426369457144
+jobs/water_sp/water_sp.out               -76.321274411145</code></pre>
+
+        <p>
+          A plain <code>source orca_utils.sh</code> looks for the file relative to where you run the script from, so it breaks when called from another directory.
+          <code>$(dirname "$0")</code> makes the path relative to the script's own location instead. Sourcing the library from <code>~/.bashrc</code>
+          makes <code>orca_energy water.out</code> available at the terminal as well.
+        </p>

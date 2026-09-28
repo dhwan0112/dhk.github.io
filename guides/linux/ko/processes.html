@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로세스와 환경 변수 · Linux 스타터팩</title>
+  <meta name="description" content="돌고 있는 프로그램을 보고 멈추고, PATH와 .bashrc로 셸 환경을 설정한다." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="processes.html" class="active">KO</a>
+    <a href="../en/processes.html">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Linux</div>
+    <div class="brand-subtitle">스타터팩 · 계산화학 입문자용</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="setup.html"><span class="nav-num">01</span>터미널 준비</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">기본기</div>
+      <ul class="nav-list">
+        <li><a href="files.html"><span class="nav-num">02</span>파일과 디렉터리</a></li>
+        <li><a href="viewing.html"><span class="nav-num">03</span>파일 보기와 편집</a></li>
+        <li><a href="permissions.html"><span class="nav-num">04</span>권한</a></li>
+        <li><a href="processes.html"><span class="nav-num">05</span>프로세스와 환경 변수</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">원격 작업</div>
+      <ul class="nav-list">
+        <li><a href="ssh.html"><span class="nav-num">06</span>ssh 접속과 키</a></li>
+        <li><a href="transfer.html"><span class="nav-num">07</span>파일 전송</a></li>
+        <li><a href="tmux.html"><span class="nav-num">08</span>tmux</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">클러스터</div>
+      <ul class="nav-list">
+        <li><a href="hpc.html"><span class="nav-num">09</span>HPC 첫걸음</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">참고</div>
+      <ul class="nav-list">
+        <li><a href="software.html"><span class="nav-num">10</span>쓸 만한 프로그램</a></li>
+        <li><a href="cheatsheet.html"><span class="nav-num">11</span>치트시트</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 05 · 기본기</div>
+        <h1 class="page-title">프로세스와 환경 변수</h1>
+        <p class="page-lede">돌고 있는 프로그램을 보고 멈추고, PATH와 .bashrc로 셸 환경을 설정한다.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
+          <ul>
+            <li><a href="#ps">프로세스 보기: ps, top, htop</a></li>
+            <li><a href="#kill">멈추기: Ctrl+C와 kill</a></li>
+            <li><a href="#jobs">백그라운드 실행</a></li>
+            <li><a href="#env">환경 변수</a></li>
+            <li><a href="#path">PATH와 which</a></li>
+            <li><a href="#bashrc">.bashrc와 .bash_profile</a></li>
+            <li><a href="#alias">alias</a></li>
+            <li><a href="#omp">계산에서 쓰는 환경 변수</a></li>
+          </ul>
+        </div>
+
+        <h2 id="ps">프로세스 보기: ps, top, htop</h2>
+        <p>
+          실행 중인 프로그램 하나하나를 <strong>프로세스</strong>라고 한다. 프로세스마다 PID라는 번호가 붙고, 멈추거나 상태를 볼 때 이 번호를 쓴다.
+          <code>ps</code>는 지금 터미널에서 띄운 프로세스를 보여 준다.
+        </p>
+
+        <pre data-lang="bash"><code>$ ps
+    PID TTY          TIME CMD
+ 454500 pts/3    00:00:00 bash
+ 454505 pts/3    00:00:00 sleep
+ 454506 pts/3    00:00:00 ps</code></pre>
+
+        <p>
+          내 프로세스 전체를 보려면 <code>ps -u $USER</code>, 시스템 전체는 <code>ps aux</code>다. 이름으로 찾을 때는 <code>grep</code>과 잇는다.
+        </p>
+
+        <pre data-lang="bash"><code>$ ps aux | grep orca</code></pre>
+
+        <p>
+          <code>top</code>은 CPU를 많이 쓰는 순서로 프로세스를 실시간으로 보여 준다. <code>q</code>로 나간다.
+          <code>htop</code>은 색과 코어별 막대가 있어 읽기 쉬운 버전인데, 설치되어 있지 않을 수 있다(<code>sudo apt install htop</code>).
+        </p>
+
+        <pre data-lang="output"><code>top - 00:13:21 up 11:37,  1 user,  load average: 9.72, 9.24, 5.89
+Tasks: 392 total,   2 running, 389 sleeping,   0 stopped,   1 zombie
+%Cpu(s): 23.6 us,  2.2 sy,  0.0 ni, 73.0 id,  1.1 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem :  30962.3 total,   2806.1 free,  12789.0 used,  16344.9 buff/cache
+MiB Swap:   8192.0 total,   8190.8 free,      1.2 used.  18173.4 avail Mem
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>항목</th><th>뜻</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>load average</code></td><td>최근 1, 5, 15분 동안 CPU를 기다리거나 쓰던 프로세스 수의 평균. 코어 수(<code>nproc</code>)보다 크면 과부하다.</td></tr>
+            <tr><td><code>%CPU</code></td><td>코어 하나를 100%로 친 사용률. 8코어로 도는 프로그램은 800% 가까이 나온다.</td></tr>
+            <tr><td><code>RES</code></td><td>실제로 차지한 메모리</td></tr>
+            <tr><td><code>S</code></td><td>상태. <code>R</code> 실행 중, <code>S</code> 대기, <code>T</code> 멈춤, <code>Z</code> 좀비</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          ORCA를 병렬로 돌리면 <code>orca_scf_mpi</code> 같은 프로세스가 코어 수만큼 보인다. 계산이 도는데 <code>%CPU</code>가 100% 근처에서만 머문다면
+          병렬 설정이 제대로 안 먹은 것이다.
+        </p>
+
+        <div class="warning">
+          <div class="note-title">로그인 노드에서 계산하지 않는다</div>
+          <p>
+            클러스터에 ssh로 접속하면 처음 도착하는 곳은 <strong>로그인 노드</strong>다. 수백 명이 같이 쓰는 기계라 여기서 무거운 계산을 돌리면
+            모두가 느려지고, 관리자가 프로세스를 강제로 끝내거나 계정에 경고를 보낸다. 계산은 스케줄러(PBS의 <code>qsub</code> 등)로
+            계산 노드에 보낸다(<a href="hpc.html">09장</a>). 파일 정리, 편집, 짧은 <code>grep</code> 정도만 로그인 노드에서 한다.
+          </p>
+        </div>
+
+        <h2 id="kill">멈추기: Ctrl+C와 kill</h2>
+        <p>
+          앞에서 돌고 있는 명령은 <code>Ctrl+C</code>로 중단한다. 다른 터미널에서 돌고 있거나 화면이 굳은 프로그램은 PID를 알아내 <code>kill</code>로 끝낸다.
+        </p>
+
+        <pre data-lang="bash"><code>$ kill 454505          <span class="cmt"># 종료 요청 (SIGTERM)</span>
+$ kill -9 454505       <span class="cmt"># 강제 종료 (SIGKILL)</span></code></pre>
+
+        <p>
+          그냥 <code>kill</code>은 프로그램에 정리하고 끝내라는 신호를 보낸다. 대부분 이것으로 끝난다.
+          <code>kill -9</code>는 프로그램이 거부할 수 없는 강제 종료라 임시 파일이 남을 수 있다. 먼저 <code>kill</code>을 쓰고, 안 들으면 <code>-9</code>를 쓴다.
+          다른 사람의 프로세스는 끝낼 수 없다. 스케줄러로 제출한 계산은 <code>kill</code>이 아니라 <code>qdel &lt;작업 번호&gt;</code>(PBS)로 취소한다.
+        </p>
+
+        <h2 id="jobs">백그라운드 실행</h2>
+        <p>
+          명령 끝에 <code>&amp;</code>를 붙이면 백그라운드에서 돌고 프롬프트가 바로 돌아온다. 이미 앞에서 돌고 있는 명령은 <code>Ctrl+Z</code>로 일시 정지한 뒤
+          <code>bg</code>로 백그라운드에 보낸다. 아래 예제는 긴 계산 대신 <code>sleep</code>(지정한 초만큼 기다리는 명령)을 썼다.
+        </p>
+
+        <pre data-lang="bash"><code>$ sleep 600 &amp;
+[1] 453276
+$ sleep 900 &amp;
+[2] 453277
+$ jobs
+[1]-  Running                    sleep 600 &amp;
+[2]+  Running                    sleep 900 &amp;
+$ kill %1
+$ jobs
+[1]-  Terminated                 sleep 600
+[2]+  Running                    sleep 900 &amp;</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>명령</th><th>하는 일</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>cmd &amp;</code></td><td>백그라운드에서 실행</td></tr>
+            <tr><td><code>Ctrl+Z</code></td><td>앞에서 도는 명령을 일시 정지</td></tr>
+            <tr><td><code>bg</code></td><td>정지한 명령을 백그라운드에서 계속</td></tr>
+            <tr><td><code>fg</code></td><td>백그라운드 명령을 앞으로 가져오기 (<code>fg %2</code>)</td></tr>
+            <tr><td><code>jobs</code></td><td>이 터미널의 백그라운드 작업 목록</td></tr>
+            <tr><td><code>kill %1</code></td><td>작업 번호 1 종료</td></tr>
+          </tbody>
+        </table>
+
+        <h3>터미널을 닫아도 계속 돌게: nohup</h3>
+        <p>
+          <code>&amp;</code>만 붙인 프로그램은 터미널을 닫거나 ssh 접속이 끊기면 같이 죽을 수 있다. <code>nohup</code>을 앞에 붙이면 끊겨도 계속 돈다.
+          출력은 파일로 받아 둔다.
+        </p>
+
+        <pre data-lang="bash"><code>$ cd ~/proj/h2o-opt
+$ nohup orca water.inp &gt; water.out 2&gt;&amp;1 &amp;</code></pre>
+
+        <p>
+          출력을 따로 지정하지 않으면 <code>nohup: ignoring input and appending output to 'nohup.out'</code>이라는 메시지와 함께 <code>nohup.out</code>에 쓴다.
+          WSL이나 개인 워크스테이션에서 짧은 계산을 돌릴 때 쓰는 방법이다. 클러스터에서는 스케줄러를 쓰고, 긴 대화형 작업은 <a href="tmux.html">tmux</a>에서 한다.
+        </p>
+
+        <h2 id="env">환경 변수</h2>
+        <p>
+          셸은 설정값을 이름 붙은 변수로 들고 있다. <code>$</code>를 붙여 값을 꺼낸다. 이 중 자식 프로세스(셸이 실행하는 프로그램)에게까지 전달되는 것을
+          <strong>환경 변수</strong>라고 한다.
+        </p>
+
+        <pre data-lang="bash"><code>$ echo $HOME
+/home/kim
+$ echo $USER
+kim
+$ name=water
+$ echo $name
+water
+$ bash -c 'echo child sees: [$name]'
+child sees: []
+$ export name
+$ bash -c 'echo child sees: [$name]'
+child sees: [water]</code></pre>
+
+        <p>
+          <code>=</code> 앞뒤에 공백을 넣으면 안 된다(<code>name = water</code>는 <code>name</code>이라는 명령을 실행하려 한다).
+          그냥 만든 변수는 지금 셸 안에서만 보이고, <code>export</code>를 해야 그 셸이 실행하는 프로그램에도 전달된다.
+          ORCA나 xtb가 읽는 설정은 모두 <code>export</code>된 환경 변수여야 한다. <code>env</code>나 <code>printenv</code>는 환경 변수 전체를 출력한다.
+          변수와 따옴표를 스크립트에서 쓰는 법은 <a href="../../shell/ko/basics.html">셸 가이드</a>에서 자세히 다룬다.
+        </p>
+
+        <h2 id="path">PATH와 which</h2>
+        <p>
+          <code>ls</code>라고 치면 셸은 <code>PATH</code> 변수에 적힌 디렉터리들을 앞에서부터 차례로 뒤져 <code>ls</code>라는 실행 파일을 찾는다.
+          <code>command not found</code>는 이 디렉터리들 어디에도 없다는 뜻이다.
+        </p>
+
+        <pre data-lang="bash"><code>$ echo $PATH | tr ':' '\n'
+/usr/local/sbin
+/usr/local/bin
+/usr/sbin
+/usr/bin
+/sbin
+/bin
+/snap/bin
+$ which grep
+/usr/bin/grep
+$ command -v cd
+cd</code></pre>
+
+        <p>
+          WSL에서는 이 뒤에 <code>/mnt/c/...</code>로 시작하는 Windows 경로가 줄줄이 붙어 있다. Windows 프로그램을 WSL에서 부를 수 있게 해 둔 것이다.
+          <code>which</code>와 <code>command -v</code>는 실제로 실행될 프로그램의 위치를 알려 준다. <code>command -v</code>는 <code>cd</code> 같은 셸 내장 명령도 찾으므로 스크립트에서는 이쪽을 쓴다.
+          프로그램을 홈에 설치했다면 그 디렉터리를 <code>PATH</code> 앞에 붙인다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="kw">export</span> PATH=$HOME/orca:$PATH</code></pre>
+
+        <p>
+          기존 <code>$PATH</code>를 빼고 <code>export PATH=$HOME/orca</code>라고 쓰면 <code>ls</code>조차 찾지 못하게 된다. 그럴 때는 터미널을 새로 열면 복구된다.
+        </p>
+
+        <div class="tip">
+          <div class="note-title">Ubuntu의 orca는 화면 낭독기다</div>
+          <p>
+            Ubuntu 데스크톱에서 <code>which orca</code>를 치면 <code>/usr/bin/orca</code>가 나올 수 있다. 이것은 GNOME 화면 낭독기이고 양자화학 프로그램 ORCA가 아니다.
+            ORCA 디렉터리를 <code>PATH</code> 맨 앞에 두고, 병렬 계산에서는 ORCA를 전체 경로(<code>$HOME/orca/orca water.inp</code>)로 부른다.
+          </p>
+        </div>
+
+        <h2 id="bashrc">.bashrc와 .bash_profile</h2>
+        <p>
+          <code>export</code>한 변수는 터미널을 닫으면 사라진다. 매번 쓸 설정은 bash가 시작할 때 읽는 파일에 적는다.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>파일</th><th>읽는 때</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>~/.bashrc</code></td><td>대화형 셸을 열 때마다. 터미널 새 탭, WSL 창 등</td></tr>
+            <tr><td><code>~/.bash_profile</code> (없으면 <code>~/.profile</code>)</td><td>로그인할 때 한 번. ssh 접속 등</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          두 파일을 나눠 관리하면 헷갈리므로, 설정은 <code>~/.bashrc</code>에 모으고 <code>~/.bash_profile</code>이 그것을 읽게 하는 방식이 흔하다.
+          Ubuntu의 기본 <code>~/.profile</code>은 이미 <code>~/.bashrc</code>를 읽는다. 클러스터에서는 <code>~/.bash_profile</code>에 아래 줄이 있는지 확인한다.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt"># ~/.bash_profile</span>
+<span class="kw">if</span> [ -f ~/.bashrc ]; <span class="kw">then</span>
+    <span class="kw">source</span> ~/.bashrc
+<span class="kw">fi</span></code></pre>
+
+        <p>
+          <code>~/.bashrc</code>를 고친 뒤 새 터미널을 열거나 <code>source ~/.bashrc</code>를 치면 반영된다. <code>source</code>는 파일 내용을 지금 셸에서 그대로 실행한다.
+          macOS의 zsh는 <code>~/.zshrc</code>를 읽는다.
+        </p>
+
+        <h2 id="alias">alias</h2>
+        <p>자주 치는 긴 명령에 짧은 이름을 붙인다. <code>~/.bashrc</code>에 적어 두면 매번 쓸 수 있다.</p>
+
+        <pre data-lang="bash"><code><span class="cmt"># ~/.bashrc</span>
+<span class="kw">alias</span> ll='ls -lh'
+<span class="kw">alias</span> rm='rm -i'
+<span class="kw">alias</span> e='grep "FINAL SINGLE POINT ENERGY"'</code></pre>
+
+        <p>
+          이렇게 두면 <code>e water.out</code>이 <code>grep "FINAL SINGLE POINT ENERGY" water.out</code>으로 펼쳐진다. alias는 대화형 셸에서만 동작하고 스크립트 안에서는 펼쳐지지 않는다.
+        </p>
+
+        <h2 id="omp">계산에서 쓰는 환경 변수</h2>
+        <p>계산 프로그램은 코어 수나 메모리 같은 설정을 환경 변수로 받는 경우가 많다.</p>
+
+        <table>
+          <thead>
+            <tr><th>변수 / 명령</th><th>하는 일</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>OMP_NUM_THREADS</code></td><td>OpenMP 프로그램(xtb, CREST, 수치 라이브러리 등)이 쓸 스레드 수</td></tr>
+            <tr><td><code>OMP_STACKSIZE</code></td><td>스레드마다 쓸 스택 메모리. xtb는 <code>4G</code> 정도를 권한다.</td></tr>
+            <tr><td><code>ulimit -s unlimited</code></td><td>셸이 허용하는 스택 크기 제한을 푼다. 기본은 8192 KB</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="bash"><code>$ <span class="kw">export</span> OMP_NUM_THREADS=4
+$ echo $OMP_NUM_THREADS
+4
+$ ulimit -s
+8192
+$ ulimit -s unlimited
+$ ulimit -s
+unlimited</code></pre>
+
+        <p>
+          <code>OMP_NUM_THREADS</code>를 정하지 않으면 프로그램이 기계의 코어를 전부 쓰려 한다. 노트북에서는 다른 작업이 멈추고,
+          클러스터에서는 요청한 코어보다 많이 쓰게 되어 문제가 된다. 작업 스크립트에서는 요청한 코어 수와 맞춘다.
+          스택 크기가 작으면 xtb가 큰 분자에서 이유 없이 segfault를 낸다. 구체적인 설정은 <a href="../../xtb/ko/getting-started.html">xtb 가이드</a>에 있다.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="permissions.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">권한</div>
+        </a>
+        <a class="next" href="ssh.html">
+          <div class="page-nav-label">다음 →</div>
+          <div class="page-nav-title">ssh 접속과 키</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pulling numbers from outputs · Shell Scripting Guide</title>
+  <meta name="description" content="One-line commands that get energies, geometries and convergence checks out of ORCA, Quantum ESPRESSO, LAMMPS and xtb outputs." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/extract.html">KO</a>
+    <a href="extract.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">Shell</div>
+    <div class="brand-subtitle">Scripting guide · bash</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="basics.html"><span class="nav-num">01</span>Your first script</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Syntax</div>
+      <ul class="nav-list">
+        <li><a href="control.html"><span class="nav-num">02</span>Conditions and loops</a></li>
+        <li><a href="functions.html"><span class="nav-num">03</span>Functions and arguments</a></li>
+        <li><a href="robust.html"><span class="nav-num">04</span>Writing safer scripts</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Text processing</div>
+      <ul class="nav-list">
+        <li><a href="text.html"><span class="nav-num">05</span>grep · sed · awk</a></li>
+        <li><a href="extract.html"><span class="nav-num">06</span>Pulling numbers from outputs</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Job submission</div>
+      <ul class="nav-list">
+        <li><a href="batch.html"><span class="nav-num">07</span>PBS · Slurm job scripts</a></li>
+        <li><a href="arrays.html"><span class="nav-num">08</span>Job arrays and parameter sweeps</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reference</div>
+      <ul class="nav-list">
+        <li><a href="cheatsheet.html"><span class="nav-num">09</span>Cheat sheet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 06 · Text processing</div>
+        <h1 class="page-title">Pulling numbers from outputs</h1>
+        <p class="page-lede">One-line commands that get energies, geometries and convergence checks out of ORCA, Quantum ESPRESSO, LAMMPS and xtb outputs.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#orca-energy">ORCA: the final energy</a></li>
+            <li><a href="#orca-opt">ORCA: energy per optimisation cycle</a></li>
+            <li><a href="#orca-check">ORCA: normal termination and convergence</a></li>
+            <li><a href="#orca-freq">ORCA: imaginary frequencies and free energy</a></li>
+            <li><a href="#orca-geom">ORCA: last geometry to xyz</a></li>
+            <li><a href="#table">Many jobs into one CSV table</a></li>
+            <li><a href="#qe">Quantum ESPRESSO</a></li>
+            <li><a href="#lammps">LAMMPS thermo table</a></li>
+            <li><a href="#xtb">xtb</a></li>
+            <li><a href="#python">When to switch to Python</a></li>
+          </ul>
+        </div>
+
+        <p>
+          The ORCA examples are ORCA 6 outputs from the <a href="../../orca/en/index.html">ORCA guide</a>. <code>opt.out</code> is a
+          B3LYP-D4/def2-TZVP optimisation + frequency run on water. The QE and LAMMPS examples are also real outputs, produced while
+          writing those guides. grep, sed and awk syntax is covered in the <a href="text.html">previous chapter</a>.
+        </p>
+
+        <h2 id="orca-energy">ORCA: the final energy</h2>
+        <p>
+          ORCA writes a <code>FINAL SINGLE POINT ENERGY</code> line every time it computes an energy. An optimisation prints one per cycle,
+          so you want the last one.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep 'FINAL SINGLE POINT ENERGY' opt.out
+FINAL SINGLE POINT ENERGY       -76.426286364586
+FINAL SINGLE POINT ENERGY       -76.426353431114
+FINAL SINGLE POINT ENERGY       -76.426364583348
+FINAL SINGLE POINT ENERGY       -76.426366351564
+FINAL SINGLE POINT ENERGY       -76.426369457144
+$ grep 'FINAL SINGLE POINT ENERGY' opt.out | tail -1 | awk '{print $5}'
+-76.426369457144</code></pre>
+
+        <p>
+          awk alone works too: overwrite a variable on every matching line and print it in <code>END</code>, and the last value is what remains.
+          If no line matches you get an empty line, so check for an empty result in scripts.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk '/FINAL SINGLE POINT ENERGY/ {e = $5} END {print e}' opt.out
+-76.426369457144</code></pre>
+
+        <h2 id="orca-opt">ORCA: energy per optimisation cycle</h2>
+        <p>
+          To plot the convergence, save cycle number and energy as two columns. gnuplot and matplotlib read this directly.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep 'FINAL SINGLE POINT ENERGY' opt.out | awk '{printf "%d %.10f\n", NR, $5}' &gt; scf.dat
+$ cat scf.dat
+1 -76.4262863646
+2 -76.4263534311
+3 -76.4263645833
+4 -76.4263663516
+5 -76.4263694571</code></pre>
+
+        <p>
+          The five lines are the four optimisation cycles and the final evaluation at the converged geometry. A third column with the energy
+          relative to the last value, in kcal/mol, shows how much was left to converge. Collect all values in an array and compute in <code>END</code>.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk '/FINAL SINGLE POINT ENERGY/ {n++; e[n] = $5}
+       END {for (i = 1; i &lt;= n; i++) printf "%d %.10f %8.4f\n", i, e[i], (e[i] - e[n]) * 627.5095}' opt.out
+1 -76.4262863646   0.0521
+2 -76.4263534311   0.0101
+3 -76.4263645833   0.0031
+4 -76.4263663516   0.0019
+5 -76.4263694571   0.0000</code></pre>
+
+        <h2 id="orca-check">ORCA: normal termination and convergence</h2>
+        <p>
+          Before using a number, check that the job ran to the end. A finished ORCA output ends with
+          <code>ORCA TERMINATED NORMALLY</code>, and a converged optimisation prints <code>THE OPTIMIZATION HAS CONVERGED</code>.
+          <code>05-killed</code> is a copy of an output cut off partway, to stand in for a job killed at the walltime limit.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep -c 'ORCA TERMINATED NORMALLY' opt.out
+1
+$ grep -c 'ORCA TERMINATED NORMALLY' jobs/05-killed/water.out
+0
+$ grep -q 'THE OPTIMIZATION HAS CONVERGED' opt.out &amp;&amp; echo converged || echo 'NOT converged'
+converged</code></pre>
+
+        <p>
+          <code>grep -q</code> prints nothing and only sets the exit status: 0 if found, 1 if not. That makes it usable directly in an <code>if</code>.
+        </p>
+
+        <h2 id="orca-freq">ORCA: imaginary frequencies and free energy</h2>
+        <p>
+          The frequencies sit between <code>VIBRATIONAL FREQUENCIES</code> and <code>NORMAL MODES</code>. An awk range pattern
+          <code>/start/,/end/</code> cuts out that block, and the second column holds the values.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk '/VIBRATIONAL FREQUENCIES/,/NORMAL MODES/' opt.out | awk '/cm\*\*-1/ {print $2}'
+0.00
+0.00
+0.00
+0.00
+0.00
+0.00
+1615.68
+3780.78
+3885.42</code></pre>
+
+        <p>
+          The first six zeros are translations and rotations. ORCA prints imaginary frequencies as negative numbers followed by
+          <code>***imaginary mode***</code>. The command below prints and counts the negative lines inside the block. <code>ts.out</code> is a copy
+          in which mode 6 was edited to a negative value, as in the <a href="../../orca/en/frequencies.html">ORCA guide example</a>, to show the format.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk '/VIBRATIONAL FREQUENCIES/ {f = 1} /NORMAL MODES/ {f = 0}
+       f &amp;&amp; /cm\*\*-1/ &amp;&amp; $2 &lt; 0 {n++; print}
+       END {print n + 0, "imaginary"}' opt.out
+0 imaginary
+$ awk '/VIBRATIONAL FREQUENCIES/ {f = 1} /NORMAL MODES/ {f = 0}
+       f &amp;&amp; /cm\*\*-1/ &amp;&amp; $2 &lt; 0 {n++; print}
+       END {print n + 0, "imaginary"}' ts.out
+     6:    -456.78 cm**-1   ***imaginary mode***
+1 imaginary</code></pre>
+
+        <p>
+          <code>n + 0</code> makes a variable that was never incremented print as 0 instead of an empty string.
+          Thermochemistry results are single labelled lines, so grep and awk get them directly.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep 'Final Gibbs free energy' opt.out
+Final Gibbs free energy         ...    -76.42286885 Eh
+$ awk '/Final Gibbs free energy/ {print $6}' opt.out
+-76.42286885</code></pre>
+
+        <h2 id="orca-geom">ORCA: last geometry to xyz</h2>
+        <p>
+          A <code>CARTESIAN COORDINATES (ANGSTROEM)</code> block is printed every cycle. Skip the dashed line after the header and collect
+          coordinates until the next blank line. Each new block resets the counter, so only the last block is left at the end.
+        </p>
+
+        <pre data-lang="bash"><code>awk '/CARTESIAN COORDINATES \(ANGSTROEM\)/ {getline; n = 0; blk = 1; next}
+     blk &amp;&amp; NF == 0 {blk = 0}
+     blk {line[++n] = $0}
+     END {print n; print "final geometry"; for (i = 1; i &lt;= n; i++) print line[i]}' opt.out &gt; final.xyz</code></pre>
+
+        <pre data-lang="bash"><code>$ cat final.xyz
+3
+final geometry
+  O      0.000000    0.000000    0.111489
+  H      0.000000    0.765189   -0.473160
+  H      0.000000   -0.765189   -0.473160</code></pre>
+
+        <p>
+          Parentheses in the regex are escaped as <code>\(</code>. <code>getline</code> reads (and so skips) the next line.
+          ORCA also saves the optimised geometry as <code>inputname.xyz</code>; this recipe is for when only the output file is left.
+        </p>
+
+        <h2 id="table">Many jobs into one CSV table</h2>
+        <p>
+          Suppose each calculation has its own directory with an output inside. Skip unfinished jobs, collect the energies of the rest and
+          add energies relative to the lowest one (1 E<sub>h</sub> = 627.5095 kcal/mol).
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># collect.sh: final energy of every job directory into a CSV</span>
+<span class="kw">set</span> -euo pipefail
+
+<span class="kw">echo</span> <span class="str">"name,energy_Eh"</span> &gt; energies.csv
+<span class="kw">for</span> out <span class="kw">in</span> jobs/*/*.out; <span class="kw">do</span>
+    name=$(basename <span class="str">"$(dirname "$out")"</span>)
+    <span class="kw">if</span> ! grep -q <span class="str">'ORCA TERMINATED NORMALLY'</span> <span class="str">"$out"</span>; <span class="kw">then</span>
+        <span class="kw">echo</span> <span class="str">"skip $name: not finished"</span> &gt;&amp;2
+        <span class="kw">continue</span>
+    <span class="kw">fi</span>
+    e=$(awk <span class="str">'/FINAL SINGLE POINT ENERGY/ {e = $5} END {print e}'</span> <span class="str">"$out"</span>)
+    <span class="kw">echo</span> <span class="str">"$name,$e"</span> &gt;&gt; energies.csv
+<span class="kw">done</span>
+
+awk -F, <span class="str">'NR &gt; 1 {name[NR] = $1; e[NR] = $2; if (NR == 2 || $2 &lt; min) min = $2}
+         END {print "name,energy_Eh,rel_kcal"
+              for (i = 2; i &lt;= NR; i++) printf "%s,%.8f,%.2f\n", name[i], e[i], (e[i] - min) * 627.5095}'</span> \
+    energies.csv &gt; table.csv</code></pre>
+
+        <pre data-lang="bash"><code>$ bash collect.sh
+skip 05-killed: not finished
+$ column -t -s, table.csv
+name              energy_Eh     rel_kcal
+01-single-point   -76.32127441  65.95
+02-opt-freq       -76.42636946  0.00
+03-dlpno-ccsdt    -76.33195934  59.24
+04-solvation-smd  -76.33297155  58.61</code></pre>
+
+        <p>
+          These four jobs are the same water molecule at different levels of theory, so the relative energies mean nothing chemically.
+          The one meaningful comparison is gas phase (01) versus SMD water (04) at the same B3LYP/def2-SVP level: −7.34 kcal/mol.
+          In practice you run this script over directories of isomers or conformers computed with one method.
+        </p>
+
+        <div class="warning">
+          <div class="note-title">Files that came from Windows</div>
+          <p>
+            Files created on or copied through Windows can have CRLF (<code>\r\n</code>) line endings. The last field then carries a
+            <code>\r</code>, invisible characters end up in your CSV, and <code>$</code> anchors stop matching. If <code>cat -A file</code> shows
+            <code>^M</code> at the line ends, fix it with <code>tr -d '\r' &lt; old &gt; new</code> or <code>dos2unix</code>.
+          </p>
+        </div>
+
+        <h2 id="qe">Quantum ESPRESSO</h2>
+        <p>
+          <code>pw.x</code> prints <code>total energy</code> at every SCF iteration and marks only the converged value with a leading
+          <code>!</code>, so searching for <code>^!</code> skips the intermediate values. Below is the silicon SCF example output from the
+          <a href="../../qe/01-getting-started.html">QE guide</a>. Energies are in Ry; 1 Ry = 13.605693 eV.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep '^!' si.scf.out
+!    total energy              =     -93.45273690 Ry
+$ grep '^!' si.scf.out | tail -1 | awk '{printf "%.8f Ry = %.6f eV\n", $5, $5 * 13.605693}'
+-93.45273690 Ry = -1271.489248 eV
+$ grep -c 'convergence has been achieved' si.scf.out
+1
+$ grep -c 'convergence NOT achieved' si.scf.out
+0
+$ grep 'JOB DONE' si.scf.out
+   JOB DONE.</code></pre>
+
+        <p>
+          A <code>vc-relax</code> runs a new SCF at every ionic step, so there are several <code>!</code> lines. The pressure is the last field of the <code>P=</code> lines.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep '^!' si.vcrelax.out | awk '{printf "%d %.8f\n", NR, $5}'
+1 -93.44443849
+2 -93.45157833
+3 -93.45321788
+4 -93.45325068
+5 -93.45325084
+6 -93.45327391
+$ grep 'P=' si.vcrelax.out | awk '{print $NF}'
+108.71
+43.06
+5.66
+0.39
+0.00
+-0.03
+$ grep -E 'bfgs converged|Final enthalpy' si.vcrelax.out
+     bfgs converged in   5 scf cycles and   4 bfgs steps
+     Final enthalpy           =     -93.4532508364 Ry</code></pre>
+
+        <p>
+          The sixth value is an extra SCF run on the final cell after BFGS finishes. A new cell means a new plane-wave basis, so the value shifts
+          slightly. Report <code>Final enthalpy</code> as the result of the relaxation; a large gap between the two suggests the cutoff is too low.
+        </p>
+
+        <h2 id="lammps">LAMMPS thermo table</h2>
+        <p>
+          In <code>log.lammps</code>, thermo output sits between a header line starting with <code>Step</code> and a <code>Loop time</code> line.
+          Each <code>run</code> command adds another such block. This is the Cu slab log from the <a href="../../lammps/index.html">LAMMPS guide</a>,
+          with a 10000-step equilibration and a 5000-step production run.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk '$1 == "Step" {on = 1; next} /^Loop time/ {on = 0} on' log.lammps | head -4
+         0   253.8184      -5749.9163     -5695.3556     -5778.9907    
+       500   253.05769     -5694.4003     -5640.0031     -9546.1221    
+      1000   267.19235     -5695.7562     -5638.3206      1729.171     
+      1500   253.1248      -5692.6357     -5638.2241     -9774.9528    </code></pre>
+
+        <p>
+          The header is indented, so <code>/^Step/</code> would miss it. Comparing the first field with <code>$1 == "Step"</code> works regardless
+          of leading spaces. Keeping the header once as a <code>#</code> comment gives a file that numpy's <code>loadtxt</code> and gnuplot read as is.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk '$1 == "Step" {on = 1; if (!hdr++) print "#", $0; next} /^Loop time/ {on = 0} on' log.lammps &gt; thermo.dat
+$ head -3 thermo.dat
+#    Step          Temp          PotEng         TotEng         Press     
+         0   253.8184      -5749.9163     -5695.3556     -5778.9907    
+       500   253.05769     -5694.4003     -5640.0031     -9546.1221    </code></pre>
+
+        <p>
+          The two blocks are concatenated and the step count restarts at 0 (this input calls <code>reset_timestep 0</code> before production).
+          To keep only the production run, count headers and switch on only in the second block.
+        </p>
+
+        <pre data-lang="bash"><code>$ awk '$1 == "Step" {run++; on = (run == 2); next} /^Loop time/ {on = 0} on' log.lammps | head -3
+         0   247.4071      -5695.3154     -5642.1329     -4114.9433    
+       500   254.87546     -5696.5557     -5641.7678     -4072.5059    
+      1000   242.9701      -5696.8721     -5644.6433     -4897.1177    </code></pre>
+
+        <h2 id="xtb">xtb</h2>
+        <p>
+          xtb prints the same energy in two summary boxes. Below are xtb 6.7.1 outputs of a GFN2-xTB single point on water
+          (<code>xtb_sp.out</code>) and an optimisation of methanol (<code>xtb_opt.out</code>).
+          The <code>TOTAL ENERGY</code> line appears only once, at the end, so in an optimisation output it is the final value.
+        </p>
+
+        <pre data-lang="bash"><code>$ grep -E ':: total energy|TOTAL ENERGY' xtb_sp.out
+         :: total energy              -5.070222286727 Eh    ::
+          | TOTAL ENERGY               -5.070222286727 Eh   |
+$ awk '/TOTAL ENERGY/ {print $4}' xtb_opt.out
+-8.226118421023
+$ grep 'GEOMETRY OPTIMIZATION CONVERGED' xtb_opt.out
+   *** GEOMETRY OPTIMIZATION CONVERGED AFTER 5 ITERATIONS ***</code></pre>
+
+        <p>
+          xtb writes <code>normal termination of xtb</code> to standard error, not standard output. With only <code>xtb mol.xyz &gt; sp.out</code>
+          that line never reaches the file; save both streams with <code>&gt; sp.out 2&gt;&amp;1</code> if you want to check for it.
+        </p>
+
+        <h2 id="python">When to switch to Python</h2>
+        <p>
+          grep and awk are right for one or two numbers. For data spread over several blocks (normal-mode vectors, atomic charges, orbital
+          energies), or sections whose format changes between program versions, a parser library breaks less often.
+          <a href="https://cclib.github.io/">cclib</a> reads ORCA, Gaussian and other quantum chemistry outputs into numpy arrays, and
+          <a href="https://wiki.fysik.dtu.dk/ase/">ASE</a>'s <code>ase.io.read</code> handles most structure formats, including QE outputs and LAMMPS dumps.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="text.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">grep · sed · awk</div>
+        </a>
+        <a class="next" href="batch.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">PBS · Slurm job scripts</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
