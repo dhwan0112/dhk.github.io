@@ -156,7 +156,8 @@ body {
 
 .sidebar-social {
     display: flex;
-    gap: 1rem;
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
     margin-bottom: 0.75rem;
 }
 
@@ -603,6 +604,10 @@ section {
 }
 
 /* Contact Section */
+.contact {
+    background-color: var(--bg-white);
+}
+
 .contact-subtitle {
     text-align: center;
     color: var(--text-light);
