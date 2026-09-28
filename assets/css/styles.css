@@ -381,7 +381,8 @@ section {
 }
 
 .about-text a,
-.contact-subtitle a {
+.contact-subtitle a,
+.teaching-summary a {
     color: var(--accent-color);
     text-decoration: underline;
     text-underline-offset: 3px;
@@ -389,7 +390,8 @@ section {
 }
 
 .about-text a:hover,
-.contact-subtitle a:hover {
+.contact-subtitle a:hover,
+.teaching-summary a:hover {
     color: var(--secondary-color);
 }
 
