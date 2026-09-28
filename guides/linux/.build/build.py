@@ -108,6 +108,7 @@ def build(lang, name):
   <title>{full_title}</title>
   <meta name="description" content="{html.escape(desc, quote=True)}" />
   <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <script>try{{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"light")}}catch(e){{}}</script>
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
 <body>

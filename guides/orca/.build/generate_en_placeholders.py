@@ -139,6 +139,7 @@ TEMPLATE = """<!DOCTYPE html>
   <title>{title_plain} · ORCA User Guide</title>
   <meta name="description" content="{lede_plain}" />
   <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <script>try{{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"light")}}catch(e){{}}</script>
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
 <body>

@@ -298,6 +298,7 @@ HEAD_TMPL = """<!DOCTYPE html>
   <title>{title}</title>
   <meta name="description" content="{description}" />
   <link rel="icon" type="image/x-icon" href="../../images/icons/favicon.ico" />
+  <script>try{{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"light")}}catch(e){{}}</script>
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
