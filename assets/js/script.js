@@ -128,7 +128,7 @@ const observer = new IntersectionObserver((entries) => {
 
 // Animate elements on scroll
 document.addEventListener('DOMContentLoaded', () => {
-    const animateElements = document.querySelectorAll('.project-card, .skill-category, .info-item, .contact-item');
+    const animateElements = document.querySelectorAll('.skill-category, .info-item, .contact-item');
 
     animateElements.forEach(element => {
         element.style.opacity = '0';
