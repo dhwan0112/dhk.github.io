@@ -1,0 +1,28 @@
+#!/bin/bash
+#PBS -N guide-rerank
+#PBS -l select=1:ncpus=8:mpiprocs=8:mem=16gb
+#PBS -l walltime=08:00:00
+#PBS -j oe
+#PBS -q auto_free
+set -uo pipefail
+cd "${PBS_O_WORKDIR:-$(dirname "$0")}"
+module load ORCA/6.1.0-gompi-2023b-avx2
+source "$(conda info --base 2>/dev/null || echo "$HOME/miniforge3")/etc/profile.d/conda.sh"
+conda activate guide-xtb
+
+ORCA_BIN=${ORCA_BIN:-$(command -v orca)}
+[ -x "$ORCA_BIN" ] || { echo "ORCA not found; set ORCA_BIN or load the module"; exit 1; }
+ROOT=$PWD
+python rerank.py
+
+for d in rerank/conf*/; do
+    name=$(basename "$d")
+    cd "$d"
+    t0=$(date +%s.%N)
+    "$ORCA_BIN" "$name.inp" > "$name.out" 2>&1; rc=$?
+    echo "rerank-$name exit=$rc wall_s=$(awk "BEGIN{print $(date +%s.%N) - $t0}")" | tee -a "$ROOT/timings.txt"
+    rm -f ./*.tmp* ./*.gbw
+    cd "$ROOT"
+done
+
+python rerank.py --collect

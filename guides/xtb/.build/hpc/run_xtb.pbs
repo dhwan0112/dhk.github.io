@@ -1,0 +1,32 @@
+#!/bin/bash
+#PBS -N guide-xtb
+#PBS -l select=1:ncpus=8:mem=16gb
+#PBS -l walltime=04:00:00
+#PBS -j oe
+# Add "#PBS -q <queue>" if the cluster has no default queue (check: qstat -Q).
+set -uo pipefail
+cd "${PBS_O_WORKDIR:-$(dirname "$0")}"
+source "$(conda info --base 2>/dev/null || echo "$HOME/miniforge3")/etc/profile.d/conda.sh"
+conda activate guide-xtb
+
+NP=${NCPUS:-8}
+export OMP_NUM_THREADS=$NP,1 OMP_STACKSIZE=4G MKL_NUM_THREADS=$NP
+ulimit -s unlimited || true
+ROOT=$PWD
+xtb --version > versions.txt 2>&1; crest --version >> versions.txt 2>&1
+
+run() {  # run <dir> <cmd...>: fresh directory, timed, never aborts the whole job
+    local d=$1; shift
+    rm -rf "$d" && mkdir -p "$d" && cd "$d"
+    local t0=$(date +%s.%N)
+    "$@"; local rc=$?
+    echo "$d exit=$rc wall_s=$(awk "BEGIN{print $(date +%s.%N) - $t0}")" | tee -a "$ROOT/timings.txt"
+    cd "$ROOT"
+}
+
+run x01-opt     bash -c "xtb ../ala.xyz --gfn 2 --opt tight > opt.out 2>&1"
+run x02-ohess   bash -c "xtb ../ala.xyz --gfn 2 --ohess tight > ohess.out 2>&1"
+run x03-alpb    bash -c "xtb ../ala.xyz --gfn 2 --opt tight --alpb water > alpb.out 2>&1"
+run x04-md      bash -c "xtb ../x03-alpb/xtbopt.xyz --gfn 2 --alpb water --md --input ../xtb/md.inp > md.out 2>&1"
+run x05-metad   bash -c "xtb ../x03-alpb/xtbopt.xyz --gfn 2 --alpb water --metadyn --input ../xtb/metad.inp > metad.out 2>&1"
+run x06-crest   bash -c "crest ../x03-alpb/xtbopt.xyz --gfn2 --alpb water -T $NP > crest.out 2>&1"

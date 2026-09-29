@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>xtb User Guide</title>
+  <meta name="description" content="A practical guide to the semiempirical tight-binding program xtb and the conformer search tool CREST. Every example was run on NUS HPC." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"light")}catch(e){}</script>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/index.html">KO</a>
+    <a href="index.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">xtb</div>
+    <div class="brand-subtitle">User Guide · xtb 6.7 · CREST 3</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>Installing and running</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Calculations</div>
+      <ul class="nav-list">
+        <li><a href="calculations.html"><span class="nav-num">02</span>Single point · opt · freq</a></li>
+        <li><a href="solvation.html"><span class="nav-num">03</span>Solvation</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Sampling</div>
+      <ul class="nav-list">
+        <li><a href="md.html"><span class="nav-num">04</span>MD · metadynamics</a></li>
+        <li><a href="crest.html"><span class="nav-num">05</span>CREST conformer search</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">In practice</div>
+      <ul class="nav-list">
+        <li><a href="workflow.html"><span class="nav-num">06</span>Example: CREST to DFT</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+<section class="hero">
+        <h1 class="hero-title">
+          <em>xtb</em> · CREST<br />
+          <span class="hero-title-accent">User Guide</span>
+        </h1>
+        <p class="hero-tagline">
+          The Grimme group's semiempirical program xtb and conformer search tool CREST, followed through on a single molecule:
+          optimisation and frequencies, molecular dynamics, metadynamics, conformer ensembles and DFT re-ranking.
+        </p>
+        <div class="hero-meta">
+          <span>Version</span> xtb 6.7 · CREST 3 · <span>Example</span> alanine dipeptide · <span>Run on</span> NUS HPC
+        </div>
+      </section>
+
+      <article class="content">
+        <h2>About this guide</h2>
+        <p>
+          xtb is a command-line program for the GFN family of tight-binding methods. It is two to three orders of magnitude
+          faster than DFT and gets organic geometries reasonably right, so it is used to narrow down candidates before expensive
+          calculations and to run long dynamics. CREST builds conformer ensembles on top of xtb by repeating metadynamics and optimisation.
+        </p>
+        <p>
+          Calling xTB from inside ORCA is covered separately in <a href="../../orca/en/xtb.html">chapter 16 of the ORCA guide</a>.
+          This guide is about using xtb and CREST directly. Both guides use the same example (alanine dipeptide in water), so
+          the results can be compared.
+        </p>
+
+        <h2>Topics</h2>
+        <div class="cards">
+          <a class="card" href="getting-started.html">
+            <div class="card-num">01 · SETUP</div>
+            <div class="card-title">Installing and running</div>
+            <div class="card-desc">conda install, a first calculation, parallel settings and output files.</div>
+          </a>
+          <a class="card" href="calculations.html">
+            <div class="card-num">02 · CALCULATIONS</div>
+            <div class="card-title">Single point · opt · freq</div>
+            <div class="card-desc">Choosing the GFN level, charge and spin, constraints and scans.</div>
+          </a>
+          <a class="card" href="solvation.html">
+            <div class="card-num">03 · SOLVATION</div>
+            <div class="card-title">Solvation</div>
+            <div class="card-desc">ALPB and GBSA, and how to name the solvent.</div>
+          </a>
+          <a class="card" href="md.html">
+            <div class="card-num">04 · DYNAMICS</div>
+            <div class="card-title">MD · metadynamics</div>
+            <div class="card-desc">The $md block, SHAKE and time steps, the RMSD bias.</div>
+          </a>
+          <a class="card" href="crest.html">
+            <div class="card-num">05 · CREST</div>
+            <div class="card-title">Conformer search</div>
+            <div class="card-desc">iMTD-GC ensembles, energy windows, reading the output.</div>
+          </a>
+          <a class="card" href="workflow.html">
+            <div class="card-num">06 · WORKFLOW</div>
+            <div class="card-title">CREST to DFT</div>
+            <div class="card-desc">Re-ranking an xTB ensemble with DFT, start to finish.</div>
+          </a>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>Citations</h2>
+        <ul>
+          <li>GFN2-xTB: Bannwarth, Ehlert, Grimme, <em>J. Chem. Theory Comput.</em> <strong>2019</strong>, <em>15</em>, 1652.</li>
+          <li>The xtb program: Bannwarth et al., <em>WIREs Comput. Mol. Sci.</em> <strong>2021</strong>, <em>11</em>, e1493.</li>
+          <li>CREST: Pracht, Bohle, Grimme, <em>Phys. Chem. Chem. Phys.</em> <strong>2020</strong>, <em>22</em>, 7169.</li>
+          <li>CREST 3: Pracht et al., <em>J. Chem. Phys.</em> <strong>2024</strong>, <em>160</em>, 114110.</li>
+        </ul>
+
+        <div class="note">
+          <div class="note-title">Further reading</div>
+          <p>
+            The official documentation is at <a href="https://xtb-docs.readthedocs.io">xtb-docs.readthedocs.io</a> and
+            <a href="https://crest-lab.github.io/crest-docs/">crest-lab.github.io/crest-docs</a>.
+          </p>
+        </div>
+      </article>
+
+      <nav class="page-nav">
+        <a class="next" href="getting-started.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Installing and running</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

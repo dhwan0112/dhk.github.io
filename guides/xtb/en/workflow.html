@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Example: CREST to DFT · xtb User Guide</title>
+  <meta name="description" content="Collect widely with xTB, re-rank with DFT: the standard conformer workflow, run from start to finish." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"light")}catch(e){}</script>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/workflow.html">KO</a>
+    <a href="workflow.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">xtb</div>
+    <div class="brand-subtitle">User Guide · xtb 6.7 · CREST 3</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>Installing and running</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Calculations</div>
+      <ul class="nav-list">
+        <li><a href="calculations.html"><span class="nav-num">02</span>Single point · opt · freq</a></li>
+        <li><a href="solvation.html"><span class="nav-num">03</span>Solvation</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Sampling</div>
+      <ul class="nav-list">
+        <li><a href="md.html"><span class="nav-num">04</span>MD · metadynamics</a></li>
+        <li><a href="crest.html"><span class="nav-num">05</span>CREST conformer search</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">In practice</div>
+      <ul class="nav-list">
+        <li><a href="workflow.html"><span class="nav-num">06</span>Example: CREST to DFT</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 06 · In practice</div>
+        <h1 class="page-title">From CREST to DFT</h1>
+        <p class="page-lede">Collect widely with xTB, re-rank with DFT: the standard conformer workflow, run from start to finish.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#why">Why two stages</a></li>
+            <li><a href="#steps">The whole workflow</a></li>
+            <li><a href="#split">Splitting the ensemble</a></li>
+            <li><a href="#dft">DFT reoptimisation</a></li>
+            <li><a href="#result">Result: how much the ranking changes</a></li>
+            <li><a href="#tips">Practical tips</a></li>
+          </ul>
+        </div>
+
+        <h2 id="why">Why two stages</h2>
+        <p>
+          Sweeping conformational space directly with DFT is too expensive, and xTB energies alone are too inaccurate to draw
+          conclusions from. So xTB collects a generous set of candidates, and only the survivors are recomputed with DFT to set
+          the ranking. xTB answers "which structures exist"; DFT answers "which of them is most stable".
+        </p>
+
+        <h2 id="steps">The whole workflow</h2>
+        <ol>
+          <li>Optimise the starting structure with xtb (<a href="calculations.html#opt">chapter 2</a>).</li>
+          <li>Build the ensemble with CREST (<a href="crest.html">chapter 5</a>).</li>
+          <li>Split the conformers inside the energy window into separate xyz files.</li>
+          <li>Reoptimise each with DFT; here ORCA with r2SCAN-3c and CPCM(water).</li>
+          <li>Re-rank by DFT energy and, if needed, run frequencies on the top few to compare free energies.</li>
+        </ol>
+
+        <h2 id="split">Splitting the ensemble</h2>
+        <p><code>crest_conformers.xyz</code> is multi-frame xyz, so a few lines split it.</p>
+
+        <pre data-lang="python"><code>lines = open(<span class="str">"crest_conformers.xyz"</span>).read().splitlines()
+n = int(lines[0])
+frames = [lines[i:i + n + 2] <span class="kw">for</span> i <span class="kw">in</span> range(0, len(lines), n + 2)]
+<span class="kw">for</span> k, fr <span class="kw">in</span> enumerate(frames[:8], 1):
+    open(f<span class="str">"conf{k:02d}.xyz"</span>, <span class="str">"w"</span>).write(<span class="str">"\n"</span>.join(fr) + <span class="str">"\n"</span>)</code></pre>
+
+        <h2 id="dft">DFT reoptimisation</h2>
+        <pre data-lang="orca"><code><span class="cmt"># conf01.inp ... conf08.inp</span>
+<span class="kw">!</span> <span class="kw2">r2SCAN-3c Opt CPCM(water)</span>
+<span class="kw">%pal</span> <span class="kw2">nprocs</span> <span class="num">8</span> <span class="kw">end</span>
+<span class="kw">%maxcore</span> <span class="num">1500</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> conf01.xyz</code></pre>
+
+        <p>
+          r2SCAN-3c is a composite method with good geometries and conformer energies for its cost
+          (<a href="../../orca/en/dft-functionals.html">chapter 12 of the ORCA guide</a>). When conformers sit within 1 kcal/mol of
+          each other and the order matters, add a final single point at a higher level.
+        </p>
+
+        <h2 id="result">Result: how much the ranking changes</h2>
+        <p>
+          The top 8 CREST conformers (within 0.49 kcal/mol at the GFN2 level) were reoptimised one by one with ORCA 6.1.0. All
+          8 terminated normally, taking 23–40 optimisation cycles. On 8 cores each conformer took 8–14 minutes, 86 minutes in
+          total run back to back, more than 20 times the whole CREST search (3 min 45 s).
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>CREST rank</th><th>ΔE GFN2 (kcal/mol)</th><th>ΔE r2SCAN-3c (kcal/mol)</th><th>DFT rank</th><th>φ / ψ change</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>0.00</td><td>0.55</td><td>6</td><td>−83/73 → −86/73</td></tr>
+            <tr><td>2</td><td>0.32</td><td>0.55</td><td>7</td><td>−83/72 → −86/73</td></tr>
+            <tr><td>3</td><td>0.41</td><td>0.65</td><td>8</td><td>−144/164 → −156/154</td></tr>
+            <tr><td>4</td><td>0.48</td><td>0.00</td><td>3</td><td>−104/161 → −62/145</td></tr>
+            <tr><td>5</td><td>0.49</td><td>0.00</td><td>1</td><td>−107/160 → −62/145</td></tr>
+            <tr><td>6</td><td>0.49</td><td>0.00</td><td>2</td><td>−107/160 → −62/145</td></tr>
+            <tr><td>7</td><td>0.49</td><td>0.00</td><td>4</td><td>−99/161 → −63/145</td></tr>
+            <tr><td>8</td><td>0.49</td><td>0.01</td><td>5</td><td>−88/163 → −62/145</td></tr>
+          </tbody>
+        </table>
+
+        <figure>
+          <img src="../assets/img/rerank.png" alt="GFN2 versus r2SCAN-3c relative energies" loading="lazy" />
+          <figcaption>Left: GFN2 relative energy (horizontal) against r2SCAN-3c relative energy (vertical) for the same conformers; points above the dashed line lost ground in DFT. Right: how φ/ψ moved from the xTB geometry (grey) to the DFT geometry (orange).</figcaption>
+        </figure>
+
+        <p>
+          C7eq (CREST ranks 1 and 2), the lowest structure at the GFN2 level, rose to 0.55 kcal/mol with r2SCAN-3c, and an
+          extended structure took the lowest place. CREST ranks 4–8, whose GFN2 φ/ψ differed slightly around −88° to −107°/160°,
+          all ended up at a single structure at −62°/145° after DFT optimisation, in the region called polyproline II (PII) or β.
+          Their heavy-atom RMSD is 0.00 Å and their energies agree within 0.01 kcal/mol, so DFT ranks 1–5 in the table are in
+          effect the same structure computed five times. CREST ranks 1 and 2 likewise merged into one C7eq structure (RMSD
+          0.01 Å). C5 (CREST rank 3) moved a little, to −156°/154°, and stayed at 0.65 kcal/mol. The 8 inputs gave only three
+          distinct DFT minima.
+        </p>
+        <p>
+          The order flipped, but all three structures lie within 0.7 kcal/mol. That is about the size of the typical error of a
+          method like r2SCAN-3c, so this calculation alone does not show that PII/β is the most stable structure in water. Also,
+          what was compared here is electronic energies in a continuum solvent only, without zero-point energy, thermal
+          corrections or entropy. Alanine dipeptide prefers different structures in the gas phase and in water, and in water PII/β
+          and αR are known to be well populated. C7eq relies on an intramolecular hydrogen bond and can come out too favourable in
+          a continuum model that has no hydrogen bonds to water. For quantitative populations, free-energy corrections and
+          explicit solvent need to be considered. What this example does show clearly is that the GFN2 ranking cannot be taken at
+          face value, and that several structures in an xTB ensemble can collapse into one on DFT reoptimisation.
+        </p>
+
+        <h2 id="tips">Practical tips</h2>
+        <ul>
+          <li><strong>Conformers that merge during reoptimisation</strong>: in this example 8 became 3. Distinct xTB minima can converge to the same DFT structure, so remove duplicates again among the DFT structures by RMSD (<code>crest --cregen</code>).</li>
+          <li><strong>How many</strong>: select by energy window, not a fixed top N. Conformers within 3–6 kcal/mol at the GFN2 level are usually passed on to DFT. Here the top 8 were packed within 0.49 kcal/mol, so C7ax (1.13 kcal/mol) and the αR-side conformers never reached DFT. Given that relative energies moved by about 0.5 kcal/mol in DFT, they should have been included.</li>
+          <li><strong>Electronic versus free energies</strong>: when the ranking is decided within 1 kcal/mol, run frequencies on the remaining minima and compare free energies. After merging there are only a few minima left, so the cost is modest.</li>
+          <li><strong>Automation</strong>: CENSO automates this in several stages and is worth considering once there are dozens of conformers.</li>
+        </ul>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="crest.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">CREST conformer search</div>
+        </a>
+        <a class="next" href="index.html">
+          <div class="page-nav-label">back to top ↑</div>
+          <div class="page-nav-title">Overview</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

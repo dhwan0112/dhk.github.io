@@ -23,7 +23,7 @@ permalink: /guides/
                         양자화학 계산 프로그램 ORCA의 한국어 사용자 가이드입니다.
                         입력 파일 구조, 단일점 에너지, 구조 최적화, 진동수, 전이 상태,
                         들뜬 상태(TD-DFT), 용매 효과, DLPNO-CCSD(T), 베이시스 세트,
-                        DFT 함수 선택, 운영 팁까지 14개 챕터로 구성되어 있습니다.
+                        DFT 함수 선택, CASSCF, 운영 팁, GFN-xTB와 분자동역학까지 17개 챕터로 구성되어 있습니다.
                     </p>
                     <a href="{{ '/guides/orca/' | relative_url }}" class="read-more">가이드 열기 →</a>
                 </div>
@@ -33,6 +33,33 @@ permalink: /guides/
                     <span class="tag">Coupled Cluster</span>
                     <span class="tag">NEB</span>
                     <span class="tag">TD-DFT</span>
+                </div>
+            </article>
+
+            <article class="post-preview">
+                <div class="post-header">
+                    <h2 class="post-title">
+                        <a href="{{ '/guides/xtb/' | relative_url }}">xtb · CREST 사용자 가이드</a>
+                    </h2>
+                    <div class="post-meta">
+                        <span class="post-category"><i class="fas fa-atom"></i> Semiempirical · Sampling</span>
+                        <span class="post-category"><i class="fas fa-book"></i> xtb 6.7 · CREST 3</span>
+                    </div>
+                </div>
+                <div class="post-excerpt">
+                    <p>
+                        Grimme 그룹의 반경험 프로그램 xtb와 컨포머 탐색 도구 CREST를 알라닌 다이펩타이드 한 분자로
+                        끝까지 따라가는 가이드입니다. 최적화와 진동수, 용매 모델, 분자동역학과 메타다이내믹스,
+                        CREST 컨포머 앙상블, r2SCAN-3c 재순위까지 6개 챕터로, 모든 예제를 NUS HPC에서 실제로 돌려
+                        궤적 애니메이션과 그림을 함께 실었습니다.
+                    </p>
+                    <a href="{{ '/guides/xtb/' | relative_url }}" class="read-more">가이드 열기 →</a>
+                </div>
+                <div class="post-tags">
+                    <span class="tag">xtb</span>
+                    <span class="tag">GFN2-xTB</span>
+                    <span class="tag">CREST</span>
+                    <span class="tag">Metadynamics</span>
                 </div>
             </article>
 

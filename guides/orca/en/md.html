@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Molecular dynamics · ORCA User Guide</title>
+  <meta name="description" content="Atoms move under forces computed by quantum chemistry at every step. Paired with xTB, tens of picoseconds fit in a realistic time." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"light")}catch(e){}</script>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/md.html">KO</a>
+    <a href="md.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">ORCA</div>
+    <div class="brand-subtitle">User Guide · v6.0</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Getting Started</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>Getting started</a></li>
+        <li><a href="input-structure.html"><span class="nav-num">02</span>Input file structure</a></li>
+        <li><a href="keywords.html"><span class="nav-num">03</span>Keywords</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Common Calculations</div>
+      <ul class="nav-list">
+        <li><a href="single-point.html"><span class="nav-num">04</span>Single point energy</a></li>
+        <li><a href="geometry-optimization.html"><span class="nav-num">05</span>Geometry optimisation</a></li>
+        <li><a href="frequencies.html"><span class="nav-num">06</span>Frequencies</a></li>
+        <li><a href="transition-states.html"><span class="nav-num">07</span>Transition states · NEB</a></li>
+        <li><a href="excited-states.html"><span class="nav-num">08</span>Excited states · TD-DFT</a></li>
+        <li><a href="solvation.html"><span class="nav-num">09</span>Solvation</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Methods &amp; Models</div>
+      <ul class="nav-list">
+        <li><a href="coupled-cluster.html"><span class="nav-num">10</span>DLPNO-CCSD(T)</a></li>
+        <li><a href="basis-sets.html"><span class="nav-num">11</span>Basis sets</a></li>
+        <li><a href="dft-functionals.html"><span class="nav-num">12</span>DFT functionals</a></li>
+        <li><a href="casscf.html"><span class="nav-num">13</span>CASSCF · Multireference</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Operations</div>
+      <ul class="nav-list">
+        <li><a href="tips.html"><span class="nav-num">14</span>Tips · Troubleshooting</a></li>
+        <li><a href="examples.html"><span class="nav-num">15</span>Examples</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Fast methods · dynamics</div>
+      <ul class="nav-list">
+        <li><a href="xtb.html"><span class="nav-num">16</span>GFN-xTB</a></li>
+        <li><a href="md.html"><span class="nav-num">17</span>Molecular dynamics</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 17 · Fast methods · dynamics</div>
+        <h1 class="page-title">Molecular dynamics (AIMD)</h1>
+        <p class="page-lede">Atoms move under forces computed by quantum chemistry at every step. Paired with xTB, tens of picoseconds fit in a realistic time.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#what">ORCA's MD module</a></li>
+            <li><a href="#basic">Minimal input</a></li>
+            <li><a href="#commands">The commands</a></li>
+            <li><a href="#timestep">Time step and thermostats</a></li>
+            <li><a href="#example">Example: alanine dipeptide in water</a></li>
+            <li><a href="#cost">Cost by method</a></li>
+            <li><a href="#restart">Splitting long runs</a></li>
+            <li><a href="#metad">Metadynamics</a></li>
+            <li><a href="#which">When to use ORCA MD</a></li>
+          </ul>
+        </div>
+
+        <h2 id="what">ORCA's MD module</h2>
+        <p>
+          ORCA's MD module takes its forces from any method that provides gradients: HF, DFT, MP2, xTB and QM/MM all work.
+          Because the forces come from the electronic structure rather than a force field, bond breaking and formation can be
+          followed. The price is a fresh SCF and gradient at every step, so the cost grows linearly with the number of steps.
+          There are no periodic boundary conditions; the targets are gas-phase molecules, molecules in implicit solvent, and small clusters.
+        </p>
+
+        <h2 id="basic">Minimal input</h2>
+        <p>Put <code>MD</code> on the keyword line and write what should happen, in order, in the <code>%md</code> block.</p>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">XTB2 MD ALPB(water)</span>
+<span class="kw">%md</span>
+   <span class="kw2">Timestep</span>   <span class="num">0.5_fs</span>
+   <span class="kw2">Initvel</span>    <span class="num">300_K</span>
+   <span class="kw2">Thermostat</span> <span class="kw">NHC</span> <span class="num">300_K</span> <span class="kw2">Timecon</span> <span class="num">50.0_fs</span>
+   <span class="kw2">Dump</span> <span class="kw">Position</span> <span class="kw2">Stride</span> <span class="num">20</span> <span class="kw2">Filename</span> <span class="str">"traj.xyz"</span>
+   <span class="kw2">Run</span>        <span class="num">20000</span>
+<span class="kw">end</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <p>
+          Unlike other ORCA blocks, <code>%md</code> is a short script executed top to bottom. Integration starts only at
+          <code>Run</code>; change the temperature after a <code>Run</code> and add another <code>Run</code>, and the simulation
+          continues. Values carry units such as <code>_fs</code> and <code>_K</code>.
+        </p>
+
+        <h2 id="commands">The commands</h2>
+        <table>
+          <thead>
+            <tr><th>Command</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Timestep 0.5_fs</code></td><td>Integration time step</td></tr>
+            <tr><td><code>Initvel 300_K</code></td><td>Random initial velocities from a Maxwell–Boltzmann distribution. Calling it on an equilibrated system overwrites all velocities.</td></tr>
+            <tr><td><code>Thermostat NHC 300_K Timecon 50.0_fs</code></td><td>Thermostat: type, target temperature, coupling time constant</td></tr>
+            <tr><td><code>Dump Position Stride 20 Filename "traj.xyz"</code></td><td>Write coordinates every 20 steps as xyz. <code>Velocity</code> and <code>Force</code> work the same way.</td></tr>
+            <tr><td><code>Run 20000</code></td><td>Advance 20000 steps (here 0.5 fs × 20000 = 10 ps)</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          Further commands cover constraints (<code>Constraint</code>), collective variables (<code>Manage_Colvar</code>),
+          restraints (<code>Restraint</code>), metadynamics (<code>Metadynamics</code>) and atom subsets (<code>Manage_Region</code>).
+        </p>
+
+        <h2 id="timestep">Time step and thermostats</h2>
+        <p>
+          The fastest vibration sets the time step. In organic molecules that is X–H stretching (about 3000 cm⁻¹, a period of
+          about 11 fs), so 0.5 fs is safe whenever hydrogens are present. 1 fs is twice as fast, but check that the energy does
+          not slowly leak. The standalone xtb program constrains X–H bonds and increases the hydrogen mass to use 2–4 fs; that is
+          covered in the <a href="../../xtb/">xtb guide</a>.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Thermostat</th><th>When</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Berendsen</code></td><td>Initial heating and pre-equilibration only. It does not reproduce the canonical ensemble.</td></tr>
+            <tr><td><code>NHC</code></td><td>Nosé–Hoover chains. Canonical ensemble. For ordinary NVT production runs.</td></tr>
+            <tr><td><code>CSVR</code></td><td>Stochastic velocity rescaling. Canonical ensemble. The other standard choice alongside NHC.</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          A smaller <code>Timecon</code> holds the temperature more tightly. Too small distorts the dynamics; too large lets the
+          temperature drift. The example here uses 50 fs.
+        </p>
+
+        <h2 id="example">Example: alanine dipeptide in water</h2>
+        <p>
+          Using the minimal input above, the alanine dipeptide optimised in <a href="xtb.html">chapter 16</a> was run for 10 ps at
+          300 K with GFN2-xTB/ALPB(water). The molecule is on the left and the path of the backbone dihedrals φ and ψ on the right.
+          Alanine dipeptide's φ/ψ map has named stable regions such as C7eq, C5 and αR, so it is easy to see which conformer the
+          molecule is wandering around. The run used ORCA 6.1.0 on 8 cores on NUS HPC, with coordinates saved every 20 steps
+          (10 fs) for 1001 frames.
+        </p>
+
+        <img src="../assets/img/orca-xtb-md.gif" alt="Alanine dipeptide over 10 ps of GFN2-xTB MD: molecular motion and φ/ψ path" style="max-width:100%;height:auto;margin:1rem 0;" />
+        <img src="../assets/img/orca-xtb-md-dihedrals.png" alt="φ and ψ dihedrals over time" style="max-width:100%;height:auto;margin:1rem 0;" />
+
+        <p>
+          The molecule starts in C7eq (ψ ≈ 50–100°) and makes five round trips between C7eq and the C5/β region over the 10 ps.
+          In the C5/β region ψ sits near ±180°, which is where the ψ line in the plot above jumps between the top and bottom
+          edges. Between 1.6 and 2.3 ps ψ drops to −69° and briefly visits the αR side. Binned by ψ alone, 52% of the frames are
+          C5/β, 42% C7eq and 7% αR. φ, on the other hand, stays between −50° and −180° throughout and never crosses to the
+          positive-φ αL and C7ax regions. The 28 frames where φ reads +164° to +180° are just values wrapped across the −180°
+          boundary. That barrier is hard to cross in 10 ps at 300 K; <a href="#metad">metadynamics</a> is the tool for it.
+        </p>
+        <p>
+          The initial velocities were drawn at 300 K, but because the structure started at a minimum, part of the kinetic energy
+          went straight into potential energy and the temperature fell to 112 K within 8 fs. The NHC thermostat then fed energy
+          back in: after discarding the first 1 ps, the mean was 301.6 ± 63.7 K (standard deviation), and 1 ps block averages
+          ranged from 275 to 322 K. For a 22-atom molecule the instantaneous temperature fluctuates this much even in a canonical
+          ensemble; the expected value for 60 degrees of freedom is 300 K × √(2/60) ≈ 55 K. The conserved quantity, which
+          includes the thermostat, drifted by only 2 × 10⁻⁵ Eh (0.01 kcal/mol) over 10 ps, so the 0.5 fs step was small enough.
+          See the <a href="../examples/07-xtb-md/o03-xtb-md.inp">o03 input</a>,
+          <a href="../examples/07-xtb-md/o03-xtb-md.out">o03 output</a>, and
+          <a href="../examples/07-xtb-md/o03-xtb-md.md.log">o03-xtb-md.md.log</a> with the temperature and energies at every step.
+        </p>
+
+        <p>The trajectory is plain xyz, so a few lines of Python extract the dihedrals.</p>
+
+        <pre data-lang="python"><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> dihedral(x, i, j, k, l):
+    b0, b1, b2 = x[i] - x[j], x[k] - x[j], x[l] - x[k]
+    b1 /= np.linalg.norm(b1)
+    v = b0 - b0 @ b1 * b1
+    w = b2 - b2 @ b1 * b1
+    <span class="kw">return</span> np.degrees(np.arctan2(np.cross(b1, v) @ w, v @ w))
+
+<span class="cmt"># atoms count from 0; for this molecule φ = (1, 3, 4, 6), ψ = (3, 4, 6, 8)</span></code></pre>
+
+        <h2 id="cost">Cost by method</h2>
+        <p>
+          The same molecule and input were run for 200 steps (100 fs) with the forces switched to r2SCAN-3c, and the time per step compared.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Time per step (8 cores)</th><th>Time for 10 ps</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>GFN2-xTB / ALPB</td><td>0.173 s</td><td>57 min 48 s (measured)</td></tr>
+            <tr><td>r2SCAN-3c / CPCM</td><td>18.6 s (200 steps in 3711 s)</td><td>about 103 h (estimated)</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          That is roughly a factor of 107 per step. In 1 h 2 min, about the time xTB needed for 10 ps, r2SCAN-3c covered only
+          100 fs. Over those 100 fs the temperature, again starting from a minimum, fell to 115 K within 7.5 fs and averaged only
+          174 K over the last 50 fs. The trajectory is far from equilibrium, so it says nothing about structure; it was used only
+          to measure the cost per step (<a href="../examples/07-xtb-md/o04-r2scan-md.inp">o04 input</a> ·
+          <a href="../examples/07-xtb-md/o04-r2scan-md.out">o04 output</a> ·
+          <a href="../examples/07-xtb-md/o04-r2scan-md.md.log">o04-r2scan-md.md.log</a>). Of the 57 min 48 s for xTB, 51 min 17 s (89%) was spent inside xtb and about
+          5 minutes (9%) in what the MD module reports separately as "dark time": ORCA starting <code>otool_xtb</code> as a new
+          process at every step and exchanging files with it. For a molecule this small, that overhead is a noticeable share.
+        </p>
+
+        <p>
+          DFT MD is for short reactive events or for checking xTB results; long runs that sweep conformational space are done with xTB.
+        </p>
+
+        <h2 id="restart">Splitting long runs</h2>
+        <p>
+          The MD module rewrites <code>basename.mdrestart</code> at every step. If a job is cut off by the cluster's time limit,
+          resubmitting the same input continues the run. With the two lines below placed just before <code>Run</code>, the first
+          run and every continuation use the same input.
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%md</span>
+   <span class="kw2">Timestep</span>   <span class="num">0.5_fs</span>
+   <span class="kw2">Thermostat</span> <span class="kw">NHC</span> <span class="num">300_K</span> <span class="kw2">Timecon</span> <span class="num">50.0_fs</span>
+   <span class="kw2">Dump</span> <span class="kw">Position</span> <span class="kw2">Stride</span> <span class="num">20</span> <span class="kw2">Filename</span> <span class="str">"traj.xyz"</span>
+   <span class="kw2">Restart</span>    <span class="kw">IfExists</span>             <span class="cmt"># read the restart file only if it exists</span>
+   <span class="kw2">Initvel</span>    <span class="num">300_K</span> <span class="kw">No_Overwrite</span>    <span class="cmt"># skip if velocities are already known</span>
+   <span class="kw2">Run</span>        <span class="num">20000</span>
+<span class="kw">end</span></code></pre>
+
+        <div class="warning">
+          <div class="note-title">What the restart file holds</div>
+          <p>
+            Only positions, velocities, the NHC internal state, metadynamics hills and the step counters. Thermostat, dump and
+            constraint settings are not stored, so keep them in the input.
+          </p>
+        </div>
+
+        <h2 id="metad">Metadynamics</h2>
+        <p>
+          Plain MD often fails to cross barriers of only a few kcal/mol within tens of picoseconds. Metadynamics piles Gaussian
+          hills where the system has already been, pushing it elsewhere, and reconstructs the free-energy surface from the
+          accumulated hills. With φ and ψ as collective variables:
+        </p>
+
+        <pre data-lang="orca"><code><span class="kw">%md</span>
+   ...
+   <span class="kw2">Manage_Colvar Define</span> <span class="num">1</span> <span class="kw">Dihedral</span> Atom <span class="num">1</span> Atom <span class="num">3</span> Atom <span class="num">4</span> Atom <span class="num">6</span>   <span class="cmt"># φ</span>
+   <span class="kw2">Manage_Colvar Define</span> <span class="num">2</span> <span class="kw">Dihedral</span> Atom <span class="num">3</span> Atom <span class="num">4</span> Atom <span class="num">6</span> Atom <span class="num">8</span>   <span class="cmt"># ψ</span>
+   <span class="kw2">Metadynamics</span> Colvar <span class="num">1</span> Scale <span class="num">10.0_Deg</span> Colvar <span class="num">2</span> Scale <span class="num">10.0_Deg</span>
+   <span class="kw2">Metadynamics</span> HillSpawn <span class="num">40</span> <span class="num">0.5</span> <span class="num">1.0</span> Store <span class="num">2000</span>
+   <span class="kw2">Run</span>        <span class="num">100000</span>
+<span class="kw">end</span></code></pre>
+
+        <p>
+          The three <code>HillSpawn</code> values are how many steps between hills, the hill height (kJ/mol) and the width (in
+          <code>Scale</code> units). A roughly converged free-energy surface usually takes several tens of thousands of steps.
+          For this guide the metadynamics of the same molecule was run with the standalone xtb program; the results are in the
+          <a href="../../xtb/">xtb guide</a>.
+        </p>
+
+        <h2 id="which">When to use ORCA MD</h2>
+        <ul>
+          <li><strong>ORCA MD fits</strong>: short dynamics that need DFT-level or better forces, QM/MM dynamics, or runs chained with other ORCA features in one input.</li>
+          <li><strong>Standalone xtb is easier</strong>: long conformational sampling where xTB is enough. SHAKE allows larger time steps, and it feeds straight into CREST.</li>
+          <li><strong>Periodic systems</strong>: solids, surfaces and explicit solvent boxes belong in <a href="../../qe/16-molecular-dynamics.html">Quantum ESPRESSO</a> or force-field <a href="../../lammps/">LAMMPS</a>.</li>
+        </ul>
+
+        <div class="tip">
+          <div class="note-title">Citations</div>
+          <p>
+            The MD module was developed by Martin Brehm. The MD section of the ORCA manual lists the references to cite.
+          </p>
+        </div>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="xtb.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">GFN-xTB</div>
+        </a>
+        <a class="next" href="../../xtb/">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">xtb guide</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

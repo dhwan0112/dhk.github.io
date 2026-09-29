@@ -1,0 +1,11 @@
+# 10 ps NVT molecular dynamics on the GFN2-xTB surface, implicit water
+! XTB2 MD ALPB(water)
+%pal nprocs 8 end
+%md
+  Timestep 0.5_fs
+  Initvel 300_K
+  Thermostat NHC 300_K Timecon 50.0_fs
+  Dump Position Stride 20 Filename "o03-xtb-md.traj.xyz"
+  Run 20000
+end
+* xyzfile 0 1 ../o01-xtb-opt-freq/o01-xtb-opt-freq.xyz

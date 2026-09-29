@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MD · metadynamics · xtb User Guide</title>
+  <meta name="description" content="Run xTB dynamics from a single $md block, then sweep conformational space more widely with an RMSD bias." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"light")}catch(e){}</script>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/md.html">KO</a>
+    <a href="md.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">xtb</div>
+    <div class="brand-subtitle">User Guide · xtb 6.7 · CREST 3</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>Installing and running</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Calculations</div>
+      <ul class="nav-list">
+        <li><a href="calculations.html"><span class="nav-num">02</span>Single point · opt · freq</a></li>
+        <li><a href="solvation.html"><span class="nav-num">03</span>Solvation</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Sampling</div>
+      <ul class="nav-list">
+        <li><a href="md.html"><span class="nav-num">04</span>MD · metadynamics</a></li>
+        <li><a href="crest.html"><span class="nav-num">05</span>CREST conformer search</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">In practice</div>
+      <ul class="nav-list">
+        <li><a href="workflow.html"><span class="nav-num">06</span>Example: CREST to DFT</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 04 · Sampling</div>
+        <h1 class="page-title">Molecular dynamics · metadynamics</h1>
+        <p class="page-lede">Run xTB dynamics from a single $md block, then sweep conformational space more widely with an RMSD bias.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#input">The $md block</a></li>
+            <li><a href="#step">SHAKE and hydrogen mass</a></li>
+            <li><a href="#run">Running and output</a></li>
+            <li><a href="#vib">Example 1: the first 2 ps</a></li>
+            <li><a href="#long">Example 2: 100 ps</a></li>
+            <li><a href="#metad">Metadynamics</a></li>
+            <li><a href="#compare">MD versus metadynamics</a></li>
+          </ul>
+        </div>
+
+        <h2 id="input">The $md block</h2>
+        <p>MD settings go into a detailed input file passed with <code>--input</code>. This is the file used for the examples in this chapter.</p>
+
+        <pre data-lang="text"><code>$md
+   temp=300.0      <span class="cmt"># target temperature (K)</span>
+   time=100.0      <span class="cmt"># total length (ps)</span>
+   dump=20.0       <span class="cmt"># coordinate output interval (fs)</span>
+   step=2.0        <span class="cmt"># time step (fs)</span>
+   hmass=4         <span class="cmt"># hydrogen mass (amu)</span>
+   shake=1         <span class="cmt"># constrain X–H bonds only</span>
+   nvt=true        <span class="cmt"># thermostat on</span>
+$end</code></pre>
+
+        <p>
+          Note that the units differ between entries: <code>time</code> is in ps, while <code>dump</code> and <code>step</code> are in fs.
+        </p>
+
+        <h2 id="step">SHAKE and hydrogen mass</h2>
+        <p>
+          <a href="../../orca/en/md.html#timestep">ORCA MD</a> used 0.5 fs because of X–H stretching. xtb gets around this in two
+          ways: SHAKE fixes X–H bond lengths and removes the fastest vibration, and raising the hydrogen mass from 1 to 4 amu slows
+          the remaining hydrogen motion. Equilibrium properties (which conformers are visited and for how long) do not depend on
+          the masses, so this is fine for conformer sampling.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th><code>shake</code></th><th>Constrained bonds</th><th>Usable <code>step</code></th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>0</code></td><td>None</td><td>around 0.5 fs</td></tr>
+            <tr><td><code>1</code></td><td>X–H bonds</td><td>2 fs (with <code>hmass=4</code>)</td></tr>
+            <tr><td><code>2</code></td><td>All bonds (default)</td><td>4 fs (with <code>hmass=4</code>)</td></tr>
+          </tbody>
+        </table>
+
+        <div class="warning">
+          <div class="note-title">When the dynamics themselves matter</div>
+          <p>
+            For time-dependent properties such as diffusion coefficients or vibrational spectra, do not change the masses. Use <code>hmass=1</code>, <code>shake=0</code> and a shorter time step.
+          </p>
+        </div>
+
+        <h2 id="run">Running and output</h2>
+        <pre data-lang="bash"><code><span class="cmt"># start from an optimised geometry</span>
+xtb xtbopt.xyz --alpb water --md --input md.inp &gt; md.out
+
+<span class="cmt"># optimise first, then MD, in one call</span>
+xtb ala.xyz --alpb water --omd --input md.inp &gt; md.out</code></pre>
+
+        <p>
+          The trajectory accumulates in <code>xtb.trj</code> as multi-frame xyz, with each frame's energy on its comment line.
+          The output prints a table of time, potential energy, kinetic energy, temperature and total energy at regular intervals.
+          The last coordinates and velocities are saved in <code>mdrestart</code>; add <code>restart=true</code> to the
+          <code>$md</code> block and run again in the same directory to continue from there.
+        </p>
+
+        <figure>
+          <img src="../assets/img/xtb-md-thermo.png" alt="Temperature and total energy over 100 ps" loading="lazy" />
+          <figcaption>Alanine dipeptide in water (ALPB), 300 K, 100 ps. Top: instantaneous temperature. Bottom: total energy relative to the first row. The 250 rows that md.out prints every 400 fs are plotted.</figcaption>
+        </figure>
+
+        <p>
+          After 20 ps the instantaneous temperature is 293.8 ± 41.6 K, and the overall average xtb prints at the end is 299.6 K.
+          With only 22 atoms, swings of ±40 K are normal. The 0 K at 0 ps in the plot is there because the first row prints the
+          temperature as 0 before it has been computed.
+        </p>
+        <p>
+          The total energy falls by about 10 kcal/mol within the first picosecond and then fluctuates within a steady band. This
+          is an NVT run with a (Berendsen) thermostat, so the total energy is not expected to be conserved; the energy that
+          disappears was removed by the thermostat, not lost to numerical drift. With no <code>mdrestart</code>, xtb generated
+          the initial velocities itself and started from the optimised geometry (a potential-energy minimum) with 0.0676 Eh of
+          kinetic energy, well above the 300 K average of 0.0256 Eh. As that excess flows into the potential energy and the
+          thermostat takes out the surplus, the total energy settles from −32.9237 Eh to an average of −32.9390 Eh. From then on
+          the thermostat adds and removes energy to keep the system near 300 K. Treat the first few picoseconds as equilibration
+          and leave them out of any analysis.
+        </p>
+
+        <h2 id="vib">Example 1: the first 2 ps</h2>
+        <p>
+          The first 2 ps of alanine dipeptide at 300 K in water (ALPB), drawn every 20 fs. On the φ/ψ map on the right, the orange
+          dot is the current position and the blue dots the recent path. On this time scale the molecule only jiggles inside one
+          region and does not cross into another.
+        </p>
+
+        <figure>
+          <img src="../assets/img/xtb-md-vibration.gif" alt="First 2 ps: alanine dipeptide vibrating within one conformer region" loading="lazy" />
+          <figcaption>The first 2 ps. The molecule stays inside the C7eq region it started in (φ/ψ ≈ −83°/73°).</figcaption>
+        </figure>
+
+        <h2 id="long">Example 2: 100 ps</h2>
+        <p>
+          The whole trajectory, thinned to one frame every 0.5 ps. The motion looks jumpy because the frames are far apart, but it
+          shows much better which regions the molecule visits and for how long.
+        </p>
+
+        <figure>
+          <img src="../assets/img/xtb-md-100ps.gif" alt="All 100 ps: the trajectory moving between conformer regions on the φ/ψ map" loading="lazy" />
+          <figcaption>All 100 ps. Grey dots are everywhere the trajectory has been, blue dots the recent path, and the orange dot the current position.</figcaption>
+        </figure>
+
+        <p>
+          The molecule first left C7eq at about 4 ps and from then on moved between three regions in the left half of the map
+          (φ &lt; 0). Splitting the 5000 frames by ψ, it spent 61% in the extended C5/β region (ψ above 120° or below −150°),
+          27% in C7eq (30° ≤ ψ ≤ 120°) and 12% in αR (−120° &lt; ψ &lt; 30°). Counting only stays longer than 200 fs as a visit,
+          the region changed 43 times, mostly (31 times) back and forth between the adjacent C7eq and extended regions; there
+          were 10 changes between C7eq and αR and 2 between αR and the extended region. In 100 ps φ never went between 0° and
+          150°, so αL and C7ax were never visited. A few frames have φ above +150°, but those are the edge of the extended
+          region, which wraps around from −180°.
+        </p>
+
+        <h2 id="metad">Metadynamics</h2>
+        <p>
+          Unlike ORCA, xtb's metadynamics does not ask for a collective variable such as a dihedral. It uses the RMSD between the
+          current structure and previously stored structures as the bias variable, raising the energy the more the molecule
+          resembles where it has already been and pushing it towards new shapes. The advantage is that you do not need to know
+          which collective variable matters; the drawback is that the free-energy surface is hard to reconstruct quantitatively.
+          This is also how CREST finds conformers.
+        </p>
+
+        <pre data-lang="text"><code>$md
+   temp=300.0
+   time=100.0
+   dump=20.0
+   step=2.0
+   hmass=4
+   shake=1
+   nvt=true
+$end
+$metadyn
+   save=100        <span class="cmt"># how many reference structures to keep</span>
+   kpush=0.05      <span class="cmt"># bias strength (Eh)</span>
+   alp=1.0         <span class="cmt"># width parameter of the Gaussian bias</span>
+$end</code></pre>
+
+        <pre data-lang="bash"><code>xtb xtbopt.xyz --alpb water --metadyn --input metad.inp &gt; metad.out</code></pre>
+
+        <p>
+          The input above ran unchanged. 100 ps took 302 s, practically the same as plain MD (303 s), so the bias costs next to
+          nothing. The end of the output, however, reports an average temperature of 411.8 K rather than the 300 K target,
+          followed by the line <code>thermostating problem</code>. The run does not stop, but it means the Berendsen thermostat
+          could not hold 300 K while the bias was pushing the molecule. For collecting conformer candidates the higher
+          temperature actually helps the sweep, but the trajectory must not be read as 300 K behaviour. To keep the temperature
+          closer to the target, reduce <code>kpush</code>.
+        </p>
+
+        <h2 id="compare">MD versus metadynamics</h2>
+        <p>
+          How much of the φ/ψ map plain MD and metadynamics cover in the same 100 ps. Point colour is time (purple → yellow).
+        </p>
+
+        <figure>
+          <img src="../assets/img/xtb-md-vs-metad-rama.png" alt="φ/ψ distributions from 100 ps of plain MD and metadynamics" loading="lazy" />
+          <figcaption>Left: plain MD. Right: metadynamics. Both 100 ps (5000 frames) from the same starting structure.</figcaption>
+        </figure>
+
+        <table>
+          <thead>
+            <tr><th></th><th>Plain MD</th><th>Metadynamics</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Cells visited with the map split into 30° × 30° cells (of 144)</td><td>60</td><td>142</td></tr>
+            <tr><td>Frames with φ between 0° and 150° (αL, C7ax side)</td><td>0%</td><td>38%</td></tr>
+            <tr><td>Wall time (8 cores)</td><td>303 s</td><td>302 s</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          Plain MD only moved between C7eq, the extended region and αR in the left half of the map. Flipping φ to positive
+          values means crossing a high barrier, and 100 ps at 300 K was not enough. In the same time metadynamics touched 142 of
+          the 144 cells and went in and out of αL and C7ax many times. The C7ax conformer that CREST finds 1.13 kcal/mol up in the
+          next chapter would not have turned up in plain MD of this length.
+        </p>
+
+        <p>
+          A metadynamics trajectory is biased, so the time spent in each region cannot be read directly as a Boltzmann
+          distribution. Use it to sweep widely and collect candidate structures, then set the energy order by optimising them
+          separately. CREST, in the next chapter, automates exactly that.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="solvation.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Solvation</div>
+        </a>
+        <a class="next" href="crest.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">CREST conformer search</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

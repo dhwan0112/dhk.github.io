@@ -1,0 +1,4 @@
+# GFN2-xTB optimisation + frequencies inside ORCA, implicit water
+! XTB2 Opt Freq ALPB(water)
+%pal nprocs 8 end
+* xyzfile 0 1 ../ala.xyz

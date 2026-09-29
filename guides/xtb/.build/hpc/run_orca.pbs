@@ -1,0 +1,26 @@
+#!/bin/bash
+#PBS -N guide-orca
+#PBS -l select=1:ncpus=8:mpiprocs=8:mem=16gb
+#PBS -l walltime=08:00:00
+#PBS -j oe
+# Add "#PBS -q <queue>" if the cluster has no default queue (check: qstat -Q).
+# ORCA must be reachable: either `module load orca/6...` below, or export ORCA_BIN.
+set -uo pipefail
+cd "${PBS_O_WORKDIR:-$(dirname "$0")}"
+# module load orca   # <- adjust to the cluster (module avail 2>&1 | grep -i orca)
+source "$(conda info --base 2>/dev/null || echo "$HOME/miniforge3")/etc/profile.d/conda.sh"
+conda activate guide-xtb   # puts xtb on PATH, in case this ORCA build calls an external xtb
+
+ORCA_BIN=${ORCA_BIN:-$(command -v orca)}
+[ -x "$ORCA_BIN" ] || { echo "ORCA not found; set ORCA_BIN or load the module"; exit 1; }
+ROOT=$PWD
+"$ORCA_BIN" --version > orca_version.txt 2>&1 || head -c 0 /dev/null
+
+for name in o01-xtb-opt-freq o02-r2scan-opt-freq o03-xtb-md o04-r2scan-md; do
+    rm -rf "$name" && mkdir -p "$name" && cp "orca/$name.inp" "$name/" && cd "$name"
+    t0=$(date +%s.%N)
+    "$ORCA_BIN" "$name.inp" > "$name.out" 2>&1; rc=$?
+    echo "$name exit=$rc wall_s=$(awk "BEGIN{print $(date +%s.%N) - $t0}")" | tee -a "$ROOT/timings.txt"
+    rm -f ./*.tmp* ./*.gbw.tmp
+    cd "$ROOT"
+done

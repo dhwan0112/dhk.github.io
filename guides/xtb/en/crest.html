@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CREST conformer search · xtb User Guide</title>
+  <meta name="description" content="Automatically repeats metadynamics and optimisation to collect every conformer within an energy window." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"light")}catch(e){}</script>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/crest.html">KO</a>
+    <a href="crest.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">xtb</div>
+    <div class="brand-subtitle">User Guide · xtb 6.7 · CREST 3</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>Installing and running</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Calculations</div>
+      <ul class="nav-list">
+        <li><a href="calculations.html"><span class="nav-num">02</span>Single point · opt · freq</a></li>
+        <li><a href="solvation.html"><span class="nav-num">03</span>Solvation</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Sampling</div>
+      <ul class="nav-list">
+        <li><a href="md.html"><span class="nav-num">04</span>MD · metadynamics</a></li>
+        <li><a href="crest.html"><span class="nav-num">05</span>CREST conformer search</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">In practice</div>
+      <ul class="nav-list">
+        <li><a href="workflow.html"><span class="nav-num">06</span>Example: CREST to DFT</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 05 · Sampling</div>
+        <h1 class="page-title">CREST conformer search</h1>
+        <p class="page-lede">Automatically repeats metadynamics and optimisation to collect every conformer within an energy window.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#how">What CREST does</a></li>
+            <li><a href="#run">Running it</a></li>
+            <li><a href="#files">Output files</a></li>
+            <li><a href="#example">Example: alanine dipeptide in water</a></li>
+            <li><a href="#options">Common options</a></li>
+            <li><a href="#trust">Reading the results</a></li>
+          </ul>
+        </div>
+
+        <h2 id="how">What CREST does</h2>
+        <p>
+          The default workflow, iMTD-GC, runs the RMSD metadynamics from the <a href="md.html#metad">previous chapter</a> several
+          times with different bias strengths and widths, then optimises every structure taken from the trajectories. It removes
+          duplicates by energy and geometry, and if a new lower-energy structure turns up, it searches again from there. It covers
+          far more ground than rotating dihedrals by hand, and it also works for rings and hydrogen-bond networks that are awkward to handle manually.
+        </p>
+
+        <h2 id="run">Running it</h2>
+        <pre data-lang="bash"><code>crest xtbopt.xyz --gfn2 --alpb water -T 8 &gt; crest.out</code></pre>
+
+        <p>
+          Start from a structure already optimised with xtb. <code>-T</code> is the thread count; CREST runs many xtb
+          calculations in parallel, so more cores make it faster. For ions and radicals, give <code>--chrg</code> and
+          <code>--uhf</code> exactly as for xtb.
+        </p>
+
+        <h2 id="files">Output files</h2>
+        <table>
+          <thead>
+            <tr><th>File</th><th>Contents</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>crest_conformers.xyz</code></td><td>Distinct conformers, sorted by energy; the comment line is the energy (Eh).</td></tr>
+            <tr><td><code>crest_best.xyz</code></td><td>The lowest conformer</td></tr>
+            <tr><td><code>crest_rotamers.xyz</code></td><td>The full list, including structures that differ only by atom numbering, such as methyl rotations</td></tr>
+            <tr><td><code>crest.energies</code></td><td>Relative energy of each conformer</td></tr>
+          </tbody>
+        </table>
+
+        <p>The end of the output tabulates relative energies and Boltzmann populations per conformer.</p>
+
+        <h2 id="example">Example: alanine dipeptide in water</h2>
+        <p>
+          CREST on 8 cores, starting from the ALPB(water)-optimised structure. It took 3 min 45 s of wall time and 27 min 20 s
+          of CPU time, with 127,609 energy and gradient calls. Sixteen distinct conformers remained within the default 6 kcal/mol
+          window; the highest is at 3.09 kcal/mol, so the window was not filled. The lowest conformer's energy (−32.99136 Eh)
+          equals that of the starting structure: the C7eq geometry it started from was already the lowest structure at this level.
+        </p>
+
+        <figure>
+          <img src="../assets/img/crest-conformers.png" alt="Relative energies of the CREST conformers and their positions on the φ/ψ map" loading="lazy" />
+          <figcaption>The 16 conformers found by CREST, ranked by GFN2-xTB/ALPB(water) electronic energy.</figcaption>
+        </figure>
+
+        <p>
+          Left: relative energy per conformer, with the common 3 kcal/mol cut-off dashed. Right: the same conformers on the φ/ψ map, coloured by energy.
+        </p>
+
+        <figure>
+          <img src="../assets/img/crest-conformers.gif" alt="Animation stepping through the CREST conformers from lowest energy upwards" loading="lazy" />
+          <figcaption>The eight lowest conformers, one after another.</figcaption>
+        </figure>
+
+        <p>The populations in the table are the Boltzmann populations CREST computes from electronic energies at 298.15 K.</p>
+
+        <table>
+          <thead>
+            <tr><th>Rank</th><th>ΔE (kcal/mol)</th><th>φ / ψ (°)</th><th>Region</th><th>Population (%)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>0.00</td><td>−83 / 73</td><td>C7eq</td><td>40.1</td></tr>
+            <tr><td>2</td><td>0.32</td><td>−83 / 72</td><td>C7eq</td><td>2.6</td></tr>
+            <tr><td>3</td><td>0.41</td><td>−144 / 164</td><td>C5</td><td>20.1</td></tr>
+            <tr><td>4</td><td>0.49</td><td>−104 / 161</td><td>β</td><td>7.2</td></tr>
+            <tr><td>5</td><td>0.49</td><td>−107 / 160</td><td>β</td><td>3.9</td></tr>
+            <tr><td>6</td><td>0.49</td><td>−107 / 160</td><td>β</td><td>2.0</td></tr>
+            <tr><td>7</td><td>0.49</td><td>−99 / 161</td><td>β</td><td>0.7</td></tr>
+            <tr><td>8</td><td>0.49</td><td>−88 / 163</td><td>β</td><td>12.4</td></tr>
+            <tr><td>9</td><td>0.49</td><td>−92 / 163</td><td>β</td><td>2.6</td></tr>
+            <tr><td>10</td><td>0.70</td><td>−148 / 164</td><td>C5</td><td>0.5</td></tr>
+            <tr><td>11</td><td>1.13</td><td>72 / −59</td><td>C7ax</td><td>4.8</td></tr>
+            <tr><td>12</td><td>1.86</td><td>−110 / 11</td><td>Between αR and C7eq</td><td>1.2</td></tr>
+            <tr><td>13</td><td>2.04</td><td>−55 / −42</td><td>αR</td><td>0.9</td></tr>
+            <tr><td>14</td><td>2.08</td><td>−77 / −28</td><td>αR</td><td>0.05</td></tr>
+            <tr><td>15</td><td>2.21</td><td>46 / −129</td><td>φ &gt; 0, below C7ax</td><td>0.9</td></tr>
+            <tr><td>16</td><td>3.09</td><td>44 / 53</td><td>αL</td><td>0.1</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          Ranks 4–9 lie within 0.004 kcal/mol of each other with nearly identical φ/ψ. Aligned on heavy atoms only, their mutual
+          RMSD is 0.17 Å or less; the differences are mainly in hydrogen positions (methyl orientation). Ranks 3 and 10 are the
+          same case (0.03 Å). In terms of the backbone, there are really three structures within 0.5 kcal/mol: C7eq, C5 and β.
+          The populations include the number of rotamers of each structure, which is why ranks 1 and 2 differ by only
+          0.32 kcal/mol but have populations of 40% and 3%.
+        </p>
+
+        <p>
+          Compared with the previous chapter, the regions where 100 ps of plain MD spent its time (C7eq, the extended C5/β region
+          and αR) all appear in this list, and in both cases the extended region and C7eq account for most of the weight (CREST
+          populations: extended 49%, C7eq 43%, αR side 2%; MD: 61%, 27%, 12%). αR carries more weight in MD, which could be
+          because the CREST populations use electronic energies without entropy, or simply because 100 ps is short. The φ &gt; 0
+          structures, C7ax (rank 11), rank 15 and αL (rank 16), lie where plain MD never went. Metadynamics swept those regions,
+          and CREST optimised structures taken from such trajectories into confirmed minima.
+        </p>
+
+        <h2 id="options">Common options</h2>
+        <table>
+          <thead>
+            <tr><th>Option</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>--ewin 6.0</code></td><td>Energy window to keep (kcal/mol), default 6</td></tr>
+            <tr><td><code>--quick</code>, <code>--squick</code>, <code>--mquick</code></td><td>Reduced searches for speed; for a first pass on large molecules</td></tr>
+            <tr><td><code>--gfnff</code></td><td>Search with GFN-FF; for systems of hundreds of atoms</td></tr>
+            <tr><td><code>--gfn2//gfnff</code></td><td>Search with GFN-FF, then reoptimise with GFN2</td></tr>
+            <tr><td><code>--nci</code></td><td>For molecular complexes; a wall potential keeps the fragments together</td></tr>
+            <tr><td><code>--cregen file.xyz</code></td><td>No search; just remove duplicates from and sort a given ensemble</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="trust">Reading the results</h2>
+        <ul>
+          <li><strong>Missing conformers</strong>: CREST is a stochastic search and results vary slightly between runs. For important systems, run it twice and merge.</li>
+          <li><strong>Energy ordering</strong>: GFN2 relative energies can be off by a few kcal/mol. Collect candidates with a generous window and set the ranking with DFT. In the <a href="workflow.html">next chapter</a>, reoptimising the top 8 of this ensemble with r2SCAN-3c moves first place from C7eq to an extended (PII/β) structure, and ranks 4–8 merge into one structure.</li>
+          <li><strong>Free energies</strong>: the energies in <code>crest_conformers.xyz</code> are electronic energies. Conformers with different vibrational entropy can swap order in free energy.</li>
+        </ul>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="md.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">MD · metadynamics</div>
+        </a>
+        <a class="next" href="workflow.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Example: CREST to DFT</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

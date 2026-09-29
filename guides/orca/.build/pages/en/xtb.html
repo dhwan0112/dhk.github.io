@@ -1,0 +1,237 @@
+<!--
+title: GFN-xTB
+eyebrow: CHAPTER 16 · Fast methods · dynamics
+h1: GFN-xTB semiempirical calculations
+lede: A tight-binding method a few hundred times faster than DFT, used for pre-optimisation, path and conformer searches, and the forces in long MD runs.
+prev: examples.html | Examples
+next: md.html | Molecular dynamics
+-->
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#what">What xTB is</a></li>
+            <li><a href="#setup">Setting ORCA up for xTB</a></li>
+            <li><a href="#basic">Basic input</a></li>
+            <li><a href="#solvation">Solvation models</a></li>
+            <li><a href="#preopt">Pre-optimising before DFT</a></li>
+            <li><a href="#example">Example: alanine dipeptide</a></li>
+            <li><a href="#other">Reaction paths and conformer searches</a></li>
+            <li><a href="#limits">How far to trust it</a></li>
+            <li><a href="#options">The %xtb block</a></li>
+          </ul>
+        </div>
+
+        <h2 id="what">What xTB is</h2>
+        <p>
+          xTB (extended tight-binding) is a family of semiempirical methods from the Grimme group. It approximates the
+          Hamiltonian with a minimal valence basis and element-specific parameters, so the same molecule usually runs two to
+          three orders of magnitude faster than with DFT. Parameters exist up to Z = 86 (Rn), so transition-metal complexes
+          will at least run, not only organic molecules.
+        </p>
+        <p>ORCA can call four variants.</p>
+
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Keyword</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>GFN2-xTB</td><td><code>XTB2</code>, <code>GFN2-xTB</code></td><td>The default choice. Includes multipole electrostatics and D4 dispersion.</td></tr>
+            <tr><td>GFN1-xTB</td><td><code>XTB1</code>, <code>GFN-xTB</code></td><td>The earlier version. Sometimes better than GFN2 for inorganic and metal systems.</td></tr>
+            <tr><td>GFN0-xTB</td><td><code>XTB0</code>, <code>GFN0-xTB</code></td><td>Not self-consistent. Several times faster but less accurate; use it only when XTB1 and XTB2 both fail.</td></tr>
+            <tr><td>GFN-FF</td><td><code>XTBFF</code>, <code>GFN-FF</code></td><td>A force field. Bonds cannot break, so it is for structure searches in large systems, not reactions.</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          A bare <code>! XTB</code> means GFN2-xTB. All examples in this chapter write <code>XTB2</code> explicitly.
+        </p>
+
+        <h2 id="setup">Setting ORCA up for xTB</h2>
+        <p>
+          ORCA 6.0 does not evaluate xTB itself; it calls the Grimme group's <code>xtb</code> program. The <code>xtb</code>
+          binary therefore has to sit in the directory of the ORCA executables, renamed to <code>otool_xtb</code>.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt"># xtb 6.7.1 or later (github.com/grimme-lab/xtb/releases or conda-forge)</span>
+ORCA_DIR=$(dirname $(which orca))
+cp /path/to/xtb-6.7.1/bin/xtb $ORCA_DIR/otool_xtb</code></pre>
+
+        <div class="warning">
+          <div class="note-title">xtb version and shell</div>
+          <p>
+            <code>xtb</code> older than 6.7.1 is not fully compatible with ORCA 6 and can fail quietly, for example by not
+            switching on the solvation model. On Linux the interface also needs <code>/bin/sh</code> to be a POSIX shell such as bash or dash.
+          </p>
+        </div>
+
+        <p>
+          If you cannot write to the executable directory, as with a shared ORCA module on a cluster, the most reliable fix is a
+          personal ORCA installation with <code>otool_xtb</code> placed next to it.
+          Check the module's <code>bin</code> directory first, though. On the NUS HPC Vanda cluster, where the examples in
+          this chapter were run, the directory loaded by <code>module load ORCA/6.1.0-gompi-2023b-avx2</code> already
+          contains <code>otool_xtb</code> (xtb 6.7.1), so nothing had to be done. The module also loads OpenMPI 4.1.6.
+        </p>
+
+        <pre data-lang="bash"><code>module load ORCA/6.1.0-gompi-2023b-avx2
+ls $(dirname $(which orca))/otool_xtb     <span class="cmt"># if it is there, you are set</span></code></pre>
+
+        <p>
+          The output shows whether it was actually used: every xTB step prints the command ORCA ran on a
+          <code>program call</code> line. In the example output, the <code>otool_xtb</code> from the module path was called with
+          <code>-P 8 --alpb WATER</code>, so <code>%pal nprocs 8</code> was passed on as the xtb core count.
+        </p>
+
+        <h2 id="basic">Basic input</h2>
+        <p>Charge and multiplicity go on the coordinate line exactly as for DFT. There is no basis set to specify.</p>
+
+        <pre data-lang="orca"><code><span class="cmt"># geometry optimisation</span>
+<span class="kw">!</span> <span class="kw2">XTB2 Opt</span>
+<span class="kw">%pal</span> <span class="kw2">nprocs</span> <span class="num">8</span> <span class="kw">end</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <p>
+          Optimisations, constraints and surface scans, NEB, IRC, MD and QM/MM all work with the same syntax as for DFT.
+          There is no analytic Hessian, so <code>Freq</code> is done numerically from repeated gradients. When one xTB
+          gradient takes well under a second, the difference is hardly noticeable.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># optimisation + frequencies</span>
+<span class="kw">!</span> <span class="kw2">XTB2 Opt Freq</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> mol.xyz</code></pre>
+
+        <h2 id="solvation">Solvation models</h2>
+        <p>xTB comes with three solvation models of its own, separate from the DFT ones.</p>
+
+        <table>
+          <thead>
+            <tr><th>Keyword</th><th>Model</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>ALPB(water)</code></td><td>Analytical linearized Poisson–Boltzmann. Parametrised together with xTB and the usual choice.</td></tr>
+            <tr><td><code>DDCOSMO(water)</code></td><td>Domain-decomposition COSMO</td></tr>
+            <tr><td><code>CPCMX(water)</code></td><td>Extended CPCM</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="orca"><code><span class="kw">!</span> <span class="kw2">XTB2 Opt ALPB(water)</span></code></pre>
+
+        <div class="note">
+          <div class="note-title">Moving on to DFT</div>
+          <p>
+            ALPB is xTB-only. When the same molecule continues at the DFT level, switch to <code>CPCM(water)</code> or
+            <code>SMD</code> from <a href="solvation.html">chapter 9</a>.
+          </p>
+        </div>
+
+        <h2 id="preopt">Pre-optimising before DFT</h2>
+        <p>
+          The most common practical use of xTB is to produce the starting structure for a DFT optimisation. Structures drawn by
+          hand or taken from another program have arbitrary bond lengths and angles, and feeding them straight into DFT wastes
+          the first few dozen steps on expensive calculations. After an xTB optimisation, DFT starts close to the minimum.
+        </p>
+
+        <pre data-lang="orca"><code><span class="cmt"># step1.inp: xTB optimisation + frequencies → step1.xyz, step1.hess</span>
+<span class="kw">!</span> <span class="kw2">XTB2 Opt Freq ALPB(water)</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> start.xyz
+
+<span class="cmt"># step2.inp: r2SCAN-3c optimisation from the xTB geometry and Hessian</span>
+<span class="kw">!</span> <span class="kw2">r2SCAN-3c Opt Freq CPCM(water)</span>
+<span class="kw">%geom</span>
+   <span class="kw2">InHess</span>     <span class="kw">Read</span>
+   <span class="kw2">InHessName</span> <span class="str">"step1.hess"</span>
+<span class="kw">end</span>
+<span class="kw">*</span> <span class="kw2">xyzfile</span> <span class="num">0 1</span> step1.xyz</code></pre>
+
+        <p>
+          With the Hessian read in, the optimiser knows the curvature from the first step. For <code>OptTS</code> in particular,
+          the xTB Hessian can replace the initial Hessian calculation described in <a href="transition-states.html">chapter 7</a>,
+          which saves a lot of time.
+        </p>
+
+        <h2 id="example">Example: alanine dipeptide</h2>
+        <p>
+          Alanine dipeptide (Ace-Ala-NMe, 22 atoms) was optimised in implicit water with two methods, followed by frequencies.
+          The r2SCAN-3c run started from the xTB minimum. Both ran on 8 cores with ORCA 6.1.0 on NUS HPC.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th></th><th>GFN2-xTB / ALPB</th><th>r2SCAN-3c / CPCM</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Wall time (8 cores)</td><td>9.9 s</td><td>14 min 27 s (866.6 s)</td></tr>
+            <tr><td>Optimisation cycles</td><td>20</td><td>23</td></tr>
+            <tr><td>φ / ψ (°)</td><td>−82.6 / 72.8 (C7eq)</td><td>−85.9 / 73.9 (C7eq)</td></tr>
+            <tr><td>Lowest frequencies (cm⁻¹)</td><td>50.8, 69.1, 85.4</td><td>44.2, 73.3, 94.7</td></tr>
+            <tr><td>Imaginary frequencies</td><td>0</td><td>0</td></tr>
+            <tr><td>Final energy / G (Eh)</td><td>−32.991364 / −32.848402</td><td>−495.775841 / −495.628066</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          Both methods end in the same C7eq minimum, with dihedrals about 3° apart, and neither has an imaginary frequency, so
+          both are confirmed minima. The time differs by a factor of about 87. The module timings at the end of the r2SCAN-3c
+          output split it into SCF iterations 45%, response equations and second-derivative integrals for the frequencies 31%
+          together, and gradients 12%. This example read only the xTB geometry, not its Hessian; adding <code>InHess Read</code>
+          as in the previous section could cut the optimisation cycles further. As noted <a href="#limits">below</a>, the final
+          energies of the two methods have different references and cannot be subtracted.
+        </p>
+
+        <p>
+          The inputs and outputs are in <a href="../examples/07-xtb-md/README.md"><code>examples/07-xtb-md/</code></a>
+          (<a href="../examples/07-xtb-md/o01-xtb-opt-freq.inp">o01 input</a> ·
+          <a href="../examples/07-xtb-md/o01-xtb-opt-freq.out">o01 output</a> ·
+          <a href="../examples/07-xtb-md/o02-r2scan-opt-freq.inp">o02 input</a> ·
+          <a href="../examples/07-xtb-md/o02-r2scan-opt-freq.out">o02 output</a>).
+        </p>
+
+        <h2 id="other">Reaction paths and conformer searches</h2>
+        <p>
+          As with <code>! XTB NEB-TS</code> in <a href="transition-states.html">chapter 7</a>, a common approach is to get the
+          first guess of a reaction path from xTB and refine only the transition state with DFT. It is much cheaper than scanning
+          the whole path with DFT and usually reaches the same saddle point.
+        </p>
+        <p>
+          ORCA 6 also has GOAT for conformer and global-minimum searches; <code>! XTB GOAT</code> builds a conformer ensemble on
+          the xTB surface. CREST, on the xtb side, has done the same job for longer. The <a href="../../xtb/">xtb guide</a> runs
+          CREST on the same molecule.
+        </p>
+
+        <h2 id="limits">How far to trust it</h2>
+        <ul>
+          <li><strong>Geometries</strong>: bond lengths and angles of organic molecules are generally close to DFT. Hydrogen bonds and torsions scatter more.</li>
+          <li><strong>Relative energies</strong>: the ordering of conformers is a useful guide, but errors of a few kcal/mol are common. Recompute with DFT before ranking.</li>
+          <li><strong>Reaction energies and barriers</strong>: not for quantitative use. Take the shape of the path and approximate structures only.</li>
+          <li><strong>Transition metals</strong>: the calculation runs, but the ordering of spin states is unreliable.</li>
+          <li><strong>Absolute energies</strong>: xTB total energies are on a different reference from DFT and cannot be subtracted from or compared with them.</li>
+        </ul>
+
+        <h2 id="options">The %xtb block</h2>
+        <p>The keyword line is usually enough; use the block only for fine-tuning.</p>
+
+        <table>
+          <thead>
+            <tr><th>Keyword</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>XTBINPUTSTRING</code></td><td>A string appended verbatim to the <code>otool_xtb</code> command line</td></tr>
+            <tr><td><code>NPROCS</code></td><td>Cores used by xtb; defaults to ORCA's <code>%pal</code> setting</td></tr>
+            <tr><td><code>ACCURACY</code></td><td>xtb's <code>--acc</code> value</td></tr>
+            <tr><td><code>ETEMP</code></td><td>Electronic temperature (<code>--etemp</code>). Raise it to help SCF convergence in metallic or small-gap systems.</td></tr>
+            <tr><td><code>DOALPB</code>, <code>ALPBSOLVENT</code></td><td>Same as <code>ALPB(...)</code> on the keyword line</td></tr>
+          </tbody>
+        </table>
+
+        <pre data-lang="orca"><code><span class="kw">%xtb</span>
+   <span class="kw2">ETEMP</span>  <span class="num">1000</span>
+   <span class="kw2">NPROCS</span> <span class="num">4</span>
+<span class="kw">end</span></code></pre>
+
+        <div class="tip">
+          <div class="note-title">Citations</div>
+          <p>
+            GFN2-xTB: Bannwarth, Ehlert, Grimme, <em>J. Chem. Theory Comput.</em> <strong>2019</strong>, <em>15</em>, 1652.
+            ALPB: Ehlert, Stahn, Spicher, Grimme, <em>J. Chem. Theory Comput.</em> <strong>2021</strong>, <em>17</em>, 4250.
+            Review: Bannwarth et al., <em>WIREs Comput. Mol. Sci.</em> <strong>2021</strong>, <em>11</em>, e1493.
+          </p>
+        </div>

@@ -1,0 +1,83 @@
+<!--
+title: xtb 사용자 가이드
+description: 반경험 타이트바인딩 프로그램 xtb와 컨포머 탐색 도구 CREST의 한국어 실전 안내서. 모든 예제는 NUS HPC에서 실제로 실행했다.
+-->
+      <section class="hero">
+        <h1 class="hero-title">
+          <em>xtb</em> · CREST<br />
+          <span class="hero-title-accent">사용자 가이드</span>
+        </h1>
+        <p class="hero-tagline">
+          Grimme 그룹의 반경험 프로그램 xtb와 컨포머 탐색 도구 CREST를 한 분자로 끝까지 따라가는 안내서.
+          최적화와 진동수에서 시작해 분자동역학, 메타다이내믹스, 컨포머 앙상블, DFT 재순위까지 간다.
+        </p>
+        <div class="hero-meta">
+          <span>버전</span> xtb 6.7 · CREST 3 · <span>예제</span> 알라닌 다이펩타이드 · <span>실행</span> NUS HPC
+        </div>
+      </section>
+
+      <article class="content">
+        <h2>이 가이드에 관하여</h2>
+        <p>
+          xtb는 GFN 계열 타이트바인딩 방법을 계산하는 명령줄 프로그램이다. DFT보다 두세 자릿수 빠르면서 유기 분자의 구조는
+          꽤 잘 맞히기 때문에, 비싼 계산 앞단에서 후보를 추리거나 긴 동역학을 돌리는 데 쓴다.
+          CREST는 xtb 위에서 메타다이내믹스와 최적화를 반복해 컨포머 앙상블을 만드는 도구다.
+        </p>
+        <p>
+          ORCA 안에서 xTB를 부르는 방법은 <a href="../../orca/ko/xtb.html">ORCA 가이드 16장</a>에 따로 있다.
+          이 가이드는 xtb와 CREST를 직접 쓰는 쪽을 다룬다. 두 가이드는 같은 분자(알라닌 다이펩타이드, 물 용매)를 예제로 써서
+          결과를 서로 비교할 수 있다.
+        </p>
+
+        <h2>주제별로 들어가기</h2>
+        <div class="cards">
+          <a class="card" href="getting-started.html">
+            <div class="card-num">01 · SETUP</div>
+            <div class="card-title">설치와 실행</div>
+            <div class="card-desc">conda 설치, 첫 계산, 병렬 설정과 출력 파일.</div>
+          </a>
+          <a class="card" href="calculations.html">
+            <div class="card-num">02 · CALCULATIONS</div>
+            <div class="card-title">단일점 · 최적화 · 진동수</div>
+            <div class="card-desc">GFN 수준 선택, 전하와 스핀, 제약 조건과 스캔.</div>
+          </a>
+          <a class="card" href="solvation.html">
+            <div class="card-num">03 · SOLVATION</div>
+            <div class="card-title">용매 모델</div>
+            <div class="card-desc">ALPB와 GBSA, 용매 이름 쓰는 법.</div>
+          </a>
+          <a class="card" href="md.html">
+            <div class="card-num">04 · DYNAMICS</div>
+            <div class="card-title">분자동역학 · 메타다이내믹스</div>
+            <div class="card-desc">$md 블록, SHAKE와 시간 간격, RMSD 바이어스.</div>
+          </a>
+          <a class="card" href="crest.html">
+            <div class="card-num">05 · CREST</div>
+            <div class="card-title">컨포머 탐색</div>
+            <div class="card-desc">iMTD-GC 앙상블, 에너지 창, 출력 해석.</div>
+          </a>
+          <a class="card" href="workflow.html">
+            <div class="card-num">06 · WORKFLOW</div>
+            <div class="card-title">CREST에서 DFT까지</div>
+            <div class="card-desc">xTB 앙상블을 DFT로 다시 줄 세우는 전 과정.</div>
+          </a>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>인용</h2>
+        <ul>
+          <li>GFN2-xTB: Bannwarth, Ehlert, Grimme, <em>J. Chem. Theory Comput.</em> <strong>2019</strong>, <em>15</em>, 1652.</li>
+          <li>xtb 프로그램 개관: Bannwarth 외, <em>WIREs Comput. Mol. Sci.</em> <strong>2021</strong>, <em>11</em>, e1493.</li>
+          <li>CREST: Pracht, Bohle, Grimme, <em>Phys. Chem. Chem. Phys.</em> <strong>2020</strong>, <em>22</em>, 7169.</li>
+          <li>CREST 3: Pracht 외, <em>J. Chem. Phys.</em> <strong>2024</strong>, <em>160</em>, 114110.</li>
+        </ul>
+
+        <div class="note">
+          <div class="note-title">참고 자료</div>
+          <p>
+            공식 문서는 <a href="https://xtb-docs.readthedocs.io">xtb-docs.readthedocs.io</a>와
+            <a href="https://crest-lab.github.io/crest-docs/">crest-lab.github.io/crest-docs</a>에 있다.
+          </p>
+        </div>
+      </article>

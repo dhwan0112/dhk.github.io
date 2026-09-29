@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>단일점 · 최적화 · 진동수 · xtb 사용자 가이드</title>
+  <meta name="description" content="xtb의 기본 작업 세 가지와, 전하·스핀·제약 조건을 주는 방법." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"light")}catch(e){}</script>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="calculations.html" class="active">KO</a>
+    <a href="../en/calculations.html">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">xtb</div>
+    <div class="brand-subtitle">사용자 가이드 · xtb 6.7 · CREST 3</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">시작</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>개요</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>설치와 실행</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">계산</div>
+      <ul class="nav-list">
+        <li><a href="calculations.html"><span class="nav-num">02</span>단일점 · 최적화 · 진동수</a></li>
+        <li><a href="solvation.html"><span class="nav-num">03</span>용매 모델</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">탐색</div>
+      <ul class="nav-list">
+        <li><a href="md.html"><span class="nav-num">04</span>분자동역학 · 메타다이내믹스</a></li>
+        <li><a href="crest.html"><span class="nav-num">05</span>CREST 컨포머 탐색</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">실전</div>
+      <ul class="nav-list">
+        <li><a href="workflow.html"><span class="nav-num">06</span>예제: CREST에서 DFT까지</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 02 · 계산</div>
+        <h1 class="page-title">단일점 · 최적화 · 진동수</h1>
+        <p class="page-lede">xtb의 기본 작업 세 가지와, 전하·스핀·제약 조건을 주는 방법.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
+          <ul>
+            <li><a href="#level">방법 고르기</a></li>
+            <li><a href="#charge">전하와 스핀</a></li>
+            <li><a href="#opt">구조 최적화</a></li>
+            <li><a href="#hess">진동수와 열화학</a></li>
+            <li><a href="#example">예제: 기체상 최적화와 진동수</a></li>
+            <li><a href="#constrain">제약 조건과 스캔</a></li>
+          </ul>
+        </div>
+
+        <h2 id="level">방법 고르기</h2>
+        <table>
+          <thead>
+            <tr><th>옵션</th><th>방법</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>(없음) 또는 <code>--gfn 2</code></td><td>GFN2-xTB. 기본값</td></tr>
+            <tr><td><code>--gfn 1</code></td><td>GFN1-xTB</td></tr>
+            <tr><td><code>--gfn 0</code></td><td>GFN0-xTB. SCF 없음</td></tr>
+            <tr><td><code>--gfnff</code></td><td>GFN-FF 힘장</td></tr>
+          </tbody>
+        </table>
+        <p>특별한 이유가 없으면 GFN2를 쓴다. 차이는 <a href="../../orca/ko/xtb.html#what">ORCA 가이드 16장</a>의 표에 정리했다.</p>
+
+        <h2 id="charge">전하와 스핀</h2>
+        <p>
+          xtb는 스핀 다중도 대신 <strong>짝짓지 않은 전자 수</strong>를 받는다. 삼중항은 <code>--uhf 2</code>, 이중항은 <code>--uhf 1</code>이다.
+          ORCA의 다중도 3이 xtb의 <code>--uhf 2</code>에 해당하므로 옮겨 적을 때 헷갈리기 쉽다.
+        </p>
+
+        <pre data-lang="bash"><code>xtb anion.xyz   --chrg -1
+xtb triplet.xyz --uhf 2
+xtb cation.xyz  --chrg 1 --uhf 1</code></pre>
+
+        <p>
+          같은 디렉터리에 <code>.CHRG</code>, <code>.UHF</code> 파일을 두고 숫자 하나씩 적어 두면 옵션 없이도 읽힌다.
+          CREST도 이 파일을 읽으므로, 이온이나 라디칼을 다룰 때 한 번 만들어 두면 편하다.
+        </p>
+
+        <h2 id="opt">구조 최적화</h2>
+        <pre data-lang="bash"><code>xtb ala.xyz --opt           <span class="cmt"># 기본 수렴 기준 (normal)</span>
+xtb ala.xyz --opt tight     <span class="cmt"># 진동수 계산 전에는 tight 이상</span></code></pre>
+
+        <p>수렴 기준은 느슨한 것부터 <code>crude</code>, <code>sloppy</code>, <code>loose</code>, <code>lax</code>, <code>normal</code>, <code>tight</code>, <code>vtight</code>, <code>extreme</code> 순이다.</p>
+
+        <div class="tip">
+          <div class="note-title">최적화가 끝났는지 확인</div>
+          <p>
+            출력에 <code>GEOMETRY OPTIMIZATION CONVERGED</code>가 있어야 한다. 최대 반복 수에 걸려 끝난 경우에도
+            <code>xtbopt.xyz</code>는 만들어지므로, 파일이 있다는 것만으로 수렴했다고 보면 안 된다.
+          </p>
+        </div>
+
+        <h2 id="hess">진동수와 열화학</h2>
+        <pre data-lang="bash"><code>xtb xtbopt.xyz --hess        <span class="cmt"># 주어진 구조에서 헤시안만</span>
+xtb ala.xyz --ohess tight    <span class="cmt"># 최적화 후 곧바로 헤시안</span></code></pre>
+
+        <p>
+          헤시안을 계산하면 영점 에너지, 엔탈피, 엔트로피를 거쳐 <code>TOTAL FREE ENERGY</code>가 출력된다.
+          저주파수 모드는 조화진동자 대신 자유 회전자 쪽으로 보간하는 보정(mRRHO)이 기본으로 들어가서,
+          엔트로피가 부풀려지는 문제를 덜어 준다. 구조가 최소가 아니면 허수 진동수가 음수로 찍힌다.
+        </p>
+
+        <h2 id="example">예제: 기체상 최적화와 진동수</h2>
+        <p>알라닌 다이펩타이드를 기체상에서 최적화하고 진동수를 계산했다.</p>
+
+        <pre data-lang="bash"><code>xtb ala.xyz --gfn 2 --opt tight   &gt; opt.out
+xtb ala.xyz --gfn 2 --ohess tight &gt; ohess.out</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>항목</th><th>값</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>전체 에너지 (Eh)</td><td>−32.975847892266</td></tr>
+            <tr><td>HOMO–LUMO 갭 (eV)</td><td>4.480</td></tr>
+            <tr><td>φ / ψ (°)</td><td>−81.4 / 74.0 (C7eq)</td></tr>
+            <tr><td>자유에너지 (Eh, 298 K)</td><td>−32.833577987317</td></tr>
+            <tr><td>가장 낮은 진동수 (cm⁻¹)</td><td>51.78, 63.82, 81.38, 102.62 (허수 진동수 없음)</td></tr>
+            <tr><td>벽시계 시간</td><td>최적화 0.52초, 최적화+진동수 0.68초 (8코어)</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          최적화는 분자 내 N–H···O=C 수소결합이 7원 고리를 이루는 C7eq 구조로 갔다. 허수 진동수가 없으니 극소가 맞다.
+          영점 에너지는 0.1806 Eh(113 kcal/mol)이고, 자유에너지는 여기에 열 보정과 엔트로피 항을 더한 값이다.
+          100 cm⁻¹ 아래에 모드가 세 개 있는데, mRRHO 보정은 이런 저주파수 모드의 엔트로피를 가장 크게 바꾼다.
+        </p>
+
+        <h2 id="constrain">제약 조건과 스캔</h2>
+        <p>
+          원자 간 거리나 이면각을 고정하거나 훑으려면 자세한 입력 파일을 <code>--input</code>으로 넘긴다.
+          원자 번호는 xyz 파일 순서대로 1부터 센다(ORCA는 0부터).
+        </p>
+
+        <pre data-lang="text"><code>$constrain
+   force constant=1.0
+   dihedral: 2, 4, 5, 7, -60.0
+$end
+$scan
+   1: -180.0, 180.0, 37
+$end</code></pre>
+
+        <pre data-lang="bash"><code>xtb ala.xyz --opt --input scan.inp &gt; scan.out</code></pre>
+
+        <p>
+          <code>$scan</code>의 <code>1:</code>은 <code>$constrain</code>에서 첫 번째로 정의한 제약을 가리킨다.
+          위 예는 φ를 −180°에서 180°까지 37점으로 나눠, 각 점에서 나머지를 최적화한다. 결과는 <code>xtbscan.log</code>에 쌓인다.
+          원자를 아예 움직이지 않게 하려면 <code>$fix</code> 블록에 <code>atoms: 1-5</code>처럼 적는다.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="getting-started.html">
+          <div class="page-nav-label">← 이전</div>
+          <div class="page-nav-title">설치와 실행</div>
+        </a>
+        <a class="next" href="solvation.html">
+          <div class="page-nav-label">다음 →</div>
+          <div class="page-nav-title">용매 모델</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

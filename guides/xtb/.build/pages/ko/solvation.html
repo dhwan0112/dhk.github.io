@@ -1,0 +1,63 @@
+<!--
+title: 용매 모델
+eyebrow: CHAPTER 03 · 계산
+h1: 용매 모델
+lede: ALPB와 GBSA로 용매 효과를 넣는다. 옵션 하나만 붙이면 된다.
+-->
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
+          <ul>
+            <li><a href="#models">ALPB와 GBSA</a></li>
+            <li><a href="#usage">쓰는 법</a></li>
+            <li><a href="#example">예제: 기체상과 물에서의 구조</a></li>
+            <li><a href="#caveats">주의할 점</a></li>
+          </ul>
+        </div>
+
+        <h2 id="models">ALPB와 GBSA</h2>
+        <p>
+          xtb의 암묵적 용매 모델은 둘이다. ALPB(analytical linearized Poisson–Boltzmann)는 GBSA를 개선한 모델로,
+          지금은 ALPB를 기본으로 쓴다. 둘 다 GFN1, GFN2, GFN-FF와 같이 파라미터화돼 있다.
+        </p>
+
+        <h2 id="usage">쓰는 법</h2>
+        <pre data-lang="bash"><code>xtb ala.xyz --opt tight --alpb water
+xtb ala.xyz --opt tight --gbsa water
+crest ala.xyz --gfn2 --alpb water</code></pre>
+
+        <p>
+          용매 이름은 <code>water</code>(또는 <code>h2o</code>), <code>methanol</code>, <code>acetonitrile</code>, <code>dmso</code>,
+          <code>thf</code>, <code>toluene</code>, <code>chcl3</code> 같은 식으로 쓴다. 지원 목록은 xtb 문서의 용매 표에 있다.
+        </p>
+
+        <h2 id="example">예제: 기체상과 물에서의 구조</h2>
+        <p>
+          알라닌 다이펩타이드를 같은 출발 구조에서 기체상과 ALPB(water)로 각각 최적화했다. 기체상에서는 분자 내 수소결합이 있는
+          고리형 구조(C7eq)가 유리하고, 물에서는 그 수소결합의 이득이 줄어 다른 영역이 경쟁한다.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th></th><th>기체상</th><th>ALPB(water)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>전체 에너지 (Eh)</td><td>−32.975847892266</td><td>−32.991360406923</td></tr>
+            <tr><td>φ / ψ (°)</td><td>−81.4 / 74.0</td><td>−82.5 / 73.1</td></tr>
+            <tr><td>HOMO–LUMO 갭 (eV)</td><td>4.480</td><td>4.588</td></tr>
+            <tr><td>벽시계 시간</td><td>0.52초</td><td>0.39초</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          두 최적화 모두 C7eq 영역으로 갔고, φ/ψ 차이는 1° 남짓이다. 용매를 넣어도 출발 구조 가까이에 있는 극소가 바뀌지 않았다는 뜻이다.
+          물에서 C7eq가 가장 안정하다는 뜻은 아니다. 최적화는 내리막만 따라가므로, 다른 영역이 더 낮은지는 이 계산으로 알 수 없다.
+          ALPB 쪽 전체 에너지가 9.7 kcal/mol(0.0155 Eh) 낮은데, 두 구조가 거의 같으므로 이 차이는 대부분 용매화 항이다.
+          같은 분자를 CREST로 물에서 탐색한 결과는 <a href="crest.html#example">CREST 장</a>에 있다.
+        </p>
+
+        <h2 id="caveats">주의할 점</h2>
+        <ul>
+          <li>최적화 한 번은 출발 구조와 가까운 극소로 갈 뿐이다. 용매에 따라 가장 안정한 컨포머가 바뀌는지 보려면 <a href="crest.html">CREST</a>로 앙상블 전체를 봐야 한다.</li>
+          <li>ALPB 에너지와 기체상 에너지의 차이를 용매화 자유에너지로 쓸 수는 있지만, 정량적인 값이 필요하면 DFT 수준의 SMD나 COSMO-RS가 낫다.</li>
+          <li>용매 분자와의 특정 수소결합은 연속체 모델이 표현하지 못한다. 중요하다면 용매 분자 몇 개를 명시적으로 넣는다.</li>
+        </ul>

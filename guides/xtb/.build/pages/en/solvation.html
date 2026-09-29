@@ -1,0 +1,65 @@
+<!--
+title: Solvation
+eyebrow: CHAPTER 03 · Calculations
+h1: Solvation
+lede: Add solvent effects with ALPB or GBSA. It takes one option.
+-->
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#models">ALPB and GBSA</a></li>
+            <li><a href="#usage">Usage</a></li>
+            <li><a href="#example">Example: geometry in the gas phase and in water</a></li>
+            <li><a href="#caveats">Caveats</a></li>
+          </ul>
+        </div>
+
+        <h2 id="models">ALPB and GBSA</h2>
+        <p>
+          xtb has two implicit solvation models. ALPB (analytical linearized Poisson–Boltzmann) improves on GBSA and is now the
+          default choice. Both are parametrised for GFN1, GFN2 and GFN-FF.
+        </p>
+
+        <h2 id="usage">Usage</h2>
+        <pre data-lang="bash"><code>xtb ala.xyz --opt tight --alpb water
+xtb ala.xyz --opt tight --gbsa water
+crest ala.xyz --gfn2 --alpb water</code></pre>
+
+        <p>
+          Solvents are named <code>water</code> (or <code>h2o</code>), <code>methanol</code>, <code>acetonitrile</code>,
+          <code>dmso</code>, <code>thf</code>, <code>toluene</code>, <code>chcl3</code> and so on. The full list is in the solvent
+          table of the xtb documentation.
+        </p>
+
+        <h2 id="example">Example: geometry in the gas phase and in water</h2>
+        <p>
+          Alanine dipeptide was optimised from the same starting geometry in the gas phase and with ALPB(water). In the gas phase
+          the ring-like C7eq structure with an intramolecular hydrogen bond is favoured; in water that hydrogen bond gains less
+          and other regions compete.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th></th><th>Gas phase</th><th>ALPB(water)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Total energy (Eh)</td><td>−32.975847892266</td><td>−32.991360406923</td></tr>
+            <tr><td>φ / ψ (°)</td><td>−81.4 / 74.0</td><td>−82.5 / 73.1</td></tr>
+            <tr><td>HOMO–LUMO gap (eV)</td><td>4.480</td><td>4.588</td></tr>
+            <tr><td>Wall time</td><td>0.52 s</td><td>0.39 s</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          Both optimisations ended in the C7eq region, about 1° apart in φ and ψ. Adding the solvent did not move the minimum
+          nearest the starting geometry. That does not make C7eq the most stable structure in water: an optimisation only goes
+          downhill, so it cannot tell whether another region lies lower. The ALPB total energy is 9.7 kcal/mol (0.0155 Eh) lower;
+          since the two geometries are almost the same, the difference is mostly the solvation term. The CREST search for the same molecule in water is in the <a href="crest.html#example">CREST chapter</a>.
+        </p>
+
+        <h2 id="caveats">Caveats</h2>
+        <ul>
+          <li>A single optimisation only reaches the minimum nearest the start. To see whether the most stable conformer changes with solvent, look at the whole ensemble with <a href="crest.html">CREST</a>.</li>
+          <li>The difference between ALPB and gas-phase energies can serve as a solvation free energy, but for quantitative values DFT-level SMD or COSMO-RS is better.</li>
+          <li>Continuum models cannot represent specific hydrogen bonds to solvent molecules. If they matter, add a few explicit solvent molecules.</li>
+        </ul>

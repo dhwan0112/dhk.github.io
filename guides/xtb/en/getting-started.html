@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Installing and running · xtb User Guide</title>
+  <meta name="description" content="Install xtb and CREST with conda, run a first calculation and look at the output files." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"light")}catch(e){}</script>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/getting-started.html">KO</a>
+    <a href="getting-started.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">xtb</div>
+    <div class="brand-subtitle">User Guide · xtb 6.7 · CREST 3</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>Installing and running</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Calculations</div>
+      <ul class="nav-list">
+        <li><a href="calculations.html"><span class="nav-num">02</span>Single point · opt · freq</a></li>
+        <li><a href="solvation.html"><span class="nav-num">03</span>Solvation</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Sampling</div>
+      <ul class="nav-list">
+        <li><a href="md.html"><span class="nav-num">04</span>MD · metadynamics</a></li>
+        <li><a href="crest.html"><span class="nav-num">05</span>CREST conformer search</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">In practice</div>
+      <ul class="nav-list">
+        <li><a href="workflow.html"><span class="nav-num">06</span>Example: CREST to DFT</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 01 · Start</div>
+        <h1 class="page-title">Installing and running</h1>
+        <p class="page-lede">Install xtb and CREST with conda, run a first calculation and look at the output files.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#install">Installation</a></li>
+            <li><a href="#first">A first calculation</a></li>
+            <li><a href="#files">Output files</a></li>
+            <li><a href="#parallel">Parallel settings</a></li>
+            <li><a href="#pbs">A cluster job script</a></li>
+          </ul>
+        </div>
+
+        <h2 id="install">Installation</h2>
+        <p>
+          conda-forge is the simplest route. It installs into your home directory without admin rights, so it works the same on a cluster.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt"># install miniforge first if you do not have conda</span>
+wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+bash Miniforge3-Linux-x86_64.sh -b -p $HOME/miniforge3
+source $HOME/miniforge3/etc/profile.d/conda.sh
+
+<span class="cmt"># xtb and crest in one environment</span>
+conda create -n xtb -c conda-forge xtb crest
+conda activate xtb
+xtb --version
+crest --version</code></pre>
+
+        <p>
+          Statically linked binaries from the GitHub releases (<a href="https://github.com/grimme-lab/xtb/releases">grimme-lab/xtb</a>,
+          <a href="https://github.com/crest-lab/crest/releases">crest-lab/crest</a>) placed on your <code>PATH</code> work as well.
+          The <code>otool_xtb</code> that ORCA calls is this same binary.
+        </p>
+
+        <h2 id="first">A first calculation</h2>
+        <p>
+          All it needs is an xyz file. Without options, xtb computes a GFN2-xTB single-point energy.
+        </p>
+
+        <pre data-lang="bash"><code>xtb ala.xyz &gt; sp.out</code></pre>
+
+        <p>A summary box appears near the end of the output. This is the actual output for the alanine dipeptide starting geometry used throughout this guide.</p>
+
+        <pre data-lang="output"><code>         :::::::::::::::::::::::::::::::::::::::::::::::::::::
+         ::                     SUMMARY                     ::
+         :::::::::::::::::::::::::::::::::::::::::::::::::::::
+         :: total energy             -32.968780800655 Eh    ::
+         :: gradient norm              0.060736909638 Eh/a0 ::
+         :: HOMO-LUMO gap              4.201966619930 eV    ::
+         ::.................................................::
+         :: SCC energy               -33.334018569053 Eh    ::
+         :: -> isotropic ES            0.076928930387 Eh    ::
+         :: -> anisotropic ES          0.004824182260 Eh    ::
+         :: -> anisotropic XC          0.011329018690 Eh    ::
+         :: -> dispersion             -0.015484427685 Eh    ::
+         :: repulsion energy           0.365237768398 Eh    ::
+         :: add. restraining           0.000000000000 Eh    ::
+         :: total charge              -0.000000000000 e     ::
+         :::::::::::::::::::::::::::::::::::::::::::::::::::::</code></pre>
+
+        <p>
+          With <code>--opt</code> the box appears twice: first for a single point at the starting geometry, and last for the
+          optimised geometry. Optimising this structure with <code>--opt tight</code> brings the total energy down to
+          −32.975847892266 Eh and the gradient norm to 0.00016 Eh/a0.
+        </p>
+
+        <p>
+          xtb writes its result files into the current directory under fixed names. Unless each calculation gets its own
+          directory, the next run overwrites the previous results.
+        </p>
+
+        <h2 id="files">Output files</h2>
+        <table>
+          <thead>
+            <tr><th>File</th><th>Contents</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>xtbopt.xyz</code></td><td>Optimised geometry (<code>--opt</code>)</td></tr>
+            <tr><td><code>xtbopt.log</code></td><td>Optimisation path as multi-frame xyz; opens directly in a viewer.</td></tr>
+            <tr><td><code>charges</code>, <code>wbo</code></td><td>Atomic partial charges and Wiberg bond orders</td></tr>
+            <tr><td><code>vibspectrum</code>, <code>hessian</code>, <code>g98.out</code></td><td>Frequency results (<code>--hess</code>, <code>--ohess</code>); <code>g98.out</code> is for animating modes</td></tr>
+            <tr><td><code>xtb.trj</code></td><td>MD trajectory (<code>--md</code>)</td></tr>
+            <tr><td><code>xtbrestart</code></td><td>Wavefunction read as the initial guess by the next run. Delete it before computing a different molecule.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="warning">
+          <div class="note-title">Leftover xtbrestart</div>
+          <p>
+            If an <code>xtbrestart</code> from another molecule is in the same directory, xtb tries to read it. It is usually
+            ignored because the atom count differs, but with one directory per calculation you never have to think about it.
+          </p>
+        </div>
+
+        <h2 id="parallel">Parallel settings</h2>
+        <p>xtb is parallelised with OpenMP. Set the core count and stack size through environment variables.</p>
+
+        <pre data-lang="bash"><code><span class="kw">export</span> OMP_NUM_THREADS=8,1
+<span class="kw">export</span> OMP_STACKSIZE=4G
+<span class="kw">export</span> OPENBLAS_NUM_THREADS=1
+ulimit -s unlimited
+
+xtb ala.xyz --opt -P 8 &gt; opt.out</code></pre>
+
+        <p>
+          With too small a stack, larger molecules segfault for no obvious reason. Molecules of a few dozen atoms do not get
+          faster with many cores, so when running several calculations at once, fewer cores per job gives better total throughput.
+        </p>
+
+        <div class="warning">
+          <div class="note-title">OPENBLAS_NUM_THREADS=1</div>
+          <p>
+            The conda-forge xtb is linked against OpenBLAS. OpenBLAS ignores <code>MKL_NUM_THREADS</code> and starts its own
+            thread pool for each OpenMP thread, so without this variable far more threads than allocated cores compete for the CPU.
+            When the examples in this guide were first run on an 8-core NUS HPC compute node, the gas-phase optimisation took
+            20.2 s (159.6 s of CPU time), and the 100 ps MD was on course to overrun the 4-hour limit. With
+            <code>OPENBLAS_NUM_THREADS=1</code> the same optimisation took 0.52 s. The results are not wrong, only slow, which
+            makes this easy to miss.
+          </p>
+        </div>
+
+        <h2 id="pbs">A cluster job script</h2>
+        <p>
+          The examples in this guide were run on the Vanda cluster at NUS HPC (PBS Pro) with xtb 6.7.1 and CREST 3.0.2 from
+          conda-forge. This is the skeleton of the script used there.
+        </p>
+
+        <pre data-lang="bash"><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt">#PBS -N xtb-opt</span>
+<span class="cmt">#PBS -l select=1:ncpus=8:mem=16gb</span>
+<span class="cmt">#PBS -l walltime=04:00:00</span>
+<span class="cmt">#PBS -j oe</span>
+<span class="cmt">#PBS -q auto_free</span>
+cd $PBS_O_WORKDIR
+source $HOME/miniforge3/etc/profile.d/conda.sh
+conda activate xtb
+<span class="kw">export</span> OMP_NUM_THREADS=$NCPUS,1 OMP_STACKSIZE=4G
+<span class="kw">export</span> OPENBLAS_NUM_THREADS=1
+ulimit -s unlimited
+
+mkdir -p opt &amp;&amp; cd opt
+xtb ../ala.xyz --opt tight &gt; opt.out</code></pre>
+
+        <p>
+          The <code>#PBS -q</code> line is site-specific. On Vanda the execution queues only accept jobs through a routing
+          queue, so <code>-q cpu_parallel</code> is rejected with <code>Access to queue is denied</code>. These jobs went to
+          <code>auto_free</code>, which sent the 8-core request on to <code>cpu_parallel</code>, where it started straight away.
+          On other clusters, check <code>qstat -Q</code> and the site documentation for the queue name; if there is a default
+          queue, leave the line out.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="index.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Overview</div>
+        </a>
+        <a class="next" href="calculations.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Single point · opt · freq</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

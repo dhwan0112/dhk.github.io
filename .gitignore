@@ -6,3 +6,5 @@ vendor/
 .bundle/
 *.swp
 .DS_Store
+__pycache__/
+guides/xtb/.build/runs/

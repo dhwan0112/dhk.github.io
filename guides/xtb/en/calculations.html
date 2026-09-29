@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Single point · opt · freq · xtb User Guide</title>
+  <meta name="description" content="The three basic xtb jobs, and how to set charge, spin and constraints." />
+  <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
+  <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"light")}catch(e){}</script>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <button class="mobile-nav-toggle">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="../../../" class="sidebar-back">← Donghwan KIM</a>
+  <div class="sidebar-lang">
+    <a href="../ko/calculations.html">KO</a>
+    <a href="calculations.html" class="active">EN</a>
+  </div>
+  <a href="index.html" class="sidebar-brand">
+    <div class="brand-title">xtb</div>
+    <div class="brand-subtitle">User Guide · xtb 6.7 · CREST 3</div>
+  </a>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Start</div>
+      <ul class="nav-list">
+        <li><a href="index.html"><span class="nav-num">00</span>Overview</a></li>
+        <li><a href="getting-started.html"><span class="nav-num">01</span>Installing and running</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Calculations</div>
+      <ul class="nav-list">
+        <li><a href="calculations.html"><span class="nav-num">02</span>Single point · opt · freq</a></li>
+        <li><a href="solvation.html"><span class="nav-num">03</span>Solvation</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Sampling</div>
+      <ul class="nav-list">
+        <li><a href="md.html"><span class="nav-num">04</span>MD · metadynamics</a></li>
+        <li><a href="crest.html"><span class="nav-num">05</span>CREST conformer search</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">In practice</div>
+      <ul class="nav-list">
+        <li><a href="workflow.html"><span class="nav-num">06</span>Example: CREST to DFT</a></li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">CHAPTER 02 · Calculations</div>
+        <h1 class="page-title">Single point · optimisation · frequencies</h1>
+        <p class="page-lede">The three basic xtb jobs, and how to set charge, spin and constraints.</p>
+      </header>
+
+      <article class="content">
+<div class="toc">
+          <div class="toc-title">On this page</div>
+          <ul>
+            <li><a href="#level">Choosing the method</a></li>
+            <li><a href="#charge">Charge and spin</a></li>
+            <li><a href="#opt">Geometry optimisation</a></li>
+            <li><a href="#hess">Frequencies and thermochemistry</a></li>
+            <li><a href="#example">Example: gas-phase optimisation and frequencies</a></li>
+            <li><a href="#constrain">Constraints and scans</a></li>
+          </ul>
+        </div>
+
+        <h2 id="level">Choosing the method</h2>
+        <table>
+          <thead>
+            <tr><th>Option</th><th>Method</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>(none) or <code>--gfn 2</code></td><td>GFN2-xTB, the default</td></tr>
+            <tr><td><code>--gfn 1</code></td><td>GFN1-xTB</td></tr>
+            <tr><td><code>--gfn 0</code></td><td>GFN0-xTB, no SCF</td></tr>
+            <tr><td><code>--gfnff</code></td><td>GFN-FF force field</td></tr>
+          </tbody>
+        </table>
+        <p>Use GFN2 unless there is a specific reason not to. The differences are summarised in the table in <a href="../../orca/en/xtb.html#what">chapter 16 of the ORCA guide</a>.</p>
+
+        <h2 id="charge">Charge and spin</h2>
+        <p>
+          xtb takes the <strong>number of unpaired electrons</strong> instead of the multiplicity: <code>--uhf 2</code> for a
+          triplet, <code>--uhf 1</code> for a doublet. ORCA's multiplicity 3 is xtb's <code>--uhf 2</code>, which is easy to get
+          wrong when copying settings across.
+        </p>
+
+        <pre data-lang="bash"><code>xtb anion.xyz   --chrg -1
+xtb triplet.xyz --uhf 2
+xtb cation.xyz  --chrg 1 --uhf 1</code></pre>
+
+        <p>
+          Files named <code>.CHRG</code> and <code>.UHF</code> in the working directory, each holding one number, are read without
+          any options. CREST reads them too, so for ions and radicals it pays to create them once.
+        </p>
+
+        <h2 id="opt">Geometry optimisation</h2>
+        <pre data-lang="bash"><code>xtb ala.xyz --opt           <span class="cmt"># default convergence (normal)</span>
+xtb ala.xyz --opt tight     <span class="cmt"># use tight or better before frequencies</span></code></pre>
+
+        <p>From loosest to tightest the levels are <code>crude</code>, <code>sloppy</code>, <code>loose</code>, <code>lax</code>, <code>normal</code>, <code>tight</code>, <code>vtight</code> and <code>extreme</code>.</p>
+
+        <div class="tip">
+          <div class="note-title">Check that the optimisation finished</div>
+          <p>
+            The output must contain <code>GEOMETRY OPTIMIZATION CONVERGED</code>. <code>xtbopt.xyz</code> is written even when
+            the run stops at the iteration limit, so its existence alone does not mean convergence.
+          </p>
+        </div>
+
+        <h2 id="hess">Frequencies and thermochemistry</h2>
+        <pre data-lang="bash"><code>xtb xtbopt.xyz --hess        <span class="cmt"># Hessian at the given geometry</span>
+xtb ala.xyz --ohess tight    <span class="cmt"># optimise, then Hessian</span></code></pre>
+
+        <p>
+          A Hessian run goes on to zero-point energy, enthalpy and entropy and prints <code>TOTAL FREE ENERGY</code>.
+          Low-frequency modes are interpolated towards free rotors instead of harmonic oscillators by default (mRRHO), which
+          keeps their entropy from being inflated. If the structure is not a minimum, imaginary frequencies are printed as negative numbers.
+        </p>
+
+        <h2 id="example">Example: gas-phase optimisation and frequencies</h2>
+        <p>Alanine dipeptide optimised in the gas phase, followed by frequencies.</p>
+
+        <pre data-lang="bash"><code>xtb ala.xyz --gfn 2 --opt tight   &gt; opt.out
+xtb ala.xyz --gfn 2 --ohess tight &gt; ohess.out</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>Quantity</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Total energy (Eh)</td><td>−32.975847892266</td></tr>
+            <tr><td>HOMO–LUMO gap (eV)</td><td>4.480</td></tr>
+            <tr><td>φ / ψ (°)</td><td>−81.4 / 74.0 (C7eq)</td></tr>
+            <tr><td>Free energy (Eh, 298 K)</td><td>−32.833577987317</td></tr>
+            <tr><td>Lowest frequencies (cm⁻¹)</td><td>51.78, 63.82, 81.38, 102.62 (no imaginary frequencies)</td></tr>
+            <tr><td>Wall time</td><td>0.52 s for the optimisation, 0.68 s for optimisation plus frequencies (8 cores)</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          The optimisation ended in C7eq, where an intramolecular N–H···O=C hydrogen bond closes a seven-membered ring. There
+          are no imaginary frequencies, so it is a true minimum. The zero-point energy is 0.1806 Eh (113 kcal/mol); the free
+          energy adds thermal corrections and entropy on top. There are three modes below 100 cm⁻¹, and it is the entropy of
+          low-frequency modes like these that the mRRHO correction changes most.
+        </p>
+
+        <h2 id="constrain">Constraints and scans</h2>
+        <p>
+          To fix or scan a distance or dihedral, pass a detailed input file with <code>--input</code>. Atoms are numbered from 1
+          in xyz-file order (ORCA counts from 0).
+        </p>
+
+        <pre data-lang="text"><code>$constrain
+   force constant=1.0
+   dihedral: 2, 4, 5, 7, -60.0
+$end
+$scan
+   1: -180.0, 180.0, 37
+$end</code></pre>
+
+        <pre data-lang="bash"><code>xtb ala.xyz --opt --input scan.inp &gt; scan.out</code></pre>
+
+        <p>
+          The <code>1:</code> in <code>$scan</code> refers to the first constraint defined in <code>$constrain</code>.
+          This example steps φ from −180° to 180° in 37 points and relaxes everything else at each point; the results collect in
+          <code>xtbscan.log</code>. To keep atoms from moving at all, list them in a <code>$fix</code> block, for example <code>atoms: 1-5</code>.
+        </p>
+      </article>
+
+      <nav class="page-nav">
+        <a class="prev" href="getting-started.html">
+          <div class="page-nav-label">← previous</div>
+          <div class="page-nav-title">Installing and running</div>
+        </a>
+        <a class="next" href="solvation.html">
+          <div class="page-nav-label">next →</div>
+          <div class="page-nav-title">Solvation</div>
+        </a>
+      </nav>
+    </main>
+  </div>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!--
+title: 분자동역학 · 메타다이내믹스
+eyebrow: CHAPTER 04 · 탐색
+h1: 분자동역학 · 메타다이내믹스
+lede: $md 블록 하나로 xTB 동역학을 돌리고, RMSD 바이어스로 컨포머 공간을 더 넓게 훑는다.
+-->
+        <div class="toc">
+          <div class="toc-title">이 페이지에서 다루는 내용</div>
+          <ul>
+            <li><a href="#input">$md 블록</a></li>
+            <li><a href="#step">SHAKE와 수소 질량</a></li>
+            <li><a href="#run">실행과 출력</a></li>
+            <li><a href="#vib">예제 1: 처음 2 ps</a></li>
+            <li><a href="#long">예제 2: 100 ps</a></li>
+            <li><a href="#metad">메타다이내믹스</a></li>
+            <li><a href="#compare">MD와 메타다이내믹스 비교</a></li>
+          </ul>
+        </div>
+
+        <h2 id="input">$md 블록</h2>
+        <p>MD 설정은 자세한 입력 파일에 적어 <code>--input</code>으로 넘긴다. 이 장의 예제에 쓴 파일이다.</p>
+
+        <pre data-lang="text"><code>$md
+   temp=300.0      <span class="cmt"># 목표 온도 (K)</span>
+   time=100.0      <span class="cmt"># 전체 길이 (ps)</span>
+   dump=20.0       <span class="cmt"># 좌표 저장 간격 (fs)</span>
+   step=2.0        <span class="cmt"># 시간 간격 (fs)</span>
+   hmass=4         <span class="cmt"># 수소 질량 (amu)</span>
+   shake=1         <span class="cmt"># X–H 결합만 고정</span>
+   nvt=true        <span class="cmt"># 온도 조절기 켬</span>
+$end</code></pre>
+
+        <p>
+          단위가 항목마다 다르다는 점에 주의한다. <code>time</code>은 ps, <code>dump</code>와 <code>step</code>은 fs다.
+        </p>
+
+        <h2 id="step">SHAKE와 수소 질량</h2>
+        <p>
+          <a href="../../orca/ko/md.html#timestep">ORCA MD</a>에서는 X–H 신축 때문에 0.5 fs를 썼다. xtb는 두 가지 방법으로 이 제약을 푼다.
+          SHAKE로 X–H 결합 길이를 고정해 가장 빠른 진동을 없애고, 수소 질량을 1에서 4 amu로 늘려 남은 수소 운동을 느리게 한다.
+          평형 성질(어떤 컨포머에 얼마나 머무는지)은 질량에 의존하지 않으므로, 컨포머 탐색에는 이렇게 해도 문제가 없다.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th><code>shake</code></th><th>고정하는 결합</th><th>쓸 만한 <code>step</code></th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>0</code></td><td>없음</td><td>0.5 fs 안팎</td></tr>
+            <tr><td><code>1</code></td><td>X–H 결합</td><td>2 fs (<code>hmass=4</code>와 함께)</td></tr>
+            <tr><td><code>2</code></td><td>모든 결합 (기본값)</td><td>4 fs (<code>hmass=4</code>와 함께)</td></tr>
+          </tbody>
+        </table>
+
+        <div class="warning">
+          <div class="note-title">동역학 자체를 볼 때</div>
+          <p>
+            확산 계수나 진동 스펙트럼처럼 시간에 따른 성질을 계산할 때는 질량을 바꾸면 안 된다. <code>hmass=1</code>, <code>shake=0</code>으로 두고 시간 간격을 줄인다.
+          </p>
+        </div>
+
+        <h2 id="run">실행과 출력</h2>
+        <pre data-lang="bash"><code><span class="cmt"># 최적화된 구조에서 시작</span>
+xtb xtbopt.xyz --alpb water --md --input md.inp &gt; md.out
+
+<span class="cmt"># 최적화부터 한 번에</span>
+xtb ala.xyz --alpb water --omd --input md.inp &gt; md.out</code></pre>
+
+        <p>
+          궤적은 <code>xtb.trj</code>에 여러 프레임 xyz로 쌓이고, 주석 줄에 각 프레임의 에너지가 들어 있다.
+          출력 파일에는 일정 간격으로 시간, 위치 에너지, 운동 에너지, 온도, 전체 에너지가 표로 찍힌다.
+          마지막 좌표와 속도는 <code>mdrestart</code>에 저장되고, <code>$md</code> 블록에 <code>restart=true</code>를 넣고
+          같은 디렉터리에서 다시 돌리면 거기서 이어 간다.
+        </p>
+
+        <figure>
+          <img src="../assets/img/xtb-md-thermo.png" alt="100 ps 동안의 온도와 전체 에너지 변화" loading="lazy" />
+          <figcaption>물(ALPB) 속 알라닌 다이펩타이드, 300 K, 100 ps. 위: 순간 온도. 아래: 첫 줄 대비 전체 에너지. md.out에 400 fs마다 찍힌 250줄을 그렸다.</figcaption>
+        </figure>
+
+        <p>
+          20 ps 이후의 순간 온도는 293.8 ± 41.6 K이고, xtb가 출력 끝에 적은 전체 평균은 299.6 K다. 분자가 22원자뿐이라 순간 온도가
+          ±40 K씩 흔들리는 것은 정상이다. 그림에서 0 ps의 온도가 0 K인 것은 첫 줄에서 온도를 아직 계산하지 않아 0으로 찍혔기 때문이다.
+        </p>
+        <p>
+          전체 에너지는 첫 1 ps 안에 약 10 kcal/mol 떨어진 뒤 일정한 폭으로 흔들린다. 이 계산은 온도 조절기(Berendsen)를 켠 NVT라서
+          전체 에너지가 원래 보존되지 않는다. 떨어진 에너지는 수치 오차로 생긴 드리프트가 아니라 온도 조절기가 빼낸 것이다.
+          <code>mdrestart</code> 없이 시작했으므로 xtb가 초기 속도를 직접 만들었고, 최적화된 구조(위치 에너지 극소)에 운동 에너지 0.0676 Eh를 얹어 출발했다.
+          300 K에서의 평균 운동 에너지(0.0256 Eh)보다 훨씬 크다. 이 여분이 위치 에너지로 옮겨 가고 온도 조절기가 초과분을 덜어 내면서
+          전체 에너지가 −32.9237 Eh에서 평균 −32.9390 Eh로 내려앉았다. 그 뒤로는 온도 조절기가 에너지를 넣었다 뺐다 하며 300 K 근처를 유지한다.
+          앞부분 몇 ps는 평형화 구간으로 보고 분석에서 뺀다.
+        </p>
+
+        <h2 id="vib">예제 1: 처음 2 ps</h2>
+        <p>
+          알라닌 다이펩타이드를 물(ALPB)에서 300 K로 돌린 궤적의 처음 2 ps를 20 fs 간격으로 그렸다.
+          오른쪽 φ/ψ 지도에서 주황색 점이 현재 위치, 파란 점이 최근 경로다. 이 시간 척도에서는 분자가 한 영역 안에서
+          떨리기만 하고 다른 영역으로 넘어가지 않는다.
+        </p>
+
+        <figure>
+          <img src="../assets/img/xtb-md-vibration.gif" alt="처음 2 ps: 한 컨포머 영역 안에서 진동하는 알라닌 다이펩타이드" loading="lazy" />
+          <figcaption>처음 2 ps. 분자는 출발한 C7eq 영역(φ/ψ ≈ −83°/73°) 안에서만 움직인다.</figcaption>
+        </figure>
+
+        <h2 id="long">예제 2: 100 ps</h2>
+        <p>
+          같은 궤적 전체를 0.5 ps 간격으로 추렸다. 프레임 사이가 멀어서 움직임은 끊겨 보이지만, 분자가 어느 영역에 얼마나 머무는지는 이쪽이 잘 보인다.
+        </p>
+
+        <figure>
+          <img src="../assets/img/xtb-md-100ps.gif" alt="100 ps 전체: φ/ψ 지도 위에서 컨포머 영역 사이를 오가는 궤적" loading="lazy" />
+          <figcaption>100 ps 전체. 회색 점은 지금까지 지나간 자리, 파란 점은 최근 경로, 주황색 점은 현재 위치다.</figcaption>
+        </figure>
+
+        <p>
+          분자는 4 ps쯤 처음 C7eq를 벗어났고, 그 뒤로 지도 왼쪽 절반(φ &lt; 0)의 세 영역을 오갔다. 5000프레임을 ψ로 나눠 보면
+          ψ가 120° 위(또는 −150° 아래)인 C5/β 쪽 펼친 영역에 61%, C7eq(30° ≤ ψ ≤ 120°)에 27%, αR(−120° &lt; ψ &lt; 30°)에 12% 머물렀다.
+          200 fs 넘게 머문 경우만 한 번의 방문으로 세면 영역이 바뀐 횟수는 43번이고, 대부분(31번)이 서로 붙어 있는 C7eq와 펼친 영역 사이의 왕복이다.
+          C7eq와 αR 사이는 10번, αR과 펼친 영역 사이는 2번이었다. 100 ps 동안 φ가 0°에서 150° 사이로 넘어간 적은 한 번도 없어서,
+          αL과 C7ax는 방문하지 못했다. φ가 +150° 이상인 프레임이 조금 있지만, 이것은 −180°와 이어진 펼친 영역의 가장자리다.
+        </p>
+
+        <h2 id="metad">메타다이내믹스</h2>
+        <p>
+          xtb의 메타다이내믹스는 ORCA처럼 이면각 같은 집합 변수를 고르지 않는다. 대신 지금 구조와 과거에 저장한 구조들 사이의
+          RMSD를 바이어스 변수로 쓴다. 이미 가 본 구조와 닮을수록 에너지를 올려서 분자를 새로운 모양 쪽으로 민다.
+          무엇을 집합 변수로 삼을지 몰라도 된다는 것이 장점이고, 자유에너지 지형을 정량적으로 되짚기는 어렵다는 것이 단점이다.
+          CREST가 컨포머를 찾는 데 쓰는 것도 이 방식이다.
+        </p>
+
+        <pre data-lang="text"><code>$md
+   temp=300.0
+   time=100.0
+   dump=20.0
+   step=2.0
+   hmass=4
+   shake=1
+   nvt=true
+$end
+$metadyn
+   save=100        <span class="cmt"># 기준 구조를 몇 개까지 저장할지</span>
+   kpush=0.05      <span class="cmt"># 바이어스 세기 (Eh)</span>
+   alp=1.0         <span class="cmt"># 가우시안 바이어스의 폭 매개변수</span>
+$end</code></pre>
+
+        <pre data-lang="bash"><code>xtb xtbopt.xyz --alpb water --metadyn --input metad.inp &gt; metad.out</code></pre>
+
+        <p>
+          입력은 위 그대로 돌아갔고, 100 ps에 302초가 걸려 보통 MD(303초)와 거의 같았다. 바이어스 계산에 드는 비용은 무시할 만하다.
+          다만 출력 끝을 보면 평균 온도가 목표 300 K가 아니라 411.8 K이고, 그 아래에 <code>thermostating problem</code>이라는 줄이 찍혀 있다.
+          계산이 멈추지는 않지만, 바이어스가 분자를 미는 동안 Berendsen 온도 조절기가 300 K를 지키지 못했다는 표시다.
+          컨포머 후보를 모으는 용도라면 온도가 높은 편이 오히려 넓게 훑는 데 도움이 되지만, 이 궤적을 300 K의 성질로 읽으면 안 된다.
+          온도를 목표에 가깝게 두고 싶으면 <code>kpush</code>를 줄인다.
+        </p>
+
+        <h2 id="compare">MD와 메타다이내믹스 비교</h2>
+        <p>
+          같은 길이(100 ps)의 보통 MD와 메타다이내믹스가 φ/ψ 지도를 얼마나 덮는지 비교했다. 점의 색은 시간이다(보라 → 노랑).
+        </p>
+
+        <figure>
+          <img src="../assets/img/xtb-md-vs-metad-rama.png" alt="100 ps 보통 MD와 메타다이내믹스의 φ/ψ 분포 비교" loading="lazy" />
+          <figcaption>왼쪽: 보통 MD. 오른쪽: 메타다이내믹스. 둘 다 같은 출발 구조에서 100 ps, 5000프레임.</figcaption>
+        </figure>
+
+        <table>
+          <thead>
+            <tr><th></th><th>보통 MD</th><th>메타다이내믹스</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>지도를 30° × 30° 칸으로 나눴을 때 방문한 칸 (144칸 중)</td><td>60</td><td>142</td></tr>
+            <tr><td>φ가 0°–150°인 프레임 (αL, C7ax 쪽)</td><td>0%</td><td>38%</td></tr>
+            <tr><td>벽시계 시간 (8코어)</td><td>303초</td><td>302초</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          보통 MD는 지도 왼쪽 절반의 C7eq, 펼친 영역, αR 사이만 오갔다. φ를 양수로 뒤집으려면 높은 장벽을 넘어야 하는데, 300 K에서 100 ps로는 부족했다.
+          메타다이내믹스는 같은 시간에 144칸 중 142칸을 밟았고, αL과 C7ax에도 여러 번 들어갔다가 나왔다.
+          다음 장에서 CREST가 1.13 kcal/mol 위에서 찾는 C7ax 컨포머도, 보통 MD만 돌렸다면 이 길이로는 나오지 않았다.
+        </p>
+
+        <p>
+          메타다이내믹스 궤적은 바이어스가 걸린 상태라서, 각 영역에 머문 시간을 그대로 볼츠만 분포로 읽으면 안 된다.
+          넓게 훑어 후보 구조를 모으는 용도로 쓰고, 에너지 순서는 모은 구조를 따로 최적화해서 정한다.
+          이 과정을 자동화한 것이 다음 장의 CREST다.
+        </p>
