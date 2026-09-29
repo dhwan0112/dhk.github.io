@@ -26,6 +26,10 @@ NAV = {
         ("In practice", [("workflow", "06", "Example: CREST to DFT")]),
     ],
 }
+RELATED = {
+    "ko": ("관련 가이드", "../../orca/ko/xtb.html", "ORCA 안에서 xTB 쓰기"),
+    "en": ("Related", "../../orca/en/xtb.html", "xTB inside ORCA"),
+}
 TEXT = {
     "ko": {"suffix": "xtb 사용자 가이드", "brand": "사용자 가이드 · xtb 6.7 · CREST 3",
            "prev": "← 이전", "next": "다음 →", "top": "처음으로 ↑", "toc": "이 페이지에서 다루는 내용"},
@@ -67,6 +71,12 @@ def sidebar(lang, name):
         for page, num, label in items:
             out.append(f'        <li><a href="{page}.html"><span class="nav-num">{num}</span>{label}</a></li>')
         out += ['      </ul>', '    </div>', '']
+    title, href, label = RELATED[lang]
+    out += ['    <div class="nav-section">',
+            f'      <div class="nav-section-title">{title}</div>',
+            '      <ul class="nav-list">',
+            f'        <li><a href="{href}"><span class="nav-num">↗</span>{label}</a></li>',
+            '      </ul>', '    </div>', '']
     out += ['  </nav>', '</aside>']
     return "\n".join(out)
 

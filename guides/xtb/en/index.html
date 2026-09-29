@@ -55,6 +55,13 @@
       </ul>
     </div>
 
+    <div class="nav-section">
+      <div class="nav-section-title">Related</div>
+      <ul class="nav-list">
+        <li><a href="../../orca/en/xtb.html"><span class="nav-num">↗</span>xTB inside ORCA</a></li>
+      </ul>
+    </div>
+
   </nav>
 </aside>
 
@@ -81,10 +88,27 @@
           calculations and to run long dynamics. CREST builds conformer ensembles on top of xtb by repeating metadynamics and optimisation.
         </p>
         <p>
-          Calling xTB from inside ORCA is covered separately in <a href="../../orca/en/xtb.html">chapter 16 of the ORCA guide</a>.
-          This guide is about using xtb and CREST directly. Both guides use the same example (alanine dipeptide in water), so
-          the results can be compared.
+          This guide is about running xtb and CREST directly on the command line.
+          The same GFN-xTB calculations can also be called from inside an ORCA input file.
         </p>
+
+        <div class="tip">
+          <div class="note-title">xTB inside ORCA → <a href="../../orca/en/xtb.html">chapter 16 of the ORCA guide</a></div>
+          <p>
+            Writing <code>! XTB2</code> on the ORCA keyword line makes ORCA call the <code>otool_xtb</code> next to it, which is the same
+            binary as the xtb in this guide. The <code>ORCA/6.1.0-gompi-2023b-avx2</code> module on Vanda already ships it.
+          </p>
+          <ul>
+            <li><strong>ORCA is the easier route</strong> when you pre-optimise with xTB and pass the geometry and Hessian to a DFT
+              optimisation or OptTS, when you scan a path first with <code>! XTB NEB-TS</code>, or when you want ORCA features such as
+              MD or QM/MM with cheap xTB energies underneath.</li>
+            <li><strong>Standalone xtb is the easier route</strong> for CREST conformer searches, RMSD metadynamics, long MD with SHAKE
+              and heavy hydrogens, and batches of hundreds of structures driven from a shell script.</li>
+          </ul>
+          <p>
+            Both guides use the same example (alanine dipeptide in water), so the results can be compared.
+          </p>
+        </div>
 
         <h2>Topics</h2>
         <div class="cards">
