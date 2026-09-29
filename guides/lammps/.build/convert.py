@@ -271,6 +271,7 @@ HEAD_TMPL = """<!DOCTYPE html>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
     onload="renderMathInElement(document.body, {{
+      output: 'mathml',
       delimiters: [
         {{left: '$$', right: '$$', display: true}},
         {{left: '$', right: '$', display: false}}

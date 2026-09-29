@@ -782,3 +782,14 @@ a:hover {
     padding: 0 1.25rem 2rem;
   }
 }
+
+/* Math: KaTeX emits MathML (output: 'mathml'), set in IBM Plex Math */
+@font-face {
+  font-family: 'IBM Plex Math';
+  src: url('https://cdn.jsdelivr.net/npm/@ibm/plex-math@1.1.0/fonts/complete/woff2/IBMPlexMath-Regular.woff2') format('woff2');
+  font-display: swap;
+}
+
+math {
+  font-family: 'IBM Plex Math', math;
+}
