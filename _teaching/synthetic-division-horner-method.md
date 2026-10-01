@@ -1,7 +1,7 @@
 ---
 subject: Math
 order: 3
-date: 2026-10-02
+date: 2026-09-30
 title: "조립제법은 왜 되는가: 긴 나눗셈과 Horner 방법이 같은 계산이라는 것"
 tags: [Math, Algebra, Polynomial]
 description: "조립제법은 일차식으로 하는 긴 나눗셈에서 변수와 매번 지워지는 항을 빼고 남긴 것이다. 그 아랫줄은 Horner 방법으로 P(c)를 계산하는 과정과 숫자 하나까지 같아서, 나머지정리와 (ax − b)·이차식으로 나누는 방법이 모두 여기서 나온다."
