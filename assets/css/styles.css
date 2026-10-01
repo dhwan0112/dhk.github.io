@@ -1247,6 +1247,21 @@ section {
     max-width: 60ch;
 }
 
+.teaching-group {
+    padding: 0;
+    margin-top: 2.5rem;
+}
+
+.teaching-subject {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
 .blog-tag-nav {
     display: flex;
     flex-wrap: wrap;

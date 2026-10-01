@@ -26,6 +26,9 @@ collections:
   pages:
     output: true
     permalink: /:path/
+  teaching:
+    output: true
+    permalink: /teaching/:path/
 
 # Default front matter
 defaults:
@@ -44,6 +47,11 @@ defaults:
       type: "pages"
     values:
       layout: "page"
+  - scope:
+      path: ""
+      type: "teaching"
+    values:
+      layout: "post"
 
 # Exclude files
 exclude:

@@ -9,7 +9,7 @@
 
     <nav class="sidebar-nav">
         <a href="{{ '/research/' | relative_url }}" class="sidebar-link {% if page.url == '/research/' %}active{% endif %}">Research</a>
-        <a href="{{ '/blog/' | relative_url }}" class="sidebar-link {% if page.url contains '/blog' or page.layout == 'post' %}active{% endif %}">Blog</a>
+        <a href="{{ '/blog/' | relative_url }}" class="sidebar-link {% if page.url contains '/blog' or page.collection == 'posts' %}active{% endif %}">Blog</a>
         <a href="{{ '/guides/' | relative_url }}" class="sidebar-link {% if page.url == '/guides/' %}active{% endif %}">Guides</a>
         <div class="sidebar-sub">
             <a href="{{ '/guides/orca/' | relative_url }}" class="sidebar-link">ORCA</a>
@@ -19,7 +19,7 @@
             <a href="{{ '/guides/linux/' | relative_url }}" class="sidebar-link">Linux</a>
             <a href="{{ '/guides/shell/' | relative_url }}" class="sidebar-link">Shell scripting</a>
         </div>
-        <a href="{{ '/teaching/' | relative_url }}" class="sidebar-link {% if page.url == '/teaching/' %}active{% endif %}">Teaching</a>
+        <a href="{{ '/teaching/' | relative_url }}" class="sidebar-link {% if page.url == '/teaching/' or page.collection == 'teaching' %}active{% endif %}">Teaching</a>
         <a href="{{ '/education/' | relative_url }}" class="sidebar-link {% if page.url == '/education/' %}active{% endif %}">Education</a>
         <a href="{{ '/' | relative_url }}#contact" class="sidebar-link">Contact</a>
     </nav>
