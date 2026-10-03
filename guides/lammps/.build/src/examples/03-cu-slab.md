@@ -50,7 +50,7 @@ mass            1 63.546
 pair_style      eam/alloy
 pair_coeff      * * Cu_mishin1.eam.alloy Cu
 
-# 하단 한 층 고정, 나머지는 열냉수
+# 하단 두 면(z < 0.6a = 2.17 A) 고정, 나머지는 열욕
 region          bot   block INF INF INF INF 0 0.6 units lattice
 group           bottom region bot
 group           mobile subtract all bottom
@@ -75,7 +75,7 @@ write_dump      all custom slab_final.dump id type x y z modify sort id
 
 `region sim` 은 z를 12셀(약 43 Å)까지 잡지만 원자는 아래 6셀(약 22 Å)에만
 만들어, 위쪽 절반이 진공으로 남는다. `boundary p p f` 로 x·y는 주기, z는 비주기다.
-하단 한 층을 `setforce 0` 으로 고정해 슬랩이 z 방향으로 떠내려가지 않게 한다.
+하단 두 면(z = 0, 1.81 Å, 256원자)을 `setforce 0` 으로 고정해 슬랩이 z 방향으로 떠내려가지 않게 한다.
 
 ## 실행
 

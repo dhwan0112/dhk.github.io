@@ -8,8 +8,11 @@ permalink: /
 
 # 구리 계면 벤젠-에탄올 혼합물 LAMMPS 시뮬레이션 가이드
 
-Cu(100)·Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착을 분자동역학으로 계산할 때 쓴
-프로토콜과 입력 파일을 정리했다.
+Cu 표면 위 벤젠-에탄올 경쟁 흡착을 분자동역학으로 계산할 때 쓴
+프로토콜과 입력 파일을 정리했다. `inputs/` 의 다섯 단계 입력은 공개된
+[`opls.data`](../../files/blog/pppm-vs-msm/opls.data) 로 끝까지 돌아가는 것을 확인했다.
+다만 이 데이터 파일은 Cu 슬랩 구조와 일부 OPLS-AA 계수가 틀려 있어서, 각 장에 그 내용을 함께 적었다
+([1장](docs/01-overview), [3장](docs/03-force-fields)).
 
 ---
 
@@ -40,7 +43,8 @@ Cu(100)·Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착을 분자동역학으
 
 ## 실행 환경
 
-- LAMMPS: 23 Jun 2022 이후 안정 버전 (KSPACE, MANYBODY, EXTRA-PAIR 패키지 포함)
+- LAMMPS: 23 Jun 2022 이후 안정 버전 (MOLECULE, KSPACE, RIGID 패키지. UROPS run 처럼 Cu-Cu 에 EAM 을 쓰면 MANYBODY 도)
+- 입력 확인에 쓴 버전: LAMMPS 22 Jul 2025
 - MPI: 40코어 워크스테이션에서 `mpirun -np 40`
 - 세션 관리: 오래 걸리는 실행은 `tmux` 안에서
 

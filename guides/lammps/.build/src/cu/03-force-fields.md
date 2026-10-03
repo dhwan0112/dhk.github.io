@@ -81,10 +81,17 @@ pair_modify mix arithmetic
 
 ## 3.3 LAMMPS pair_style 설정
 
-이 시스템에는 유기 분자(LJ + Coulomb)와 Cu 슬랩(EAM)이 함께 있으므로
-`pair_style hybrid`를 쓴다. fcc 금속에는 전통적으로 EAM이 잘 맞지만,
-여기서는 Heinz et al. (2008) 의 12-6 LJ 파라미터로 Cu 슬랩도 LJ로 통일했다.
-그러면 hybrid의 번거로움을 피하고 Cu-유기 분자 cross 항도 분명하게 정의할 수 있다.
+이 시스템에는 유기 분자(LJ + Coulomb)와 Cu 슬랩이 함께 있다. 설정 방법은 두 가지다.
+
+- **UROPS run 의 방식**: `pair_style hybrid eam/alloy lj/cut/coul/long 14.0`.
+  Cu-Cu 는 EAM (`Cu_mishin1.eam.alloy`), 유기-유기와 Cu-유기는 LJ + Coulomb 이다.
+  Cu-유기 쌍은 `pair_coeff i 12 lj/cut/coul/long ε σ` 로 하나씩 직접 줬다.
+- **이 가이드의 `inputs/` 방식**: Cu 를 전부 고정하므로 Cu-Cu 상호작용은 궤적에 영향이 없다.
+  그래서 `lj/cut/coul/long` 하나로 쓰고 `neigh_modify exclude type 12 12` 로 Cu-Cu 쌍을 뺐다.
+  EAM 파일이 필요 없고, Cu-유기 쌍은 UROPS run 과 같은 값을 쓴다.
+
+Cu 를 움직이게 하려면(가열, 응력 계산 등) Cu-Cu 에는 EAM 이 필요하다.
+LJ 하나로 Cu-Cu 를 기술하면 fcc 금속의 탄성과 표면 이완이 맞지 않는다.
 
 ### pair_style 설정 (PPPM 사용 시)
 
@@ -103,13 +110,15 @@ kspace_style pppm 1.0e-4
 ### pair_style 설정 (MSM 사용 시)
 
 ```bash
-pair_style lj/cut/coul/long 12.0
+pair_style lj/cut/coul/msm 12.0
 pair_modify mix geometric tail no
 kspace_style msm 1.0e-4
 ```
 
-`lj/cut/coul/long`은 MSM과도 호환된다 ([LAMMPS pair_lj_cut_coul 문서](https://docs.lammps.org/pair_lj_cut_coul.html)).
-`lj/cut/coul/msm`을 써도 된다.
+MSM 은 실공간 항도 MSM 의 분할 함수로 계산해야 하므로 `coul/msm` 변종을 쓴다.
+`lj/cut/coul/long` 과 `kspace_style msm` 을 함께 쓰면 LAMMPS 가
+"KSpace style is incompatible with Pair style" 오류를 낸다
+([LAMMPS pair_lj_cut_coul 문서](https://docs.lammps.org/pair_lj_cut_coul.html)).
 
 ## 3.4 OPLS-AA 결합 항 설정
 
@@ -132,23 +141,40 @@ $$
 
 ### OPLS-AA 벤젠 파라미터 (요약)
 
-| 결합/각도 | 값 |
-|-----------|-----|
-| C-C 결합 ($K_b$, $r_0$) | 469 kcal/mol·Å², 1.400 Å |
-| C-H 결합 ($K_b$, $r_0$) | 367 kcal/mol·Å², 1.080 Å |
-| C-C-C 각도 ($K_\theta$, $\theta_0$) | 63.0 kcal/mol·rad², 120° |
-| C-C-H 각도 ($K_\theta$, $\theta_0$) | 35.0 kcal/mol·rad², 120° |
-| C-C-C-C 이면각 (V₂) | 7.250 kcal/mol (V_1 = V_3 = V_4 = 0) |
+| 결합/각도 | 표준값 | UROPS 입력 |
+|-----------|-----|-----|
+| C-C 결합 ($K_b$, $r_0$) | 469 kcal/mol·Å², 1.400 Å | 같음 |
+| C-H 결합 ($K_b$, $r_0$) | 367 kcal/mol·Å², 1.080 Å | 340, 1.080 |
+| C-C-C 각도 ($K_\theta$, $\theta_0$) | 63.0 kcal/mol·rad², 120° | 같음 |
+| C-C-H 각도 ($K_\theta$, $\theta_0$) | 35.0 kcal/mol·rad², 120° | 같음 |
+| X-C-C-X 이면각 | $V_2$ = 7.250 kcal/mol, 나머지 0 | C-C-C-C 만 $V_3$ = 2.935, 나머지 0 |
 
-### OPLS-AA 에탄올 LJ 파라미터 (Jorgensen 외 1996, Table 4)
+### OPLS-AA 에탄올 LJ 파라미터 (Jorgensen 외 1996)
 
-| 원자 | ε (kcal/mol) | σ (Å) |
-|------|--------------|--------|
-| HO (수산기 H) | 0.000 | 0.000 |
-| OH (수산기 O) | 0.170 | 3.120 |
-| CH₂-OH의 C (α-C) | 0.066 | 3.500 |
-| CH₃의 C | 0.066 | 3.500 |
-| 지방족 H | 0.030 | 2.500 |
+| 원자 | ε (kcal/mol) | σ (Å) | UROPS 입력 |
+|------|--------------|--------|-----|
+| HO (수산기 H) | 0.000 | 0.000 | 같음 |
+| OH (수산기 O) | 0.170 | 3.120 | σ = 3.070 |
+| CH₂-OH의 C (α-C) | 0.066 | 3.500 | 같음 |
+| CH₃의 C | 0.066 | 3.500 | 같음 |
+| 지방족 H | 0.030 | 2.500 | 같음 |
+
+### UROPS 입력이 표준값과 다른 곳
+
+`inputs/ff_opls_aa.in` 은 UROPS run 의 계수를 그대로 옮기고, 표준값과 다른 줄마다 `[표준: …]` 을 붙여 두었다.
+요약하면 다음과 같다.
+
+- **전하**: 에탄올 전하가 표준과 다르다 ([2장](02-data-files)의 표).
+- **에탄올 각도**: C-O-H 가 63.0 / 120° (표준 55.0 / 108.5°) 로, 벤젠 C-C-C 값이 들어가 있다.
+  H-C-H, C-C-H 각도도 같은 종류인데 타입마다 상수가 제각각이다.
+- **이면각**: 벤젠 고리 이면각은 $V_2$ 대신 $V_3$ 에 2.935 가 들어가 있고 나머지 고리 이면각은 0 이다.
+  평면성은 improper 항(10.5 kcal/mol, 180°) 하나로만 유지된다.
+  에탄올의 H-C-C-H, H-C-C-O, H-C-O-H 이면각은 대부분 0 이다.
+- **Cu-유기 LJ**: 아래 3.6절.
+
+에탄올 각도와 이면각은 데이터 파일을 만들 때 타입 번호가 어긋난 것으로 보인다.
+이 계수로 얻은 결과는 OPLS-AA 의 결과라고 부르기 어렵다. 새로 돌린다면 LigParGen 이나 moltemplate 의 `oplsaa.lt` 처럼
+타입을 자동으로 붙여 주는 도구로 데이터 파일을 다시 만드는 편이 낫다.
 
 ## 3.5 TraPPE-UA 결합 항 설정
 
@@ -161,12 +187,21 @@ angle_style harmonic
 dihedral_style harmonic   # TraPPE는 OPLS의 4-cosine을 쓰지 않음
 ```
 
-결합 길이를 SHAKE 알고리즘으로 고정하는 방법도 있다.
+결합 길이를 SHAKE 알고리즘으로 고정하는 방법도 있지만, `fix shake` 는 중심 원자 하나와
+거기 붙은 원자 최대 3개로 이루어진 클러스터만 다룬다. 그래서 모든 결합을 한꺼번에 묶을 수는 없다.
+
+- 벤젠 UA 고리(CH 6개가 고리로 연결)는 클러스터가 아니므로 SHAKE 로 묶을 수 없다. `fix rigid/small` 을 쓴다.
+- UA 에탄올 CH₃–CH₂–O–H 에서 세 결합을 모두 묶으면 CH₂ 중심 클러스터와 O 중심 클러스터가 이어져
+  "Shake clusters are connected" 오류가 난다. O 중심의 CH₂–O, O–H 두 결합만 묶을 수 있다.
 
 ```bash
-# 결합 타입 1, 2, 3, 4를 모두 SHAKE로 고정 (예시)
-fix shake_bonds all shake 1.0e-4 20 0 b 1 2 3 4
+# 결합 타입 번호는 trappe.data 의 Bonds 섹션에서 확인한다 (아래는 CH2-O = 3, O-H = 4 인 경우)
+fix shake_oh  ethanol shake 1.0e-4 20 0 b 3 4
+fix rigid_bz  benzene rigid/small molecule
 ```
+
+`fix rigid/small` 은 그 자체가 적분기라 벤젠 그룹에 `fix nve`/`nvt` 를 따로 걸지 않는다.
+온도 조절이 필요하면 `rigid/nvt/small` 을 쓴다.
 
 ### TraPPE-UA 에탄올 LJ 파라미터 (Chen 외 2001, Table 1)
 
@@ -189,27 +224,36 @@ fix shake_bonds all shake 1.0e-4 20 0 b 1 2 3 4
 
 ## 3.6 Cu 슬랩 파라미터 (Heinz 외 2008)
 
-Cu에는 Heinz et al. (2008) 의 12-6 INTERFACE-FF LJ 파라미터를 쓴다.
+Heinz et al. (2008) 의 12-6 LJ 파라미터는 다음과 같다.
 
-| 원자 | ε (kcal/mol) | σ (Å) |
-|------|--------------|--------|
-| Cu | 4.72 | 2.616 |
+| 원자 | ε (kcal/mol) | σ (Å) | $r_0 = 2^{1/6}\sigma$ (Å) |
+|------|--------------|--------|--------|
+| Cu | 4.72 | 2.330 | 2.616 |
 
-이 값들은 fcc Cu의 격자 상수, 표면 장력, 표면 에너지에 동시에 fit한 것이다.
-EAM 포텐셜보다 단순하지만 유기 분자와의 cross-term을 일반적인 LJ 혼합 규칙으로 정의할 수 있어
-INTERFACE 힘장과 무리 없이 합쳐진다.
-
-LAMMPS 명령어:
+LAMMPS `lj/cut` 의 두 번째 계수는 σ 이므로 2.616 이 아니라 2.330 을 넣는다.
+이 값은 fcc Cu 의 밀도와 표면 에너지에 맞춘 것이고, 유기 분자와의 cross 항을 일반적인 혼합 규칙으로
+만들 수 있다는 게 INTERFACE 힘장의 장점이다.
 
 ```bash
-# OPLS-AA 시스템에서 Cu는 type 12
-pair_coeff 12 12 4.72 2.616
+# OPLS-AA 시스템에서 Cu는 type 12, TraPPE-UA 시스템에서는 type 6
+pair_coeff 12 12 4.72 2.330
 ```
 
-```bash
-# TraPPE-UA 시스템에서 Cu는 type 6
-pair_coeff 6 6 4.72 2.616
-```
+### UROPS run 의 Cu-유기 파라미터
+
+UROPS run 은 이 값을 혼합하지 않고 Cu-유기 쌍을 하나씩 직접 넣었다.
+
+| 쌍 | UROPS 입력 ε (kcal/mol) | Heinz 값을 기하 평균했을 때 ε (kcal/mol) |
+|----|-----|-----|
+| 벤젠 C - Cu | 0.0187 | 0.575 |
+| 에탄올 C - Cu | 0.0182 | 0.558 |
+| 에탄올 O - Cu | 0.0292 | 0.896 |
+| H - Cu | 0.0122 | 0.376 |
+
+UROPS 입력의 ε 는 Cu 의 ε 를 약 0.005 kcal/mol 로 두고 기하 평균한 값과 같다. Heinz 값보다 약 30배 약하다.
+보고서에는 "INTERFACE 힘장의 Cu 파라미터와 기하 평균"이라고 적혀 있지만 입력 파일은 그렇지 않다.
+Cu-유기 인력이 이 정도로 약하면 첫 흡착층의 구조는 Cu 와의 인력보다 벽 근처의 충전 효과에 가까울 수 있으니,
+이 run 의 흡착 결과를 실제 Cu 표면에 대한 값으로 읽지 않는다.
 
 ## 3.7 힘장 선택 기준
 

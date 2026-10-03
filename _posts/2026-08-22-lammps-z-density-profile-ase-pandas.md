@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
 ## fix ave/chunk와 대조
 
-대조에 쓴 계는 LAMMPS 가이드 [cu-01]({{ '/guides/lammps/cu-01-system.html' | relative_url }})에 나오는 Cu(100) 슬랩이다. 8×8 단위격자 면적에 (100)면 13장, 1664원자, 맨 아래 한 층은 `setforce 0`으로 고정, 나머지는 300 K NVT. 10000스텝 평형 후 5000스텝 동안 `fix ave/chunk 100 50 5000`으로 시간 평균 프로파일(`zdens.dat`)을 뽑고, 마지막 프레임을 `write_dump`로 저장했다. 위 스크립트는 그 마지막 프레임 하나를 읽는다. 입력 파일과 두 출력 파일은 글 끝에 있다.
+대조에 쓴 계는 LAMMPS 가이드 [cu-01]({{ '/guides/lammps/cu-01-system.html' | relative_url }})에 나오는 Cu(100) 슬랩이다. 8×8 단위격자 면적에 (100)면 13장, 1664원자, 맨 아래 두 면(z = 0, 1.81 Å, 256원자)은 `setforce 0`으로 고정, 나머지는 300 K NVT. 10000스텝 평형 후 5000스텝 동안 `fix ave/chunk 100 50 5000`으로 시간 평균 프로파일(`zdens.dat`)을 뽑고, 마지막 프레임을 `write_dump`로 저장했다. 위 스크립트는 그 마지막 프레임 하나를 읽는다. 입력 파일과 두 출력 파일은 글 끝에 있다.
 
 <figure>
 <img src="{{ '/images/blog/zprofile-cu100.png' | relative_url }}" alt="Cu(100) slab z number-density profile: Python single frame vs LAMMPS time average">

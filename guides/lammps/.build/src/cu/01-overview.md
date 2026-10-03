@@ -55,23 +55,37 @@ has_children: false
 
 ### Cu 슬랩의 결정학적 면
 
-데이터 파일에서 Cu 원자는 (0, 0, 0), (0, 0, 3.615), (0, 0, 7.230), …
-와 같이 3.615 Å 간격으로 배치되어 있다. 이는 fcc Cu의 격자 상수
-(experimental: 3.6147 Å at 298 K, Davey 1925)와 일치한다.
 노출면이 (100) 인지 (111) 인지는 슬랩을 자르는 결정 방향으로 정해진다.
 
-| 결정면 | 표면 원자 밀도 (atoms/Å²) | 표면 에너지 (J/m²) | 특징 |
+| 결정면 | 표면 원자 밀도 (atoms/Å²) | 표면 에너지, 계산 (J/m²) | 특징 |
 |--------|---------------------------|---------------------|------|
-| Cu(100) | 0.153 | ~1.78 | 정사각형 배열, hollow site |
-| Cu(111) | 0.177 | ~1.79 | 육각형 배열, 가장 안정 |
+| Cu(100) | 0.153 | 2.17 | 정사각형 배열, hollow site |
+| Cu(111) | 0.177 | 1.95 | 육각형 배열, 가장 안정 |
 
-표면 에너지 값은 Vitos 외 (1998), *Surf. Sci.* 411, 186 에서 가져왔다.
+표면 원자 밀도는 $2/a^2$와 $4/(\sqrt{3}a^2)$로 계산했고, 표면 에너지는 Vitos 외 (1998), *Surf. Sci.* 411, 186 의 DFT 값이다.
+면 평균 실험값은 약 1.79 J/m² (Tyson & Miller 1977) 로, 계산값보다 낮다.
+
+<div class="note">
+  <div class="note-title">opls.data 의 Cu 슬랩은 fcc(100) 이 아니다</div>
+  <p>
+    UROPS run 의 <a href="../../files/blog/pppm-vs-msm/opls.data"><code>opls.data</code></a> 에 든 Cu 371원자는
+    z = 0, 1.81, 3.62, 5.42, 7.23 Å 의 다섯 층에 81, 64, 81, 64, 81개씩 있다. 한 층은 간격 3.615 Å 의
+    정사각 격자이고, 다음 층은 a/2 높이에서 (a/2, a/2) 만큼 밀려 있다. 이것은 bcc 쌓임이다.
+    최근접 거리가 3.13 Å 로 fcc Cu 의 2.56 Å 보다 길다. 또 81원자 층은 한 줄에 9개라
+    9 × 3.615 = 32.5 Å 인데 박스는 30 Å 이어서, x(또는 y) = 0 과 28.92 Å 의 원자가 주기 경계를
+    사이에 두고 1.08 Å 까지 붙어 있다.
+  </p>
+  <p>
+    fcc(100) 슬랩은 <code>lattice fcc 3.615</code> 와 <code>create_atoms</code> 로 만드는 편이 안전하다
+    (<a href="ex-03-cu-slab.html">예제 E3</a>). 그때는 박스 가로를 격자 상수의 정수배(예: 8 × 3.615 = 28.92 Å)로 맞춘다.
+  </p>
+</div>
 
 <figure>
   <img src="assets/images/cu-slab.png" alt="실제로 실행한 Cu(100) 슬랩의 측면도와 z 방향 원자 밀도 프로파일" style="width:100%;max-width:880px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
   <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
     그림 2. 위 슬랩 기하를 실제로 구성해 돌린 결과(LAMMPS 22 Jul 2025, EAM Mishin 2001,
-    fcc <em>a</em> = 3.615 Å, 1664 원자, NVT 열욕 300 K, 하단 한 층 고정). 왼쪽은 측면도(x–z 투영)로
+    fcc <em>a</em> = 3.615 Å, 1664 원자, NVT 열욕 300 K, 하단 두 면 고정). 왼쪽은 측면도(x–z 투영)로
     하단의 이산적인 Cu 원자층과 그 위의 진공 영역이 그대로 보인다.
     오른쪽 z-밀도 프로파일에서 각 봉우리는 (100) 원자 한 층(층 간격 ≈ 1.81 Å)에 해당하며,
     진공 영역에서는 밀도가 0으로 떨어진다. <code>boundary p p f</code>의 슬랩+진공 구조가
@@ -95,8 +109,11 @@ has_children: false
 
 1. **분산 인력 (London dispersion)**:
    Cu 원자와 유기 분자 사이의 비결합 12-6 Lennard-Jones 항으로 모형화한다.
-   파라미터는 Heinz et al. (2008) 의 INTERFACE-FF 값을 쓴다.
-   Cu-Cu의 경우 ε = 4.72 kcal/mol, σ = 2.616 Å.
+   Heinz et al. (2008) 의 12-6 Cu 파라미터는 ε = 4.72 kcal/mol, σ = 2.330 Å 이다
+   (2.616 Å 은 σ 가 아니라 퍼텐셜 최소 위치 $r_0 = 2^{1/6}\sigma$).
+   UROPS run 은 이 값을 쓰지 않았다. Cu-Cu 는 EAM (Mishin 2001) 이고, Cu-유기 쌍은
+   ε = 0.012–0.029 kcal/mol 을 직접 넣었다. Heinz 값을 기하 평균으로 섞으면 벤젠 C-Cu 가
+   0.575 kcal/mol 인데, 실제 입력은 0.0187 kcal/mol 로 약 30배 약하다 ([3장](03-force-fields)).
 
 2. **정전기 상호작용 (Coulomb)**:
    에탄올의 -O-H 결합은 큰 부분 전하 (q_O ≈ -0.7, q_H ≈ +0.435) 를 가지므로
@@ -105,8 +122,8 @@ has_children: false
 3. **π-d 궤도 상호작용**:
    고전 힘장은 이 효과를 명시적으로 다루지 않고, LJ 파라미터에 녹여 간접적으로 표현한다.
    양자역학적 효과를 제대로 잡으려면 DFT 나 ReaxFF가 필요하다. 여기서는
-   INTERFACE-FF의 LJ 파라미터가 표면 장력에 fit되어 있으므로
-   계면 거동을 정량적으로 재현할 수 있다고 가정한다.
+   INTERFACE-FF의 LJ 파라미터는 금속의 표면 에너지에 fit되어 있어 계면 거동을 어느 정도 재현한다고
+   기대할 수 있지만, 위처럼 Cu-유기 ε 를 따로 줄였다면 그 근거는 사라진다.
 
 ## 1.4 다섯 단계 프로토콜과 단계별 이유
 
@@ -153,7 +170,13 @@ has_children: false
    *J. Chem. Phys.* **18**, 817-829 (1950).
    DOI: [10.1063/1.1747782](https://doi.org/10.1063/1.1747782)
 
-4. W. Davey, "Precision Measurements of the Lattice Constants of Twelve
-   Common Metals", *Phys. Rev.* **25**, 753-761 (1925).
-   DOI: [10.1103/PhysRev.25.753](https://doi.org/10.1103/PhysRev.25.753)
+4. W. R. Tyson, W. A. Miller, "Surface free energies of solid metals:
+   Estimation from liquid surface tension measurements",
+   *Surf. Sci.* **62**, 267-276 (1977).
+   DOI: [10.1016/0039-6028(77)90442-3](https://doi.org/10.1016/0039-6028(77)90442-3)
+
+5. Y. Mishin, M. J. Mehl, D. A. Papaconstantopoulos, A. F. Voter, J. D. Kress,
+   "Structural stability and lattice defects in copper: Ab initio, tight-binding,
+   and embedded-atom calculations", *Phys. Rev. B* **63**, 224106 (2001).
+   DOI: [10.1103/PhysRevB.63.224106](https://doi.org/10.1103/PhysRevB.63.224106)
 

@@ -20,7 +20,7 @@ nav_order: 6
 
 | 단계 | 적분기 (Integrator) | 온도 제어 | 압력 제어 | 목적 |
 |------|---------------------|-----------|------------|------|
-| 1. 소프트 완화 | NVE/limit | 없음 | 없음 | 원자 중첩 해소 |
+| 1. 소프트 완화 | NVE/limit | Langevin 0.1 K | 없음 | 원자 중첩 해소 |
 | 2. 에너지 최소화 | (정적) | 없음 | 없음 | 국소 최소점 도달 |
 | 3. 단계적 가열 | NVT (Langevin) | 0.1 → 300 K | 없음 (정용량) | 운동 에너지 점진 주입 |
 | 4. 평형화 | NVT | 300 K | 없음 | 열역학 평형 분포 확보 |
@@ -44,6 +44,23 @@ nav_order: 6
     (데이터 파일이 없어 그대로는 실행되지 않는다는 점도 거기 적었다).
   </p>
 </div>
+
+아래 입력은 모두 `inputs/` 의 파일에서 발췌했다. 다섯 파일을 공개된
+[`opls.data`](../../files/blog/pppm-vs-msm/opls.data) 와 LAMMPS 22 Jul 2025 로, PPPM 과 MSM 각각
+`run` 길이만 줄여 끝까지 돌려 오류 없이 지나가는 것을 확인했다.
+모든 stage 파일은 같은 순서로 시작한다. `pair_coeff` 는 박스가 있어야 하고 `pair_style` 이 먼저 정의돼 있어야 하므로
+순서를 바꾸면 "Pair_coeff command before simulation box is defined" 같은 오류가 난다.
+
+```lammps
+include         common.in          # units, atom_style, boundary, neighbor
+read_data       ../opls.data       # stage 2 부터는 read_restart stageN.restart
+include         kspace_pppm.in     # pair_style + kspace_style
+include         ff_opls_aa.in      # pair_modify, *_style, *_coeff
+```
+
+UROPS run 의 실제 입력([`master_wall_pppm.in`](../../files/blog/pppm-vs-msm/master_wall_pppm.in))은 이 틀과 몇 군데 다르다.
+1단계에 `pair_style soft` 와 `fix adapt` 를 썼고, 2단계는 steepest descent, 가열은 0.005 → 0.1 → 0.25 fs 로 timestep 을 바꿔 가며 했고,
+평형화 1 ns 와 production 2 ns 를 0.5 fs 로 돌렸다.
 
 ## 5.1 Stage 1: 소프트 완화 (Soft potential relaxation)
 
@@ -69,28 +86,31 @@ $A$ 를 0에서 조금씩 키우면 겹친 원자가 부드럽게 밀려나 떨�
 여기서는 `fix nve/limit`를 쓴다. 변위는 제한하되 실제 힘장을 그대로 쓰므로
 다음 단계로 매끄럽게 넘어간다.
 
-```bash
-# Stage 1: Soft relaxation (fix nve/limit 방식)
-include  ff_opls_aa.in     # 또는 ff_trappe_ua.in
-include  kspace_pppm.in    # 또는 kspace_msm.in
+```lammps
+# 01_soft.in (공통 머리 다음)
+group           cu       type 12
+group           organic  subtract all cu
 
-velocity        all create 1.0 12345 mom yes rot yes dist gaussian
-fix             1 all nve/limit 0.05    # 한 스텝당 최대 변위 0.05 Å
-fix             2 wall all wall/lj93 zhi EDGE 0.1 3.0 10.0 units box
+fix             wall_top organic wall/lj93 zhi EDGE 0.1 3.0 10.0 units box
+fix             freeze_cu cu setforce 0.0 0.0 0.0
+
+timestep        0.5
+fix             relax organic nve/limit 0.05       # 한 스텝당 최대 변위 0.05 Å
+fix             tstat organic langevin 0.1 0.1 100.0 87287
 
 thermo          100
-thermo_style    custom step temp press pe ke etotal
-timestep        0.5
-run             5000
-
-unfix           1
-unfix           2 wall
-write_data      01_soft_relaxed.data nocoeff
+thermo_style    custom step temp pe ke etotal press vol
+run             100000                              # 50 ps
+write_restart   stage1.restart
 ```
 
-`fix nve/limit 0.05`: 한 시간 스텝에 5 % σ 정도의 변위만 허용 (이상값은 5%σ 미만의 0.05 Å).
+`fix nve/limit 0.05`: 한 시간 스텝에 원자가 움직일 수 있는 거리를 0.05 Å 로 묶는다.
+LJ σ(약 2.5–3.5 Å)의 1.5–2 % 정도다.
+`opls.data` 로 돌리면 첫 스텝 퍼텐셜 에너지가 $9.2 \times 10^{14}$ kcal/mol 이고 100 스텝 뒤 $4.8 \times 10^{4}$ kcal/mol 로 떨어진다.
 [LAMMPS fix nve/limit 문서](https://docs.lammps.org/fix_nve_limit.html)에서 자세히 다룬다.
-SHAKE 같은 구속과도 함께 쓸 수 있다.
+
+Cu 는 어떤 적분 fix 에도 들어 있지 않으므로 이미 움직이지 않는다. `setforce 0` 은 출력되는 힘을 0 으로 만들어
+최소화 단계에서 Cu 가 움직이지 않게 하는 역할이다.
 
 ## 5.2 Stage 2: 에너지 최소화 (Energy minimization)
 
@@ -105,27 +125,26 @@ Stage 1에서 변위를 제한해 큰 힘을 없앴다면, Stage 2에서는
 
 ### LAMMPS 입력
 
-```bash
-# Stage 2: Energy minimization
-include  ff_opls_aa.in
-include  kspace_pppm.in
-read_data 01_soft_relaxed.data add append
+```lammps
+# 02_min.in (read_restart stage1.restart 로 시작)
+fix             wall_top organic wall/lj93 zhi EDGE 0.1 3.0 10.0 units box
+fix_modify      wall_top energy yes     # 최소화가 벽 에너지까지 보도록
+fix             freeze_cu cu setforce 0.0 0.0 0.0
 
-fix      wall_top all wall/lj93 zhi EDGE 0.1 3.0 10.0 units box
-
-min_style cg
-minimize  1.0e-4 1.0e-6 1000 10000
-
-unfix     wall_top
-write_data 02_minimized.data nocoeff
+min_style       cg
+minimize        1.0e-6 1.0e-6 10000 100000
+write_restart   stage2.restart
 ```
 
-`minimize 1.0e-4 1.0e-6 1000 10000`의 의미 ([LAMMPS minimize 문서](https://docs.lammps.org/minimize.html)):
+`minimize 1.0e-6 1.0e-6 10000 100000`의 의미 ([LAMMPS minimize 문서](https://docs.lammps.org/minimize.html)):
 
-- `etol = 1.0e-4`: 에너지 변화 허용치 (상대값)
+- `etol = 1.0e-6`: 에너지 변화 허용치 (상대값)
 - `ftol = 1.0e-6`: 힘의 norm 허용치 (kcal/mol/Å)
-- `maxiter = 1000`: 최대 반복 횟수
-- `maxeval = 10000`: 최대 힘/에너지 평가 횟수
+- `maxiter = 10000`: 최대 반복 횟수
+- `maxeval = 100000`: 최대 힘/에너지 평가 횟수
+
+벽 fix 의 에너지는 기본적으로 퍼텐셜 에너지에 들어가지 않는다. `fix_modify ... energy yes` 가 없으면
+최소화기가 보는 에너지와 힘이 서로 맞지 않는다.
 
 `min_style cg` (conjugate gradient) 가 대개 가장 효율적이지만,
 초기 구조가 아주 나쁘면 `min_style sd` (steepest descent) 로 몇 백 스텝 먼저 돌려도 된다.
@@ -146,10 +165,12 @@ write_data 02_minimized.data nocoeff
 
 | 부단계 | 온도 범위 | 지속 시간 | 주요 변화 |
 |--------|-----------|------------|------------------|
-| 3.1 | 0.1 → 10 K | 50 ps | 벤젠 π-π stacking 안정화 |
-| 3.2 | 10 → 100 K | 100 ps | 분자 진동/회전 모드 활성화 |
-| 3.3 | 100 → 200 K | 100 ps | 에탄올 수소 결합 네트워크 재배열 |
-| 3.4 | 200 → 300 K | 100 ps | 액체상 평형 분자 운동 도달 |
+| 3.1 | 0.1 → 10 K | 100 ps | 벤젠 π-π stacking 안정화 |
+| 3.2 | 10 → 100 K | 200 ps | 분자 진동/회전 모드 활성화 |
+| 3.3 | 100 → 200 K | 200 ps | 에탄올 수소 결합 네트워크 재배열 |
+| 3.4 | 200 → 300 K | 200 ps | 액체상 평형 분자 운동 도달 |
+
+오른쪽 열은 각 온도 구간에서 기대하는 변화이고, 이 계에서 직접 확인한 것은 아니다.
 
 ### LAMMPS 입력 (Langevin 동역학)
 
@@ -157,63 +178,45 @@ write_data 02_minimized.data nocoeff
 평형화를 앞당기는 random force 항이 명시적으로 들어 있기 때문이다
 ([LAMMPS fix langevin 문서](https://docs.lammps.org/fix_langevin.html)).
 
-```bash
-# Stage 3: Staged heating (Langevin 방식)
-include  ff_opls_aa.in
-include  kspace_pppm.in
-read_data 02_minimized.data add append
+```lammps
+# 03_heat.in (read_restart stage2.restart 로 시작, 그룹·벽·고정은 앞과 같음)
+velocity        organic create 0.1 87287 dist gaussian mom yes rot yes sum no
 
-# 그룹 정의 (분석/구속용)
-group    organic   type 1:11    # OPLS-AA의 경우
-group    copper    type 12
+timestep        0.5
+fix             integrator organic nve
 
-# Cu 슬랩 고정 (옵션: 가열 단계에서 슬랩이 움직이지 않도록)
-fix      freeze_cu copper setforce 0.0 0.0 0.0
+fix             tstat organic langevin 0.1 10.0 50.0 12345
+run             200000      # 0.1 → 10 K, 100 ps
 
-# 상부 벽
-fix      wall_top organic wall/lj93 zhi EDGE 0.1 3.0 10.0 units box
+unfix           tstat
+fix             tstat organic langevin 10.0 100.0 100.0 12346
+run             400000      # 10 → 100 K, 200 ps
 
-# Langevin 열냉수: 시간 변동 온도 사용
-fix      integrator organic nve
-fix      thermostat organic langevin 0.1 10.0 100.0 12345
+unfix           tstat
+fix             tstat organic langevin 100.0 200.0 100.0 12347
+run             400000      # 100 → 200 K, 200 ps
 
-velocity organic create 0.1 12345 mom yes rot yes dist gaussian
+unfix           tstat
+fix             tstat organic langevin 200.0 300.0 100.0 12348
+run             400000      # 200 → 300 K, 200 ps
 
-thermo        100
-thermo_style  custom step temp press pe ke etotal
-timestep      0.5
-run           100000     # 0.1 → 10 K, 50 ps
-
-unfix    thermostat
-fix      thermostat organic langevin 10.0 100.0 100.0 12346
-run      200000           # 10 → 100 K, 100 ps
-
-unfix    thermostat
-fix      thermostat organic langevin 100.0 200.0 100.0 12347
-run      200000           # 100 → 200 K, 100 ps
-
-unfix    thermostat
-fix      thermostat organic langevin 200.0 300.0 100.0 12348
-run      200000           # 200 → 300 K, 100 ps
-
-unfix    thermostat
-unfix    integrator
-unfix    wall_top
-unfix    freeze_cu
-write_data 03_heated.data nocoeff
+write_restart   stage3.restart
 ```
 
 `fix langevin T_start T_stop damp seed`의 의미:
 
-- `T_start, T_stop`: 시작/종료 온도 (K)
-- `damp`: 감쇠 시간 (시간 단위, 여기서 쓰는 `real` 단위계에서는 fs).
-  100 fs가 흔히 쓰는 값이고, 임계 감쇠 조건에 가깝다 (PIMD_1MD 1.4절 참조).
+- `T_start, T_stop`: 시작/종료 온도 (K). run 동안 선형으로 바뀐다.
+- `damp`: 감쇠 시간 (`real` 단위계에서는 fs). 작을수록 열욕과 강하게 묶인다. 50–100 fs 가 흔히 쓰는 값이다.
 - `seed`: 난수 시드 (스테이지마다 다른 값을 쓴다)
+
+fix ID 로 `thermo` 를 쓰지 않는다. `fix nvt` 는 `<ID>_temp` 라는 compute 를 만드는데, ID 가 `thermo` 면
+LAMMPS 가 원래 가진 `thermo_temp` 와 이름이 겹쳐 "Reuse of compute ID 'thermo_temp'" 오류가 난다.
 
 ### 시간 스텝 (timestep) 고르기
 
-- **OPLS-AA**: 가벼운 H 원자의 진동이 약 ~2700 cm⁻¹ (X-H stretch) 이므로,
-  시간 스텝은 0.5-1.0 fs 정도로 잡는다. SHAKE를 쓰면 2.0 fs까지 늘릴 수 있다.
+- **OPLS-AA**: C-H 신축이 약 3000 cm⁻¹, O-H 신축이 약 3600 cm⁻¹ 이라 주기가 9–11 fs 다.
+  주기의 1/10–1/20 로 잡으면 시간 스텝은 0.5-1.0 fs 다. X-H 결합을 SHAKE 로 묶으면 2.0 fs 까지 늘릴 수 있다
+  ([6장](06-frameworks)의 예시).
 - **TraPPE-UA**: 무거운 united-atom 사이트의 진동만 다루므로 1.0-2.0 fs 도 된다.
 
 여기서는 두 힘장을 맞추려고 가열 단계에서 **0.5 fs** 를 썼다.
@@ -232,31 +235,24 @@ deterministic dynamics를 유지하면서도 canonical 앙상블을 정확히 �
 
 ### LAMMPS 입력
 
-```bash
-# Stage 4: Equilibration (NVT, Nose-Hoover)
-include  ff_opls_aa.in
-include  kspace_pppm.in
-read_data 03_heated.data add append
+```lammps
+# 04_eq.in (read_restart stage3.restart 로 시작)
+timestep        0.5
+fix             tstat organic nvt temp 300.0 300.0 100.0
 
-group    organic   type 1:11
-group    copper    type 12
+thermo          500
+thermo_style    custom step temp pe ke etotal press density
+thermo_modify   flush yes
 
-fix      freeze_cu copper setforce 0.0 0.0 0.0
-fix      wall_top organic wall/lj93 zhi EDGE 0.1 3.0 10.0 units box
-fix      thermostat organic nvt temp 300.0 300.0 100.0
-
-velocity organic scale 300.0
-
-thermo          1000
-thermo_style    custom step temp press pe ke etotal
-timestep        1.0
-run             2000000   # 2 ns 평형화
-
-unfix    thermostat
-unfix    wall_top
-unfix    freeze_cu
-write_data 04_equilibrated.data nocoeff
+run             2000000     # 4a) 1 ns
+run             13000000    # 4b) 6.5 ns (필요하면 더 길게)
+write_restart   stage4.restart
 ```
+
+`thermo` 의 `temp` 는 기본적으로 모든 원자의 자유도로 나눈다. Cu 371개는 움직이지 않으므로
+찍히는 온도가 유기층의 실제 온도보다 낮다(이 계에서는 약 0.85배).
+유기층 온도를 보려면 `compute t_org organic temp` 를 만들어 `thermo_modify temp t_org` 로 바꾼다.
+`fix nvt` 는 자기 그룹(`organic`)의 온도로 조절하므로 열욕 자체는 맞게 동작한다.
 
 `fix nvt temp T_start T_stop damp`의 의미 ([LAMMPS fix nvt 문서](https://docs.lammps.org/fix_nh.html)):
 
@@ -271,8 +267,10 @@ write_data 04_equilibrated.data nocoeff
 2. **표면 흡착층의 정착**: 표면 1차 흡착층 (Cu 표면 5 Å 이내) 의 평균 점유율이 일정한지.
 3. **동경 분포 함수의 수렴**: 마지막 50% 와 그 이전 50% 의 g(r) 이 동일한지.
 
-OPLS-AA는 수소 결합 협동 효과 때문에 평형화에 7.5 ns 가량 걸릴 수 있다(내 이전 런 기준).
-TraPPE-UA는 그보다 짧은 2-3 ns 로 충분할 때가 많다.
+`inputs/04_eq.in` 의 7.5 ns 는 넉넉히 잡은 값이고, 측정으로 정한 값은 아니다.
+UROPS run 은 평형화를 1 ns 만 했는데, production 2 ns 동안 첫 층 벤젠 몰분율이 앞 1 ns 0.83 에서 뒤 1 ns 0.57 로 움직였고
+벌크 조성 프로파일도 평평해지지 않았다([PPPM vs MSM 글](../../blog/2026/08/22/pppm-vs-msm-cu-benzene-ethanol/)).
+에너지가 아니라 조성 프로파일이 시간에 따라 변하지 않을 때까지 돌리는 것이 기준이다.
 
 ## 5.5 Stage 5: Production
 
@@ -283,52 +281,51 @@ TraPPE-UA는 그보다 짧은 2-3 ns 로 충분할 때가 많다.
 
 ### LAMMPS 입력
 
-```bash
-# Stage 5: Production (NVT, 데이터 수집)
-include  ff_opls_aa.in
-include  kspace_pppm.in
-read_data 04_equilibrated.data add append
+```lammps
+# 05_prod.in (read_restart stage4.restart 로 시작)
+group           benzene   type 1 2
+group           ethanol   type 3:11          # opls.data: 에탄올은 type 3-11
 
-group    organic   type 1:11
-group    copper    type 12
+timestep        0.5
+fix             tstat organic nvt temp 300.0 300.0 100.0
 
-fix      freeze_cu copper setforce 0.0 0.0 0.0
-fix      wall_top organic wall/lj93 zhi EDGE 0.1 3.0 10.0 units box
-fix      thermostat organic nvt temp 300.0 300.0 100.0
-
-# RDF 계산 (예: Cu-O, Cu-benzene C 등)
-# 본 가이드는 외부 후처리 (integrated_analysis.py) 를 사용하므로
-# 여기서는 궤적과 thermo 정보만 저장
-compute  msd_org organic msd com yes
-compute  stress_atom all stress/atom NULL pair kspace bond angle dihedral improper
-
-thermo          1000
-thermo_style    custom step temp press pe ke etotal c_msd_org[4]
-thermo_modify   norm no
-
-# 궤적 저장
-dump            traj all custom 1000 05_production.lammpstrj id type mol x y z
+dump            traj all custom 1000 dump.lammpstrj id mol type x y z vx vy vz
 dump_modify     traj sort id
 
-# 응력 텐서 (Irving-Kirkwood 계면 장력 계산용) 저장
-fix             stress_save all ave/chunk 100 10 1000 &
-                bin/1d z lower 1.0 units box file stress_profile.dat &
-                density/mass v_stress_xx v_stress_yy v_stress_zz
+# z 밀도 프로파일 (0.5 Å 빈)
+compute         zchunks all chunk/atom bin/1d z lower 0.5 units box
+fix             dens_b benzene ave/chunk 100 50 5000 zchunks density/mass file profile_benzene.dat
+fix             dens_e ethanol ave/chunk 100 50 5000 zchunks density/mass file profile_ethanol.dat
 
-variable        stress_xx atom -c_stress_atom[1]
-variable        stress_yy atom -c_stress_atom[2]
-variable        stress_zz atom -c_stress_atom[3]
+# RDF: Cu-C(벤젠), Cu-O(에탄올)
+compute         myrdf all rdf 200 12 1 12 5
+fix             rdf_save all ave/time 100 50 5000 c_myrdf[*] file rdf.dat mode vector
 
-timestep        1.0
-run             5000000   # 5 ns production
-write_data      05_produced.data nocoeff
+# 응력: 빈별 합을 저장하고, 후처리에서 -(합)/(빈 부피) 로 압력 성분을 얻는다
+compute         stress_per all stress/atom NULL pair bond angle dihedral improper kspace fix
+compute         stress_sum all reduce/chunk zchunks sum c_stress_per[1] c_stress_per[2] c_stress_per[3]
+fix             stress_save all ave/time 100 50 5000 c_stress_sum[*] file stress_profile.dat mode vector
+
+# Cu-벤젠, Cu-에탄올 상호작용 에너지
+compute         e_cb cu group/group benzene
+compute         e_ce cu group/group ethanol
+
+thermo          500
+thermo_style    custom step temp pe ke etotal press density c_e_cb c_e_ce
+run             20000000    # 10 ns
+write_restart   stage5.restart
+write_data      final.data
 ```
+
+`fix ave/chunk` 는 원자별 값을 빈 안에서 원자 수로 나눈 평균을 낸다. 응력처럼 빈 안의 합이 필요한 양은
+`compute reduce/chunk ... sum` 으로 합을 구해 `fix ave/time ... mode vector` 로 저장한다.
+`fix ave/chunk` 의 인자에는 `bin/1d ...` 같은 빈 정의가 아니라 `compute chunk/atom` 의 ID 가 들어간다.
 
 ### Production 단계의 시간 결정 기준
 
 | 분석 대상 | production 시간 기준 |
 |-----------|---------------------|
-| 표면 흡착 비율 (SEI) | 2-3 ns 이상 |
+| 표면 흡착 비율 (SEI) | 10 ns 이상 (UROPS run 은 2 ns 에서 블록 표준오차 ±0.03–0.05) |
 | 흡착 에너지 평균 | 3-5 ns |
 | 계면 장력 (Irving-Kirkwood) | 5 ns 이상 |
 | 수소 결합 수명 분포 | 5 ns 이상 |
@@ -356,15 +353,18 @@ inputs/
 각 stage 파일은 `include` 로 힘장과 kspace 설정을 불러온다.
 프레임워크를 바꿀 때는 include 라인 두 줄만 수정하면 된다 ([LAMMPS include 문서](https://docs.lammps.org/include.html)).
 
-```bash
-# OPLS-AA + PPPM 사용 시
-include ../ff_opls_aa.in
-include ../kspace_pppm.in
+```lammps
+# OPLS-AA + PPPM 사용 시 (kspace 파일이 pair_style 을 정하므로 먼저 온다)
+include kspace_pppm.in
+include ff_opls_aa.in
 
 # TraPPE-UA + MSM 사용 시
-include ../ff_trappe_ua.in
-include ../kspace_msm.in
+include kspace_msm.in
+include ff_trappe_ua.in
 ```
+
+TraPPE-UA 로 바꿀 때는 `read_data ../trappe.data` 와 그룹의 타입 번호(Cu = 6, 벤젠 = 1, 에탄올 = 2-5)도 함께 바꾼다.
+`trappe.data` 는 공개돼 있지 않다.
 
 이렇게 나눠 두면 기존 단계 구조는 그대로 둔 채 프레임워크만 바꿔 가며 비교할 수 있다.
 

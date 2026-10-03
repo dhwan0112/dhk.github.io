@@ -9,15 +9,14 @@
 pair_style      lj/cut/coul/long 12.0
 
 # -- K-space 스타일 --
-# 정확도 1e-4 는 슬랩에서 응력/에너지 안정성과 속도의 균형점.
+# 정확도 1e-4: 단위 전하 두 개가 1 A 떨어져 있을 때의 힘 대비 상대 오차.
+# UROPS run 은 1e-5 를 썼다.
 kspace_style    pppm 1.0e-4
 
 # -- 슬랩 보정 (Yeh-Berkowitz) --
-# 인자 3.0 : z 진공 영역이 box_z 의 약 3배가 되도록 가상적으로 확장.
+# 인자 3.0 : z 방향 길이를 3배로 늘린 가상 박스에서 계산하고,
+#            z 방향 쌍극자 보정항으로 주기 이미지 사이의 상호작용을 지운다.
 kspace_modify   slab 3.0
-
-# stress/atom 사용을 위해 K-space 압력 텐서를 스칼라 출력에서 제외.
-kspace_modify   pressure/scalar no
 
 # 도메인 분해 문제 시 차수 낮추기 (기본 5):
 # kspace_modify   order 4

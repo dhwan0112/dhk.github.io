@@ -27,7 +27,7 @@ fix             freeze_cu cu setforce 0.0 0.0 0.0
 # ---- 적분 ----
 # Nose-Hoover NVT : 자유 에너지 계산과 호환되는 정준 앙상블
 timestep        0.5
-fix             thermo organic nvt temp 300.0 300.0 100.0
+fix             tstat organic nvt temp 300.0 300.0 100.0
 
 # ---- 출력 ----
 thermo          500

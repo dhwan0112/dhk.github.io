@@ -54,7 +54,7 @@ PAGES = [
         "Cu 표면 벤젠-에탄올 경쟁 흡착 응용 프로토콜의 입력 구성과 5단계 실행 흐름."),
     # === Applied: Cu surface adsorption ===
     ("cu-overview.html",          "cu/index.md",                 "APPLIED · OVERVIEW",
-        "응용 시리즈 진입 — Cu(100)/Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착 프로토콜 개요."),
+        "응용 시리즈 진입 — Cu 표면 위 벤젠-에탄올 경쟁 흡착 프로토콜 개요."),
     ("cu-01-system.html",         "cu/01-overview.md",           "APPLIED · CHAPTER 01",
         "벤젠과 에탄올의 화학적 배경, 슬랩 셀 기하, 표면 흡착 메커니즘."),
     ("cu-02-data-files.html",     "cu/02-data-files.md",         "APPLIED · CHAPTER 02",

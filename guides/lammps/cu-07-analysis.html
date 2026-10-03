@@ -112,23 +112,25 @@
 <li><a href="#74-adsorption-energy">7.4 흡착 에너지 (Adsorption Energy)</a><ul>
 <li><a href="#_7">정의</a></li>
 <li><a href="#md">MD에서의 추정</a></li>
-<li><a href="#_8">이 시스템에서 예상되는 값</a></li>
+<li><a href="#urops">UROPS 보고서의 흡착 에너지에 대해</a></li>
 </ul>
 </li>
 <li><a href="#75-interfacial-tension-irving-kirkwood">7.5 계면 장력 (Interfacial Tension): Irving-Kirkwood 방법</a><ul>
-<li><a href="#_9">정의</a></li>
+<li><a href="#_8">정의</a></li>
 <li><a href="#lammps_1">LAMMPS에서 응력 텐서 계산</a></li>
-<li><a href="#_10">단위 변환</a></li>
-<li><a href="#_11">이 시스템에서 예상되는 값</a></li>
+<li><a href="#_9">단위 변환</a></li>
+<li><a href="#_10">이 시스템에서 예상되는 값</a></li>
 </ul>
 </li>
 <li><a href="#76">7.6 통합 분석 스크립트 사용법</a></li>
 <li><a href="#77">7.7 분석 결과의 통계적 신뢰성</a></li>
-<li><a href="#_12">참고문헌</a></li>
+<li><a href="#_11">참고문헌</a></li>
 </ul>
 </div>
 <hr />
-<p>시뮬레이션 후처리에는 <code>integrated_analysis.py</code> (MDAnalysis 기반) 를 썼다.
+<p>UROPS 때 후처리에는 <code>integrated_analysis.py</code> (MDAnalysis 기반) 를 썼다. 이 스크립트는 공개하지 않았다.
+밀도 프로파일과 첫 층 조성, 블록 평균은 <a href="../../blog/2026/08/22/pppm-vs-msm-cu-benzene-ethanol/">PPPM vs MSM 글</a>의
+<code>profiles.py</code>, <code>blocks.py</code> 로 덤프에서 다시 계산할 수 있다.
 아래에 주요 분석 항목과 각 항목이 무엇을 알려 주는지 정리한다.</p>
 <h2 id="71-radial-distribution-function-rdf">7.1 동경 분포 함수 (Radial Distribution Function, RDF)</h2>
 <h3 id="_1">정의</h3>
@@ -178,10 +180,12 @@ $$</p>
 벤젠 dimer의 ab initio 계산값이 3.4-3.9 Å (Sherrill 외) 이므로 OPLS-AA도 이 범위를 잘 맞춰야 한다.</p>
 <h3 id="lammps-rdf">LAMMPS 내부 RDF 계산</h3>
 <p>RDF는 LAMMPS 안에서 바로 계산할 수도 있다.</p>
-<pre><code class="language-bash">compute rdf_cu_o all rdf 200 12 5 cutoff 15.0     # OPLS-AA: Cu(12)-O(5)
+<pre><code class="language-bash">compute rdf_cu_o all rdf 200 12 5 cutoff 12.0     # OPLS-AA: Cu(12)-O(5)
 fix     rdf_save all ave/time 100 10 1000 c_rdf_cu_o[*] file rdf_cu_o.dat mode vector
 </code></pre>
-<p><a href="https://docs.lammps.org/compute_rdf.html">LAMMPS compute rdf 문서</a> 참조.</p>
+<p><code>cutoff</code> 에 skin(2 Å)을 더한 값이 ghost 원자 범위(여기서는 <code>comm_modify cutoff 14.0</code>)를 넘으면
+"Compute rdf cutoff plus skin 17 exceeds ghost atom range 14" 오류가 난다. 15 Å 까지 보려면 <code>comm_modify cutoff 17.0</code> 이 필요하다.
+<a href="https://docs.lammps.org/compute_rdf.html">LAMMPS compute rdf 문서</a> 참조.</p>
 <p>다만 여기서는 더 유연한 외부 후처리(<code>integrated_analysis.py</code>)를 썼다.</p>
 <h2 id="72-z">7.2 밀도 프로파일 (z 방향)</h2>
 <h3 id="_3">정의</h3>
@@ -247,7 +251,7 @@ fix         density_benzene benzene ave/chunk 100 10 1000 z_bins_benzene density
 <h3 id="_5">정의</h3>
 <p>SEI는 표면 1차 흡착층에서 두 분자 종이 얼마나 갈라져 있는지를 수치로 나타낸다.</p>
 <p>$$
-\text{SEI} = \left| x_{\text{benzene}}^{\text{surf}} - x_{\text{benzene}}^{\text{bulk}} \right|
+\text{SEI} = \frac{\left| x_{\text{benzene}}^{\text{surf}} - x_{\text{benzene}}^{\text{bulk}} \right|}{1 - x_{\text{benzene}}^{\text{bulk}}}
 $$</p>
 <p>여기서</p>
 <ul>
@@ -257,8 +261,11 @@ $$</p>
 <p>값은 다음처럼 읽는다.</p>
 <ul>
 <li>SEI = 0: 표면 조성 = 벌크 조성 (분리 없음, 완전 혼합)</li>
-<li>SEI = 1: 표면에 한 종만 흡착 (완전 분리)</li>
+<li>SEI = 1: 표면에 벤젠만 흡착 (완전 분리)</li>
 </ul>
+<p>분모 $1 - x^\text{bulk}$ 로 나눠 벤젠이 표면을 다 차지했을 때 1 이 되게 맞춘 것이다.
+절댓값이 있으므로 SEI 는 음수가 될 수 없고, 에탄올이 표면에 더 많은 경우에도 양수로 나온다.
+방향을 보려면 절댓값 없이 $x^\text{surf} - x^\text{bulk}$ 를 같이 보고한다.</p>
 <h3 id="_6">계산 방법</h3>
 <ol>
 <li>Cu 슬랩 맨 위의 z 좌표 $z_{\text{Cu,max}}$ 를 구한다.</li>
@@ -267,8 +274,9 @@ $$</p>
 <li>각 영역에서 분자 종별 분자 수(또는 질량)를 평균한다.</li>
 <li>분율을 구하고 그 차이를 계산한다.</li>
 </ol>
-<p>내 TraPPE-UA + MSM run에서는 SEI = 0.93-1.00 이 나왔다.
-벤젠이 표면을 거의 다 차지한다는 뜻이다.</p>
+<p>첫 층 분자가 20개 남짓이면 한두 개만 드나들어도 $x^\text{surf}$ 가 0.04 씩 움직인다.
+UROPS OPLS-AA run 의 첫 층 벤젠 몰분율은 2 ns 동안 0.83 에서 0.57 까지 표류했으므로,
+SEI 는 블록 평균과 그 표준오차를 함께 낸다(아래 7.7절).</p>
 <h2 id="74-adsorption-energy">7.4 흡착 에너지 (Adsorption Energy)</h2>
 <h3 id="_7">정의</h3>
 <p>분자 $\alpha$ 의 흡착 에너지는 다음과 같다.</p>
@@ -291,112 +299,75 @@ $$</p>
 <pre><code class="language-bash">group benzene type 1 2
 group copper  type 12
 
-# 두 그룹 간 비결합 상호작용 에너지 계산
-compute     cu_benzene all group/group benzene copper kspace yes
+# 두 그룹 간 비결합 상호작용 에너지: compute ID 그룹1 group/group 그룹2
+compute     cu_benzene copper group/group benzene kspace yes
 thermo_style custom step temp c_cu_benzene
 </code></pre>
-<p><a href="https://docs.lammps.org/compute_group_group.html">LAMMPS compute group/group 문서</a> 참조.</p>
+<p><code>compute ID group-ID group/group group2-ID</code> 형식이라 그룹 두 개를 나란히 쓰면 "Illegal compute group/group command" 오류가 난다.
+<code>kspace yes</code> 는 PPPM/Ewald 에서만 되고 MSM 에서는 "Kspace style does not support compute group/group" 오류가 난다.
+Cu 의 전하가 0 이면 Cu-분자 쌍에는 Coulomb 항이 없으므로 <code>kspace</code> 키워드를 빼도 값이 같다.
+<a href="https://docs.lammps.org/compute_group_group.html">LAMMPS compute group/group 문서</a> 참조.</p>
 <p>표면 가까이 있는 벤젠(1차 흡착층)과 멀리 있는 벤젠(벌크)의 평균값을 비교하면
-이 값을 흡착 에너지로 바꿀 수 있다.</p>
-<h3 id="_8">이 시스템에서 예상되는 값</h3>
-<table>
-<thead>
-<tr>
-<th>분자</th>
-<th>흡착 에너지 (eV)</th>
-<th>흡착 에너지 (kJ/mol)</th>
-<th>특징</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>벤젠</td>
-<td>-0.27 ~ -0.32</td>
-<td>-26 ~ -31</td>
-<td>π-d 분산 (강)</td>
-</tr>
-<tr>
-<td>에탄올</td>
-<td>-0.15 ~ -0.25</td>
-<td>-14 ~ -24</td>
-<td>산소 + 수소 결합 (중간)</td>
-</tr>
-</tbody>
-</table>
-<p>이 값은 Heinz et al. (2008) 의 LJ 파라미터가 표면 장력과 단순 분자 흡착에 fit 되었다는 점과 맞고,
-내 이전 결과와도 일치한다.</p>
+이 값을 흡착 에너지로 바꿀 수 있다. 결과는 분자 하나당으로 나눠 보고한다.</p>
+<h3 id="urops">UROPS 보고서의 흡착 에너지에 대해</h3>
+<p>UROPS 보고서는 벤젠 -0.27 ~ -0.32 eV, 에탄올 -0.19 ~ -0.21 eV 를 흡착 에너지로 냈다.
+그런데 방법 절을 보면 이 값은 힘장에서 나온 것이 아니라 "최대 2.0 eV(벤젠), 1.5 eV(에탄올)인 지수형 거리 함수"에
+분자의 높이를 넣어 계산한 것이다. 최댓값을 정해 둔 함수라 힘장이나 정전기 방법을 바꿔도 값이 크게 달라질 수 없고,
+힘장 비교에 쓸 수 없다. 위의 <code>compute group/group</code> 으로 다시 재야 한다.
+참고로 UROPS 입력의 Cu-유기 LJ ε 는 0.012–0.029 kcal/mol 로 매우 작아서(<a href="03-force-fields">3장</a>),
+다시 재면 보고서가 인용한 실험값(벤젠/Cu(111) TPD, 약 0.7–0.9 eV)보다 훨씬 약하게 나올 가능성이 크다.</p>
 <h2 id="75-interfacial-tension-irving-kirkwood">7.5 계면 장력 (Interfacial Tension): Irving-Kirkwood 방법</h2>
-<h3 id="_9">정의</h3>
+<h3 id="_8">정의</h3>
 <p>계면 장력 $\gamma$ 는 응력 텐서(stress tensor)의 z 방향 성분과 가로 방향 성분의 차이로 구한다 (Irving &amp; Kirkwood 1950).</p>
 <p>$$
 \gamma = \frac{1}{2} \int_{-\infty}^{+\infty} \left[ P_{zz}(z) - \frac{P_{xx}(z) + P_{yy}(z)}{2} \right] dz
 $$</p>
 <p>여기서 $P_{xx}, P_{yy}, P_{zz}$ 는 각 위치의 압력 텐서 성분이다.
-$1/2$ 계수가 붙는 이유는 슬랩에 계면이 두 개(위/아래) 있어서 계면 하나당 장력으로 나누기 때문이다.</p>
+$1/2$ 계수는 자유 액체막처럼 같은 계면이 위아래로 두 개 있을 때 계면 하나당 장력으로 나누는 것이다.
+이 계는 아래가 Cu-액체, 위가 액체-벽이라 두 계면이 다르다. 그래서 적분 전체를 반으로 나눈 값은 어느 계면의 장력도 아니고,
+적분 구간을 계면 하나만 포함하도록 잘라야 한다. 고정된 Cu 와 벽이 주는 힘도 응력에 들어가므로 해석이 더 까다롭다.</p>
 <h3 id="lammps_1">LAMMPS에서 응력 텐서 계산</h3>
-<pre><code class="language-bash">compute   stress_atom all stress/atom NULL pair kspace bond angle dihedral improper
+<pre><code class="language-bash">compute   stress_atom all stress/atom NULL pair bond angle dihedral improper kspace fix
 compute   z_bins all chunk/atom bin/1d z lower 1.0 units box
-fix       stress_save all ave/chunk 100 10 1000 z_bins &amp;
-          v_stress_xx v_stress_yy v_stress_zz file stress_profile.dat
-
-variable  stress_xx atom -c_stress_atom[1]/vol
-variable  stress_yy atom -c_stress_atom[2]/vol
-variable  stress_zz atom -c_stress_atom[3]/vol
+compute   stress_sum all reduce/chunk z_bins sum c_stress_atom[1] c_stress_atom[2] c_stress_atom[3]
+fix       stress_save all ave/time 100 10 1000 c_stress_sum[*] file stress_profile.dat mode vector
 </code></pre>
-<p><code>stress/atom</code> 은 응력(tension positive) 부호를 따르고 압력은 음의 응력이므로, 변환할 때 부호에 주의한다.
+<p><code>stress/atom</code> 의 값은 원자별 (압력 × 부피) 이고 부호는 압력의 반대다. 빈 $k$ 의 압력 성분은
+$P_{\alpha\alpha}(z_k) = -\sum_{i \in k} s_{i,\alpha\alpha} / (L_x L_y \Delta z)$ 로 후처리에서 계산한다.
+<code>fix ave/chunk</code> 는 빈 안의 원자 평균을 내므로 여기서는 합을 주는 <code>reduce/chunk</code> 를 쓴다.
+PPPM 슬랩 보정과 MSM 모두 <code>kspace</code> 원자별 virial 을 낸다(MSM 은 <code>pressure/scalar no</code> 일 때).
 <a href="https://docs.lammps.org/compute_stress_atom.html">LAMMPS compute stress/atom 문서</a> 참조.</p>
-<h3 id="_10">단위 변환</h3>
-<p>LAMMPS <code>real</code> 단위에서 응력은 bar·Å (또는 atm·Å³의 부피당) 으로 나온다.
-계면 장력의 SI 단위(mJ/m² = mN/m)로는 다음처럼 바꾼다.</p>
+<h3 id="_9">단위 변환</h3>
+<p>LAMMPS <code>real</code> 단위에서 압력은 atm, 길이는 Å 이므로 $\gamma$ 는 atm·Å 로 나온다.
+1 atm·Å = 101325 Pa × 10⁻¹⁰ m = 1.01325 × 10⁻⁵ N/m 이므로</p>
 <p>$$
-\gamma [\text{mJ/m}^2] = \gamma [\text{atm·Å}] \times 1.01325 \times 10^{-1}
+\gamma\,[\text{mJ/m}^2] = \gamma\,[\text{atm·Å}] \times 1.01325 \times 10^{-2}
 $$</p>
-<p>더 일반적으로 쓰면:</p>
-<p>$$
-1 \text{ bar·Å} = 0.1 \text{ mJ/m}^2
-$$</p>
-<h3 id="_11">이 시스템에서 예상되는 값</h3>
+<p><code>metal</code> 단위(압력 bar)라면 1 bar·Å = 10⁻⁵ N/m = 0.01 mJ/m² 이다.</p>
+<h3 id="_10">이 시스템에서 예상되는 값</h3>
 <table>
 <thead>
 <tr>
 <th>계면 종류</th>
-<th>계면 장력 (mJ/m²)</th>
+<th>표면 장력 (mJ/m²)</th>
 <th>비고</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>액체 벤젠 - 진공 (300 K)</td>
-<td>~28</td>
+<td>액체 벤젠 - 증기 (25 °C)</td>
+<td>28.2</td>
 <td>실험값</td>
 </tr>
 <tr>
-<td>액체 에탄올 - 진공 (300 K)</td>
-<td>~22</td>
+<td>액체 에탄올 - 증기 (25 °C)</td>
+<td>22.0</td>
 <td>실험값</td>
-</tr>
-<tr>
-<td>Cu 표면 - 벤젠 (시뮬레이션)</td>
-<td>음의 값 가능</td>
-<td>강한 흡착</td>
-</tr>
-<tr>
-<td>Cu 표면 - 에탄올 (시뮬레이션)</td>
-<td>중간 값</td>
-<td></td>
-</tr>
-<tr>
-<td>벤젠/에탄올 혼합 - Cu (시뮬레이션)</td>
-<td>25-30</td>
-<td>OPLS-AA</td>
-</tr>
-<tr>
-<td></td>
-<td>22-27</td>
-<td>TraPPE-UA</td>
 </tr>
 </tbody>
 </table>
+<p>Cu-액체 계면 장력은 이 계에서 아직 재지 않았다. 힘장의 표면 장력을 먼저 검증하려면
+벤젠, 에탄올 각각의 자유 액체막(위아래 진공)을 돌려 위 실험값과 비교하는 것이 순서다.</p>
 <h2 id="76">7.6 통합 분석 스크립트 사용법</h2>
 <p><code>integrated_analysis.py</code> 하나로 위의 분석을 모두 돌린다.</p>
 <pre><code class="language-bash"># Production 단계 분석
@@ -416,7 +387,8 @@ python integrated_analysis.py \
     --output analysis_trappe_msm
 </code></pre>
 <p>스크립트는 원자 수를 보고 힘장(OPLS-AA vs TraPPE-UA)을 알아서 판별하고,
-RDF, 밀도 프로파일, SEI, 흡착 에너지를 모두 계산해 PNG와 DAT 파일로 저장한다.</p>
+RDF, 밀도 프로파일, SEI, 흡착 에너지를 모두 계산해 PNG와 DAT 파일로 저장한다.
+다만 여기서 나오는 흡착 에너지는 7.4절에 적은 지수형 모형 값이라 쓰지 않는다.</p>
 <h2 id="77">7.7 분석 결과의 통계적 신뢰성</h2>
 <p>분석값을 믿으려면 다음을 확인한다.</p>
 <ol>
@@ -426,7 +398,7 @@ RDF, 밀도 프로파일, SEI, 흡착 에너지를 모두 계산해 PNG와 DAT �
 <li>수렴 그래프: 누적 평균이 시간에 따라 수렴하는지 그려 본다.</li>
 </ol>
 <p>논문 심사에서도 이런 신뢰성 분석을 흔히 요구한다.</p>
-<h2 id="_12">참고문헌</h2>
+<h2 id="_11">참고문헌</h2>
 <ol>
 <li>
 <p>J. H. Irving, J. G. Kirkwood,

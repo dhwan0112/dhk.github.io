@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>응용 · Cu 표면 흡착 시리즈 개요 · LAMMPS 가이드</title>
-  <meta name="description" content="응용 시리즈 진입 — Cu(100)/Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착 프로토콜 개요." />
+  <meta name="description" content="응용 시리즈 진입 — Cu 표면 위 벤젠-에탄올 경쟁 흡착 프로토콜 개요." />
   <link rel="icon" type="image/x-icon" href="../../images/icons/favicon.ico" />
   <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"light")}catch(e){}</script>
   <link rel="stylesheet" href="assets/css/style.css" />
@@ -87,11 +87,14 @@
       <header class="page-header">
         <div class="page-eyebrow">APPLIED · OVERVIEW</div>
         <h1 class="page-title">홈</h1>
-        <p class="page-lede">응용 시리즈 진입 — Cu(100)/Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착 프로토콜 개요.</p>
+        <p class="page-lede">응용 시리즈 진입 — Cu 표면 위 벤젠-에탄올 경쟁 흡착 프로토콜 개요.</p>
       </header>
       <article class="content">
-<p>Cu(100)·Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착을 분자동역학으로 계산할 때 쓴
-프로토콜과 입력 파일을 정리했다.</p>
+<p>Cu 표면 위 벤젠-에탄올 경쟁 흡착을 분자동역학으로 계산할 때 쓴
+프로토콜과 입력 파일을 정리했다. <code>inputs/</code> 의 다섯 단계 입력은 공개된
+<a href="../../files/blog/pppm-vs-msm/opls.data"><code>opls.data</code></a> 로 끝까지 돌아가는 것을 확인했다.
+다만 이 데이터 파일은 Cu 슬랩 구조와 일부 OPLS-AA 계수가 틀려 있어서, 각 장에 그 내용을 함께 적었다
+(<a href="cu-01-system.html">1장</a>, <a href="cu-03-force-fields.html">3장</a>).</p>
 <hr />
 <h2 id="_1">무엇을 비교하나</h2>
 <p>이 시리즈는 다음 네 가지 조합을 비교한다.</p>
@@ -141,7 +144,8 @@
 </ul>
 <h2 id="_3">실행 환경</h2>
 <ul>
-<li>LAMMPS: 23 Jun 2022 이후 안정 버전 (KSPACE, MANYBODY, EXTRA-PAIR 패키지 포함)</li>
+<li>LAMMPS: 23 Jun 2022 이후 안정 버전 (MOLECULE, KSPACE, RIGID 패키지. UROPS run 처럼 Cu-Cu 에 EAM 을 쓰면 MANYBODY 도)</li>
+<li>입력 확인에 쓴 버전: LAMMPS 22 Jul 2025</li>
 <li>MPI: 40코어 워크스테이션에서 <code>mpirun -np 40</code></li>
 <li>세션 관리: 오래 걸리는 실행은 <code>tmux</code> 안에서</li>
 </ul>

@@ -24,6 +24,7 @@ group           organic  subtract all cu
 
 # ---- (5) 슬랩 벽 ----
 fix             wall_top organic wall/lj93 zhi EDGE 0.1 3.0 10.0 units box
+fix_modify      wall_top energy yes   # 최소화가 벽 에너지까지 보도록
 
 # ---- (6) Cu 슬랩 고정 ----
 fix             freeze_cu cu setforce 0.0 0.0 0.0

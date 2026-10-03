@@ -132,7 +132,7 @@ mass            1 63.546
 pair_style      eam/alloy
 pair_coeff      * * Cu_mishin1.eam.alloy Cu
 
-# 하단 한 층 고정, 나머지는 열냉수
+# 하단 두 면(z &lt; 0.6a = 2.17 A) 고정, 나머지는 열욕
 region          bot   block INF INF INF INF 0 0.6 units lattice
 group           bottom region bot
 group           mobile subtract all bottom
@@ -156,7 +156,7 @@ write_dump      all custom slab_final.dump id type x y z modify sort id
 </code></pre>
 <p><code>region sim</code> 은 z를 12셀(약 43 Å)까지 잡지만 원자는 아래 6셀(약 22 Å)에만
 만들어, 위쪽 절반이 진공으로 남는다. <code>boundary p p f</code> 로 x·y는 주기, z는 비주기다.
-하단 한 층을 <code>setforce 0</code> 으로 고정해 슬랩이 z 방향으로 떠내려가지 않게 한다.</p>
+하단 두 면(z = 0, 1.81 Å, 256원자)을 <code>setforce 0</code> 으로 고정해 슬랩이 z 방향으로 떠내려가지 않게 한다.</p>
 <h2 id="_2">실행</h2>
 <pre><code class="language-bash"># EAM 포텐셜을 먼저 받는다 (lammps.org 배포 포텐셜)
 #   Cu_mishin1.eam.alloy  (Mishin et al., Phys. Rev. B 63, 224106, 2001)

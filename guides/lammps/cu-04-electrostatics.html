@@ -155,7 +155,10 @@ kspace_modify slab 3.0
 <h3 id="pppm">PPPM 슬랩 사용 시 주의사항</h3>
 <p>z 방향이 비주기이므로 원자가 z-경계 밖으로 빠져나가지 않게 벽(wall)을 둬야 한다.</p>
 <pre><code class="language-bash"># z-상단에 LJ 9-3 형태의 부드러운 벽 (atoms cannot escape)
-fix wall_top all wall/lj93 zhi EDGE 0.1 3.0 10.0 units box
+fix wall_top organic wall/lj93 zhi EDGE 0.1 3.0 10.0 units box
+
+# UROPS run 이 쓴 벽 (12-6 형태, epsilon 1.0 kcal/mol, sigma 3.0 A, cutoff 2.5 A)
+# fix wall_top organic wall/lj126 zhi EDGE 1.0 3.0 2.5
 
 # 또는 단순 반사 벽
 fix wall_top_reflect all wall/reflect zhi EDGE
@@ -164,8 +167,9 @@ fix wall_top_reflect all wall/reflect zhi EDGE
 9-3 형태는 Cu 슬랩 같은 평면 표면에서 유도되는 LJ 벽 포텐셜이다.</p>
 <h3 id="kspace_modify">kspace_modify의 그 외 설정</h3>
 <ul>
-<li><code>kspace_modify pressure/scalar no</code>: 슬랩에서 압력 텐서를 계산할 때 쓴다.
-  스칼라 압력만 계산하지 않고 텐서로 계산하면 정확도가 올라간다.
+<li><code>kspace_modify pressure/scalar</code>: MSM 전용 키워드다. <code>yes</code> 로 두면 MSM 이 스칼라 압력만 빠르게 계산하고,
+  압력 텐서와 원자별 virial(<code>compute stress/atom</code>)은 나오지 않는다. 기본값은 <code>no</code> 다.
+  PPPM 에서는 아무 효과가 없으므로 PPPM 입력에는 넣지 않는다.
   (<a href="https://docs.lammps.org/kspace_modify.html">LAMMPS 공식 문서</a>)</li>
 </ul>
 <h2 id="43-msm">4.3 MSM의 작동 원리와 장점</h2>
@@ -183,11 +187,14 @@ fix wall_top_reflect all wall/reflect zhi EDGE
 <p><code>kspace_modify slab</code> 은 MSM과 함께 쓸 수 없다(<a href="https://docs.lammps.org/kspace_modify.html">LAMMPS 공식 문서</a>).
 MSM은 애초에 비주기 경계를 지원하기 때문이다.</p>
 <h3 id="msm">MSM 설정 예</h3>
-<pre><code class="language-bash">kspace_style msm 1.0e-4
-kspace_modify order 8 pressure/scalar no
+<pre><code class="language-bash">pair_style lj/cut/coul/msm 12.0
+kspace_style msm 1.0e-4
+kspace_modify order 10 pressure/scalar no
 </code></pre>
-<p><code>order 8</code>은 MSM의 기본값이다(PPPM은 5).
-MSM의 <code>order</code>는 4-10 범위의 짝수만 쓸 수 있다.
+<p>MSM 의 <code>order</code> 기본값은 10 이고(PPPM 은 5), 4, 6, 8, 10 중에서 고른다.
+MSM 은 정확도 목표를 맞추려고 실공간 Coulomb cutoff 를 스스로 바꾼다. 위 설정을 <code>opls.data</code> 에 걸면
+"Adjusting Coulombic cutoff for MSM, new cutoff = 9.373041" 경고와 함께 cutoff 가 12 Å 에서 9.37 Å 으로 줄어든다.
+이걸 막으려면 <code>kspace_modify cutoff/adjust no</code> 를 쓴다. 정확도를 위해 <code>pair_modify table 0</code> 을 권하는 경고도 함께 나온다.
 <a href="https://docs.lammps.org/kspace_modify.html">LAMMPS kspace_modify 문서</a> 참조.</p>
 <h2 id="44-pppm-vs-msm">4.4 PPPM vs MSM 직접 비교</h2>
 <table>
@@ -220,6 +227,16 @@ MSM의 <code>order</code>는 4-10 범위의 짝수만 쓸 수 있다.
 <td>accuracy 인자 (여기서는 1.0e-4)</td>
 </tr>
 <tr>
+<td>실공간 pair style</td>
+<td><code>lj/cut/coul/long</code></td>
+<td><code>lj/cut/coul/msm</code> (<code>coul/long</code> 은 오류)</td>
+</tr>
+<tr>
+<td><code>compute group/group ... kspace yes</code></td>
+<td>지원</td>
+<td>지원 안 함</td>
+</tr>
+<tr>
 <td>FFT 사용</td>
 <td>사용</td>
 <td>사용 안 함</td>
@@ -241,9 +258,11 @@ MSM의 <code>order</code>는 4-10 범위의 짝수만 쓸 수 있다.
 </tr>
 </tbody>
 </table>
-<p>이 시스템 정도 규모(~1000-2500 원자)에서는 PPPM과 MSM의 계산 시간 차이가
-크지 않다. 다만 MSM은 슬랩 기하를 별도 보정 없이 처리하므로
-계면 시뮬레이션에 더 알맞다는 의견이 있다 (Hardy et al. 2009).</p>
+<p>이 규모에서는 MSM 이 확실히 느렸다. UROPS run 두 개(2,471원자, 40 MPI 랭크, 정확도 1e-5, 4,000,000 스텝)의 루프 시간은
+PPPM + slab 19,647 s, MSM 31,988 s 로 MSM 이 1.63배였고, kspace 비중은 22 % 대 65 % 였다.
+첫 흡착층 구조는 두 방법이 통계 오차 안에서 같았다
+(<a href="../../blog/2026/08/22/pppm-vs-msm-cu-benzene-ethanol/">PPPM vs MSM 글</a>).
+MSM 의 O(N) 이점은 수만 원자 이상에서나 기대할 수 있다.</p>
 <p>PPPM이 분자동역학에서 가장 널리 쓰이는 방법이니, 두 방법으로 모두 돌려
 결과를 서로 대조해 보는 편이 좋다.</p>
 <h2 id="45-cutoff">4.5 cutoff 거리 선택</h2>
@@ -266,8 +285,8 @@ MSM의 <code>order</code>는 4-10 범위의 짝수만 쓸 수 있다.
 </tr>
 </tbody>
 </table>
-<p>여기서는 통일성을 위해 12.0 Å을 썼다. TraPPE-UA에서 cutoff를 더 짧게 쓰면
-파라미터 fit의 정확도가 조금 떨어질 수 있다.</p>
+<p><code>inputs/</code> 는 통일성을 위해 12.0 Å 을 쓴다(UROPS run 은 14.0 Å). TraPPE-UA 에서 cutoff 를 더 짧게 쓰면
+파라미터 fit 의 정확도가 조금 떨어질 수 있다. MSM 에서는 위에 적었듯 Coulomb cutoff 가 자동으로 바뀔 수 있다.</p>
 <pre><code class="language-bash">pair_style lj/cut/coul/long 12.0
 </code></pre>
 <h2 id="46-accuracy">4.6 정확도 (accuracy) 매개변수</h2>
@@ -276,8 +295,8 @@ MSM의 <code>order</code>는 4-10 범위의 짝수만 쓸 수 있다.
 </code></pre>
 <ul>
 <li>1.0e-3: 빠른 스크리닝용. 계면 시뮬레이션에는 부족하다.</li>
-<li>1.0e-4: 이 가이드에서 쓴 값.</li>
-<li>1.0e-5: 아주 정확하지만 비용이 크다. 자유에너지 계산용.</li>
+<li>1.0e-4: <code>inputs/</code> 의 값.</li>
+<li>1.0e-5: UROPS run 의 값. 더 정확하지만 비용이 크다.</li>
 </ul>
 <h2 id="47">4.7 네 가지 정전기/힘장 조합</h2>
 <p>네 프레임워크의 핵심 kspace 설정은 다음과 같다.</p>
@@ -285,10 +304,10 @@ MSM의 <code>order</code>는 4-10 범위의 짝수만 쓸 수 있다.
 <pre><code class="language-bash">pair_style lj/cut/coul/long 12.0
 pair_modify mix geometric tail no
 kspace_style pppm 1.0e-4
-kspace_modify slab 3.0 pressure/scalar no
+kspace_modify slab 3.0
 </code></pre>
 <h3 id="opls-aa-msm">OPLS-AA + MSM</h3>
-<pre><code class="language-bash">pair_style lj/cut/coul/long 12.0
+<pre><code class="language-bash">pair_style lj/cut/coul/msm 12.0
 pair_modify mix geometric tail no
 kspace_style msm 1.0e-4
 kspace_modify pressure/scalar no
@@ -297,10 +316,10 @@ kspace_modify pressure/scalar no
 <pre><code class="language-bash">pair_style lj/cut/coul/long 12.0
 pair_modify mix arithmetic tail no
 kspace_style pppm 1.0e-4
-kspace_modify slab 3.0 pressure/scalar no
+kspace_modify slab 3.0
 </code></pre>
 <h3 id="trappe-ua-msm">TraPPE-UA + MSM</h3>
-<pre><code class="language-bash">pair_style lj/cut/coul/long 12.0
+<pre><code class="language-bash">pair_style lj/cut/coul/msm 12.0
 pair_modify mix arithmetic tail no
 kspace_style msm 1.0e-4
 kspace_modify pressure/scalar no

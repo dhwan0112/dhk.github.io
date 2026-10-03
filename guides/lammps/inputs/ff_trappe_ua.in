@@ -24,7 +24,12 @@ pair_modify     mix arithmetic tail no   # Lorentz-Berthelot, 슬랩이므로 ta
 # -- 결합/각도/이면각 스타일 --
 bond_style      harmonic
 angle_style     harmonic
-dihedral_style  harmonic                 # TraPPE 는 OPLS 4-cosine 미사용
+dihedral_style  opls                     # TraPPE 이면각도 cosine 급수: c_n = K_n / 2
+# 예: CH3-CH2-O-H (Chen 2001) c1, c2, c3 = 209.82, -29.17, 187.93 K
+#     -> K1 K2 K3 = 0.8339 -0.1159 0.7469 kcal/mol
+# 벤젠 UA 고리는 이면각 대신 fix rigid/small 로 묶는 편이 낫다 (fix shake 는 고리를 못 묶는다).
+#
+# bond/angle/dihedral 계수는 trappe.data 의 Coeffs 섹션 또는 별도 *_coeff 줄로 준다.
 
 # -- 1-4 스케일링 (TraPPE 표준: 완전 제외) --
 special_bonds   lj/coul 0.0 0.0 0.0
@@ -42,7 +47,7 @@ pair_coeff   3   3   0.09140  3.950    # CH2   (46.0  K)
 pair_coeff   4   4   0.18480  3.020    # O     (93.0  K)
 pair_coeff   5   5   0.00000  0.000    # H     (no LJ)
 
-# Cu (Heinz 2008):
-pair_coeff   6   6   4.72000  2.616    # Cu
+# Cu (Heinz 2008, 12-6): epsilon 4.72 kcal/mol, sigma 2.330 A (r0 = 2.616 A 는 sigma 가 아님)
+pair_coeff   6   6   4.72000  2.330    # Cu
 
 # Cu-organic cross terms 은 mix arithmetic 으로 자동 생성됨.

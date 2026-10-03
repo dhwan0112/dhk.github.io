@@ -115,7 +115,7 @@ LAMMPS 공식 매뉴얼(2024년 기준)을 바탕으로, 일상 연구에서 자
 ### 응용 예제: Cu 표면 흡착
 
 입문 과정을 마친 뒤에는 실제 연구 문제에 LAMMPS를 적용한 응용 시리즈를 볼 수 있다.
-Cu(100)/Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착을 OPLS-AA · TraPPE-UA · PPPM · MSM
+Cu 표면 위 벤젠-에탄올 경쟁 흡착을 OPLS-AA · TraPPE-UA · PPPM · MSM
 네 조합으로 비교하는 9개 챕터다.
 
 <div class="cards">

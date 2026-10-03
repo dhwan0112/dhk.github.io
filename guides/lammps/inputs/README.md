@@ -15,8 +15,8 @@
 | `01_soft.in`       | Stage 1 : Soft relaxation (nve/limit) | 50~100 ps |
 | `02_min.in`        | Stage 2 : Energy minimization (CG) | ~10000 iter |
 | `03_heat.in`       | Stage 3 : 4단계 가열 0.1 → 300 K | 약 700 ps |
-| `04_eq.in`         | Stage 4 : NVT 평형 | OPLS-AA 7.5 ns / TraPPE 3 ns |
-| `05_prod.in`       | Stage 5 : Production + 분석 | 10 ~ 20 ns |
+| `04_eq.in`         | Stage 4 : NVT 평형 | 1 + 6.5 ns (조성 프로파일로 판단) |
+| `05_prod.in`       | Stage 5 : Production + 분석 | 10 ns |
 
 ## 프레임워크 전환 방법
 
@@ -72,10 +72,22 @@ mpirun -np 40 lmp_mpi -in 05_prod.in
    수정해야 한다.
 2. **Pair coefficient** : 데이터 파일에 `Pair Coeffs` 섹션이 포함된 경우, `ff_*.in`
    의 `pair_coeff` 라인은 주석 처리할 수 있다. 데이터 파일이 우선한다.
-3. **Wall 위치** : `wall/lj93 zhi EDGE` 는 박스 상단 z 면에 벽을 설치한다.
-   Cu 슬랩이 하단에 있고 진공이 상단이라는 본 가이드의 좌표 규약과 일치해야 한다.
-4. **Timestep** : 본 파일들은 0.5 fs (OPLS-AA 적정). SHAKE 사용 또는 TraPPE-UA
-   에서는 2.0 fs 까지 늘릴 수 있고, 그 경우 `run` 카운트도 그에 맞춰 줄여야 한다.
+3. **Wall 위치** : `wall/lj93 zhi EDGE` 는 박스 상단 z 면에 벽을 설치하고, `organic`
+   그룹(유기 분자)에만 작용한다. Cu 슬랩이 하단에 있고 진공이 상단이라는 본 가이드의
+   좌표 규약과 일치해야 한다.
+4. **Timestep** : 본 파일들은 0.5 fs. 제약 없이 C–H, O–H 를 그대로 두면 이 값을 유지한다.
+   TraPPE-UA 에서도 에탄올 O–H 를 SHAKE 로 묶지 않으면 1 fs 이상은 위험하다
+   ([3.5절](../cu-03-force-fields.html) 참고). `run` 카운트는 timestep 에 맞춰 바꾼다.
+5. **Cu–Cu 상호작용** : 이 템플릿은 Cu 를 `setforce 0` 으로 고정하고
+   `neigh_modify exclude type 12 12` 로 Cu–Cu 쌍을 계산에서 뺀다. 이 때문에
+   "Neighbor exclusions used with KSpace solver" 경고가 나오지만 Cu 전하가 0 이라 무해하다.
 
-자세한 설명은 [docs/05-protocol](../docs/05-protocol.md) 와
-[docs/08-troubleshooting](../docs/08-troubleshooting.md) 를 참조한다.
+## 확인한 것
+
+`opls.data` ([다운로드](/files/blog/pppm-vs-msm/opls.data)) 를 이 디렉토리 한 단계 위에 두고
+`run` 길이만 줄여 LAMMPS 22 Jul 2025 로 다섯 stage 를 PPPM, MSM 각각 끝까지 돌렸다.
+MSM 에서는 Coulomb cutoff 를 자동 조정했다는 경고가 나온다 ([4장](../cu-04-electrostatics.html)).
+`opls.data` 자체의 문제(초기 겹침, 비표준 전하 등)는 [2장](../cu-02-data-files.html) 에 정리했다.
+
+자세한 설명은 [5장](../cu-05-protocol.html) 과
+[8장](../cu-08-troubleshooting.html) 을 참조한다.

@@ -43,7 +43,7 @@ fix             relax organic nve/limit 0.05
 
 # ---- (8) 약한 열욕 (저온) ----
 # 매우 낮은 온도에서 시작하여 폭주 방지
-fix             thermo organic langevin 0.1 0.1 100.0 87287
+fix             tstat organic langevin 0.1 0.1 100.0 87287
 
 # ---- (9) 출력 설정 ----
 thermo          100

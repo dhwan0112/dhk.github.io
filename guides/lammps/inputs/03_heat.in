@@ -36,24 +36,24 @@ timestep        0.5
 fix             integrator organic nve
 
 # ---- (4) Stage 3a : 0.1 → 10 K (저온 영역) ----
-fix             thermo organic langevin 0.1 10.0 50.0 12345
+fix             tstat organic langevin 0.1 10.0 50.0 12345
 thermo          200
 thermo_style    custom step temp pe ke etotal press
 run             200000      # 100 ps
 
 # ---- (5) Stage 3b : 10 → 100 K ----
-unfix           thermo
-fix             thermo organic langevin 10.0 100.0 100.0 12346
+unfix           tstat
+fix             tstat organic langevin 10.0 100.0 100.0 12346
 run             400000      # 200 ps
 
 # ---- (6) Stage 3c : 100 → 200 K (수소결합 재구성 영역) ----
-unfix           thermo
-fix             thermo organic langevin 100.0 200.0 100.0 12347
+unfix           tstat
+fix             tstat organic langevin 100.0 200.0 100.0 12347
 run             400000      # 200 ps
 
 # ---- (7) Stage 3d : 200 → 300 K ----
-unfix           thermo
-fix             thermo organic langevin 200.0 300.0 100.0 12348
+unfix           tstat
+fix             tstat organic langevin 200.0 300.0 100.0 12348
 run             400000      # 200 ps
 
 # ---- (8) 결과 저장 ----
