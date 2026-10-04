@@ -1596,6 +1596,78 @@ section {
     margin-top: 0.75em;
 }
 
+/* AMM-style procedure: (1)(2) steps continue across a ### section, (a)(b) sub-steps */
+.post-body h2,
+.post-body h3 {
+    counter-reset: amm-step;
+}
+
+.post-body ol {
+    list-style: none;
+    padding-left: 2.6rem;
+}
+
+.post-body ol > li {
+    position: relative;
+    counter-increment: amm-step;
+    counter-reset: amm-sub;
+}
+
+.post-body ol > li::before {
+    content: "(" counter(amm-step) ")";
+    position: absolute;
+    left: -2.6rem;
+    width: 2.1rem;
+    text-align: right;
+    color: var(--text-light);
+    font-variant-numeric: tabular-nums;
+}
+
+.post-body ol ol > li {
+    counter-increment: amm-sub;
+}
+
+.post-body ol ol > li::before {
+    content: "(" counter(amm-sub, lower-alpha) ")";
+}
+
+.post-body .amm-task {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    color: var(--text-light);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.4rem;
+}
+
+.post-body .amm-warning,
+.post-body .amm-caution,
+.post-body .amm-note {
+    border: 1px solid var(--border-color);
+    border-left-width: 4px;
+    border-radius: 6px;
+    padding: 0.85rem 1.1rem;
+}
+
+.post-body .amm-warning { border-left-color: #c53030; background-color: rgba(197, 48, 48, 0.07); }
+.post-body .amm-caution { border-left-color: #d69e2e; background-color: rgba(214, 158, 46, 0.09); }
+.post-body .amm-note    { border-left-color: #3182ce; background-color: rgba(49, 130, 206, 0.07); }
+
+.post-body .amm-label {
+    display: block;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.35rem;
+}
+
+.post-body .amm-warning .amm-label { color: #c53030; }
+.post-body .amm-caution .amm-label { color: #b7791f; }
+.post-body .amm-note .amm-label    { color: #2b6cb0; }
+
+[data-theme="dark"] .post-body .amm-warning .amm-label { color: #fc8181; }
+[data-theme="dark"] .post-body .amm-caution .amm-label { color: #f6e05e; }
+[data-theme="dark"] .post-body .amm-note .amm-label    { color: #63b3ed; }
+
 .post-body hr {
     border: none;
     border-top: 1px solid var(--border-color);
