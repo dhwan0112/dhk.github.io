@@ -13,7 +13,12 @@ layout: default
 <div class="post-page">
     <article class="post">
         <header class="post-header">
+            {% assign subject = site.data.teaching | where: "key", page.subject | first %}
+            {% if page.collection == "teaching" and subject %}
+            <p class="post-crumb"><a href="{{ index_url }}">Teaching</a> / <a href="{{ '/teaching/' | append: subject.slug | append: '/' | relative_url }}">{{ subject.name }}</a></p>
+            {% else %}
             <a href="{{ index_url }}" class="post-crumb">&larr; {{ index_name }}</a>
+            {% endif %}
             <h1 class="post-title">{{ page.title }}</h1>
             <div class="post-info">
                 <div class="post-item-tags">

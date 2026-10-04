@@ -1,0 +1,44 @@
+---
+layout: default
+---
+
+{% assign subject = site.data.teaching | where: "key", page.subject | first %}
+{% assign items = site.teaching | where: "subject", page.subject | sort: "note" %}
+
+<div class="blog-index">
+    <header class="blog-index-header">
+        <a href="{{ '/teaching/' | relative_url }}" class="post-crumb">&larr; Teaching</a>
+        <h1 class="blog-index-title">{{ subject.name }} <span class="teaching-title-ko">{{ subject.ko }}</span></h1>
+        <p class="blog-index-lede">{{ subject.lede }}</p>
+        {% if subject.chapters.size > 1 %}
+        <nav class="blog-tag-nav" aria-label="Chapters">
+            {% for ch in subject.chapters %}
+            <a href="#ch-{{ ch.code }}" class="blog-tag-link">{{ ch.code }} {{ ch.name }}</a>
+            {% endfor %}
+        </nav>
+        {% endif %}
+    </header>
+
+    {% for ch in subject.chapters %}
+    <section class="teaching-group" id="ch-{{ ch.code }}">
+        <h2 class="teaching-subject">{{ ch.code }} · {{ ch.name }} <span class="teaching-subject-en">{{ ch.en }}</span></h2>
+        {% for topic in ch.topics %}
+        <div class="teaching-topic">
+            <h3 class="teaching-topic-title"><span class="teaching-code">{{ topic.code }}</span> {{ topic.name }}</h3>
+            <p class="teaching-topic-blurb">{{ topic.blurb }}</p>
+            <ol class="teaching-note-list">
+                {% for item in items %}{% assign prefix = item.note | slice: 0, 5 %}{% if prefix == topic.code %}
+                <li>
+                    <a href="{{ item.url | relative_url }}" class="teaching-note-link">
+                        <span class="teaching-code">{{ item.note }}</span>
+                        <span class="teaching-note-title">{{ item.title }}</span>
+                    </a>
+                    <p class="teaching-note-desc">{{ item.description }}</p>
+                </li>
+                {% endif %}{% endfor %}
+            </ol>
+        </div>
+        {% endfor %}
+    </section>
+    {% endfor %}
+</div>

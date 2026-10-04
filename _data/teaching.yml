@@ -1,0 +1,42 @@
+# Subject homes for the Teaching collection.
+# A note belongs to a topic when its `note` front matter starts with the topic code.
+- key: Math
+  slug: math
+  name: Math
+  ko: 수학
+  lede: "고등학교 함수와 다항식에서 미적분 입문까지, 정의와 증명을 중심으로 쓴 개념 노트."
+  chapters:
+    - code: "11"
+      name: 미적분
+      en: Calculus
+      topics:
+        - code: "11-10"
+          name: 극한
+          blurb: "극한의 엄밀한 정의와, 그 정의 위에서 증명하는 로피탈 정리."
+        - code: "11-20"
+          name: 그래프 개형
+          blurb: "대수적 특성만으로 다항함수와 유리함수의 개형을 그리는 절차."
+    - code: "12"
+      name: 대수
+      en: Algebra
+      topics:
+        - code: "12-10"
+          name: 함수
+          blurb: "그래프의 평행이동·확대와 역함수의 구조."
+        - code: "12-20"
+          name: 다항식
+          blurb: "다항식 나눗셈과 다항식의 값을 계산하는 알고리즘."
+
+- key: Earth Science
+  slug: earth-science
+  name: Earth Science
+  ko: 지구과학
+  lede: "천체 관측에서 보이는 현상을 단순한 궤도 모형으로 계산한 노트."
+  chapters:
+    - code: "21"
+      name: 천문
+      en: Astronomy
+      topics:
+        - code: "21-10"
+          name: 행성 운동
+          blurb: "외행성의 역행과 회합 주기."

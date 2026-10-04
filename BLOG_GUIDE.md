@@ -214,6 +214,8 @@ LAMMPS 가이드 소스(`guides/lammps/.build/src/`)는 `convert.py` 가 `{: ...
 - 요령·팁 어조("적는 다섯 줄", "한 줄로 읽기") 대신 정확한 수학 용어를 쓴다(대수적 구조, 동치성, 점근적 거동 등).
 - "자주 하는 실수"는 "자주 발생하는 논리적 오류" 또는 "주요 오개념"으로 쓴다.
 - "끝 행동"은 "양 끝에서의 극한" 또는 "점근적 거동(asymptotic behavior)"으로 쓴다.
+- 앞머리에 `note: "11-10-01"` 과 `subject: Math` 를 넣는다. 과목 홈(`/teaching/math/` 등)은 `_data/teaching.yml` 의 과목·장·주제 목록을 읽고, `note` 의 앞 다섯 자리(예: `11-10`)가 같은 주제 아래에 노트를 놓는다.
+- 새 주제(예: 11-30)나 새 과목을 시작하면 `_data/teaching.yml` 에 먼저 추가한다. 새 과목은 `_pages/teaching-<slug>.md` 도 만든다(`layout: teaching-subject`, `subject:`, `permalink: /teaching/<slug>/`).
 
 ### 노트 번호 목록
 

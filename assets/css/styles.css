@@ -1493,6 +1493,160 @@ section {
     color: var(--accent-color);
 }
 
+.post-crumb a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.post-crumb a:hover {
+    color: var(--accent-color);
+}
+
+/* ---------- Teaching subject homes ---------- */
+.teaching-title-ko,
+.teaching-subject-en {
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+.teaching-title-ko {
+    font-size: 0.6em;
+    margin-left: 0.4rem;
+}
+
+.teaching-subject-en {
+    margin-left: 0.4rem;
+    letter-spacing: 0.04em;
+}
+
+.teaching-code {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.8em;
+    color: var(--text-muted);
+    margin-right: 0.5rem;
+    white-space: nowrap;
+}
+
+.teaching-topic {
+    margin-top: 1.75rem;
+}
+
+.teaching-topic-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.teaching-topic-blurb {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+}
+
+.teaching-note-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-left: 2px solid var(--border-color);
+}
+
+.teaching-note-list li {
+    padding: 0.6rem 0 0.6rem 1rem;
+}
+
+.teaching-note-link {
+    text-decoration: none;
+    color: var(--text-dark);
+    font-weight: 500;
+    font-size: 1.05rem;
+    transition: color 0.2s ease;
+}
+
+.teaching-note-link:hover .teaching-note-title {
+    color: var(--accent-color);
+}
+
+.teaching-note-desc {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin-top: 0.3rem;
+}
+
+.teaching-hubs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1.25rem;
+}
+
+.teaching-hub {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    background-color: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.teaching-hub-name {
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.teaching-hub-name a {
+    color: var(--text-dark);
+    text-decoration: none;
+}
+
+.teaching-hub-name a:hover {
+    color: var(--accent-color);
+}
+
+.teaching-hub-lede {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+.teaching-hub-chapters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.teaching-hub-chapters .tag {
+    border-radius: 4px;
+    padding: 0.15rem 0.55rem;
+    font-size: 0.8rem;
+    background-color: var(--bg-light);
+    border: 1px solid var(--border-color);
+    color: var(--text-light);
+}
+
+.teaching-hub-notes {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.92rem;
+    flex-grow: 1;
+}
+
+.teaching-hub-notes li {
+    padding: 0.25rem 0;
+}
+
+.teaching-hub-notes a {
+    color: var(--text-dark);
+    text-decoration: none;
+}
+
+.teaching-hub-notes a:hover {
+    color: var(--accent-color);
+}
+
 .post-title {
     font-size: 2.25rem;
     font-weight: 700;
