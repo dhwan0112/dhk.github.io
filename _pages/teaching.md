@@ -41,7 +41,7 @@ permalink: /teaching/
                     <li><a href="{{ item.url | relative_url }}"><span class="teaching-code">{{ item.note }}</span> {{ item.title }}</a></li>
                     {% endfor %}
                 </ul>
-                <a href="{{ '/teaching/' | append: subject.slug | append: '/' | relative_url }}" class="read-more">{{ subject.name }} home ({{ notes.size }} notes) &rarr;</a>
+                <a href="{{ '/teaching/' | append: subject.slug | append: '/' | relative_url }}" class="read-more">{{ subject.name }} home ({{ notes.size }} {% if notes.size == 1 %}note{% else %}notes{% endif %}) &rarr;</a>
             </article>
             {% endfor %}
         </div>
