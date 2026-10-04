@@ -47,6 +47,15 @@ NOTE 12-20-01 · 조립제법과 Horner 방법
 | 항목 | 용도 |
 |---|---|
 | Python | Horner 방법 구현(3.B) |
+| Python, matplotlib, Pillow | 그림 GIF 생성(`make_gifs.py`) |
+
+### D. 관련 파일
+
+- [`make_gifs.py`]({{ '/files/blog/synthetic-division-and-horner-method/make_gifs.py' | relative_url }}) — 위 GIF 한 개를 만드는 스크립트 (matplotlib, Pillow)
+
+```bash
+python make_gifs.py    # -> images/blog/synthetic-division-and-horner-method/*.gif
+```
 
 ## 3. 절차
 
@@ -110,6 +119,11 @@ $$
 
 2. $$x = 2$$를 넣어 안쪽부터 계산한다. $$2 \to 2\cdot 2 - 5 = -1 \to (-1)\cdot 2 + 3 = 1 \to 1\cdot 2 - 7 = -5$$이다.
 3. 결과가 조립제법 아랫줄 $$2, -1, 1, -5$$와 일치함을 확인한다. 이 계산법이 Horner 방법이다.
+
+<figure>
+<img src="{{ '/images/blog/synthetic-division-and-horner-method/synthetic-horner.gif' | relative_url }}" alt="Synthetic division of 2x^3 - 5x^2 + 3x - 7 by x - 2, step by step, next to the matching Horner evaluation">
+<figcaption>조립제법의 내리기, 곱하기, 더하기가 Horner 방법의 중간값 2, −1, 1, −5 와 한 칸씩 대응한다. 마지막 칸이 나머지이자 P(2) 다.</figcaption>
+</figure>
 4. 점화식 $$b_{k-1} = a_k + c\,b_k$$가 Horner의 한 단계와 같음을 확인한다. 지금까지의 값에 $$c$$를 곱하고 다음 계수를 더한다.
 5. 마지막 칸이 나머지 $$R$$이면서 $$P(c)$$임을 확인한다. 이것이 나머지정리(remainder theorem) $$R = P(c)$$이다.
 

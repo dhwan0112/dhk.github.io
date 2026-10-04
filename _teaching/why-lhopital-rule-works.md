@@ -57,6 +57,20 @@ $$
 | 평균값 정리(mean value theorem) | $$f(b) - f(a) = f'(c)(b - a)$$ 인 $$c \in (a, b)$$ 가 있다 |
 | 코시 평균값 정리(Cauchy's mean value theorem) | 3.C 참조 |
 
+### C. 사용 프로그램
+
+| 항목 | 용도 |
+|---|---|
+| Python, matplotlib, Pillow | 그림 GIF 두 개 생성(`make_gifs.py`) |
+
+### D. 관련 파일
+
+- [`make_gifs.py`]({{ '/files/blog/why-lhopital-rule-works/make_gifs.py' | relative_url }}) — 위 GIF 두 개를 만드는 스크립트 (matplotlib, Pillow)
+
+```bash
+python make_gifs.py    # -> images/blog/why-lhopital-rule-works/*.gif
+```
+
 ## 3. 절차
 
 ### A. 단순한 경우와 그 한계
@@ -224,6 +238,11 @@ $$0\cdot\infty$$ 꼴에서는 어느 쪽을 분모로 내리는지에 따라 계
 4. 할선과 평행한 접선을 찾는다. $$3c/2 = 1$$ 에서 $$c = 2/3$$ 이고, 이 값은 $$(0, 1)$$ 안에 있다.
 5. 판정: 두 기울기 모두 $$x \to 0$$ 에서 0으로 간다. 3.E 의 해석과 일치한다.
 
+<figure>
+<img src="{{ '/images/blog/why-lhopital-rule-works/secant-tangent.gif' | relative_url }}" alt="Curve (x^2, x^3): the secant from the origin (slope x) and the parallel tangent at c = 2x/3 both flatten as x goes to 0">
+<figcaption>곡선 (x², x³) 위의 점이 원점으로 갈 때 할선 기울기 x 와 접선 기울기 3x/2 가 함께 0 으로 간다. 할선과 평행한 접선의 접점은 c = 2x/3 이다.</figcaption>
+</figure>
+
 ### B. 부정형이 아닌 경우
 
 <div class="amm-warning" markdown="1">
@@ -289,6 +308,11 @@ $$
    2. 코시 평균값 정리가 주는 점 $$c$$ 가 $$\cos c = 0$$ 인 점일 수 있다.
    3. 그 점에서는 $$f'(c) = g'(c) = 0$$ 이므로 등식 $$f'(c)[g(b) - g(a)] = g'(c)[f(b) - f(a)]$$ 가 $$0 = 0$$ 이 된다. 할선 기울기에 대해 아무 정보도 주지 않는다.
    4. 곡선 그림으로는 $$g$$ 가 증가와 감소를 반복하며 곡선이 가로로 앞뒤를 오가는 상황이다.
+
+<figure>
+<img src="{{ '/images/blog/why-lhopital-rule-works/gprime-zero-counterexample.gif' | relative_url }}" alt="f'/g' tends to 0 while f/g = e^(-sin x) keeps oscillating between 1/e and e; vertical lines mark zeros of g'">
+<figcaption>f′/g′ 은 0 으로 수렴하지만 f/g = e^(−sin x) 는 1/e 와 e 사이를 계속 오간다. 세로선은 g′ = 0 인 x = π/2 + kπ 다.</figcaption>
+</figure>
 
 ### E. 순환논법
 

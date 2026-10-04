@@ -59,6 +59,15 @@ $$
 | 항목 | 용도 |
 |---|---|
 | Python, mpmath | 경로 적분 수치 확인, 진동 적분(`quadosc`) |
+| Python, matplotlib, Pillow | 그림 GIF 두 개 생성(`make_gifs.py`) |
+
+### D. 관련 파일
+
+- [`make_gifs.py`]({{ '/files/blog/residue-theorem-real-integral-semicircle/make_gifs.py' | relative_url }}) — 위 GIF 두 개를 만드는 스크립트 (matplotlib, Pillow)
+
+```bash
+python make_gifs.py    # -> images/blog/residue-theorem-real-integral-semicircle/*.gif
+```
 
 ## 3. 절차
 
@@ -191,6 +200,11 @@ $$
 
 4. 판정: 큰 $$R$$ 에서 참값은 $$2/R$$, 상한은 $$\pi/R$$ 로 간다. 상한은 참값의 약 $$\pi/2$$ 배이고 감소 속도는 같다. 증명에는 0으로 간다는 사실만 필요하므로 합격이다.
 
+<figure>
+<img src="{{ '/images/blog/residue-theorem-real-integral-semicircle/contour-growing.gif' | relative_url }}" alt="Semicircular contour growing with R: segment integral 2 arctan R approaches pi, arc integral 2 arctan(1/R) decays below the ML bound">
+<figcaption>R 을 키워도 경로 적분은 π 로 일정하다. 선분 적분 2arctan R 은 π 로, 호 적분 2arctan(1/R) 은 ML 상한 πR/(R²−1) 아래에서 0 으로 간다.</figcaption>
+</figure>
+
 <div class="amm-note" markdown="1">
 <span class="amm-label">참고</span>
 $$R = 100$$ 에서도 선분 적분은 $$\pi$$ 보다 0.02 작다. 꼬리가 $$1/x^2$$ 로만 줄어들어 수렴이 느리다.
@@ -244,6 +258,11 @@ $$
    2. 이 경로의 값은 $$-2\pi i \cdot e/(-2i) = \pi e \approx 8.540$$ 으로 오답이다.
    3. 아래쪽 호 적분은 0이 아니라 $$\pi e - \pi/e = 2\pi\sinh 1 \approx 7.384$$ 로 간다.
    4. $$R = 20$$ 에서 호 적분을 직접 수치 적분하면 7.3797 로, 위 값에 근접한다.
+
+<figure>
+<img src="{{ '/images/blog/residue-theorem-real-integral-semicircle/jordan-upper-vs-lower.gif' | relative_url }}" alt="Size of e^(iz) on the upper and lower arcs, and the arc integrals versus R: upper goes to 0, lower to 2 pi sinh 1">
+<figcaption>e^(iz) 의 크기는 위쪽 호에서 e^(−R sin θ) 로 줄고 아래쪽 호에서 e^(R sin θ) 로 커진다. 위쪽 호 적분은 0 으로, 아래쪽 호 적분은 2π sinh 1 ≈ 7.384 로 간다.</figcaption>
+</figure>
 
 ### E. ML 상한이 부족한 경우: Jordan 보조정리
 

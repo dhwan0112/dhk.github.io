@@ -43,6 +43,20 @@ NOTE 11-10-01 · 극한의 ε-δ 정의
 1. 절댓값 부등식과 삼각부등식을 다룰 수 있어야 한다.
 2. 전칭 기호($$\forall$$)와 존재 기호($$\exists$$)의 의미를 알아야 한다.
 
+### C. 사용 프로그램
+
+| 항목 | 용도 |
+|---|---|
+| Python, matplotlib, Pillow | 그림 GIF 두 개 생성(`make_gifs.py`) |
+
+### D. 관련 파일
+
+- [`make_gifs.py`]({{ '/files/blog/epsilon-delta-limit-definition/make_gifs.py' | relative_url }}) — 위 GIF 두 개를 만드는 스크립트 (matplotlib, Pillow)
+
+```bash
+python make_gifs.py    # -> images/blog/epsilon-delta-limit-definition/*.gif
+```
+
 ## 3. 절차
 
 ### A. 정의의 양화사 구조
@@ -147,6 +161,11 @@ $$
    3. $$\delta \le \varepsilon/7$$ 에서 $$\lvert x - 3 \rvert < \varepsilon/7$$ 이다.
    4. 둘을 곱하면 $$\lvert x^2 - 9 \rvert < \varepsilon$$ 이다.
 
+<figure>
+<img src="{{ '/images/blog/epsilon-delta-limit-definition/epsilon-delta-game.gif' | relative_url }}" alt="epsilon-delta game for x^2 at 3: epsilon shrinks from 6 to 0.6 and delta = min(1, epsilon/7) keeps the graph inside the band">
+<figcaption>lim x→3 x² = 9 에서 ε 을 6, 3, 1.5, 0.6 으로 줄일 때마다 δ = min(1, ε/7) 로 답한다. δ 구간(세로 띠) 안의 그래프가 ε 띠(가로 띠) 안에 머문다.</figcaption>
+</figure>
+
 <div class="amm-note" markdown="1">
 <span class="amm-label">참고</span>
 min 이 필요한 이유는 4.A 의 반례로 확인한다. 제한 반지름 1에는 특별한 의미가 없다. $$\lvert x - 3 \rvert < 1/2$$ 로 묶으면 $$x + 3 < 6.5$$ 이고 $$\delta = \min(1/2,\ 2\varepsilon/13)$$ 이 된다. 이것도 맞는 답이다. 1은 계산이 편해서 고르는 값이며 정답이 하나로 정해져 있지 않다. 3.E 처럼 1을 고르면 안 되는 경우도 있다.
@@ -223,6 +242,11 @@ $$
 3. $$x = 4.4$$ 는 $$\lvert x - 3 \rvert = 1.4 < \delta$$ 이므로 구간 안에 있다.
 4. $$4.4^2 - 9 = 10.36 > 10$$ 이므로 조건이 깨진다.
 5. 판정: $$\varepsilon$$ 이 크면 $$\varepsilon/7$$ 이 1을 넘어 "$$\lvert x + 3 \rvert < 7$$" 전제가 깨진다. min 의 1이 이 전제를 유지한다.
+
+<figure>
+<img src="{{ '/images/blog/epsilon-delta-limit-definition/min-counterexample.gif' | relative_url }}" alt="Counterexample with epsilon = 10: delta = epsilon/7 admits x = 4.4 where x^2 leaves the band; delta = min(1, epsilon/7) does not">
+<figcaption>ε = 10 에서 δ = ε/7 만 쓰면 x = 4.4 가 구간에 들어와 x² = 19.36 이 ε 띠 위로 벗어난다. δ = min(1, ε/7) = 1 이면 그래프가 띠 안에 남는다.</figcaption>
+</figure>
 
 ### B. 유리함수 δ 수치 확인
 
