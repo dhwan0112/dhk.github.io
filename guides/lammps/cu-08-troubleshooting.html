@@ -92,183 +92,355 @@
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
-<li><a href="#81-bond-atoms-missing-on-proc-n-at-step-m">8.1 "Bond atoms missing on proc N at step M"</a><ul>
-<li><a href="#_1">증상</a></li>
-<li><a href="#_2">진단</a></li>
-<li><a href="#_3">해결책</a></li>
+<li><a href="#1">1. 일반 사항</a><ul>
+<li><a href="#a">A. 목적</a></li>
+<li><a href="#b">B. 적용 범위</a></li>
 </ul>
 </li>
-<li><a href="#82">8.2 가열 단계의 온도 폭주</a><ul>
-<li><a href="#_4">증상</a></li>
-<li><a href="#_5">원인 분석</a></li>
-<li><a href="#_6">추가 조치: 초기 중첩 해소</a></li>
-<li><a href="#_7">재현성 확인</a></li>
+<li><a href="#2">2. 준비 정보</a><ul>
+<li><a href="#a_1">A. 참조 자료</a></li>
+<li><a href="#b_1">B. 공구 및 장비</a></li>
+<li><a href="#c">C. 소모품</a></li>
 </ul>
 </li>
-<li><a href="#83-domain-decomposition">8.3 도메인 분해 (Domain Decomposition) 문제</a><ul>
-<li><a href="#_8">증상</a></li>
-<li><a href="#_9">원인</a></li>
-<li><a href="#_10">해결책</a></li>
+<li><a href="#3">3. 결함 분리 절차</a><ul>
+<li><a href="#a-bond-atoms-missing-on-proc-n-at-step-m">A. 증상: "Bond atoms missing on proc N at step M"</a></li>
+<li><a href="#b_2">B. 증상: 가열 단계의 온도 폭주</a></li>
+<li><a href="#c-domain-decomposition">C. 증상: 도메인 분해 (Domain Decomposition) 문제</a></li>
+<li><a href="#d-opls-aa">D. 증상: 평형화가 너무 오래 걸림 (OPLS-AA)</a></li>
+<li><a href="#e-stress-nan">E. 증상: Stress 계산에서 NaN 또는 발산</a></li>
 </ul>
 </li>
-<li><a href="#84-opls-aa">8.4 평형화가 너무 오래 걸림 (OPLS-AA)</a><ul>
-<li><a href="#_11">증상</a></li>
-<li><a href="#_12">원인</a></li>
-<li><a href="#_13">평형화 절차</a></li>
+<li><a href="#4">4. 시험 및 검사</a><ul>
+<li><a href="#a_2">A. 진단 체크리스트</a></li>
 </ul>
 </li>
-<li><a href="#85-stress-nan">8.5 Stress 계산에서 NaN 또는 발산</a><ul>
-<li><a href="#_14">증상</a></li>
-<li><a href="#_15">원인과 해결책</a></li>
-</ul>
-</li>
-<li><a href="#86">8.6 진단 체크리스트</a></li>
-<li><a href="#_16">참고문헌</a></li>
 </ul>
 </div>
 <hr />
-<p>이 장에는 이 시스템을 돌리면서 실제로 만난 오류와 해결 방법을 정리했다.
-LAMMPS 오류 전반은 공식 문서 <a href="https://docs.lammps.org/Errors.html">Errors</a> 에 정리되어 있다.</p>
-<hr />
-<h2 id="81-bond-atoms-missing-on-proc-n-at-step-m">8.1 "Bond atoms missing on proc N at step M"</h2>
-<h3 id="_1">증상</h3>
+<p class="amm-id">NOTE 32-08-00 · 응용 트러블슈팅</p>
+
+<h2 id="1">1. 일반 사항</h2>
+<h3 id="a">A. 목적</h3>
+<ol>
+<li>이 노트는 이 시스템을 돌리면서 실제로 만난 오류와 해결 방법을 다룬다.</li>
+<li>증상마다 가능한 원인, 점검, 조치 순으로 적는다.</li>
+</ol>
+<h3 id="b">B. 적용 범위</h3>
+<ol>
+<li>Cu 슬랩 위 벤젠-에탄올 계(<code>opls.data</code> 2471 원자, <code>trappe.data</code> 1371 원자)에 적용한다.</li>
+<li>LAMMPS 오류 전반은 공식 문서 <a href="https://docs.lammps.org/Errors.html">Errors</a> 에 정리되어 있다.</li>
+</ol>
+<h2 id="2">2. 준비 정보</h2>
+<h3 id="a_1">A. 참조 자료</h3>
+<table>
+<thead>
+<tr>
+<th>참조</th>
+<th>제목</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LAMMPS 공식 문서</td>
+<td><a href="https://docs.lammps.org/Errors.html">Errors</a></td>
+</tr>
+<tr>
+<td>LAMMPS Documentation, Common Errors</td>
+<td><a href="https://docs.lammps.org/Errors_common.html">https://docs.lammps.org/Errors_common.html</a></td>
+</tr>
+<tr>
+<td>Plimpton, S.</td>
+<td><em>J. Comput. Phys.</em> <strong>117</strong>, 1 (1995). DOI: <a href="https://doi.org/10.1006/jcph.1995.1039">10.1006/jcph.1995.1039</a></td>
+</tr>
+<tr>
+<td>Frenkel, D.; Smit, B.</td>
+<td><em>Understanding Molecular Simulation: From Algorithms to Applications</em>, 2nd ed.; Academic Press, 2002. Chapter 4.</td>
+</tr>
+<tr>
+<td>Allen, M. P.; Tildesley, D. J.</td>
+<td><em>Computer Simulation of Liquids</em>, 2nd ed.; Oxford University Press, 2017. Section 3.5.</td>
+</tr>
+<tr>
+<td><a href="06-frameworks">6장</a></td>
+<td>SHAKE 결합 타입 번호를 고르는 법</td>
+</tr>
+<tr>
+<td><a href="07-analysis">7장</a></td>
+<td>원자별 응력의 빈별 합 계산</td>
+</tr>
+</tbody>
+</table>
+<h3 id="b_1">B. 공구 및 장비</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LAMMPS</td>
+<td>시뮬레이션 실행, 오류 재현</td>
+</tr>
+<tr>
+<td><code>awk</code></td>
+<td>데이터 파일의 원자 수와 전하 합 검증</td>
+</tr>
+</tbody>
+</table>
+<h3 id="c">C. 소모품</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>opls.data</code>, <code>trappe.data</code></td>
+<td>검증할 데이터 파일</td>
+</tr>
+<tr>
+<td><code>common.in</code></td>
+<td>공통 설정 (<code>comm_modify</code>, <code>neighbor</code>)</td>
+</tr>
+<tr>
+<td><code>inputs/04_eq.in</code></td>
+<td>평형화 입력</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3">3. 결함 분리 절차</h2>
+<h3 id="a-bond-atoms-missing-on-proc-n-at-step-m">A. 증상: "Bond atoms missing on proc N at step M"</h3>
+<ol>
+<li>다음 오류로 run 이 멈춘다.</li>
+</ol>
 <pre><code>ERROR: Bond atoms missing on proc 3 at step 12450 (../ntopo_bond_all.cpp:62)
 </code></pre>
-<p>이 오류는 결합된 두 원자 중 하나가 인접 프로세서의 통신 영역(ghost atom region)을
-벗어나면 난다. 분자가 비정상적으로 늘어났거나(bond stretching) 통신 차단 거리가
-너무 짧을 때 생긴다.</p>
-<h3 id="_2">진단</h3>
-<p>가장 먼저 볼 것은 마지막으로 출력된 온도와 압력이다. 온도가 비정상적으로 높은
-값(예: 10000 K 이상)으로 폭주했다면 원인은 결합 자체가 아니라 적분 불안정이다.
-8.2 절 참조.</p>
-<h3 id="_3">해결책</h3>
-<p><strong>1) Communication cutoff 확장</strong></p>
-<p>ghost 원자 범위의 기본값은 pair cutoff + neighbor skin 인데, 분자가 크거나 결합이 늘어난 상태에서는 모자랄 수 있다.
-<code>common.in</code> 이나 입력 시작 부분에 다음을 넣는다.</p>
+<h4 id="_1">가능한 원인</h4>
+<ol start="2">
+<li>결합된 두 원자 중 하나가 인접 프로세서의 통신 영역(ghost atom region)을 벗어났다.</li>
+<li>분자가 비정상적으로 늘어났다(bond stretching).</li>
+<li>통신 차단 거리가 너무 짧다.</li>
+</ol>
+<h4 id="_2">점검</h4>
+<ol start="5">
+<li>마지막으로 출력된 온도와 압력을 가장 먼저 본다.</li>
+<li>온도가 비정상적으로 높은 값(예: 10000 K 이상)으로 폭주했다면 원인은 결합 자체가 아니라 적분 불안정이다. 3.B 로 간다.</li>
+</ol>
+<h4 id="_3">조치</h4>
+<ol start="7">
+<li>Communication cutoff 를 확장한다. <code>common.in</code> 이나 입력 시작 부분에 다음을 넣는다.</li>
+</ol>
 <pre><code class="language-lammps">comm_modify cutoff 14.0   # pair cutoff 12 Å + skin 2 Å 이상으로
 neighbor    2.0 bin       # neighbor skin 증가
 neigh_modify every 1 delay 0 check yes
 </code></pre>
-<p><strong>2) Soft potential 초기 단계 확인</strong></p>
-<p>데이터 파일에서 분자가 비현실적으로 가깝게 놓여 있으면(특히 packmol 출력의
-경계 부분) 첫 단계 <code>fix nve/limit</code> 의 변위 제한을 더 줄인다.</p>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+ghost 원자 범위의 기본값은 pair cutoff + neighbor skin 이다. 분자가 크거나 결합이 늘어난 상태에서는 이 값이 모자랄 수 있다.</p>
+</div>
+<ol start="8">
+<li>Soft potential 초기 단계를 확인한다.<ol>
+<li>데이터 파일에서 분자가 비현실적으로 가깝게 놓여 있는지 본다(특히 packmol 출력의 경계 부분).</li>
+<li>그렇다면 첫 단계 <code>fix nve/limit</code> 의 변위 제한을 더 줄인다.</li>
+</ol>
+</li>
+</ol>
 <pre><code class="language-lammps">fix relax organic nve/limit 0.01   # inputs/ 의 0.05 에서 축소
 run 50000
 </code></pre>
-<p><strong>3) 데이터 파일 검증</strong></p>
+<ol start="9">
+<li>데이터 파일을 검증한다. Atoms 섹션의 줄 수와 전하 합을 구한다.</li>
+</ol>
 <pre><code class="language-bash"># Atoms 섹션의 줄 수와 전하 합
 awk '/^Atoms/{f=1; getline; next} f&amp;&amp;NF==0{exit} f{n++; q+=$4} END{print n, q}' opls.data
 </code></pre>
-<p>기대값(OPLS-AA 2471, TraPPE-UA 1371)과 맞는지, 전하 합이 0 인지 본다. 분자 ID, 원자 타입,
-전하 컬럼이 모두 채워져 있는지도 직접 확인한다.</p>
-<hr />
-<h2 id="82">8.2 가열 단계의 온도 폭주</h2>
-<h3 id="_4">증상</h3>
-<p>가열 단계(특히 0.1 K → 10 K 또는 100 K → 200 K 로 넘어가는 구간)에서 온도가
-설정값을 크게 넘어 발산하거나 "Bond atoms missing" 으로 멈춘다. UROPS 초기 TraPPE-UA run 두 개가
-100 → 150 K 구간에서 이렇게 멈췄다.</p>
-<h3 id="_5">원인 분석</h3>
-<p>세 가지 가능성을 차례로 확인한다.</p>
-<p><strong>1) 타임스텝이 너무 큼</strong></p>
-<p>수소 진동 주기는 약 10 fs 이고, OPLS-AA 전원자 모델은 C-H 결합까지 그대로 적분한다.
-SHAKE 를 쓰지 않으면 0.5 fs 이하가 안전하다.</p>
+<ol start="10">
+<li>줄 수가 기대값(OPLS-AA 2471, TraPPE-UA 1371)과 맞는지, 전하 합이 0 인지 본다.</li>
+<li>분자 ID, 원자 타입, 전하 컬럼이 모두 채워져 있는지도 직접 확인한다.</li>
+</ol>
+<h3 id="b_2">B. 증상: 가열 단계의 온도 폭주</h3>
+<ol>
+<li>가열 단계(특히 0.1 K → 10 K 또는 100 K → 200 K 로 넘어가는 구간)에서 온도가 설정값을 크게 넘어 발산하거나 "Bond atoms missing" 으로 멈춘다.</li>
+</ol>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+UROPS 초기 TraPPE-UA run 두 개가 100 → 150 K 구간에서 이렇게 멈췄다.</p>
+</div>
+<h4 id="_4">가능한 원인</h4>
+<ol start="2">
+<li>타임스텝이 너무 크다.</li>
+<li>Langevin damping 이 부족하다.</li>
+<li>초기 속도를 주지 않았다.</li>
+<li>초기 구조에 원자가 겹쳐 있다. 단단한 LJ 코어 때문에 적분이 불안정해진다.</li>
+</ol>
+<h4 id="_5">점검</h4>
+<ol start="6">
+<li>앞의 세 가지 가능성(타임스텝, damping, 초기 속도)을 차례로 확인한다.</li>
+<li>타임스텝을 확인한다. 수소 진동 주기는 약 10 fs 이고, OPLS-AA 전원자 모델은 C-H 결합까지 그대로 적분한다.</li>
+<li>Langevin damping 값을 확인한다. 저온에서 damping 파라미터가 너무 크면(즉 마찰이 약하면) 열욕과의 결합이 느려져 국소적으로 뜨거운 곳(핫스팟)이 생긴다.</li>
+<li>데이터 파일에 Velocities 섹션이 있는지 확인한다. 없으면 모든 원자가 멈춘 상태에서 시작한다.</li>
+</ol>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+같은 입력, 같은 시드, 같은 MPI 프로세스 수로 돌린 두 run 은 비트 단위로 같은 궤적을 낸다.
+두 run 이 같은 스텝에서 멈췄다는 사실은 그래서 아무것도 알려 주지 않는다.</p>
+</div>
+<ol start="10">
+<li>재현성을 확인한다. 원인을 찾으려면 <code>velocity ... create</code> 와 <code>fix langevin</code> 의 시드를 바꿔 다시 돌린다.</li>
+</ol>
+<h4 id="_6">조치</h4>
+<ol start="11">
+<li>SHAKE 를 쓰지 않으면 타임스텝을 0.5 fs 이하로 둔다.</li>
+</ol>
 <pre><code class="language-lammps">timestep 0.5
 </code></pre>
-<p>X-H 결합을 SHAKE 로 묶으면 1.0~2.0 fs 까지 늘릴 수 있다. <code>opls.data</code> 기준 타입 번호는 다음과 같다
-(번호를 고르는 법은 <a href="06-frameworks">6장</a>).</p>
+<div class="amm-caution">
+<p><span class="amm-label">주의</span>
+벤젠 C-C(결합 타입 1)를 넣으면 고리 전체가 하나로 이어져 "Shake clusters are connected" 오류가 난다.</p>
+</div>
+<ol start="12">
+<li>X-H 결합을 SHAKE 로 묶으면 1.0~2.0 fs 까지 늘릴 수 있다. <code>opls.data</code> 기준 타입 번호는 다음과 같다
+(번호를 고르는 법은 <a href="06-frameworks">6장</a>).</li>
+</ol>
 <pre><code class="language-lammps">fix shake_xh organic shake 1.0e-4 20 0 b 2 4 5 6 8 9 10 a 15
 timestep 2.0
 </code></pre>
-<p>벤젠 C-C(결합 타입 1)를 넣으면 고리 전체가 하나로 이어져 "Shake clusters are connected" 오류가 난다.</p>
-<p><strong>2) Langevin damping 부족</strong></p>
-<p>저온에서 damping 파라미터가 너무 크면(즉 마찰이 약하면) 열욕과의 결합이
-느려져 국소적으로 뜨거운 곳(핫스팟)이 생긴다. 값은 5.3 절을 따른다.</p>
+<ol start="13">
+<li>Langevin damping 값은 <a href="05-protocol">5장</a> 3.C 를 따른다.</li>
+</ol>
 <pre><code class="language-lammps">fix lang organic langevin 0.1 10.0 50.0 12345     # damp = 50 fs (저온)
 fix lang organic langevin 100.0 200.0 100.0 12347 # damp = 100 fs (중온 이후)
 </code></pre>
-<p>열욕은 고정된 Cu 를 뺀 <code>organic</code> 그룹에 건다. <code>all</code> 에 걸면 Cu 자유도까지 온도 계산에 들어가
-유기층이 목표보다 뜨거워진다.</p>
-<p><strong>3) 초기 속도를 주지 않음</strong></p>
-<p>데이터 파일에 Velocities 섹션이 없으면 모든 원자가 멈춘 상태에서 시작한다.
-0.1 K 에서 가열을 시작하려는 경우에도 초기 속도는 직접 줘야 한다.</p>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+열욕을 <code>all</code> 에 걸면 Cu 자유도까지 온도 계산에 들어가 유기층이 목표보다 뜨거워진다.</p>
+</div>
+<ol start="14">
+<li>열욕은 고정된 Cu 를 뺀 <code>organic</code> 그룹에 건다.</li>
+<li>초기 속도를 직접 준다. 0.1 K 에서 가열을 시작하려는 경우에도 필요하다.</li>
+</ol>
 <pre><code class="language-lammps">velocity organic create 0.1 87287 dist gaussian mom yes rot yes
 </code></pre>
-<h3 id="_6">추가 조치: 초기 중첩 해소</h3>
-<p>초기 구조에 원자가 겹쳐 있으면 단단한 LJ 코어 때문에 적분이 불안정해진다.
-1 단계 소프트 완화를 충분히 길게(≥ 50 ps) 돌린 뒤 넘어간다.</p>
-<h3 id="_7">재현성 확인</h3>
-<p>같은 입력, 같은 시드, 같은 MPI 프로세스 수로 돌린 두 run 은 비트 단위로 같은 궤적을 낸다.
-두 run 이 같은 스텝에서 멈췄다는 사실은 그래서 아무것도 알려 주지 않는다.
-원인을 찾으려면 <code>velocity ... create</code> 와 <code>fix langevin</code> 의 시드를 바꿔 다시 돌린다.</p>
-<hr />
-<h2 id="83-domain-decomposition">8.3 도메인 분해 (Domain Decomposition) 문제</h2>
-<h3 id="_8">증상</h3>
+<ol start="16">
+<li>초기 중첩을 해소한다. 1 단계 소프트 완화를 충분히 길게(≥ 50 ps) 돌린 뒤 넘어간다.</li>
+</ol>
+<h3 id="c-domain-decomposition">C. 증상: 도메인 분해 (Domain Decomposition) 문제</h3>
+<ol>
+<li>다음 오류가 난다. 또는 병렬로 돌릴 때 특정 프로세서 수에서만 충돌이 나거나, 코어를 늘려도 빨라지지 않는다.</li>
+</ol>
 <pre><code>ERROR: Out of range atoms - cannot compute PPPM
 </code></pre>
-<p>또는 병렬로 돌릴 때 특정 프로세서 수에서만 나는 충돌, 코어를 늘려도 빨라지지 않는 현상.</p>
-<h3 id="_9">원인</h3>
-<p>"Out of range atoms" 는 원자가 한 번의 재이웃(reneighbor) 사이에 PPPM 격자의 허용 범위 밖으로 움직였다는 뜻이다.
-거의 항상 계가 터지는 중이라는 신호이므로 8.2 절을 먼저 본다. 병렬 분할 자체가 원인인 경우는 드물다.</p>
-<p>성능 쪽 문제는 따로 있다. 이 계는 Cu 가 아래 7 Å, 액체가 그 위 약 30 Å 를 채우고 있어 z 방향으로 원자 밀도가 고르지 않다.
-z 로 나누면 프로세서마다 원자 수가 크게 달라진다. 또 2,471원자를 40 랭크로 나누면 랭크당 62원자라
-UROPS run 의 통신 비중이 13–26 % 였다.</p>
-<h3 id="_10">해결책</h3>
-<p><strong>1) Processor 그리드 직접 지정</strong></p>
-<p>z 방향은 1로 고정하고 xy 평면에서만 나눈다.</p>
+<h4 id="_7">가능한 원인</h4>
+<ol start="2">
+<li>"Out of range atoms" 는 원자가 한 번의 재이웃(reneighbor) 사이에 PPPM 격자의 허용 범위 밖으로 움직였다는 뜻이다.</li>
+<li>이 오류는 거의 항상 계가 터지는 중이라는 신호다. 병렬 분할 자체가 원인인 경우는 드물다.</li>
+<li>성능 쪽 문제는 원자 밀도가 z 방향으로 고르지 않아 생긴다. Cu 가 아래 7 Å, 액체가 그 위 약 30 Å 를 채운다.</li>
+<li>z 로 나누면 프로세서마다 원자 수가 크게 달라진다.</li>
+<li>랭크당 원자가 너무 적다. 2,471원자를 40 랭크로 나누면 랭크당 62원자라 UROPS run 의 통신 비중이 13–26 % 였다.</li>
+</ol>
+<h4 id="_8">점검</h4>
+<ol start="7">
+<li>"Out of range atoms" 가 나면 3.B 를 먼저 본다.</li>
+</ol>
+<h4 id="_9">조치</h4>
+<ol start="8">
+<li>Processor 그리드를 직접 지정한다. z 방향은 1로 고정하고 xy 평면에서만 나눈다.</li>
+</ol>
 <pre><code class="language-lammps">processors * * 1
 </code></pre>
-<p>이 크기라면 코어 수 자체를 줄인다. 랭크당 원자 200개 이상이 되도록 8–16 코어면 충분하다.</p>
+<ol start="9">
+<li>이 크기라면 코어 수 자체를 줄인다. 랭크당 원자 200개 이상이 되도록 8–16 코어면 충분하다.</li>
+</ol>
 <pre><code class="language-lammps">processors 4 4 1    # 16 코어
 </code></pre>
-<p><strong>2) PPPM 차수 조정</strong></p>
+<ol start="10">
+<li>PPPM 차수를 조정한다.</li>
+</ol>
 <pre><code class="language-lammps">kspace_style pppm 1.0e-5
 kspace_modify slab 3.0
 kspace_modify order 4    # 기본 5. 낮추면 ghost 격자가 줄어든다
 </code></pre>
-<p>MSM 으로 바꾸는 것은 이 크기에서는 해결책이 아니다. 같은 정확도에서 MSM 이 1.63배 느렸다(4.4 절).</p>
-<hr />
-<h2 id="84-opls-aa">8.4 평형화가 너무 오래 걸림 (OPLS-AA)</h2>
-<h3 id="_11">증상</h3>
-<p>NVT 평형 단계에서 4~5 ns 가 지나도 에탄올 OH 그룹의 RDF 첫 피크 위치가 계속
-움직인다. 에너지는 평형에 이른 것처럼 보여도 구조는 아직 평형이 아니다.</p>
-<h3 id="_12">원인</h3>
-<p>에탄올의 수소 결합 네트워크가 재배열되는 데 시간이 걸리고, 슬랩 계에서는 그보다 느린 과정이 하나 더 있다.
-두 성분이 막의 두께 방향으로 재분배되는 확산이다. 30 Å 두께의 막에서 액체 확산 계수가 $10^{-9}$ m²/s 정도면
-$L^2/D \approx 1$ ns 이고, 첫 흡착층의 분자 교환은 이보다 느리다.
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+MSM 으로 바꾸는 것은 이 크기에서는 해결책이 아니다. 같은 정확도에서 MSM 이 1.63배 느렸다(<a href="04-electrostatics">4장</a> 4.B).</p>
+</div>
+<h3 id="d-opls-aa">D. 증상: 평형화가 너무 오래 걸림 (OPLS-AA)</h3>
+<ol>
+<li>NVT 평형 단계에서 4~5 ns 가 지나도 에탄올 OH 그룹의 RDF 첫 피크 위치가 계속 움직인다.</li>
+</ol>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+에너지는 평형에 이른 것처럼 보여도 구조는 아직 평형이 아니다.</p>
+</div>
+<h4 id="_10">가능한 원인</h4>
+<ol start="2">
+<li>에탄올의 수소 결합 네트워크가 재배열되는 데 시간이 걸린다.</li>
+<li>슬랩 계에서는 그보다 느린 과정이 하나 더 있다. 두 성분이 막의 두께 방향으로 재분배되는 확산이다.</li>
+<li>30 Å 두께의 막에서 액체 확산 계수가 $10^{-9}$ m²/s 정도면 $L^2/D \approx 1$ ns 이고, 첫 흡착층의 분자 교환은 이보다 느리다.</li>
+</ol>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
 TraPPE-UA 도 수산기 H 를 명시하므로 수소 결합 자체는 두 모형 모두 있다.</p>
-<h3 id="_13">평형화 절차</h3>
-<p>평형은 에너지가 아니라 조성으로 판단한다. <code>inputs/04_eq.in</code> 은 1 ns + 6.5 ns 로 잡아 두었다(0.5 fs).
-SHAKE 로 2 fs 를 쓴다면 스텝 수는 1/4 이다.</p>
+</div>
+<h4 id="_11">점검</h4>
+<ol start="5">
+<li>평형은 에너지가 아니라 조성으로 판단한다. 다음을 모두 만족해야 평형으로 본다.<ol>
+<li>z 방향 벤젠·에탄올 밀도 프로파일을 앞뒤 절반으로 나눠 그렸을 때 차이가 블록 오차 안에 든다.</li>
+<li>첫 층 벤젠 몰분율의 누적 평균이 더 이상 한쪽으로 움직이지 않는다.</li>
+<li>에탄올 O-O RDF 첫 피크가 앞뒤 절반에서 같다.</li>
+</ol>
+</li>
+</ol>
+<h4 id="_12">조치</h4>
+<ol start="6">
+<li>평형화를 1 ns + 6.5 ns 로 돌린다. <code>inputs/04_eq.in</code> 은 이 길이로 잡아 두었다(0.5 fs).</li>
+</ol>
 <pre><code class="language-lammps"># 04_eq.in, dt = 0.5 fs
 fix tstat organic nvt temp 300.0 300.0 100.0
 run 2000000       # 4a) 1 ns
 run 13000000      # 4b) 6.5 ns
 </code></pre>
-<p>다음을 모두 만족해야 평형으로 본다.</p>
-<ol>
-<li>z 방향 벤젠·에탄올 밀도 프로파일을 앞뒤 절반으로 나눠 그렸을 때 차이가 블록 오차 안에 든다.</li>
-<li>첫 층 벤젠 몰분율의 누적 평균이 더 이상 한쪽으로 움직이지 않는다.</li>
-<li>에탄올 O-O RDF 첫 피크가 앞뒤 절반에서 같다.</li>
+<ol start="7">
+<li>SHAKE 로 2 fs 를 쓴다면 스텝 수를 1/4 로 줄인다.</li>
 </ol>
-<hr />
-<h2 id="85-stress-nan">8.5 Stress 계산에서 NaN 또는 발산</h2>
-<h3 id="_14">증상</h3>
-<p>압력 프로파일이 비현실적으로 크거나, 빈마다 들쭉날쭉하거나, 액체 한가운데서 $P_{zz}$ 가 일정하지 않다.</p>
-<h3 id="_15">원인과 해결책</h3>
+<h3 id="e-stress-nan">E. 증상: Stress 계산에서 NaN 또는 발산</h3>
 <ol>
-<li><strong>합 대신 평균을 냈다</strong>: <code>fix ave/chunk</code> 에 <code>c_stress[1]</code> 을 넣으면 빈 안 원자의 평균이 나온다.
-   빈별 합을 <code>compute reduce/chunk ... sum</code> 으로 구하고 빈 부피로 나눈다(<a href="07-analysis">7장</a> 7.5절).</li>
+<li>압력 프로파일이 비현실적으로 크거나, 빈마다 들쭉날쭉하거나, 액체 한가운데서 $P_{zz}$ 가 일정하지 않다.</li>
+</ol>
+<h4 id="_13">가능한 원인</h4>
+<ol start="2">
+<li><strong>합 대신 평균을 냈다</strong>: <code>fix ave/chunk</code> 에 <code>c_stress[1]</code> 을 넣으면 빈 안 원자의 평균이 나온다.</li>
 <li><strong>부호</strong>: <code>stress/atom</code> 은 압력의 반대 부호다. $P = -\sum s / V$.</li>
-<li><strong>빠진 항</strong>: 키워드를 생략하면 모든 항이 들어가지만, 일부만 적었다면 <code>kspace</code>, <code>improper</code>, <code>fix</code> 가 빠졌는지 본다.
-   벽과 <code>setforce</code> 의 기여는 <code>fix</code> 키워드로 들어간다.</li>
-<li><strong>MSM</strong>: <code>kspace_modify pressure/scalar yes</code> 면 원자별 virial 이 나오지 않는다. 기본값 <code>no</code> 로 둔다.</li>
+<li><strong>빠진 항</strong>: 키워드를 일부만 적어 <code>kspace</code>, <code>improper</code>, <code>fix</code> 가 빠졌다. 벽과 <code>setforce</code> 의 기여는 <code>fix</code> 키워드로 들어간다.</li>
+<li><strong>MSM</strong>: <code>kspace_modify pressure/scalar yes</code> 면 원자별 virial 이 나오지 않는다.</li>
 <li><strong>SHAKE</strong>: 구속력의 virial 은 <code>fix</code> 항으로 들어가므로 SHAKE 를 쓸 때 <code>fix</code> 를 빼면 압력이 틀린다.</li>
 </ol>
-<p>$P_{zz}(z)$ 는 역학적 평형에서 z 에 상관없이 일정해야 하므로, 액체 영역에서 $P_{zz}$ 가 평평한지가 가장 쉬운 검산이다.</p>
-<hr />
-<h2 id="86">8.6 진단 체크리스트</h2>
-<p>문제가 생기면 다음 순서로 확인한다.</p>
+<h4 id="_14">점검</h4>
+<ol start="7">
+<li>액체 영역에서 $P_{zz}$ 가 평평한지 본다. $P_{zz}(z)$ 는 역학적 평형에서 z 에 상관없이 일정해야 하므로 가장 쉬운 검산이다.</li>
+<li><code>stress/atom</code> 키워드를 확인한다. 키워드를 생략하면 모든 항이 들어가지만, 일부만 적었다면 <code>kspace</code>, <code>improper</code>, <code>fix</code> 가 빠졌는지 본다.</li>
+</ol>
+<h4 id="_15">조치</h4>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+합 대신 평균, 부호, 빠진 항, SHAKE 의 <code>fix</code> 누락은 모두 틀린 압력 프로파일을 낸다.</p>
+</div>
+<ol start="9">
+<li>빈별 합을 <code>compute reduce/chunk ... sum</code> 으로 구하고 빈 부피로 나눈다(<a href="07-analysis">7장</a> 3.E).</li>
+<li>압력은 $P = -\sum s / V$ 로 부호를 바꿔 구한다.</li>
+<li>벽과 <code>setforce</code> 를 쓰면 <code>fix</code> 키워드를 포함한다.</li>
+<li>MSM 에서는 <code>pressure/scalar</code> 를 기본값 <code>no</code> 로 둔다.</li>
+<li>SHAKE 를 쓸 때는 <code>fix</code> 키워드를 빼지 않는다.</li>
+</ol>
+<h2 id="4">4. 시험 및 검사</h2>
+<h3 id="a_2">A. 진단 체크리스트</h3>
 <ol>
+<li>문제가 생기면 다음 순서로 확인한다.<ol>
 <li>로그 파일 마지막 50줄: 온도, 압력, 에너지의 거동</li>
 <li>데이터 파일 무결성: 원자 수, 결합 수, 전하 합</li>
 <li>타임스텝: SHAKE 유무에 따라 0.5 / 2.0 fs</li>
@@ -278,17 +450,7 @@ run 13000000      # 4b) 6.5 ns
 <li>Soft potential 단계: 충분한 시간 (≥ 50 ps)</li>
 <li>재현성: 다른 random seed 로도 같은 오류가 나는가 (같은 시드면 당연히 같은 곳에서 멈춘다)</li>
 </ol>
-<hr />
-<h2 id="_16">참고문헌</h2>
-<ol>
-<li>LAMMPS Documentation, Common Errors.
-   <a href="https://docs.lammps.org/Errors_common.html">https://docs.lammps.org/Errors_common.html</a></li>
-<li>Plimpton, S. <em>J. Comput. Phys.</em> <strong>117</strong>, 1 (1995).
-   DOI: <a href="https://doi.org/10.1006/jcph.1995.1039">10.1006/jcph.1995.1039</a></li>
-<li>Frenkel, D.; Smit, B. <em>Understanding Molecular Simulation: From
-   Algorithms to Applications</em>, 2nd ed.; Academic Press, 2002. Chapter 4.</li>
-<li>Allen, M. P.; Tildesley, D. J. <em>Computer Simulation of Liquids</em>,
-   2nd ed.; Oxford University Press, 2017. Section 3.5.</li>
+</li>
 </ol>
       </article>
 <nav class="page-nav"><a class="prev" href="cu-07-analysis.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">분석 방법</div></a></nav>

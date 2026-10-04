@@ -7,30 +7,78 @@ permalink: /
 
 # LAMMPS 한국어 입문 가이드
 
-LAMMPS(Large-scale Atomic/Molecular Massively Parallel Simulator)는
-미국 Sandia 국립연구소에서 개발하는 고전 분자동역학(MD) 시뮬레이션 패키지다.
-원자·분자 수준의 시스템을 수십 개부터 수십억 개 입자까지 다룰 수 있고,
-학술용으로는 무료로 배포된다.
+<p class="amm-id">NOTE 31-00-00 · LAMMPS 입문 가이드 개요</p>
 
-이 가이드는 LAMMPS를 처음 접하는 사람이 방대한 매뉴얼 앞에서 길을 잃지 않도록
-정리한 한국어 입문서다. 가장 단순한 Lennard-Jones 액체 예제에서 출발해
-입력 스크립트의 4단계 구조, 단위계와 원자 표현, 상호작용 모델, 시뮬레이션 설정,
-출력과 분석까지 차례로 다룬다.
+## 1. 일반 사항
 
-## 이 가이드에 관하여
+### A. 목적
 
-LAMMPS 공식 매뉴얼(2024년 기준)을 바탕으로, 일상 연구에서 자주 쓰는 명령과
-패턴을 추려 정리했다. 예제는 모두 LAMMPS 22 Jul 2024 안정 버전을 기준으로 썼고,
-그 이전 버전과도 대부분 호환된다.
+1. 이 노트는 LAMMPS 입문 가이드(NOTE 31-01-00 ~ 31-08-00)와 예제, 응용 시리즈의 구성을 보인다.
+2. LAMMPS(Large-scale Atomic/Molecular Massively Parallel Simulator)는 미국 Sandia 국립연구소에서 개발하는 고전 분자동역학(MD) 시뮬레이션 패키지다.
+3. LAMMPS 는 원자·분자 수준의 시스템을 수십 개부터 수십억 개 입자까지 다룬다.
+4. LAMMPS 는 학술용으로 무료 배포된다.
 
-왼쪽 사이드바에서 원하는 주제로 바로 이동할 수 있고, 페이지 하단의
-이전·다음 링크를 따라 순서대로 읽어도 된다. 명령어 이름은 매뉴얼의 원어 표기를
-그대로 썼다. 상세 옵션이나 특수한 사용 사례는 원문 매뉴얼
-([docs.lammps.org](https://docs.lammps.org/))을 직접 보는 편이 낫다.
+<div class="amm-note" markdown="1">
+<span class="amm-label">참고</span>
+이 가이드는 LAMMPS 를 처음 접하는 사람이 방대한 매뉴얼 앞에서 길을 잃지 않도록 만든 한국어 입문서다. 가장 단순한 Lennard-Jones 액체 예제에서 출발한다. 이어서 입력 스크립트의 4단계 구조, 단위계와 원자 표현, 상호작용 모델, 시뮬레이션 설정, 출력과 분석을 차례로 다룬다.
+</div>
 
-## 주제별로 들어가기
+### B. 적용 범위
 
-### 처음 시작한다면
+1. 내용은 LAMMPS 공식 매뉴얼(2024년 기준)을 바탕으로 한다.
+2. 일상 연구에서 자주 쓰는 명령과 패턴만 다룬다.
+3. 예제는 모두 LAMMPS 22 Jul 2024 안정 버전을 기준으로 한다. 그 이전 버전과도 대부분 호환된다.
+4. 명령어 이름은 매뉴얼의 원어 표기를 그대로 쓴다.
+5. 상세 옵션이나 특수한 사용 사례는 원문 매뉴얼([docs.lammps.org](https://docs.lammps.org/))을 직접 확인한다.
+
+<div class="amm-note" markdown="1">
+<span class="amm-label">참고</span>
+왼쪽 사이드바에서 원하는 주제로 바로 이동한다. 페이지 하단의 이전·다음 링크로 순서대로 읽어도 된다.
+</div>
+
+## 2. 준비 정보
+
+### A. 참조 자료
+
+| 참조 | 제목 |
+|---|---|
+| LAMMPS 공식 매뉴얼 | [docs.lammps.org](https://docs.lammps.org/) |
+| LAMMPS 사용자 포럼 | [lammps.org/forum.html](https://www.lammps.org/forum.html) |
+| Thompson et al. 2022 | *Comput. Phys. Commun.* **2022**, *271*, 108171 |
+| Plimpton 1995 | *J. Comput. Phys.* **1995**, *117*, 1–19 |
+
+<div class="amm-note" markdown="1">
+<span class="amm-label">참고</span>
+이 가이드의 내용은 LAMMPS 공식 매뉴얼(<a href="https://docs.lammps.org/">docs.lammps.org</a>)을 기반으로 한다. 매뉴얼에는 명령어별 상세 옵션과 예제가 있다. 더 알고 싶은 명령이 나오면 해당 매뉴얼 페이지를 함께 본다. 구체적인 사례를 찾을 때는 사용자 포럼(<a href="https://www.lammps.org/forum.html">lammps.org/forum.html</a>)도 쓸모가 많다.
+</div>
+
+LAMMPS 를 쓴 연구를 발표할 때는 아래 일반 인용을 함께 표기한다. 실제로 사용한 모델(예: ReaxFF, EAM, COMPASS 등)의 원저 논문도 같이 인용하는 것이 학계의 관례다.
+
+- Thompson, A. P.; Aktulga, H. M.; Berger, R.; Bolintineanu, D. S.; Brown, W. M.;
+  Crozier, P. S.; in 't Veld, P. J.; Kohlmeyer, A.; Moore, S. G.; Nguyen, T. D.;
+  Shan, R.; Stevens, M. J.; Tranchida, J.; Trott, C.; Plimpton, S. J.
+  *Comput. Phys. Commun.* **2022**, *271*, 108171.
+- Plimpton, S. *J. Comput. Phys.* **1995**, *117*, 1–19.
+
+## 3. 노트 목록
+
+| 노트 번호 | 제목 | 내용 |
+|---|---|---|
+| NOTE 31-01-00 | [시작하기](01-getting-started.html) | 설치 확인, 첫 명령, LJ 액체 예제, 출력 파일 |
+| NOTE 31-02-00 | [입력 스크립트 구조](02-input-structure.html) | 매뉴얼이 정의하는 4단계 입력 구조 |
+| NOTE 31-03-00 | [단위계와 atom_style](03-units-atomstyle.html) | 단위계 선택, 원자 표현 방식 |
+| NOTE 31-04-00 | [시스템 정의](04-system.html) | 박스·원자 만들기, read_data 와 lattice/create_atoms |
+| NOTE 31-05-00 | [상호작용 모델](05-forcefield.html) | pair_style, bonded styles, kspace_style |
+| NOTE 31-06-00 | [셋업과 실행](06-fix-run.html) | velocity, timestep, fix, minimize, run |
+| NOTE 31-07-00 | [출력과 분석](07-output.html) | thermo, dump, compute, fix ave/*, 후처리 |
+| NOTE 31-08-00 | [트러블슈팅과 운영 팁](08-troubleshooting.html) | 오류, 병렬 실행, 성능 점검 |
+| NOTE 33-01-00 | [LJ 액체 (NVE)](ex-01-lj-basic.html) | 예제 E1 |
+| NOTE 33-02-00 | [LJ 5단계 + RDF·MSD](ex-02-lj-demo.html) | 예제 E2 |
+| NOTE 33-03-00 | [Cu(100) 슬랩](ex-03-cu-slab.html) | 예제 E3 |
+| NOTE 33-04-00 | [Cu 벤젠-에탄올 흡착](ex-04-cu-adsorption.html) | 예제 E4 |
+| NOTE 32-00-00 | [Cu 표면 흡착 시리즈](cu-overview.html) | 응용 시리즈 개요 |
+
+### A. 시작
 
 <div class="cards">
   <a class="card" href="01-getting-started.html">
@@ -45,7 +93,7 @@ LAMMPS 공식 매뉴얼(2024년 기준)을 바탕으로, 일상 연구에서 자
   </a>
 </div>
 
-### 시뮬레이션 만들기
+### B. 시뮬레이션 만들기
 
 <div class="cards">
   <a class="card" href="03-units-atomstyle.html">
@@ -70,7 +118,7 @@ LAMMPS 공식 매뉴얼(2024년 기준)을 바탕으로, 일상 연구에서 자
   </a>
 </div>
 
-### 결과 보기와 운영
+### C. 결과 보기와 운영
 
 <div class="cards">
   <a class="card" href="07-output.html">
@@ -85,9 +133,9 @@ LAMMPS 공식 매뉴얼(2024년 기준)을 바탕으로, 일상 연구에서 자
   </a>
 </div>
 
-### 예제 따라 하기
+### D. 예제
 
-예제마다 목적, 입력 스크립트, 실행, 출력·그림을 한 페이지에 모아 두었다.
+예제마다 목적, 입력 스크립트, 실행, 출력·그림을 한 페이지에 모은다.
 
 <div class="cards">
   <a class="card" href="ex-01-lj-basic.html">
@@ -112,11 +160,9 @@ LAMMPS 공식 매뉴얼(2024년 기준)을 바탕으로, 일상 연구에서 자
   </a>
 </div>
 
-### 응용 예제: Cu 표면 흡착
+### E. 응용: Cu 표면 흡착
 
-입문 과정을 마친 뒤에는 실제 연구 문제에 LAMMPS를 적용한 응용 시리즈를 볼 수 있다.
-Cu 표면 위 벤젠-에탄올 경쟁 흡착을 OPLS-AA · TraPPE-UA · PPPM · MSM
-네 조합으로 비교하는 9개 챕터다.
+입문 과정 다음 단계는 실제 연구 문제에 LAMMPS 를 적용한 응용 시리즈다. Cu 표면 위 벤젠-에탄올 경쟁 흡착을 OPLS-AA · TraPPE-UA · PPPM · MSM 네 조합으로 비교한다. 9개 챕터로 구성된다.
 
 <div class="cards">
   <a class="card" href="cu-overview.html">
@@ -127,28 +173,3 @@ Cu 표면 위 벤젠-에탄올 경쟁 흡착을 OPLS-AA · TraPPE-UA · PPPM · 
 </div>
 
 <div class="divider"></div>
-
-## 인용에 관하여
-
-LAMMPS를 쓴 연구를 발표할 때는 아래 일반 인용을 함께 표기한다.
-실제로 사용한 모델(예: ReaxFF, EAM, COMPASS 등)의 원저 논문도 같이 인용하는 것이
-학계의 관례다.
-
-- Thompson, A. P.; Aktulga, H. M.; Berger, R.; Bolintineanu, D. S.; Brown, W. M.;
-  Crozier, P. S.; in 't Veld, P. J.; Kohlmeyer, A.; Moore, S. G.; Nguyen, T. D.;
-  Shan, R.; Stevens, M. J.; Tranchida, J.; Trott, C.; Plimpton, S. J.
-  *Comput. Phys. Commun.* **2022**, *271*, 108171.
-- Plimpton, S. *J. Comput. Phys.* **1995**, *117*, 1–19.
-
-<div class="note">
-  <div class="note-title">참고 자료</div>
-  <p>
-    이 가이드의 내용은 LAMMPS 공식 매뉴얼
-    (<a href="https://docs.lammps.org/">docs.lammps.org</a>)을 기반으로 한다.
-    매뉴얼에는 명령어별 상세 옵션과 예제가 있으니,
-    읽다가 더 알고 싶은 명령이 나오면 해당 페이지를 함께 보면 된다.
-    구체적인 사례를 찾을 때는 사용자 포럼
-    (<a href="https://www.lammps.org/forum.html">lammps.org/forum.html</a>)도
-    쓸모가 많다.
-  </p>
-</div>

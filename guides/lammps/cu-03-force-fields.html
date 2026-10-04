@@ -92,38 +92,129 @@
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
-<li><a href="#31">3.1 두 힘장의 설계 차이</a></li>
-<li><a href="#32-functional-form">3.2 함수형 (Functional form)</a><ul>
-<li><a href="#1-4">1-4 비결합 스케일링</a></li>
-<li><a href="#lj-mixing-rule">LJ 혼합 규칙 (Mixing rule)</a></li>
+<li><a href="#1">1. 일반 사항</a><ul>
+<li><a href="#a">A. 목적</a></li>
+<li><a href="#b">B. 적용 범위</a></li>
+<li><a href="#c">C. 결과 요약</a></li>
 </ul>
 </li>
-<li><a href="#33-lammps-pair_style">3.3 LAMMPS pair_style 설정</a><ul>
-<li><a href="#pair_style-pppm">pair_style 설정 (PPPM 사용 시)</a></li>
-<li><a href="#pair_style-msm">pair_style 설정 (MSM 사용 시)</a></li>
+<li><a href="#2">2. 준비 정보</a><ul>
+<li><a href="#a_1">A. 참조 자료</a></li>
+<li><a href="#c_1">C. 소모품</a></li>
 </ul>
 </li>
-<li><a href="#34-opls-aa">3.4 OPLS-AA 결합 항 설정</a><ul>
-<li><a href="#opls-aa">OPLS-AA 벤젠 파라미터 (요약)</a></li>
-<li><a href="#opls-aa-lj-jorgensen-1996">OPLS-AA 에탄올 LJ 파라미터 (Jorgensen 외 1996)</a></li>
-<li><a href="#urops">UROPS 입력이 표준값과 다른 곳</a></li>
+<li><a href="#3">3. 절차</a><ul>
+<li><a href="#a_2">A. 두 힘장의 설계 차이 비교</a></li>
+<li><a href="#b-functional-form">B. 함수형 (Functional form) 설정</a></li>
+<li><a href="#c-lammps-pair_style">C. LAMMPS pair_style 설정</a></li>
+<li><a href="#d-opls-aa">D. OPLS-AA 결합 항 설정</a></li>
+<li><a href="#e-trappe-ua">E. TraPPE-UA 결합 항 설정</a></li>
+<li><a href="#f-cu-heinz-2008">F. Cu 슬랩 파라미터 설정 (Heinz 외 2008)</a></li>
+<li><a href="#g">G. 힘장 선택</a></li>
 </ul>
 </li>
-<li><a href="#35-trappe-ua">3.5 TraPPE-UA 결합 항 설정</a><ul>
-<li><a href="#trappe-ua-lj-chen-2001-table-1">TraPPE-UA 에탄올 LJ 파라미터 (Chen 외 2001, Table 1)</a></li>
-<li><a href="#trappe-ua-ua-6-site-k_b-505-k-3695-a">TraPPE-UA 벤젠 파라미터 (UA 6-site, ε/k_B = 50.5 K, σ = 3.695 Å)</a></li>
-</ul>
-</li>
-<li><a href="#36-cu-heinz-2008">3.6 Cu 슬랩 파라미터 (Heinz 외 2008)</a><ul>
-<li><a href="#urops-run-cu-">UROPS run 의 Cu-유기 파라미터</a></li>
-</ul>
-</li>
-<li><a href="#37">3.7 힘장 선택 기준</a></li>
-<li><a href="#_1">참고문헌</a></li>
 </ul>
 </div>
 <hr />
-<h2 id="31">3.1 두 힘장의 설계 차이</h2>
+<p class="amm-id">NOTE 32-03-00 · 힘장 비교: OPLS-AA vs TraPPE-UA</p>
+
+<h2 id="1">1. 일반 사항</h2>
+<h3 id="a">A. 목적</h3>
+<ol>
+<li>이 노트는 OPLS-AA 와 TraPPE-UA 의 설계 차이, 함수형, LAMMPS 설정을 비교한다.</li>
+<li>이 노트는 UROPS run 의 입력 계수가 표준값과 다른 곳과 Cu 슬랩 파라미터를 다룬다.</li>
+</ol>
+<h3 id="b">B. 적용 범위</h3>
+<ol>
+<li>유기 분자(LJ + Coulomb)와 Cu 슬랩이 함께 있는 시스템에 적용한다.</li>
+<li>OPLS-AA 시스템에서 Cu는 type 12, TraPPE-UA 시스템에서는 type 6 이다.</li>
+</ol>
+<h3 id="c">C. 결과 요약</h3>
+<ol>
+<li>UROPS 입력은 전하, 에탄올 각도, 이면각, Cu-유기 LJ 에서 표준 OPLS-AA 값과 다르다.</li>
+<li>Heinz (2008) Cu 의 σ 는 2.330 Å 이다. 2.616 Å 은 $r_0 = 2^{1/6}\sigma$ 이다.</li>
+<li>UROPS run 의 Cu-유기 ε 는 Heinz 값을 기하 평균한 값보다 약 30배 약하다.</li>
+</ol>
+<h2 id="2">2. 준비 정보</h2>
+<h3 id="a_1">A. 참조 자료</h3>
+<table>
+<thead>
+<tr>
+<th>참조</th>
+<th>제목</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jorgensen 외 (1996)</td>
+<td>W. L. Jorgensen, D. S. Maxwell, J. Tirado-Rives, "Development and Testing of the OPLS All-Atom Force Field on Conformational Energetics and Properties of Organic Liquids", <em>J. Am. Chem. Soc.</em> <strong>118</strong>, 11225-11236 (1996). DOI: <a href="https://doi.org/10.1021/ja9621760">10.1021/ja9621760</a></td>
+</tr>
+<tr>
+<td>Martin, Siepmann (1998)</td>
+<td>M. G. Martin, J. I. Siepmann, "Transferable Potentials for Phase Equilibria. 1. United-Atom Description of n-Alkanes", <em>J. Phys. Chem. B</em> <strong>102</strong>, 2569-2577 (1998). DOI: <a href="https://doi.org/10.1021/jp972543+">10.1021/jp972543+</a></td>
+</tr>
+<tr>
+<td>Chen 외 (2001)</td>
+<td>B. Chen, J. J. Potoff, J. I. Siepmann, "Monte Carlo Calculations for Alcohols and Their Mixtures with Alkanes. Transferable Potentials for Phase Equilibria. 5.", <em>J. Phys. Chem. B</em> <strong>105</strong>, 3093-3104 (2001). DOI: <a href="https://doi.org/10.1021/jp003882x">10.1021/jp003882x</a></td>
+</tr>
+<tr>
+<td>Wick 외 (2000)</td>
+<td>C. D. Wick, M. G. Martin, J. I. Siepmann, "Transferable Potentials for Phase Equilibria. 4. United-Atom Description of Linear and Branched Alkenes and Alkylbenzenes", <em>J. Phys. Chem. B</em> <strong>104</strong>, 8008-8016 (2000). DOI: <a href="https://doi.org/10.1021/jp001044x">10.1021/jp001044x</a></td>
+</tr>
+<tr>
+<td>Rai, Siepmann (2007)</td>
+<td>N. Rai, J. I. Siepmann, "Transferable Potentials for Phase Equilibria. 9. Explicit Hydrogen Description of Benzene and Five-Membered and Six-Membered Heterocyclic Aromatic Compounds", <em>J. Phys. Chem. B</em> <strong>111</strong>, 10790-10799 (2007). DOI: <a href="https://doi.org/10.1021/jp073586l">10.1021/jp073586l</a></td>
+</tr>
+<tr>
+<td>Heinz 외 (2008)</td>
+<td>H. Heinz, R. A. Vaia, B. L. Farmer, R. R. Naik, "Accurate Simulation of Surfaces and Interfaces of Face-Centered Cubic Metals Using 12-6 and 9-6 Lennard-Jones Potentials", <em>J. Phys. Chem. C</em> <strong>112</strong>, 17281-17290 (2008). DOI: <a href="https://doi.org/10.1021/jp801931d">10.1021/jp801931d</a></td>
+</tr>
+<tr>
+<td>LAMMPS <code>pair_modify</code></td>
+<td>LAMMPS 공식 문서, <code>pair_modify</code>: <a href="https://docs.lammps.org/pair_modify.html">https://docs.lammps.org/pair_modify.html</a></td>
+</tr>
+<tr>
+<td>LAMMPS <code>dihedral_opls</code></td>
+<td>LAMMPS 공식 문서, <code>dihedral_opls</code>: <a href="https://docs.lammps.org/dihedral_opls.html">https://docs.lammps.org/dihedral_opls.html</a></td>
+</tr>
+<tr>
+<td>LAMMPS <code>pair_lj_cut_coul</code></td>
+<td><a href="https://docs.lammps.org/pair_lj_cut_coul.html">LAMMPS pair_lj_cut_coul 문서</a></td>
+</tr>
+<tr>
+<td>NOTE 32-02-00</td>
+<td><a href="02-data-files">데이터 파일 구조</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="c_1">C. 소모품</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>inputs/ff_opls_aa.in</code></td>
+<td>UROPS run 의 OPLS-AA 계수. 표준값과 다른 줄마다 <code>[표준: …]</code> 표시</td>
+</tr>
+<tr>
+<td><code>Cu_mishin1.eam.alloy</code></td>
+<td>UROPS run 의 Cu-Cu EAM 파일</td>
+</tr>
+<tr>
+<td><code>opls.data</code>, <code>trappe.data</code></td>
+<td>두 힘장의 데이터 파일</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3">3. 절차</h2>
+<h3 id="a_2">A. 두 힘장의 설계 차이 비교</h3>
+<ol>
+<li>두 힘장의 설계 항목을 비교한다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -160,59 +251,71 @@
 </tr>
 </tbody>
 </table>
-<p>OPLS-AA는 단량체의 형태(conformation)와 분자 내 상호작용을 자세히 모형화하므로
-수소 결합 네트워크의 협동성(cooperativity) 같은 미세한 효과를 더 정확히 잡아낸다.
-TraPPE-UA는 수소를 따로 다루지 않아 계산이 빠르고, 상 평형 같은
-거시 열역학량을 잘 예측한다.</p>
-<h2 id="32-functional-form">3.2 함수형 (Functional form)</h2>
-<p>두 힘장은 다음과 같은 함수형을 공유한다.</p>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+OPLS-AA는 단량체의 형태(conformation)와 분자 내 상호작용을 자세히 모형화한다. 그래서 수소 결합 네트워크의 협동성(cooperativity) 같은 미세한 효과를 더 정확히 잡아낸다. TraPPE-UA는 수소를 따로 다루지 않아 계산이 빠르고, 상 평형 같은 거시 열역학량을 잘 예측한다.</p>
+</div>
+<h3 id="b-functional-form">B. 함수형 (Functional form) 설정</h3>
+<ol>
+<li>두 힘장이 공유하는 함수형을 확인한다.</li>
+</ol>
 <p>$$
 U = \underbrace{\sum_{\text{bonds}} K_b (r - r_0)^2}_{\text{결합}} + \underbrace{\sum_{\text{angles}} K_\theta (\theta - \theta_0)^2}_{\text{각도}} + \underbrace{\sum_{\text{dihedrals}} \sum_{n=1}^{4} \frac{V_n}{2} [1 + (-1)^{n+1} \cos(n\phi)]}_{\text{이면각 (OPLS)}}
 + U_{\text{nb}}
 $$</p>
-<p>비결합 (non-bonded) 항은 다음과 같다.</p>
+<ol start="2">
+<li>비결합 (non-bonded) 항을 확인한다.</li>
+</ol>
 <p>$$
 U_{\text{nb}} = \sum_{i<j} \left[ 4\varepsilon_{ij}\left(\left(\frac{\sigma_{ij}}{r_{ij}}\right)^{12} - \left(\frac{\sigma_{ij}}{r_{ij}}\right)^6\right) + \frac{q_i q_j}{4\pi\varepsilon_0 r_{ij}} \right]
 $$</p>
-<h3 id="1-4">1-4 비결합 스케일링</h3>
-<p>같은 분자 안에서 1-4 관계인 원자 쌍의 비결합 상호작용은 일부만 반영한다.</p>
-<ul>
-<li><strong>OPLS-AA</strong>: LJ × 0.5, Coulomb × 0.5 (Jorgensen 외 1996의 표준)</li>
-<li><strong>TraPPE-UA</strong>: LJ × 0 (완전 제외), Coulomb × 0 (TraPPE 표준)</li>
-</ul>
-<p>LAMMPS에서는 다음 명령어로 설정한다.</p>
+<ol start="3">
+<li>1-4 비결합 스케일링을 설정한다. 같은 분자 안에서 1-4 관계인 원자 쌍의 비결합 상호작용은 일부만 반영한다.<ol>
+<li>OPLS-AA: LJ × 0.5, Coulomb × 0.5 (Jorgensen 외 1996의 표준).</li>
+<li>TraPPE-UA: LJ × 0 (완전 제외), Coulomb × 0 (TraPPE 표준).</li>
+</ol>
+</li>
+<li>LAMMPS에서는 다음 명령어로 설정한다.</li>
+</ol>
 <pre><code class="language-bash"># OPLS-AA
 special_bonds lj/coul 0.0 0.0 0.5
 
 # TraPPE-UA
 special_bonds lj/coul 0.0 0.0 0.0
 </code></pre>
-<h3 id="lj-mixing-rule">LJ 혼합 규칙 (Mixing rule)</h3>
-<p>서로 다른 원자 타입 사이의 LJ 파라미터는 다음 규칙으로 만든다.</p>
-<ul>
-<li><strong>OPLS-AA</strong>: 기하 평균 (geometric mean), $\sigma_{ij} = \sqrt{\sigma_i \sigma_j}$, $\varepsilon_{ij} = \sqrt{\varepsilon_i \varepsilon_j}$</li>
-<li><strong>TraPPE-UA</strong>: Lorentz-Berthelot, $\sigma_{ij} = (\sigma_i + \sigma_j)/2$, $\varepsilon_{ij} = \sqrt{\varepsilon_i \varepsilon_j}$</li>
-</ul>
-<p>LAMMPS에서는 다음 명령어로 설정한다.</p>
+<ol start="5">
+<li>LJ 혼합 규칙(Mixing rule)을 설정한다. 서로 다른 원자 타입 사이의 LJ 파라미터는 다음 규칙으로 만든다.<ol>
+<li>OPLS-AA: 기하 평균 (geometric mean), $\sigma_{ij} = \sqrt{\sigma_i \sigma_j}$, $\varepsilon_{ij} = \sqrt{\varepsilon_i \varepsilon_j}$.</li>
+<li>TraPPE-UA: Lorentz-Berthelot, $\sigma_{ij} = (\sigma_i + \sigma_j)/2$, $\varepsilon_{ij} = \sqrt{\varepsilon_i \varepsilon_j}$.</li>
+</ol>
+</li>
+<li>LAMMPS에서는 다음 명령어로 설정한다.</li>
+</ol>
 <pre><code class="language-bash"># OPLS-AA
 pair_modify mix geometric
 
 # TraPPE-UA
 pair_modify mix arithmetic
 </code></pre>
-<h2 id="33-lammps-pair_style">3.3 LAMMPS pair_style 설정</h2>
-<p>이 시스템에는 유기 분자(LJ + Coulomb)와 Cu 슬랩이 함께 있다. 설정 방법은 두 가지다.</p>
-<ul>
-<li><strong>UROPS run 의 방식</strong>: <code>pair_style hybrid eam/alloy lj/cut/coul/long 14.0</code>.
-  Cu-Cu 는 EAM (<code>Cu_mishin1.eam.alloy</code>), 유기-유기와 Cu-유기는 LJ + Coulomb 이다.
-  Cu-유기 쌍은 <code>pair_coeff i 12 lj/cut/coul/long ε σ</code> 로 하나씩 직접 줬다.</li>
-<li><strong>이 가이드의 <code>inputs/</code> 방식</strong>: Cu 를 전부 고정하므로 Cu-Cu 상호작용은 궤적에 영향이 없다.
-  그래서 <code>lj/cut/coul/long</code> 하나로 쓰고 <code>neigh_modify exclude type 12 12</code> 로 Cu-Cu 쌍을 뺐다.
-  EAM 파일이 필요 없고, Cu-유기 쌍은 UROPS run 과 같은 값을 쓴다.</li>
-</ul>
-<p>Cu 를 움직이게 하려면(가열, 응력 계산 등) Cu-Cu 에는 EAM 이 필요하다.
-LJ 하나로 Cu-Cu 를 기술하면 fcc 금속의 탄성과 표면 이완이 맞지 않는다.</p>
-<h3 id="pair_style-pppm">pair_style 설정 (PPPM 사용 시)</h3>
+<h3 id="c-lammps-pair_style">C. LAMMPS pair_style 설정</h3>
+<ol>
+<li>이 시스템에는 유기 분자(LJ + Coulomb)와 Cu 슬랩이 함께 있다. 설정 방법은 두 가지다.<ol>
+<li>UROPS run 의 방식: <code>pair_style hybrid eam/alloy lj/cut/coul/long 14.0</code>. Cu-Cu 는 EAM (<code>Cu_mishin1.eam.alloy</code>), 유기-유기와 Cu-유기는 LJ + Coulomb 이다. Cu-유기 쌍은 <code>pair_coeff i 12 lj/cut/coul/long ε σ</code> 로 하나씩 직접 줬다.</li>
+<li>이 가이드의 <code>inputs/</code> 방식: Cu 를 전부 고정하므로 Cu-Cu 상호작용은 궤적에 영향이 없다. 그래서 <code>lj/cut/coul/long</code> 하나로 쓰고 <code>neigh_modify exclude type 12 12</code> 로 Cu-Cu 쌍을 뺐다. EAM 파일이 필요 없고, Cu-유기 쌍은 UROPS run 과 같은 값을 쓴다.</li>
+</ol>
+</li>
+</ol>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+Cu 를 움직이게 하려면(가열, 응력 계산 등) Cu-Cu 에는 EAM 이 필요하다. LJ 하나로 Cu-Cu 를 기술하면 fcc 금속의 탄성과 표면 이완이 맞지 않는다.</p>
+</div>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+슬랩에서는 tail correction 을 쓰지 않는다(<code>tail no</code>). tail correction은 균일한 밀도를 가정해서 슬랩 시스템에서는 틀린 값을 준다. <a href="https://docs.lammps.org/pair_modify.html">LAMMPS pair_modify 문서</a> 참조.</p>
+</div>
+<ol start="2">
+<li>PPPM 을 쓸 때는 pair_style 을 다음과 같이 설정한다.</li>
+</ol>
 <pre><code class="language-bash">units real
 atom_style full
 
@@ -220,30 +323,43 @@ pair_style lj/cut/coul/long 12.0
 pair_modify mix geometric tail no   # 슬랩에서는 tail correction 사용 금지
 kspace_style pppm 1.0e-4
 </code></pre>
-<p><code>tail no</code> 로 두는 이유는, tail correction이 균일한 밀도를 가정해서 슬랩 시스템에서는 틀린 값을 주기 때문이다.
-<a href="https://docs.lammps.org/pair_modify.html">LAMMPS pair_modify 문서</a> 참조.</p>
-<h3 id="pair_style-msm">pair_style 설정 (MSM 사용 시)</h3>
+<div class="amm-caution">
+<p><span class="amm-label">주의</span>
+MSM 에는 <code>coul/msm</code> 변종을 쓴다. <code>lj/cut/coul/long</code> 과 <code>kspace_style msm</code> 을 함께 쓰면 LAMMPS 가 "KSpace style is incompatible with Pair style" 오류를 낸다 (<a href="https://docs.lammps.org/pair_lj_cut_coul.html">LAMMPS pair_lj_cut_coul 문서</a>).</p>
+</div>
+<ol start="3">
+<li>MSM 을 쓸 때는 pair_style 을 다음과 같이 설정한다.</li>
+</ol>
 <pre><code class="language-bash">pair_style lj/cut/coul/msm 12.0
 pair_modify mix geometric tail no
 kspace_style msm 1.0e-4
 </code></pre>
-<p>MSM 은 실공간 항도 MSM 의 분할 함수로 계산해야 하므로 <code>coul/msm</code> 변종을 쓴다.
-<code>lj/cut/coul/long</code> 과 <code>kspace_style msm</code> 을 함께 쓰면 LAMMPS 가
-"KSpace style is incompatible with Pair style" 오류를 낸다
-(<a href="https://docs.lammps.org/pair_lj_cut_coul.html">LAMMPS pair_lj_cut_coul 문서</a>).</p>
-<h2 id="34-opls-aa">3.4 OPLS-AA 결합 항 설정</h2>
-<p>OPLS-AA의 결합 항은 모두 조화 진동자(harmonic) 형태다.</p>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+MSM 은 실공간 항도 MSM 의 분할 함수로 계산해야 하므로 <code>coul/msm</code> 변종을 쓴다.</p>
+</div>
+<h3 id="d-opls-aa">D. OPLS-AA 결합 항 설정</h3>
+<ol>
+<li>OPLS-AA의 결합 항을 모두 조화 진동자(harmonic) 형태로 설정한다.</li>
+</ol>
 <pre><code class="language-bash">bond_style harmonic
 angle_style harmonic
 dihedral_style opls       # OPLS 4-cosine 형태
 improper_style harmonic   # 평면성 부과 (벤젠 등)
 </code></pre>
-<p><code>dihedral_style opls</code>는 다음 형태를 따른다.</p>
+<ol start="2">
+<li><code>dihedral_style opls</code> 의 형태를 확인한다.</li>
+</ol>
 <p>$$
 U_\phi = \frac{V_1}{2}(1 + \cos\phi) + \frac{V_2}{2}(1 - \cos 2\phi) + \frac{V_3}{2}(1 + \cos 3\phi) + \frac{V_4}{2}(1 - \cos 4\phi)
 $$</p>
-<p><a href="https://docs.lammps.org/dihedral_opls.html">LAMMPS dihedral_opls 문서</a> 참조.</p>
-<h3 id="opls-aa">OPLS-AA 벤젠 파라미터 (요약)</h3>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+<a href="https://docs.lammps.org/dihedral_opls.html">LAMMPS dihedral_opls 문서</a> 참조.</p>
+</div>
+<ol start="3">
+<li>OPLS-AA 벤젠 파라미터(요약)를 표준값과 UROPS 입력으로 비교한다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -280,7 +396,9 @@ $$</p>
 </tr>
 </tbody>
 </table>
-<h3 id="opls-aa-lj-jorgensen-1996">OPLS-AA 에탄올 LJ 파라미터 (Jorgensen 외 1996)</h3>
+<ol start="4">
+<li>OPLS-AA 에탄올 LJ 파라미터(Jorgensen 외 1996)를 표준값과 UROPS 입력으로 비교한다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -323,42 +441,57 @@ $$</p>
 </tr>
 </tbody>
 </table>
-<h3 id="urops">UROPS 입력이 표준값과 다른 곳</h3>
-<p><code>inputs/ff_opls_aa.in</code> 은 UROPS run 의 계수를 그대로 옮기고, 표준값과 다른 줄마다 <code>[표준: …]</code> 을 붙여 두었다.
-요약하면 다음과 같다.</p>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+UROPS 입력은 다음 항목에서 표준 OPLS-AA 값과 다르다. 이 계수로 얻은 결과는 OPLS-AA 의 결과라고 부르기 어렵다.</p>
 <ul>
 <li><strong>전하</strong>: 에탄올 전하가 표준과 다르다 (<a href="02-data-files">2장</a>의 표).</li>
-<li><strong>에탄올 각도</strong>: C-O-H 가 63.0 / 120° (표준 55.0 / 108.5°) 로, 벤젠 C-C-C 값이 들어가 있다.
-  H-C-H, C-C-H 각도도 같은 종류인데 타입마다 상수가 제각각이다.</li>
-<li><strong>이면각</strong>: 벤젠 고리 이면각은 $V_2$ 대신 $V_3$ 에 2.935 가 들어가 있고 나머지 고리 이면각은 0 이다.
-  평면성은 improper 항(10.5 kcal/mol, 180°) 하나로만 유지된다.
-  에탄올의 H-C-C-H, H-C-C-O, H-C-O-H 이면각은 대부분 0 이다.</li>
-<li><strong>Cu-유기 LJ</strong>: 아래 3.6절.</li>
+<li><strong>에탄올 각도</strong>: C-O-H 가 63.0 / 120° (표준 55.0 / 108.5°) 로, 벤젠 C-C-C 값이 들어가 있다. H-C-H, C-C-H 각도도 같은 종류인데 타입마다 상수가 제각각이다.</li>
+<li><strong>이면각</strong>: 벤젠 고리 이면각은 $V_2$ 대신 $V_3$ 에 2.935 가 들어가 있고 나머지 고리 이면각은 0 이다. 평면성은 improper 항(10.5 kcal/mol, 180°) 하나로만 유지된다. 에탄올의 H-C-C-H, H-C-C-O, H-C-O-H 이면각은 대부분 0 이다.</li>
+<li><strong>Cu-유기 LJ</strong>: 아래 3.F.</li>
 </ul>
-<p>에탄올 각도와 이면각은 데이터 파일을 만들 때 타입 번호가 어긋난 것으로 보인다.
-이 계수로 얻은 결과는 OPLS-AA 의 결과라고 부르기 어렵다. 새로 돌린다면 LigParGen 이나 moltemplate 의 <code>oplsaa.lt</code> 처럼
-타입을 자동으로 붙여 주는 도구로 데이터 파일을 다시 만드는 편이 낫다.</p>
-<h2 id="35-trappe-ua">3.5 TraPPE-UA 결합 항 설정</h2>
-<p>TraPPE-UA는 원래 Monte Carlo용이라 결합 길이를 rigid로 고정하는 게 보통이고,
-MD에서 쓸 때는 아주 강한 조화 진동자로 바꿔 넣는다.</p>
+</div>
+<ol start="5">
+<li><code>inputs/ff_opls_aa.in</code> 에서 표준값과 다른 줄을 확인한다. 이 파일은 UROPS run 의 계수를 그대로 옮기고, 표준값과 다른 줄마다 <code>[표준: …]</code> 을 붙여 두었다.</li>
+</ol>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+에탄올 각도와 이면각은 데이터 파일을 만들 때 타입 번호가 어긋난 것으로 보인다. 새로 돌린다면 LigParGen 이나 moltemplate 의 <code>oplsaa.lt</code> 처럼 타입을 자동으로 붙여 주는 도구로 데이터 파일을 다시 만드는 편이 낫다.</p>
+</div>
+<h3 id="e-trappe-ua">E. TraPPE-UA 결합 항 설정</h3>
+<ol>
+<li>TraPPE-UA 결합 항을 아주 강한 조화 진동자로 설정한다.</li>
+</ol>
 <pre><code class="language-bash">bond_style harmonic
 angle_style harmonic
 dihedral_style harmonic   # TraPPE는 OPLS의 4-cosine을 쓰지 않음
 </code></pre>
-<p>결합 길이를 SHAKE 알고리즘으로 고정하는 방법도 있지만, <code>fix shake</code> 는 중심 원자 하나와
-거기 붙은 원자 최대 3개로 이루어진 클러스터만 다룬다. 그래서 모든 결합을 한꺼번에 묶을 수는 없다.</p>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+TraPPE-UA는 원래 Monte Carlo용이라 결합 길이를 rigid로 고정하는 게 보통이다. MD에서 쓸 때는 아주 강한 조화 진동자로 바꿔 넣는다.</p>
+</div>
+<div class="amm-caution">
+<p><span class="amm-label">주의</span>
+결합 길이를 SHAKE 알고리즘으로 고정할 수도 있지만, <code>fix shake</code> 는 중심 원자 하나와 거기 붙은 원자 최대 3개로 이루어진 클러스터만 다룬다. 그래서 모든 결합을 한꺼번에 묶을 수는 없다.</p>
 <ul>
 <li>벤젠 UA 고리(CH 6개가 고리로 연결)는 클러스터가 아니므로 SHAKE 로 묶을 수 없다. <code>fix rigid/small</code> 을 쓴다.</li>
-<li>UA 에탄올 CH₃–CH₂–O–H 에서 세 결합을 모두 묶으면 CH₂ 중심 클러스터와 O 중심 클러스터가 이어져
-  "Shake clusters are connected" 오류가 난다. O 중심의 CH₂–O, O–H 두 결합만 묶을 수 있다.</li>
+<li>UA 에탄올 CH₃–CH₂–O–H 에서 세 결합을 모두 묶으면 CH₂ 중심 클러스터와 O 중심 클러스터가 이어져 "Shake clusters are connected" 오류가 난다. O 중심의 CH₂–O, O–H 두 결합만 묶을 수 있다.</li>
 </ul>
+</div>
+<ol start="2">
+<li>에탄올은 O 중심의 두 결합만 SHAKE 로 묶고, 벤젠은 <code>fix rigid/small</code> 로 묶는다.</li>
+</ol>
 <pre><code class="language-bash"># 결합 타입 번호는 trappe.data 의 Bonds 섹션에서 확인한다 (아래는 CH2-O = 3, O-H = 4 인 경우)
 fix shake_oh  ethanol shake 1.0e-4 20 0 b 3 4
 fix rigid_bz  benzene rigid/small molecule
 </code></pre>
-<p><code>fix rigid/small</code> 은 그 자체가 적분기라 벤젠 그룹에 <code>fix nve</code>/<code>nvt</code> 를 따로 걸지 않는다.
-온도 조절이 필요하면 <code>rigid/nvt/small</code> 을 쓴다.</p>
-<h3 id="trappe-ua-lj-chen-2001-table-1">TraPPE-UA 에탄올 LJ 파라미터 (Chen 외 2001, Table 1)</h3>
+<div class="amm-caution">
+<p><span class="amm-label">주의</span>
+<code>fix rigid/small</code> 은 그 자체가 적분기라 벤젠 그룹에 <code>fix nve</code>/<code>nvt</code> 를 따로 걸지 않는다. 온도 조절이 필요하면 <code>rigid/nvt/small</code> 을 쓴다.</p>
+</div>
+<ol start="3">
+<li>TraPPE-UA 에탄올 LJ 파라미터(Chen 외 2001, Table 1)를 확인한다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -395,15 +528,21 @@ fix rigid_bz  benzene rigid/small molecule
 </tr>
 </tbody>
 </table>
-<p>ε/k_B 값을 kcal/mol로 변환할 때: ε [kcal/mol] = ε/k_B [K] × 1.987 × 10⁻³.
-예: CH₃의 ε = 98.0 × 1.987e-3 = 0.1948 kcal/mol.</p>
-<h3 id="trappe-ua-ua-6-site-k_b-505-k-3695-a">TraPPE-UA 벤젠 파라미터 (UA 6-site, ε/k_B = 50.5 K, σ = 3.695 Å)</h3>
-<p>이 시스템의 벤젠 UA 파라미터는 일반적인 aromatic CH 값을 따랐다
-(예: Wick et al. 2000, J. Phys. Chem. B 104, 8008-8016, DOI: 10.1021/jp001044x 참고).
-공식 TraPPE-EH 벤젠 (Rai &amp; Siepmann 2007) 과는 다르므로,
-논문에 쓸 때는 파라미터 출처를 정확히 밝혀야 한다.</p>
-<h2 id="36-cu-heinz-2008">3.6 Cu 슬랩 파라미터 (Heinz 외 2008)</h2>
-<p>Heinz et al. (2008) 의 12-6 LJ 파라미터는 다음과 같다.</p>
+<ol start="4">
+<li>ε/k_B 값을 kcal/mol로 변환한다: ε [kcal/mol] = ε/k_B [K] × 1.987 × 10⁻³.<ol>
+<li>예: CH₃의 ε = 98.0 × 1.987e-3 = 0.1948 kcal/mol.</li>
+</ol>
+</li>
+<li>TraPPE-UA 벤젠 파라미터(UA 6-site)를 ε/k_B = 50.5 K, σ = 3.695 Å 로 둔다.</li>
+</ol>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+이 시스템의 벤젠 UA 파라미터는 일반적인 aromatic CH 값을 따랐다 (예: Wick et al. 2000, J. Phys. Chem. B 104, 8008-8016, DOI: 10.1021/jp001044x 참고). 공식 TraPPE-EH 벤젠 (Rai &amp; Siepmann 2007) 과는 다르므로, 논문에 쓸 때는 파라미터 출처를 정확히 밝혀야 한다.</p>
+</div>
+<h3 id="f-cu-heinz-2008">F. Cu 슬랩 파라미터 설정 (Heinz 외 2008)</h3>
+<ol>
+<li>Heinz et al. (2008) 의 12-6 LJ 파라미터를 확인한다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -422,14 +561,23 @@ fix rigid_bz  benzene rigid/small molecule
 </tr>
 </tbody>
 </table>
-<p>LAMMPS <code>lj/cut</code> 의 두 번째 계수는 σ 이므로 2.616 이 아니라 2.330 을 넣는다.
-이 값은 fcc Cu 의 밀도와 표면 에너지에 맞춘 것이고, 유기 분자와의 cross 항을 일반적인 혼합 규칙으로
-만들 수 있다는 게 INTERFACE 힘장의 장점이다.</p>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+LAMMPS <code>lj/cut</code> 의 두 번째 계수는 σ 이므로 2.616 이 아니라 2.330 을 넣는다.</p>
+</div>
+<ol start="2">
+<li>Cu-Cu 계수를 입력한다.</li>
+</ol>
 <pre><code class="language-bash"># OPLS-AA 시스템에서 Cu는 type 12, TraPPE-UA 시스템에서는 type 6
 pair_coeff 12 12 4.72 2.330
 </code></pre>
-<h3 id="urops-run-cu-">UROPS run 의 Cu-유기 파라미터</h3>
-<p>UROPS run 은 이 값을 혼합하지 않고 Cu-유기 쌍을 하나씩 직접 넣었다.</p>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+이 값은 fcc Cu 의 밀도와 표면 에너지에 맞춘 것이다. 유기 분자와의 cross 항을 일반적인 혼합 규칙으로 만들 수 있다는 게 INTERFACE 힘장의 장점이다.</p>
+</div>
+<ol start="3">
+<li>UROPS run 의 Cu-유기 파라미터를 확인한다. UROPS run 은 이 값을 혼합하지 않고 Cu-유기 쌍을 하나씩 직접 넣었다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -461,11 +609,14 @@ pair_coeff 12 12 4.72 2.330
 </tr>
 </tbody>
 </table>
-<p>UROPS 입력의 ε 는 Cu 의 ε 를 약 0.005 kcal/mol 로 두고 기하 평균한 값과 같다. Heinz 값보다 약 30배 약하다.
-보고서에는 "INTERFACE 힘장의 Cu 파라미터와 기하 평균"이라고 적혀 있지만 입력 파일은 그렇지 않다.
-Cu-유기 인력이 이 정도로 약하면 첫 흡착층의 구조는 Cu 와의 인력보다 벽 근처의 충전 효과에 가까울 수 있으니,
-이 run 의 흡착 결과를 실제 Cu 표면에 대한 값으로 읽지 않는다.</p>
-<h2 id="37">3.7 힘장 선택 기준</h2>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+UROPS 입력의 ε 는 Cu 의 ε 를 약 0.005 kcal/mol 로 두고 기하 평균한 값과 같다. Heinz 값보다 약 30배 약하다. 보고서에는 "INTERFACE 힘장의 Cu 파라미터와 기하 평균"이라고 적혀 있지만 입력 파일은 그렇지 않다. Cu-유기 인력이 이 정도로 약하면 첫 흡착층의 구조는 Cu 와의 인력보다 벽 근처의 충전 효과에 가까울 수 있다. 이 run 의 흡착 결과를 실제 Cu 표면에 대한 값으로 해석하지 않는다.</p>
+</div>
+<h3 id="g">G. 힘장 선택</h3>
+<ol>
+<li>연구 목적에 따라 힘장을 고른다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -500,60 +651,10 @@ Cu-유기 인력이 이 정도로 약하면 첫 흡착층의 구조는 Cu 와의
 </tr>
 </tbody>
 </table>
-<p>4가지 프레임워크 비교의 목표는 두 힘장이 같은 시스템에서 얼마나 다른 예측을 내놓는지
-살펴보는 것이다.</p>
-<h2 id="_1">참고문헌</h2>
-<ol>
-<li>
-<p>W. L. Jorgensen, D. S. Maxwell, J. Tirado-Rives,
-   "Development and Testing of the OPLS All-Atom Force Field on Conformational
-   Energetics and Properties of Organic Liquids",
-   <em>J. Am. Chem. Soc.</em> <strong>118</strong>, 11225-11236 (1996).
-   DOI: <a href="https://doi.org/10.1021/ja9621760">10.1021/ja9621760</a></p>
-</li>
-<li>
-<p>M. G. Martin, J. I. Siepmann,
-   "Transferable Potentials for Phase Equilibria. 1. United-Atom Description of n-Alkanes",
-   <em>J. Phys. Chem. B</em> <strong>102</strong>, 2569-2577 (1998).
-   DOI: <a href="https://doi.org/10.1021/jp972543+">10.1021/jp972543+</a></p>
-</li>
-<li>
-<p>B. Chen, J. J. Potoff, J. I. Siepmann,
-   "Monte Carlo Calculations for Alcohols and Their Mixtures with Alkanes.
-   Transferable Potentials for Phase Equilibria. 5.",
-   <em>J. Phys. Chem. B</em> <strong>105</strong>, 3093-3104 (2001).
-   DOI: <a href="https://doi.org/10.1021/jp003882x">10.1021/jp003882x</a></p>
-</li>
-<li>
-<p>C. D. Wick, M. G. Martin, J. I. Siepmann,
-   "Transferable Potentials for Phase Equilibria. 4. United-Atom Description of
-   Linear and Branched Alkenes and Alkylbenzenes",
-   <em>J. Phys. Chem. B</em> <strong>104</strong>, 8008-8016 (2000).
-   DOI: <a href="https://doi.org/10.1021/jp001044x">10.1021/jp001044x</a></p>
-</li>
-<li>
-<p>N. Rai, J. I. Siepmann,
-   "Transferable Potentials for Phase Equilibria. 9. Explicit Hydrogen Description
-   of Benzene and Five-Membered and Six-Membered Heterocyclic Aromatic Compounds",
-   <em>J. Phys. Chem. B</em> <strong>111</strong>, 10790-10799 (2007).
-   DOI: <a href="https://doi.org/10.1021/jp073586l">10.1021/jp073586l</a></p>
-</li>
-<li>
-<p>H. Heinz, R. A. Vaia, B. L. Farmer, R. R. Naik,
-   "Accurate Simulation of Surfaces and Interfaces of Face-Centered Cubic Metals
-   Using 12-6 and 9-6 Lennard-Jones Potentials",
-   <em>J. Phys. Chem. C</em> <strong>112</strong>, 17281-17290 (2008).
-   DOI: <a href="https://doi.org/10.1021/jp801931d">10.1021/jp801931d</a></p>
-</li>
-<li>
-<p>LAMMPS 공식 문서, <code>pair_modify</code>:
-   <a href="https://docs.lammps.org/pair_modify.html">https://docs.lammps.org/pair_modify.html</a></p>
-</li>
-<li>
-<p>LAMMPS 공식 문서, <code>dihedral_opls</code>:
-   <a href="https://docs.lammps.org/dihedral_opls.html">https://docs.lammps.org/dihedral_opls.html</a></p>
-</li>
-</ol>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+4가지 프레임워크 비교의 목표는 두 힘장이 같은 시스템에서 얼마나 다른 예측을 내놓는지 살펴보는 것이다.</p>
+</div>
       </article>
 <nav class="page-nav"><a class="prev" href="cu-02-data-files.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">데이터 파일</div></a><a class="next" href="cu-04-electrostatics.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">정전기 방법</div></a></nav>
     </main>

@@ -92,32 +92,107 @@
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
-<li><a href="#51-lammps">5.1 LAMMPS의 상호작용 표현</a></li>
-<li><a href="#52-pair_style">5.2 pair_style 개관</a><ul>
-<li><a href="#ljcut-lj">lj/cut 예제 (LJ 액체)</a></li>
-<li><a href="#ljcutcoullong">lj/cut/coul/long 예제 (분자 시스템)</a></li>
-<li><a href="#eam">eam 예제 (금속)</a></li>
+<li><a href="#1">1. 일반 사항</a><ul>
+<li><a href="#a">A. 목적</a></li>
+<li><a href="#b">B. 적용 범위</a></li>
+<li><a href="#c">C. 결과 요약</a></li>
 </ul>
 </li>
-<li><a href="#53">5.3 결합 상호작용</a></li>
-<li><a href="#54-kspace_style">5.4 장범위 정전기: kspace_style</a></li>
-<li><a href="#55">5.5 잘못 짝지은 흔한 사례</a></li>
+<li><a href="#2">2. 준비 정보</a><ul>
+<li><a href="#a_1">A. 참조 자료</a></li>
+<li><a href="#c_1">C. 소모품</a></li>
+<li><a href="#d">D. 선행 조건</a></li>
+</ul>
+</li>
+<li><a href="#3">3. 절차</a><ul>
+<li><a href="#a-pair_style">A. pair_style 선택</a></li>
+<li><a href="#b-ljcut-lj">B. lj/cut 설정 (LJ 액체)</a></li>
+<li><a href="#c-ljcutcoullong">C. lj/cut/coul/long 설정 (분자 시스템)</a></li>
+<li><a href="#d-eam">D. eam 설정 (금속)</a></li>
+<li><a href="#e">E. 결합 상호작용 설정</a></li>
+<li><a href="#f-kspace_style">F. 장범위 정전기 설정: kspace_style</a></li>
+</ul>
+</li>
+<li><a href="#4">4. 시험 및 검사</a><ul>
+<li><a href="#a_2">A. 잘못 짝지은 흔한 사례 점검</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <hr />
-<h2 id="51-lammps">5.1 LAMMPS의 상호작용 표현</h2>
-<p>LAMMPS는 원자 사이의 상호작용을 크게 두 갈래로 나눠 표현한다.</p>
-<ul>
-<li>비결합 상호작용 (non-bonded): <code>pair_style</code> 로 정의한다.
-  두 원자 사이의 거리만으로 정해지는 상호작용(LJ, 쿨롱, EAM 등)이 여기 속한다.</li>
-<li>결합 상호작용 (bonded): <code>bond_style</code>, <code>angle_style</code>,
-  <code>dihedral_style</code>, <code>improper_style</code>. 분자 시스템에서만 쓴다.</li>
-</ul>
-<p>여기에 장범위 정전기를 위한 <strong><code>kspace_style</code></strong> 이 더해진다.</p>
-<p>style은 박스를 정의하기 <em>전에</em> 한 번 선언하고, 계수는 박스를 정의한
-<em>뒤에</em> <code>pair_coeff</code>, <code>bond_coeff</code> 등으로 준다.</p>
-<h2 id="52-pair_style">5.2 pair_style 개관</h2>
-<p>자주 쓰는 pair_style 을 짧게 정리하면 다음과 같다.</p>
+<p class="amm-id">NOTE 31-05-00 · 상호작용 모델</p>
+
+<h2 id="1">1. 일반 사항</h2>
+<h3 id="a">A. 목적</h3>
+<ol>
+<li>이 노트는 LAMMPS 입력에서 원자 사이의 상호작용을 정의하는 명령을 다룬다.</li>
+<li>대상 명령은 <code>pair_style</code>, 결합 계열 style, <code>kspace_style</code> 이다.</li>
+</ol>
+<h3 id="b">B. 적용 범위</h3>
+<ol>
+<li>LAMMPS는 원자 사이의 상호작용을 크게 두 갈래로 나눠 표현한다.<ol>
+<li>비결합 상호작용 (non-bonded): <code>pair_style</code> 로 정의한다. 두 원자 사이의 거리만으로 정해지는 상호작용(LJ, 쿨롱, EAM 등)이 여기 속한다.</li>
+<li>결합 상호작용 (bonded): <code>bond_style</code>, <code>angle_style</code>, <code>dihedral_style</code>, <code>improper_style</code> 로 정의한다. 분자 시스템에서만 쓴다.</li>
+</ol>
+</li>
+<li>여기에 장범위 정전기를 위한 <strong><code>kspace_style</code></strong> 이 더해진다.</li>
+</ol>
+<h3 id="c">C. 결과 요약</h3>
+<ol>
+<li>style은 박스를 정의하기 <em>전에</em> 한 번 선언한다.</li>
+<li>계수는 박스를 정의한 <em>뒤에</em> <code>pair_coeff</code>, <code>bond_coeff</code> 등으로 준다.</li>
+<li>이 단계의 오류는 거의 항상 4.A 의 네 가지 사례 중 하나다.</li>
+</ol>
+<h2 id="2">2. 준비 정보</h2>
+<h3 id="a_1">A. 참조 자료</h3>
+<table>
+<thead>
+<tr>
+<th>참조</th>
+<th>제목</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LAMMPS 매뉴얼, style별 페이지</td>
+<td>각 style의 계수 의미</td>
+</tr>
+<tr>
+<td>사용할 힘장의 원본 논문</td>
+<td>힘장이 가정하는 functional form</td>
+</tr>
+</tbody>
+</table>
+<h3 id="c_1">C. 소모품</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Cu_u3.eam</code></td>
+<td>EAM 매개변수 파일 (3.D)</td>
+</tr>
+<tr>
+<td>데이터 파일 (<code>Bonds</code>, <code>Angles</code>, <code>Dihedrals</code> 섹션)</td>
+<td>결합 type 지정 (3.E)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="d">D. 선행 조건</h3>
+<ol>
+<li>단위계(<code>units</code>)와 <code>atom_style</code> 을 정해 두어야 한다.</li>
+<li>박스 정의 명령의 위치를 알아야 한다. style 선언은 그 앞에, 계수 입력은 그 뒤에 온다.</li>
+</ol>
+<h2 id="3">3. 절차</h2>
+<h3 id="a-pair_style">A. pair_style 선택</h3>
+<ol>
+<li>쓰려는 힘장의 원본 논문이 어떤 functional form을 가정하는지 확인한다.</li>
+<li>그에 맞는 style을 아래 표에서 고른다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -176,18 +251,23 @@
 </tr>
 </tbody>
 </table>
-<p>쓰려는 힘장의 원본 논문이 어떤 functional form을 가정하는지 확인하고,
-그에 맞는 style을 골라야 한다.</p>
-<h3 id="ljcut-lj">lj/cut 예제 (LJ 액체)</h3>
+<h3 id="b-ljcut-lj">B. lj/cut 설정 (LJ 액체)</h3>
+<ol>
+<li><code>pair_style</code> 과 <code>pair_coeff</code> 를 다음과 같이 입력한다.</li>
+</ol>
 <pre><code class="language-lammps">pair_style      lj/cut 2.5
 pair_coeff      1 1 1.0 1.0 2.5
 #                ^ ^  ^   ^   ^
 #                i j  ε   σ   cutoff (옵션)
 </code></pre>
-<p><code>pair_coeff i j eps sigma cutoff</code> 형식이다. type 조합마다 한 번씩 입력해야
-하지만, <code>pair_modify mix arithmetic</code> 또는 <code>geometric</code> 으로 i ≠ j 조합을
-자동으로 만들 수도 있다.</p>
-<h3 id="ljcutcoullong">lj/cut/coul/long 예제 (분자 시스템)</h3>
+<ol start="2">
+<li><code>pair_coeff i j eps sigma cutoff</code> 형식으로 type 조합마다 한 번씩 입력한다.</li>
+<li>i ≠ j 조합은 <code>pair_modify mix arithmetic</code> 또는 <code>geometric</code> 으로 자동 생성할 수도 있다.</li>
+</ol>
+<h3 id="c-ljcutcoullong">C. lj/cut/coul/long 설정 (분자 시스템)</h3>
+<ol>
+<li>단위계, atom_style, pair_style, kspace_style 을 다음과 같이 함께 입력한다.</li>
+</ol>
 <pre><code class="language-lammps">units           real
 atom_style      full
 
@@ -198,21 +278,28 @@ pair_coeff      2 2 0.0300 2.5000   # 예: H
 pair_modify     mix geometric tail yes
 kspace_style    pppm 1.0e-4
 </code></pre>
-<p><code>lj/cut/coul/long</code> 은 단거리 LJ + 단거리 쿨롱은 직접 계산하고, 장거리
-쿨롱은 <code>kspace_style</code> 에 맡긴다. OPLS-AA, AMBER, CHARMM 계열은
-대부분 이 조합을 쓴다.</p>
-<h3 id="eam">eam 예제 (금속)</h3>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+<code>lj/cut/coul/long</code> 은 단거리 LJ와 단거리 쿨롱을 직접 계산하고, 장거리 쿨롱은 <code>kspace_style</code> 에 맡긴다. OPLS-AA, AMBER, CHARMM 계열은 대부분 이 조합을 쓴다.</p>
+</div>
+<h3 id="d-eam">D. eam 설정 (금속)</h3>
+<ol>
+<li>단위계, atom_style, pair_style 을 다음과 같이 입력한다.</li>
+</ol>
 <pre><code class="language-lammps">units           metal
 atom_style      atomic
 
 pair_style      eam
 pair_coeff      * * Cu_u3.eam
 </code></pre>
-<p>EAM은 매개변수 파일 하나에 모든 정보가 들어 있어서 <code>pair_coeff</code> 가 아주
-간단하다. <code>* *</code> 는 "모든 type 조합"을 뜻한다.</p>
-<h2 id="53">5.3 결합 상호작용</h2>
-<p>분자 시스템(<code>atom_style full</code> 또는 <code>molecular</code>)에서는 결합·각·이면각
-계수도 함께 정의해야 한다.</p>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+EAM은 매개변수 파일 하나에 모든 정보가 들어 있어서 <code>pair_coeff</code> 가 아주 간단하다. <code>* *</code> 는 "모든 type 조합"을 뜻한다.</p>
+</div>
+<h3 id="e">E. 결합 상호작용 설정</h3>
+<ol>
+<li>분자 시스템(<code>atom_style full</code> 또는 <code>molecular</code>)에서는 결합·각·이면각 계수를 함께 정의한다.</li>
+</ol>
 <pre><code class="language-lammps">bond_style      harmonic
 bond_coeff      1   340.0  1.090     # K(kcal/mol/Å²), r0(Å)
 
@@ -225,19 +312,31 @@ dihedral_coeff  1   0.0  0.0  0.30  0.0
 improper_style  harmonic
 improper_coeff  1   1.1   0.0
 </code></pre>
-<p>계수가 무엇을 뜻하는지는 style마다 다르니 매뉴얼의 해당 페이지에서 확인해야 한다.
-<code>harmonic</code> 말고도 <code>morse</code>, <code>class2</code>, <code>fourier</code>, <code>charmm</code> 등이 있다.</p>
-<p>데이터 파일에서 <code>Bonds</code>, <code>Angles</code>, <code>Dihedrals</code> 섹션을 읽으면 어느 결합이
-어떤 type 인지는 자동으로 들어간다.</p>
-<h2 id="54-kspace_style">5.4 장범위 정전기: kspace_style</h2>
-<p>쿨롱 상호작용을 그냥 절단하면(<code>coul/cut</code>) 시스템에 따라 큰 인공물이
-생긴다. 그래서 정전기가 있는 시스템은 거의 다 장범위 처리를 한다.</p>
+<ol start="2">
+<li>계수가 무엇을 뜻하는지는 style마다 다르므로 매뉴얼의 해당 페이지에서 확인한다.</li>
+<li>데이터 파일에서 <code>Bonds</code>, <code>Angles</code>, <code>Dihedrals</code> 섹션을 읽는다. 어느 결합이 어떤 type 인지는 자동으로 들어간다.</li>
+</ol>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+<code>harmonic</code> 말고도 <code>morse</code>, <code>class2</code>, <code>fourier</code>, <code>charmm</code> 등의 style이 있다.</p>
+</div>
+<h3 id="f-kspace_style">F. 장범위 정전기 설정: kspace_style</h3>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+쿨롱 상호작용을 그냥 절단하면(<code>coul/cut</code>) 시스템에 따라 큰 인공물이 생긴다. 그래서 정전기가 있는 시스템은 거의 다 장범위 처리를 한다.</p>
+</div>
+<ol>
+<li>정전기가 있는 시스템에 <code>kspace_style</code> 을 선언한다.</li>
+</ol>
 <pre><code class="language-lammps">kspace_style    pppm 1.0e-4      # Particle-Particle Particle-Mesh, 정확도 1e-4
 # 또는
 kspace_style    ewald 1.0e-6     # 작은 시스템용
 # 또는
 kspace_style    msm 1.0e-4       # 슬랩/비주기 일부에 유리
 </code></pre>
+<ol start="2">
+<li>시스템 크기와 경계 조건에 맞는 알고리즘을 아래 표에서 고른다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -260,18 +359,23 @@ kspace_style    msm 1.0e-4       # 슬랩/비주기 일부에 유리
 </tr>
 </tbody>
 </table>
-<p>PPPM은 <em>완전 주기적</em>(p p p) 시스템에 가장 잘 동작하고, MSM은 <em>일부 차원이
-비주기적</em>(p p f) 인 슬랩 시스템에서 보정 비용이 작다.</p>
-<p>슬랩 시스템에서 PPPM을 쓰려면 <code>kspace_modify slab 3.0</code> 같은 보정을 더한다.</p>
-<h2 id="55">5.5 잘못 짝지은 흔한 사례</h2>
-<ul>
-<li><code>atom_style atomic</code> 인데 <code>bond_style</code> 을 선언 → 결합 정보를 저장할
-  공간 자체가 없어 오류.</li>
-<li><code>kspace_style</code> 을 선언했는데 <code>pair_style</code> 이 <code>coul/long</code> 류가 아니면 의미 X.</li>
-<li>단위계와 계수 단위가 어긋남. 예: <code>units real</code> 인데 eV 단위의 EAM 파일.</li>
-<li>데이터 파일 안의 type 수와 <code>pair_coeff</code> 의 type 수가 어긋남.</li>
-</ul>
-<p>이 단계에서 오류가 나면 거의 항상 위 넷 중 하나다.</p>
+<ol start="3">
+<li><em>완전 주기적</em>(p p p) 시스템에는 PPPM을 쓴다. PPPM은 이 경우에 가장 잘 동작한다.</li>
+<li><em>일부 차원이 비주기적</em>(p p f) 인 슬랩 시스템에는 MSM을 검토한다. MSM은 이 경우 보정 비용이 작다.</li>
+<li>슬랩 시스템에서 PPPM을 쓰려면 <code>kspace_modify slab 3.0</code> 같은 보정을 더한다.</li>
+</ol>
+<h2 id="4">4. 시험 및 검사</h2>
+<h3 id="a_2">A. 잘못 짝지은 흔한 사례 점검</h3>
+<ol>
+<li><code>atom_style atomic</code> 인데 <code>bond_style</code> 을 선언하지 않았는지 확인한다. 결합 정보를 저장할 공간 자체가 없어 오류가 난다.</li>
+<li><code>kspace_style</code> 을 선언했다면 <code>pair_style</code> 이 <code>coul/long</code> 류인지 확인한다. 아니면 <code>kspace_style</code> 은 의미가 없다.</li>
+<li>단위계와 계수 단위가 맞는지 확인한다. 예: <code>units real</code> 인데 eV 단위의 EAM 파일.</li>
+<li>데이터 파일 안의 type 수와 <code>pair_coeff</code> 의 type 수가 맞는지 확인한다.</li>
+</ol>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+이 단계에서 오류가 나면 거의 항상 위 넷 중 하나다.</p>
+</div>
       </article>
 <nav class="page-nav"><a class="prev" href="04-system.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">시스템 정의</div></a><a class="next" href="06-fix-run.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">셋업과 실행</div></a></nav>
     </main>

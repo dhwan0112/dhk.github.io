@@ -92,23 +92,47 @@
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
-<li><a href="#71-lammps">7.1 LAMMPS가 내보내는 결과</a></li>
-<li><a href="#72-thermo-log">7.2 thermo: 화면과 log에 찍히는 열역학</a></li>
-<li><a href="#73-dump">7.3 dump: 좌표·속도 트라젝토리</a></li>
-<li><a href="#74-compute">7.4 compute: 시뮬레이션 중 계산</a></li>
-<li><a href="#1-gr">결과 ①: g(r) (동경 분포 함수)</a><ul>
-<li><a href="#2-msd">결과 ②: MSD 와 자기확산계수</a></li>
+<li><a href="#1">1. 일반 사항</a><ul>
+<li><a href="#a">A. 목적</a></li>
+<li><a href="#b">B. 적용 범위</a></li>
+<li><a href="#c">C. 결과 요약</a></li>
 </ul>
 </li>
-<li><a href="#75-fix-ave">7.5 fix ave/*: 시간 평균을 자동으로</a></li>
-<li><a href="#76-restart">7.6 restart: 중간 저장</a></li>
-<li><a href="#77">7.7 후처리 도구</a></li>
-<li><a href="#78">7.8 분석을 위한 출력 습관</a></li>
+<li><a href="#2">2. 준비 정보</a><ul>
+<li><a href="#a_1">A. 참조 자료</a></li>
+<li><a href="#b_1">B. 공구 및 장비</a></li>
+<li><a href="#c_1">C. 소모품</a></li>
+</ul>
+</li>
+<li><a href="#3">3. 절차</a><ul>
+<li><a href="#a-thermo-log">A. thermo: 화면과 log에 찍히는 열역학</a></li>
+<li><a href="#b-dump">B. dump: 좌표·속도 트라젝토리</a></li>
+<li><a href="#c-compute">C. compute: 시뮬레이션 중 계산</a></li>
+<li><a href="#d-fix-ave">D. fix ave/*: 시간 평균을 자동으로</a></li>
+<li><a href="#e-restart">E. restart: 중간 저장</a></li>
+<li><a href="#f">F. 분석을 위한 출력 설정 점검</a></li>
+</ul>
+</li>
+<li><a href="#4">4. 시험 및 검사</a><ul>
+<li><a href="#a-gr">A. g(r) (동경 분포 함수)</a></li>
+<li><a href="#b-msd">B. MSD 와 자기확산계수</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <hr />
-<h2 id="71-lammps">7.1 LAMMPS가 내보내는 결과</h2>
-<p>LAMMPS의 출력은 대략 다음과 같이 나눌 수 있다.</p>
+<p class="amm-id">NOTE 31-07-00 · 출력과 분석</p>
+
+<h2 id="1">1. 일반 사항</h2>
+<h3 id="a">A. 목적</h3>
+<ol>
+<li>이 노트는 LAMMPS가 내보내는 결과의 종류와 각 출력 명령의 설정을 다룬다.</li>
+<li>이 노트는 compute 결과를 파일로 꺼내 g(r)와 MSD를 얻는 과정을 확인한다.</li>
+</ol>
+<h3 id="b">B. 적용 범위</h3>
+<ol>
+<li>LAMMPS의 출력은 대략 다음과 같이 나눌 수 있다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -145,15 +169,109 @@
 </tr>
 </tbody>
 </table>
-<p>하나씩 보자.</p>
-<h2 id="72-thermo-log">7.2 thermo: 화면과 log에 찍히는 열역학</h2>
-<p><code>thermo N</code> 은 N 스텝마다 한 줄을 출력하고, 어떤 열을 표시할지는
-<code>thermo_style</code> 로 정한다.</p>
+<ol start="2">
+<li>시각화·분석은 LAMMPS 밖의 후처리 도구가 맡는다(2.B).</li>
+</ol>
+<h3 id="c">C. 결과 요약</h3>
+<ol>
+<li>compute 결과는 그 자체로는 어디에도 저장되지 않는다. <code>thermo_style</code> 이나 <code>fix ave/time</code> 으로 꺼내야 한다.</li>
+<li>LJ 액체(NPT, T = 1.0, P = 0.5)의 g(r) 첫 피크는 r ≈ 1.09 σ 에서 g(r) ≈ 2.41 이다(4.A).</li>
+<li>같은 실행의 MSD 로부터 자기확산계수 D ≈ 0.117 (LJ 단위) 을 얻는다(4.B).</li>
+</ol>
+<h2 id="2">2. 준비 정보</h2>
+<h3 id="a_1">A. 참조 자료</h3>
+<table>
+<thead>
+<tr>
+<th>참조</th>
+<th>제목</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6장 (셋업과 실행)</td>
+<td>LJ NPT production 5000 step 실행</td>
+</tr>
+<tr>
+<td><a href="ex-02-lj-demo.html">예제 E2 — LJ 5단계</a></td>
+<td>4.A, 4.B 의 전체 입력과 실행 절차</td>
+</tr>
+</tbody>
+</table>
+<h3 id="b_1">B. 공구 및 장비</h3>
+<ol>
+<li>LAMMPS는 트라젝토리를 남기는 데까지만 하고, 시각화·분석은 외부 도구에 맡긴다.</li>
+<li>자주 쓰는 도구는 다음과 같다.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>강점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OVITO</strong></td>
+<td>결정 구조 분석, 결함 식별, 가벼운 GUI</td>
+</tr>
+<tr>
+<td><strong>VMD</strong></td>
+<td>분자 시각화의 표준. CHARMM/AMBER와 호환</td>
+</tr>
+<tr>
+<td><strong>Ovito Python / MDAnalysis / MDTraj</strong></td>
+<td>Python에서 trajectory 분석</td>
+</tr>
+<tr>
+<td><strong>PyLammps</strong></td>
+<td>Python 안에서 LAMMPS를 직접 호출</td>
+</tr>
+<tr>
+<td><strong>ParaView</strong></td>
+<td>대용량 mesh/필드 시각화</td>
+</tr>
+</tbody>
+</table>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+대부분의 도구는 <code>dump custom ... id type x y z</code> 나 <code>xyz</code>/<code>dcd</code> 출력을 바로 읽는다.</p>
+</div>
+<h3 id="c_1">C. 소모품</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rdf.dat</code></td>
+<td>4.A 의 g(r) 출력</td>
+</tr>
+<tr>
+<td><code>msd.dat</code></td>
+<td>4.B 의 MSD 출력</td>
+</tr>
+<tr>
+<td><code>assets/images/lj-rdf.png</code>, <code>assets/images/lj-msd.png</code></td>
+<td>4.A, 4.B 의 그림</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3">3. 절차</h2>
+<h3 id="a-thermo-log">A. thermo: 화면과 log에 찍히는 열역학</h3>
+<ol>
+<li><code>thermo N</code> 으로 N 스텝마다 한 줄을 출력한다.</li>
+<li><code>thermo_style</code> 로 표시할 열을 정한다.</li>
+</ol>
 <pre><code class="language-lammps">thermo          100
 thermo_style    custom step temp pe ke etotal press density
 </code></pre>
-<p>기본 컬럼은 <code>step temp epair emol etotal press</code> 정도이고,
-<code>custom</code> 에서는 다음 컬럼들을 자유롭게 섞을 수 있다.</p>
+<ol start="3">
+<li>기본 컬럼은 <code>step temp epair emol etotal press</code> 정도이다. <code>custom</code> 에서는 아래 컬럼들을 자유롭게 섞는다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -200,19 +318,27 @@ thermo_style    custom step temp pe ke etotal press density
 </tr>
 </tbody>
 </table>
-<p>평형화를 지켜보거나 성능을 점검할 때는 <code>thermo</code> 출력부터 본다.</p>
-<h2 id="73-dump">7.3 dump: 좌표·속도 트라젝토리</h2>
+<ol start="4">
+<li>평형화를 지켜보거나 성능을 점검할 때는 <code>thermo</code> 출력부터 본다.</li>
+</ol>
+<h3 id="b-dump">B. dump: 좌표·속도 트라젝토리</h3>
+<ol>
+<li>트라젝토리 출력을 설정한다.</li>
+</ol>
 <pre><code class="language-lammps">dump            1 all custom 1000 traj.lammpstrj id type x y z
 </code></pre>
-<ul>
+<ol start="2">
+<li>각 인자의 의미를 확인한다.<ol>
 <li><code>1</code>: dump의 ID (취소할 때 <code>undump 1</code>)</li>
 <li><code>all</code>: 출력 대상 그룹</li>
 <li><code>custom</code>: dump style</li>
 <li><code>1000</code>: 매 1000 step</li>
 <li><code>traj.lammpstrj</code>: 파일명</li>
 <li><code>id type x y z</code>: 출력 컬럼</li>
-</ul>
-<p>대표적인 dump style은 다음과 같다.</p>
+</ol>
+</li>
+<li>용도에 맞는 dump style을 아래 표에서 고른다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -247,20 +373,29 @@ thermo_style    custom step temp pe ke etotal press density
 </tr>
 </tbody>
 </table>
-<p><code>dump_modify</code> 로 설정을 더할 수 있다.</p>
+<div class="amm-caution">
+<p><span class="amm-label">주의</span>
+후처리 도구가 원자를 추적하려면 <code>sort id</code> 가 꼭 필요하다.</p>
+</div>
+<ol start="4">
+<li><code>dump_modify</code> 로 설정을 더한다.</li>
+</ol>
 <pre><code class="language-lammps">dump_modify     1 sort id           # 원자 ID 순으로 정렬
 dump_modify     1 element Cu C O H  # type → 원소 매핑 (OVITO에서 색깔 자동)
 </code></pre>
-<p>후처리 도구가 원자를 추적하려면 <code>sort id</code> 가 꼭 필요하다.</p>
-<h2 id="74-compute">7.4 compute: 시뮬레이션 중 계산</h2>
-<p>LAMMPS는 시뮬레이션 도중에 여러 양을 직접 계산할 수 있다.</p>
+<h3 id="c-compute">C. compute: 시뮬레이션 중 계산</h3>
+<ol>
+<li>시뮬레이션 도중에 계산할 양을 <code>compute</code> 로 정의한다.</li>
+</ol>
 <pre><code class="language-lammps">compute         myT  all temp
 compute         myKE all ke
 compute         myPE all pe
 compute         myRDF all rdf 100 1 1 1 2
 compute         myMSD all msd
 </code></pre>
-<p>자주 쓰는 compute:</p>
+<ol start="2">
+<li>필요한 양에 맞는 compute style을 아래 표에서 고른다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -307,25 +442,87 @@ compute         myMSD all msd
 </tr>
 </tbody>
 </table>
-<p>compute 결과는 그 자체로는 어디에도 저장되지 않는다.
-<code>thermo_style custom ... c_myT</code> 나 뒤에 나오는 <code>fix ave/time</code> 으로
-"꺼내야" 값을 볼 수 있다.</p>
-<h1 id="_1"><div class="tip"></h1>
-<div class="note-title">전체 예제로 보기</div>
-<p>
-    아래 g(r)·MSD는 <a href="ex-02-lj-demo.html">예제 E2 — LJ 5단계</a> 의
-    production 단계에서 나온 출력이다. 전체 입력과 실행 절차는 그 페이지에 있다.
-  </p>
+<div class="amm-caution">
+<p><span class="amm-label">주의</span>
+compute 결과는 그 자체로는 어디에도 저장되지 않는다. 다음 단계로 꺼내야 값을 볼 수 있다.</p>
 </div>
-<h2 id="1-gr">결과 ①: g(r) (동경 분포 함수)</h2>
-<p>6장에서 돌린 LJ NPT production 5000 step 에 다음 두 줄을 더해
-RDF 를 함께 계산했다.</p>
+<ol start="3">
+<li><code>thermo_style custom ... c_myT</code> 나 3.D 의 <code>fix ave/time</code> 으로 compute 결과를 꺼낸다.</li>
+</ol>
+<h3 id="d-fix-ave">D. fix ave/*: 시간 평균을 자동으로</h3>
+<ol>
+<li>시간 평균 출력을 설정한다.</li>
+</ol>
+<pre><code class="language-lammps">fix             1 all ave/time 10 100 1000 c_myT c_myPE file thermo_ave.txt
+</code></pre>
+<ol start="2">
+<li>위 명령은 "1000 스텝마다, 직전 100개 sample을 10 스텝 간격으로 모아 평균하라"는 뜻이다.<ol>
+<li><code>Nevery</code> (10): sampling 간격</li>
+<li><code>Nrepeat</code> (100): 평균에 쓸 sample 개수</li>
+<li><code>Nfreq</code> (1000): 출력 주기</li>
+</ol>
+</li>
+<li>원자별 양의 시간 평균에는 <code>fix ave/atom</code> 을 쓴다.</li>
+<li>공간 chunk별 시간 평균에는 <code>fix ave/chunk</code> 를 쓴다.</li>
+</ol>
+<pre><code class="language-lammps"># 밀도 프로파일 (z축 슬라이스)
+compute         cc all chunk/atom bin/1d z 0.0 1.0 units box
+fix             dens all ave/chunk 10 100 1000 cc density/mass file dens.txt
+</code></pre>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+RDF, 밀도 프로파일, 응력 분포 같은 분석은 대부분 <code>fix ave/atom</code> 과 <code>fix ave/chunk</code> 위에서 이루어진다.</p>
+</div>
+<h3 id="e-restart">E. restart: 중간 저장</h3>
+<ol>
+<li>중간 저장 주기를 설정한다.</li>
+</ol>
+<pre><code class="language-lammps">restart         50000 sim.restart
+</code></pre>
+<ol start="2">
+<li>50000 스텝마다 <code>sim.restart.50000</code> 같은 파일이 남는지 확인한다.</li>
+<li>다음 실행은 아래 명령으로 이어서 시작한다.</li>
+</ol>
+<pre><code class="language-lammps">read_restart    sim.restart.50000
+</code></pre>
+<ol start="4">
+<li>오래 걸리는 시뮬레이션이라면 restart를 늘 켜 둔다.</li>
+</ol>
+<h3 id="f">F. 분석을 위한 출력 설정 점검</h3>
+<ol>
+<li><code>dump_modify sort id</code> 를 켜 둔다. 후처리 도구에서 원자를 추적하기 쉽다.</li>
+<li>dump_modify에 element 매핑(<code>element Cu C O H</code> 식)을 넣는다. OVITO/VMD가 원자 색을 알아서 입힌다.</li>
+<li>thermo와 dump의 주기는 따로 둔다.<ol>
+<li>thermo는 자주(<code>100</code>) 찍는다.</li>
+<li>dump는 드물게(<code>1000</code>–<code>10000</code>) 찍는다. 디스크를 아끼면서도 진단에 필요한 정보는 남는다.</li>
+</ol>
+</li>
+</ol>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+평형화 단계의 값이 평균에 섞이면 결과가 왜곡된다.</p>
+</div>
+<ol start="4">
+<li>fix ave/time은 평형화가 끝난 뒤에 건다. <code>unfix</code> 후 새로 등록하거나 <code>start</code> 옵션을 쓴다.</li>
+<li>restart는 항상 켜 둔다. 시뮬레이션이 4시간을 넘으면 사실상 필수다.</li>
+</ol>
+<h2 id="4">4. 시험 및 검사</h2>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+아래 g(r)·MSD는 <a href="ex-02-lj-demo.html">예제 E2 — LJ 5단계</a> 의 production 단계에서 나온 출력이다. 전체 입력과 실행 절차는 그 페이지에 있다.</p>
+</div>
+<h3 id="a-gr">A. g(r) (동경 분포 함수)</h3>
+<ol>
+<li>6장에서 돌린 LJ NPT production 5000 step 에 다음 두 줄을 더한다.</li>
+</ol>
 <pre><code class="language-lammps">compute         rdf1 all rdf 100              # 100 bin 까지의 g(r)
 fix             rdfavg all ave/time 10 100 1000 c_rdf1[*] file rdf.dat mode vector
 </code></pre>
-<p>결과 파일 <code>rdf.dat</code> 를 그려 보면 LJ 액체의 전형적인 동경 분포 함수가 나온다.
-첫 피크가 r ≈ 1.09 σ 에서 g(r) ≈ 2.41, 두 번째 피크가 ~ 2.1 σ
-부근에 보이는, 액체 특유의 진동 구조다.</p>
+<ol start="2">
+<li>결과 파일 <code>rdf.dat</code> 를 그린다. LJ 액체의 전형적인 동경 분포 함수가 나와야 한다.</li>
+<li>첫 피크가 r ≈ 1.09 σ 에서 g(r) ≈ 2.41 인지 확인한다.</li>
+<li>두 번째 피크가 ~ 2.1 σ 부근에 보이는지 확인한다. 이는 액체 특유의 진동 구조다.</li>
+</ol>
 <figure>
   <img src="assets/images/lj-rdf.png" alt="LJ 액체의 동경 분포 함수 g(r) 과 누적 배위수 N(r)" style="width:100%;max-width:760px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
   <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
@@ -337,15 +534,18 @@ fix             rdfavg all ave/time 10 100 1000 c_rdf1[*] file rdf.dat mode vect
   </figcaption>
 </figure>
 
-<h3 id="2-msd">결과 ②: MSD 와 자기확산계수</h3>
-<p>같은 production 단계에서 MSD 도 함께 계산했다.</p>
+<h3 id="b-msd">B. MSD 와 자기확산계수</h3>
+<ol>
+<li>같은 production 단계에서 MSD 도 함께 계산한다.</li>
+</ol>
 <pre><code class="language-lammps">compute         msd1 all msd
 fix             msdavg all ave/time 1 1 100 c_msd1[1] c_msd1[2] c_msd1[3] c_msd1[4] file msd.dat
 </code></pre>
-<p>⟨Δr²(t)⟩ 가 시간에 따라 선형으로 늘어나는 정상 확산(normal diffusion) 거동이
-보이고, Einstein 관계 ⟨Δr²(t)⟩ = 6 D t 에 맞춘 직선의 기울기로 자기확산
-계수 D 를 추정할 수 있다. 이 5000-step 데이터로 fit 하면
-D ≈ 0.117 (LJ 단위) 이 나온다.</p>
+<ol start="2">
+<li>⟨Δr²(t)⟩ 가 시간에 따라 선형으로 늘어나는지 확인한다. 이는 정상 확산(normal diffusion) 거동이다.</li>
+<li>Einstein 관계 ⟨Δr²(t)⟩ = 6 D t 에 직선을 맞춘다. 그 기울기로 자기확산계수 D 를 추정한다.</li>
+<li>이 5000-step 데이터로 fit 한 값이 D ≈ 0.117 (LJ 단위) 인지 확인한다.</li>
+</ol>
 <figure>
   <img src="assets/images/lj-msd.png" alt="LJ 액체의 평균 제곱 변위 (MSD) 와 선형 fit" style="width:100%;max-width:760px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
   <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
@@ -356,87 +556,10 @@ D ≈ 0.117 (LJ 단위) 이 나온다.</p>
   </figcaption>
 </figure>
 
-<div class="tip">
-  <div class="note-title">compute 결과는 fix ave/time 으로 꺼내라</div>
-  <p>
-    위 두 예제는 모두 <code>compute</code> 로 정의하고 <code>fix ave/time</code> 으로
-    파일에 쓰는 방식이다. <code>compute</code> 는 <em>한 스텝의</em> 값만 들고 있으므로,
-    thermo 컬럼(<code>c_msd1[4]</code>)으로 직접 꺼내거나
-    <code>fix ave/time</code> 으로 시간 평균을 파일에 쓰는 게 보통이다.
-    <code>rdf</code> 같은 vector 출력에는 <code>mode vector</code> 옵션을 빠뜨리지
-    말자.
-  </p>
+<div class="amm-caution">
+<p><span class="amm-label">주의</span>
+compute 결과는 <code>fix ave/time</code> 으로 꺼낸다. 위 두 예제는 모두 <code>compute</code> 로 정의하고 <code>fix ave/time</code> 으로 파일에 쓰는 방식이다. <code>compute</code> 는 <em>한 스텝의</em> 값만 들고 있으므로, thermo 컬럼(<code>c_msd1[4]</code>)으로 직접 꺼내거나 <code>fix ave/time</code> 으로 시간 평균을 파일에 쓰는 게 보통이다. <code>rdf</code> 같은 vector 출력에는 <code>mode vector</code> 옵션을 빠뜨리지 않는다.</p>
 </div>
-
-<h2 id="75-fix-ave">7.5 fix ave/*: 시간 평균을 자동으로</h2>
-<pre><code class="language-lammps">fix             1 all ave/time 10 100 1000 c_myT c_myPE file thermo_ave.txt
-</code></pre>
-<p>"1000 스텝마다, 직전 100개 sample을 10 스텝 간격으로 모아 평균하라"는 뜻이다.</p>
-<ul>
-<li><code>Nevery</code> (10): sampling 간격</li>
-<li><code>Nrepeat</code> (100): 평균에 쓸 sample 개수</li>
-<li><code>Nfreq</code> (1000): 출력 주기</li>
-</ul>
-<p><code>fix ave/atom</code> 은 원자별 양의 시간 평균을, <code>fix ave/chunk</code> 는 공간 chunk별
-시간 평균을 만든다. RDF, 밀도 프로파일, 응력 분포 같은 분석은 대부분
-이 두 fix 위에서 이루어진다.</p>
-<pre><code class="language-lammps"># 밀도 프로파일 (z축 슬라이스)
-compute         cc all chunk/atom bin/1d z 0.0 1.0 units box
-fix             dens all ave/chunk 10 100 1000 cc density/mass file dens.txt
-</code></pre>
-<h2 id="76-restart">7.6 restart: 중간 저장</h2>
-<pre><code class="language-lammps">restart         50000 sim.restart
-</code></pre>
-<p>50000 스텝마다 <code>sim.restart.50000</code> 같은 파일을 남긴다. 다음에는</p>
-<pre><code class="language-lammps">read_restart    sim.restart.50000
-</code></pre>
-<p>로 이어서 시작하면 된다. 오래 걸리는 시뮬레이션이라면 restart를 늘 켜 두자.</p>
-<h2 id="77">7.7 후처리 도구</h2>
-<p>LAMMPS는 트라젝토리를 남기는 데까지만 하고, 시각화·분석은 외부 도구에 맡긴다.
-자주 쓰는 도구는 다음과 같다.</p>
-<table>
-<thead>
-<tr>
-<th>도구</th>
-<th>강점</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>OVITO</strong></td>
-<td>결정 구조 분석, 결함 식별, 가벼운 GUI</td>
-</tr>
-<tr>
-<td><strong>VMD</strong></td>
-<td>분자 시각화의 표준. CHARMM/AMBER와 호환</td>
-</tr>
-<tr>
-<td><strong>Ovito Python / MDAnalysis / MDTraj</strong></td>
-<td>Python에서 trajectory 분석</td>
-</tr>
-<tr>
-<td><strong>PyLammps</strong></td>
-<td>Python 안에서 LAMMPS를 직접 호출</td>
-</tr>
-<tr>
-<td><strong>ParaView</strong></td>
-<td>대용량 mesh/필드 시각화</td>
-</tr>
-</tbody>
-</table>
-<p>대부분의 도구는 <code>dump custom ... id type x y z</code> 나 <code>xyz</code>/<code>dcd</code> 출력을
-바로 읽는다.</p>
-<h2 id="78">7.8 분석을 위한 출력 습관</h2>
-<ul>
-<li><code>dump_modify sort id</code> 를 켜 두면 후처리 도구에서 원자를 추적하기 쉽다.</li>
-<li>dump_modify에 element 매핑(<code>element Cu C O H</code> 식)을 넣으면
-  OVITO/VMD가 원자 색을 알아서 입힌다.</li>
-<li>thermo와 dump의 주기는 따로 둔다. thermo는 자주(<code>100</code>),
-  dump는 드물게(<code>1000</code>–<code>10000</code>) 찍으면 디스크를 아끼면서도 진단에 필요한 정보는 남는다.</li>
-<li>fix ave/time은 평형화가 끝난 뒤에 건다. 평형화 단계의 값이 평균에 섞이면
-  결과가 왜곡된다. <code>unfix</code> 후 새로 등록하거나 <code>start</code> 옵션을 쓰면 된다.</li>
-<li>restart는 항상 켜 둔다. 시뮬레이션이 4시간을 넘으면 사실상 필수다.</li>
-</ul>
       </article>
 <nav class="page-nav"><a class="prev" href="06-fix-run.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">셋업과 실행</div></a><a class="next" href="08-troubleshooting.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">트러블슈팅</div></a></nav>
     </main>

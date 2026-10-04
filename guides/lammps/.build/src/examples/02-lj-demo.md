@@ -14,18 +14,61 @@ title: "2. LJ 5단계 + RDF·MSD"
 
 ---
 
-## 무엇을 하는 예제인가
+<p class="amm-id">NOTE 33-02-00 · LJ 5단계 + RDF·MSD</p>
 
-[E1](ex-01-lj-basic.html) 의 LJ 계를 실제 연구에서 쓰는 형태로 넓힌다.
-에너지 최소화로 시작해 NVT로 데우고 NPT로 압력까지 평형화한 뒤, production
-단계에서 동경 분포 함수 `g(r)` 와 평균 제곱 변위(MSD)를 측정한다. 입력 파일
-하나에 `minimize → fix nvt → fix npt → compute/fix ave` 흐름이 다 들어 있어서,
-입문 예제 대부분이 따르는 골격을 그대로 보여 준다.
+## 1. 일반 사항
 
-관련 개념은 [06 셋업과 실행](06-fix-run.html) 과 [07 출력과 분석](07-output.html)
-에서 다룬다.
+### A. 목적
 
-## 전체 입력 스크립트: `in.demo`
+1. 이 노트는 [E1](ex-01-lj-basic.html) 의 LJ 계를 실제 연구에서 쓰는 형태로 넓힌다.
+2. 에너지 최소화, NVT 가열, NPT 압력 평형화를 차례로 수행한다.
+3. production 단계에서 동경 분포 함수 `g(r)` 와 평균 제곱 변위(MSD)를 측정한다.
+
+### B. 적용 범위
+
+1. 입력 파일 하나에 `minimize → fix nvt → fix npt → compute/fix ave` 흐름이 모두 들어 있다.
+2. 이 골격은 입문 예제 대부분이 따르는 구조다.
+
+### C. 결과 요약
+
+1. production 단계에서 온도는 1.0 ± 0.04, 압력은 0.5 ± 0.2 부근에서 진동한다.
+2. 밀도는 0.69–0.70 부근에서 NPT 평형에 이른다.
+3. `g(r)` 첫 피크는 r ≈ 1.09 σ 에서 g(r) ≈ 2.41 이다.
+4. 자기확산계수는 D ≈ 0.117 (LJ 단위)이다.
+
+## 2. 준비 정보
+
+### A. 참조 자료
+
+| 참조 | 제목 |
+|---|---|
+| [E1](ex-01-lj-basic.html) | LJ 액체 (NVE) 첫 실행 |
+| [06 셋업과 실행](06-fix-run.html) | `fix nvt/npt`, `minimize`, `run` |
+| [07 출력과 분석](07-output.html) | `compute`, `fix ave/*`, 후처리 |
+| [05 상호작용 모델](05-forcefield.html) | `pair_style lj/cut` |
+
+### B. 공구 및 장비
+
+| 항목 | 용도 |
+|---|---|
+| LAMMPS (`lmp`) | 시뮬레이션 실행. 3.B 의 실행 시간과 4절의 결과는 LAMMPS 22 Jul 2025 직렬 빌드 기준이다. |
+
+### C. 소모품
+
+| 항목 | 내용 |
+|---|---|
+| `in.demo` | 입력 스크립트 (3.A 에서 작성) |
+| 데이터·포텐셜 파일 | 없음 |
+
+### D. 선행 조건
+
+1. NOTE 33-01-00 ([E1](ex-01-lj-basic.html))을 수행할 수 있어야 한다.
+
+## 3. 절차
+
+### A. 입력 작성: `in.demo`
+
+1. 아래 내용으로 `in.demo` 를 작성한다.
 
 ```lammps
 # LJ liquid: minimize -> NVT (T=1.0) -> NPT (T=1.0, P=0.5) -> production + rdf + msd
@@ -72,23 +115,36 @@ thermo          100
 run             5000
 ```
 
-8 × 8 × 8 격자라 원자는 2048개다. `compute rdf` 와 `compute msd` 의 결과를
-`fix ave/time` 으로 시간 평균해 각각 `rdf.dat`, `msd.dat` 에 저장한다.
+2. 원자 수를 확인한다. 8 × 8 × 8 격자이므로 원자는 2048개다.
+3. `compute rdf` 결과가 `fix ave/time` 으로 시간 평균되어 `rdf.dat` 에 저장되는지 확인한다.
+4. `compute msd` 결과가 `fix ave/time` 으로 시간 평균되어 `msd.dat` 에 저장되는지 확인한다.
 
-## 실행
+<div class="amm-note" markdown="1">
+<span class="amm-label">참고</span>
+`compute` 는 값을 "정의"만 한다. 파일에 저장하려면 `fix ave/time` 으로 "꺼내야" 한다.
+</div>
+
+### B. 실행
+
+1. 입력을 실행한다.
 
 ```bash
 lmp -in in.demo > out.demo
 ```
 
-LAMMPS 22 Jul 2025 직렬 빌드에서 전체가 약 7초 걸렸다. 끝나면 `out.demo`
-와 함께 `rdf.dat`, `msd.dat` 가 생긴다.
+2. 실행 시간을 확인한다. LAMMPS 22 Jul 2025 직렬 빌드에서 전체가 약 7초 걸렸다.
 
-## 결과 ①: production 단계 안정성
+### C. 출력 확인
 
-production 단계의 thermo를 보면 온도는 setpoint 1.0 부근에서 ±0.04, 압력은 setpoint
-0.5 부근에서 ±0.2 정도로 진동하며 평형을 유지하고, 밀도는 0.69–0.70 부근에서
-NPT 평형에 이른다.
+1. `out.demo`, `rdf.dat`, `msd.dat` 가 생겼는지 확인한다.
+
+## 4. 시험 및 검사
+
+### A. production 단계 안정성
+
+1. production 단계의 thermo 에서 온도를 확인한다. setpoint 1.0 부근에서 ±0.04 정도로 진동하면 정상이다.
+2. 압력을 확인한다. setpoint 0.5 부근에서 ±0.2 정도로 진동하면 정상이다.
+3. 밀도를 확인한다. 0.69–0.70 부근에서 NPT 평형에 이르면 합격이다.
 
 <figure>
   <img src="assets/images/lj-production.png" alt="LJ 액체 NPT production 단계의 온도·압력·밀도 추이" style="width:100%;max-width:980px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
@@ -98,10 +154,11 @@ NPT 평형에 이른다.
   </figcaption>
 </figure>
 
-## 결과 ②: 동경 분포 함수 `g(r)`
+### B. 동경 분포 함수 `g(r)`
 
-`rdf.dat` 를 그리면 액체 특유의 진동 구조가 나온다. 첫 피크는 r ≈ 1.09 σ 에서
-g(r) ≈ 2.41이고, 두 번째 봉우리는 ~ 2.1 σ 부근에 있다.
+1. `rdf.dat` 를 그린다. 액체 특유의 진동 구조가 나와야 한다.
+2. 첫 피크를 확인한다. r ≈ 1.09 σ 에서 g(r) ≈ 2.41 이다.
+3. 두 번째 봉우리를 확인한다. ~ 2.1 σ 부근에 있다.
 
 <figure>
   <img src="assets/images/lj-rdf.png" alt="LJ 액체의 동경 분포 함수 g(r) 과 누적 배위수 N(r)" style="width:100%;max-width:760px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
@@ -110,11 +167,11 @@ g(r) ≈ 2.41이고, 두 번째 봉우리는 ~ 2.1 σ 부근에 있다.
   </figcaption>
 </figure>
 
-## 결과 ③: MSD 와 자기확산계수
+### C. MSD 와 자기확산계수
 
-MSD가 시간에 따라 선형으로 늘어나는 정상 확산이 보이고, Einstein 관계
-⟨Δr²(t)⟩ = 6 D t 에 맞춘 직선의 기울기로 자기확산계수를 얻는다. 5000-step
-데이터로 fit 하면 D ≈ 0.117 (LJ 단위)이다.
+1. `msd.dat` 를 그린다. MSD 가 시간에 따라 선형으로 늘어나는 정상 확산이어야 한다.
+2. Einstein 관계 ⟨Δr²(t)⟩ = 6 D t 에 직선을 맞춘다.
+3. 기울기로 자기확산계수를 구한다. 5000-step 데이터로 fit 하면 D ≈ 0.117 (LJ 단위)이다.
 
 <figure>
   <img src="assets/images/lj-msd.png" alt="LJ 액체의 평균 제곱 변위 (MSD) 와 선형 fit" style="width:100%;max-width:760px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
@@ -124,15 +181,14 @@ MSD가 시간에 따라 선형으로 늘어나는 정상 확산이 보이고, Ei
   </figcaption>
 </figure>
 
-## 요점
+### D. 재현성
 
-- `minimize → nvt → npt` 순서는 작은 LJ 계부터 큰 분자계까지 그대로 쓸 수 있다.
-- `compute` 는 값을 "정의"만 하고, 파일에 저장하려면 `fix ave/time` 으로 "꺼내야" 한다.
-- `g(r)` 로는 구조를, MSD 기울기로는 동역학(확산)을 정량화한다.
-- 시드가 고정돼 있어 같은 입력을 다시 돌리면 `rdf.dat`·`msd.dat` 가 똑같이 나온다.
+1. 같은 입력을 다시 실행한다. 시드가 고정돼 있으므로 `rdf.dat`·`msd.dat` 가 똑같이 나와야 한다.
 
-## 관련 개념 챕터
+## 5. 종료
 
-- [06 셋업과 실행](06-fix-run.html): `fix nvt/npt`, `minimize`, `run`
-- [07 출력과 분석](07-output.html): `compute`, `fix ave/*`, 후처리
-- [05 상호작용 모델](05-forcefield.html): `pair_style lj/cut`
+### A. 결과 정리
+
+1. `minimize → nvt → npt` 순서는 작은 LJ 계부터 큰 분자계까지 그대로 쓸 수 있다.
+2. `compute` 는 값을 정의만 하고, 파일 저장은 `fix ave/time` 으로 한다.
+3. `g(r)` 로는 구조를, MSD 기울기로는 동역학(확산)을 정량화한다.

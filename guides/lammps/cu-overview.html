@@ -90,14 +90,18 @@
         <p class="page-lede">응용 시리즈 진입 — Cu 표면 위 벤젠-에탄올 경쟁 흡착 프로토콜 개요.</p>
       </header>
       <article class="content">
-<p>Cu 표면 위 벤젠-에탄올 경쟁 흡착을 분자동역학으로 계산할 때 쓴
-프로토콜과 입력 파일을 정리했다. <code>inputs/</code> 의 다섯 단계 입력은 공개된
-<a href="../../files/blog/pppm-vs-msm/opls.data"><code>opls.data</code></a> 로 끝까지 돌아가는 것을 확인했다.
-다만 이 데이터 파일은 Cu 슬랩 구조와 일부 OPLS-AA 계수가 틀려 있어서, 각 장에 그 내용을 함께 적었다
-(<a href="cu-01-system.html">1장</a>, <a href="cu-03-force-fields.html">3장</a>).</p>
-<hr />
-<h2 id="_1">무엇을 비교하나</h2>
-<p>이 시리즈는 다음 네 가지 조합을 비교한다.</p>
+<p class="amm-id">NOTE 32-00-00 · Cu 표면 경쟁 흡착 시리즈 개요</p>
+
+<h2 id="1">1. 일반 사항</h2>
+<h3 id="a">A. 목적</h3>
+<ol>
+<li>이 시리즈는 Cu 표면 위 벤젠-에탄올 경쟁 흡착을 분자동역학으로 계산하는 프로토콜과 입력 파일을 다룬다.</li>
+<li>이 시리즈는 힘장과 정전기 처리 방식이 계면 흡착에 주는 영향을 따로 떼어 비교한다.</li>
+</ol>
+<h3 id="b">B. 적용 범위</h3>
+<ol>
+<li>다음 네 가지 조합을 비교한다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -129,60 +133,148 @@
 </tr>
 </tbody>
 </table>
-<p>네 조합 모두 같은 다섯 단계 프로토콜(소프트 완화 → 에너지 최소화 → 단계적 가열 → 평형화 → production)을
-따른다. 그래서 힘장과 정전기 처리 방식이 계면 흡착에 주는 영향을 따로 떼어 볼 수 있다.</p>
-<h2 id="_2">빠른 둘러보기</h2>
-<ul>
-<li><a href="cu-01-system.html">시스템 개요</a>: 화학적 배경과 시뮬레이션 셀 구성</li>
-<li><a href="cu-02-data-files.html">데이터 파일 구조</a>: <code>opls.data</code>, <code>trappe.data</code> 비교</li>
-<li><a href="cu-03-force-fields.html">힘장 비교</a>: OPLS-AA와 TraPPE-UA의 차이</li>
-<li><a href="cu-04-electrostatics.html">정전기 방법</a>: PPPM과 MSM, 슬랩 보정</li>
-<li><a href="cu-05-protocol.html">5단계 프로토콜</a>: 단계별 이유와 입력 명령어</li>
-<li><a href="cu-06-frameworks.html">4가지 프레임워크 비교</a>: 조합별 차이와 선택 기준</li>
-<li><a href="cu-07-analysis.html">분석 방법</a>: RDF, 밀도 프로파일, SEI, 계면 장력</li>
-<li><a href="cu-08-troubleshooting.html">트러블슈팅</a>: 자주 나는 오류와 원인 진단</li>
-</ul>
-<h2 id="_3">실행 환경</h2>
-<ul>
-<li>LAMMPS: 23 Jun 2022 이후 안정 버전 (MOLECULE, KSPACE, RIGID 패키지. UROPS run 처럼 Cu-Cu 에 EAM 을 쓰면 MANYBODY 도)</li>
-<li>입력 확인에 쓴 버전: LAMMPS 22 Jul 2025</li>
-<li>MPI: 40코어 워크스테이션에서 <code>mpirun -np 40</code></li>
-<li>세션 관리: 오래 걸리는 실행은 <code>tmux</code> 안에서</li>
-</ul>
-<h2 id="_4">인용 시 참고문헌</h2>
-<p>이 시리즈는 주로 다음 문헌을 바탕으로 한다.</p>
-<ul>
-<li>
-<p>W. L. Jorgensen, D. S. Maxwell, J. Tirado-Rives,
-  "Development and Testing of the OPLS All-Atom Force Field on Conformational
-  Energetics and Properties of Organic Liquids",
-  <em>J. Am. Chem. Soc.</em> <strong>118</strong>, 11225-11236 (1996). DOI: <a href="https://doi.org/10.1021/ja9621760">10.1021/ja9621760</a></p>
-</li>
-<li>
-<p>B. Chen, J. J. Potoff, J. I. Siepmann,
-  "Monte Carlo Calculations for Alcohols and Their Mixtures with Alkanes.
-  Transferable Potentials for Phase Equilibria. 5. United-Atom Description of
-  Primary, Secondary, and Tertiary Alcohols",
-  <em>J. Phys. Chem. B</em> <strong>105</strong>, 3093-3104 (2001). DOI: <a href="https://doi.org/10.1021/jp003882x">10.1021/jp003882x</a></p>
-</li>
-<li>
-<p>N. Rai, J. I. Siepmann,
-  "Transferable Potentials for Phase Equilibria. 9. Explicit Hydrogen Description
-  of Benzene and Five-Membered and Six-Membered Heterocyclic Aromatic Compounds",
-  <em>J. Phys. Chem. B</em> <strong>111</strong>, 10790-10799 (2007). DOI: <a href="https://doi.org/10.1021/jp073586l">10.1021/jp073586l</a></p>
-</li>
-<li>
-<p>H. Heinz, R. A. Vaia, B. L. Farmer, R. R. Naik,
-  "Accurate Simulation of Surfaces and Interfaces of Face-Centered Cubic Metals
-  Using 12-6 and 9-6 Lennard-Jones Potentials",
-  <em>J. Phys. Chem. C</em> <strong>112</strong>, 17281-17290 (2008). DOI: <a href="https://doi.org/10.1021/jp801931d">10.1021/jp801931d</a></p>
-</li>
-<li>
-<p>A. P. Thompson 외, "LAMMPS - a flexible simulation tool for particle-based
-  materials modeling at the atomic, meso, and continuum scales",
-  <em>Comput. Phys. Commun.</em> <strong>271</strong>, 108171 (2022). DOI: <a href="https://doi.org/10.1016/j.cpc.2021.108171">10.1016/j.cpc.2021.108171</a></p>
-</li>
-</ul>
+<ol start="2">
+<li>네 조합 모두 같은 다섯 단계 프로토콜을 따른다. 순서는 소프트 완화 → 에너지 최소화 → 단계적 가열 → 평형화 → production 이다.</li>
+</ol>
+<h3 id="c">C. 결과 요약</h3>
+<ol>
+<li><code>inputs/</code> 의 다섯 단계 입력은 공개된 <a href="../../files/blog/pppm-vs-msm/opls.data"><code>opls.data</code></a> 로 끝까지 실행된다.</li>
+</ol>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+<code>opls.data</code> 는 Cu 슬랩 구조와 일부 OPLS-AA 계수가 틀려 있다. 실행은 오류 없이 끝나지만 결과는 표준 힘장의 결과가 아니다. 각 장에 해당 내용을 함께 적었다(<a href="cu-01-system.html">1장</a>, <a href="cu-03-force-fields.html">3장</a>).</p>
+</div>
+<h2 id="2">2. 준비 정보</h2>
+<h3 id="a_1">A. 참조 자료</h3>
+<p>이 시리즈는 주로 다음 문헌을 바탕으로 한다. 인용 시 아래 문헌을 참고한다.</p>
+<table>
+<thead>
+<tr>
+<th>참조</th>
+<th>제목</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jorgensen 외 (1996)</td>
+<td>W. L. Jorgensen, D. S. Maxwell, J. Tirado-Rives, "Development and Testing of the OPLS All-Atom Force Field on Conformational Energetics and Properties of Organic Liquids", <em>J. Am. Chem. Soc.</em> <strong>118</strong>, 11225-11236 (1996). DOI: <a href="https://doi.org/10.1021/ja9621760">10.1021/ja9621760</a></td>
+</tr>
+<tr>
+<td>Chen 외 (2001)</td>
+<td>B. Chen, J. J. Potoff, J. I. Siepmann, "Monte Carlo Calculations for Alcohols and Their Mixtures with Alkanes. Transferable Potentials for Phase Equilibria. 5. United-Atom Description of Primary, Secondary, and Tertiary Alcohols", <em>J. Phys. Chem. B</em> <strong>105</strong>, 3093-3104 (2001). DOI: <a href="https://doi.org/10.1021/jp003882x">10.1021/jp003882x</a></td>
+</tr>
+<tr>
+<td>Rai, Siepmann (2007)</td>
+<td>N. Rai, J. I. Siepmann, "Transferable Potentials for Phase Equilibria. 9. Explicit Hydrogen Description of Benzene and Five-Membered and Six-Membered Heterocyclic Aromatic Compounds", <em>J. Phys. Chem. B</em> <strong>111</strong>, 10790-10799 (2007). DOI: <a href="https://doi.org/10.1021/jp073586l">10.1021/jp073586l</a></td>
+</tr>
+<tr>
+<td>Heinz 외 (2008)</td>
+<td>H. Heinz, R. A. Vaia, B. L. Farmer, R. R. Naik, "Accurate Simulation of Surfaces and Interfaces of Face-Centered Cubic Metals Using 12-6 and 9-6 Lennard-Jones Potentials", <em>J. Phys. Chem. C</em> <strong>112</strong>, 17281-17290 (2008). DOI: <a href="https://doi.org/10.1021/jp801931d">10.1021/jp801931d</a></td>
+</tr>
+<tr>
+<td>Thompson 외 (2022)</td>
+<td>A. P. Thompson 외, "LAMMPS - a flexible simulation tool for particle-based materials modeling at the atomic, meso, and continuum scales", <em>Comput. Phys. Commun.</em> <strong>271</strong>, 108171 (2022). DOI: <a href="https://doi.org/10.1016/j.cpc.2021.108171">10.1016/j.cpc.2021.108171</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="b_1">B. 공구 및 장비</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LAMMPS</td>
+<td>23 Jun 2022 이후 안정 버전 (MOLECULE, KSPACE, RIGID 패키지. UROPS run 처럼 Cu-Cu 에 EAM 을 쓰면 MANYBODY 도)</td>
+</tr>
+<tr>
+<td>입력 확인에 쓴 버전</td>
+<td>LAMMPS 22 Jul 2025</td>
+</tr>
+<tr>
+<td>MPI</td>
+<td>40코어 워크스테이션에서 <code>mpirun -np 40</code></td>
+</tr>
+<tr>
+<td>세션 관리</td>
+<td>오래 걸리는 실행은 <code>tmux</code> 안에서</td>
+</tr>
+</tbody>
+</table>
+<h3 id="c_1">C. 소모품</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../files/blog/pppm-vs-msm/opls.data"><code>opls.data</code></a></td>
+<td>OPLS-AA 데이터 파일 (공개)</td>
+</tr>
+<tr>
+<td><code>inputs/</code></td>
+<td>다섯 단계 입력</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3">3. 노트 목록</h2>
+<table>
+<thead>
+<tr>
+<th>노트 번호</th>
+<th>제목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NOTE 32-01-00</td>
+<td><a href="cu-01-system.html">시스템 개요</a></td>
+<td>화학적 배경과 시뮬레이션 셀 구성</td>
+</tr>
+<tr>
+<td>NOTE 32-02-00</td>
+<td><a href="cu-02-data-files.html">데이터 파일 구조</a></td>
+<td><code>opls.data</code>, <code>trappe.data</code> 비교</td>
+</tr>
+<tr>
+<td>NOTE 32-03-00</td>
+<td><a href="cu-03-force-fields.html">힘장 비교</a></td>
+<td>OPLS-AA와 TraPPE-UA의 차이</td>
+</tr>
+<tr>
+<td>NOTE 32-04-00</td>
+<td><a href="cu-04-electrostatics.html">정전기 방법</a></td>
+<td>PPPM과 MSM, 슬랩 보정</td>
+</tr>
+<tr>
+<td>NOTE 32-05-00</td>
+<td><a href="cu-05-protocol.html">5단계 프로토콜</a></td>
+<td>단계별 이유와 입력 명령어</td>
+</tr>
+<tr>
+<td>NOTE 32-06-00</td>
+<td><a href="cu-06-frameworks.html">4가지 프레임워크 비교</a></td>
+<td>조합별 차이와 선택 기준</td>
+</tr>
+<tr>
+<td>NOTE 32-07-00</td>
+<td><a href="cu-07-analysis.html">분석 방법</a></td>
+<td>RDF, 밀도 프로파일, SEI, 계면 장력</td>
+</tr>
+<tr>
+<td>NOTE 32-08-00</td>
+<td><a href="cu-08-troubleshooting.html">트러블슈팅</a></td>
+<td>자주 나는 오류와 원인 진단</td>
+</tr>
+</tbody>
+</table>
       </article>
 <nav class="page-nav"><a class="prev" href="ex-04-cu-adsorption.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">Cu 벤젠-에탄올 흡착</div></a><a class="next" href="cu-01-system.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">시스템 개요</div></a></nav>
     </main>

@@ -92,38 +92,152 @@
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
-<li><a href="#11">1.1 연구 동기</a></li>
-<li><a href="#12">1.2 시뮬레이션 셀 기하</a><ul>
-<li><a href="#cu">Cu 슬랩의 결정학적 면</a></li>
+<li><a href="#1">1. 일반 사항</a><ul>
+<li><a href="#a">A. 목적</a></li>
+<li><a href="#b">B. 적용 범위</a></li>
+<li><a href="#c">C. 결과 요약</a></li>
 </ul>
 </li>
-<li><a href="#13">1.3 표면 흡착의 분자동역학적 측면</a></li>
-<li><a href="#14">1.4 다섯 단계 프로토콜과 단계별 이유</a></li>
-<li><a href="#15">1.5 분석 대상 물리량</a></li>
-<li><a href="#_1">참고문헌</a></li>
+<li><a href="#2">2. 준비 정보</a><ul>
+<li><a href="#a_1">A. 참조 자료</a></li>
+<li><a href="#c_1">C. 소모품</a></li>
+</ul>
+</li>
+<li><a href="#3">3. 절차</a><ul>
+<li><a href="#a_2">A. 화학적 배경 확인</a></li>
+<li><a href="#b_1">B. 시뮬레이션 셀 기하 설정</a></li>
+<li><a href="#c-cu">C. Cu 슬랩의 결정학적 면 확인</a></li>
+<li><a href="#d">D. 흡착 기여 분해</a></li>
+<li><a href="#e">E. 다섯 단계 프로토콜 구성</a></li>
+</ul>
+</li>
+<li><a href="#4">4. 시험 및 검사</a><ul>
+<li><a href="#a_3">A. 분석 대상 물리량</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <hr />
-<h2 id="11">1.1 연구 동기</h2>
-<p>벤젠과 에탄올은 서로 다른 결합 양상을 갖는 대표적인 유기 분자이다.
-벤젠은 비편극성(nonpolar) π-전자 시스템을 가지며,
-에탄올은 극성(polar) 수산기(-OH)를 통해 수소 결합 네트워크를 형성한다.
-두 분자가 섞인 액체가 전이금속 표면에 닿을 때
-어느 쪽이 먼저 흡착하는지는 분리 공정과 촉매 설계에서 중요한 문제다.</p>
-<p>구리(Cu)는 채워진 3d 궤도를 가지므로 가스상 벤젠 분자의 π-궤도와의 도너-억셉터 상호작용을
-형성할 수 있는 대표적인 fcc 금속이다 (Cu의 [Ar]3d¹⁰4s¹ 전자 배치를 참고).
-한편 에탄올은 표면 위에서 수산기를 통한 수소 결합과 메틸기를 통한 약한 분산력으로 흡착하므로,
-두 분자가 동시에 존재할 때 표면 점유 경쟁이 발생한다.</p>
-<h2 id="12">1.2 시뮬레이션 셀 기하</h2>
-<p>여기서 다루는 시스템은 다음과 같은 슬랩 기하(slab geometry)다.</p>
+<p class="amm-id">NOTE 32-01-00 · 시스템 개요와 화학적 배경</p>
+
+<h2 id="1">1. 일반 사항</h2>
+<h3 id="a">A. 목적</h3>
+<ol>
+<li>이 노트는 Cu 표면 위 벤젠-에탄올 경쟁 흡착 시스템의 화학적 배경과 시뮬레이션 셀 기하를 다룬다.</li>
+<li>이 노트는 흡착을 이루는 세 가지 기여, 다섯 단계 프로토콜, 분석 대상 물리량을 정한다.</li>
+</ol>
+<h3 id="b">B. 적용 범위</h3>
+<ol>
+<li>박스 30 × 30 × 41.895 Å³, <code>boundary p p f</code> 의 슬랩 시스템에 적용한다.</li>
+<li>UROPS run 의 <a href="../../files/blog/pppm-vs-msm/opls.data"><code>opls.data</code></a> 에 든 Cu 슬랩과 Cu-유기 LJ 계수를 기준으로 한다.</li>
+</ol>
+<h3 id="c">C. 결과 요약</h3>
+<ol>
+<li><code>opls.data</code> 의 Cu 슬랩은 fcc(100) 이 아니라 bcc 쌓임이다. 주기 경계를 사이에 두고 원자가 1.08 Å 까지 붙어 있다.</li>
+<li>Heinz et al. (2008) 의 12-6 Cu 파라미터는 ε = 4.72 kcal/mol, σ = 2.330 Å 이다.</li>
+<li>UROPS run 의 Cu-유기 ε 는 Heinz 값을 기하 평균한 값보다 약 30배 약하다.</li>
+</ol>
+<h2 id="2">2. 준비 정보</h2>
+<h3 id="a_1">A. 참조 자료</h3>
+<table>
+<thead>
+<tr>
+<th>참조</th>
+<th>제목</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Heinz 외 (2008)</td>
+<td>H. Heinz, R. A. Vaia, B. L. Farmer, R. R. Naik, "Accurate Simulation of Surfaces and Interfaces of Face-Centered Cubic Metals Using 12-6 and 9-6 Lennard-Jones Potentials", <em>J. Phys. Chem. C</em> <strong>112</strong>, 17281-17290 (2008). DOI: <a href="https://doi.org/10.1021/jp801931d">10.1021/jp801931d</a></td>
+</tr>
+<tr>
+<td>Vitos 외 (1998)</td>
+<td>L. Vitos, A. V. Ruban, H. L. Skriver, J. Kollár, "The surface energy of metals", <em>Surf. Sci.</em> <strong>411</strong>, 186-202 (1998). DOI: <a href="https://doi.org/10.1016/S0039-6028(98)00363-X">10.1016/S0039-6028(98)00363-X</a></td>
+</tr>
+<tr>
+<td>Irving, Kirkwood (1950)</td>
+<td>J. H. Irving, J. G. Kirkwood, "The Statistical Mechanical Theory of Transport Processes. IV. The Equations of Hydrodynamics", <em>J. Chem. Phys.</em> <strong>18</strong>, 817-829 (1950). DOI: <a href="https://doi.org/10.1063/1.1747782">10.1063/1.1747782</a></td>
+</tr>
+<tr>
+<td>Tyson, Miller (1977)</td>
+<td>W. R. Tyson, W. A. Miller, "Surface free energies of solid metals: Estimation from liquid surface tension measurements", <em>Surf. Sci.</em> <strong>62</strong>, 267-276 (1977). DOI: <a href="https://doi.org/10.1016/0039-6028(77)90442-3">10.1016/0039-6028(77)90442-3</a></td>
+</tr>
+<tr>
+<td>Mishin 외 (2001)</td>
+<td>Y. Mishin, M. J. Mehl, D. A. Papaconstantopoulos, A. F. Voter, J. D. Kress, "Structural stability and lattice defects in copper: Ab initio, tight-binding, and embedded-atom calculations", <em>Phys. Rev. B</em> <strong>63</strong>, 224106 (2001). DOI: <a href="https://doi.org/10.1103/PhysRevB.63.224106">10.1103/PhysRevB.63.224106</a></td>
+</tr>
+<tr>
+<td>NOTE 32-03-00</td>
+<td><a href="03-force-fields">힘장 비교</a></td>
+</tr>
+<tr>
+<td>NOTE 32-05-00</td>
+<td><a href="05-protocol">5단계 프로토콜</a></td>
+</tr>
+<tr>
+<td>NOTE 32-07-00</td>
+<td><a href="07-analysis">분석 방법</a></td>
+</tr>
+<tr>
+<td>예제 E3</td>
+<td><a href="ex-03-cu-slab.html">Cu(100) 슬랩</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="c_1">C. 소모품</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../files/blog/pppm-vs-msm/opls.data"><code>opls.data</code></a></td>
+<td>UROPS run 의 데이터 파일 (Cu 371원자 포함)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3">3. 절차</h2>
+<h3 id="a_2">A. 화학적 배경 확인</h3>
+<ol>
+<li>벤젠과 에탄올은 서로 다른 결합 양상을 갖는 대표적인 유기 분자이다.<ol>
+<li>벤젠은 비편극성(nonpolar) π-전자 시스템을 가진다.</li>
+<li>에탄올은 극성(polar) 수산기(-OH)를 통해 수소 결합 네트워크를 형성한다.</li>
+</ol>
+</li>
+<li>두 분자가 섞인 액체가 전이금속 표면에 닿을 때 어느 쪽이 먼저 흡착하는지는 분리 공정과 촉매 설계에서 중요한 문제다.</li>
+<li>구리(Cu)는 채워진 3d 궤도를 가지는 대표적인 fcc 금속이다. 가스상 벤젠 분자의 π-궤도와 도너-억셉터 상호작용을 형성할 수 있다(Cu의 [Ar]3d¹⁰4s¹ 전자 배치를 참고).</li>
+<li>에탄올은 표면 위에서 수산기를 통한 수소 결합과 메틸기를 통한 약한 분산력으로 흡착한다.</li>
+<li>두 분자가 동시에 존재하면 표면 점유 경쟁이 발생한다.</li>
+</ol>
+<h3 id="b_1">B. 시뮬레이션 셀 기하 설정</h3>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+UROPS run 의 <a href="../../files/blog/pppm-vs-msm/opls.data"><code>opls.data</code></a> 에 든 Cu 슬랩은 fcc(100) 이 아니다.</p>
 <ul>
-<li><strong>박스 크기</strong>: 30 × 30 × 41.895 Å³</li>
-<li><strong>경계 조건</strong>: x, y 방향 주기적; z 방향 비주기 (<code>boundary p p f</code>)</li>
-<li><strong>금속 슬랩</strong>: z 축 하단에 fcc Cu 슬랩 배치 (격자 상수 a = 3.615 Å)</li>
-<li><strong>유기 분자</strong>: Cu 슬랩 위 진공-액체 영역에 무작위로 배치된 벤젠과 에탄올</li>
+<li>Cu 371원자는 z = 0, 1.81, 3.62, 5.42, 7.23 Å 의 다섯 층에 81, 64, 81, 64, 81개씩 있다.</li>
+<li>한 층은 간격 3.615 Å 의 정사각 격자이다. 다음 층은 a/2 높이에서 (a/2, a/2) 만큼 밀려 있다. 이것은 bcc 쌓임이다.</li>
+<li>최근접 거리가 3.13 Å 로 fcc Cu 의 2.56 Å 보다 길다.</li>
+<li>81원자 층은 한 줄에 9개라 9 × 3.615 = 32.5 Å 인데 박스는 30 Å 이다. 그래서 x(또는 y) = 0 과 28.92 Å 의 원자가 주기 경계를 사이에 두고 1.08 Å 까지 붙어 있다.</li>
 </ul>
-<p>표면 흡착 시뮬레이션에서는 보통 z 축을 비주기로 둔다.
-슬랩 위에 진공 영역을 두고, 두 분자가 표면으로 들어오고 떨어져 나가는 과정을 자연스럽게 보려는 것이다.</p>
+<p>fcc(100) 슬랩은 <code>lattice fcc 3.615</code> 와 <code>create_atoms</code> 로 만드는 편이 안전하다(<a href="ex-03-cu-slab.html">예제 E3</a>). 그때는 박스 가로를 격자 상수의 정수배(예: 8 × 3.615 = 28.92 Å)로 맞춘다.</p>
+</div>
+<ol>
+<li>슬랩 기하(slab geometry)를 다음과 같이 구성한다.<ol>
+<li>박스 크기를 30 × 30 × 41.895 Å³ 로 둔다.</li>
+<li>경계 조건을 x, y 방향 주기적, z 방향 비주기로 둔다(<code>boundary p p f</code>).</li>
+<li>z 축 하단에 fcc Cu 슬랩을 배치한다(격자 상수 a = 3.615 Å).</li>
+<li>Cu 슬랩 위 진공-액체 영역에 벤젠과 에탄올을 무작위로 배치한다.</li>
+</ol>
+</li>
+</ol>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+표면 흡착 시뮬레이션에서는 보통 z 축을 비주기로 둔다. 슬랩 위에 진공 영역을 두어, 두 분자가 표면으로 들어오고 떨어져 나가는 과정을 자연스럽게 보기 위해서다.</p>
+</div>
 <figure>
   <img src="assets/images/cu-cell.svg" alt="Cu 표면 흡착 시뮬레이션 셀의 슬랩 기하 모식도" style="width:100%;max-width:860px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
   <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
@@ -135,8 +249,11 @@
   </figcaption>
 </figure>
 
-<h3 id="cu">Cu 슬랩의 결정학적 면</h3>
-<p>노출면이 (100) 인지 (111) 인지는 슬랩을 자르는 결정 방향으로 정해진다.</p>
+<h3 id="c-cu">C. Cu 슬랩의 결정학적 면 확인</h3>
+<ol>
+<li>노출면이 (100) 인지 (111) 인지는 슬랩을 자르는 결정 방향으로 정해진다.</li>
+<li>두 결정면의 성질을 비교한다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -161,24 +278,10 @@
 </tr>
 </tbody>
 </table>
-<p>표면 원자 밀도는 $2/a^2$와 $4/(\sqrt{3}a^2)$로 계산했고, 표면 에너지는 Vitos 외 (1998), <em>Surf. Sci.</em> 411, 186 의 DFT 값이다.
-면 평균 실험값은 약 1.79 J/m² (Tyson &amp; Miller 1977) 로, 계산값보다 낮다.</p>
-<div class="note">
-  <div class="note-title">opls.data 의 Cu 슬랩은 fcc(100) 이 아니다</div>
-  <p>
-    UROPS run 의 <a href="../../files/blog/pppm-vs-msm/opls.data"><code>opls.data</code></a> 에 든 Cu 371원자는
-    z = 0, 1.81, 3.62, 5.42, 7.23 Å 의 다섯 층에 81, 64, 81, 64, 81개씩 있다. 한 층은 간격 3.615 Å 의
-    정사각 격자이고, 다음 층은 a/2 높이에서 (a/2, a/2) 만큼 밀려 있다. 이것은 bcc 쌓임이다.
-    최근접 거리가 3.13 Å 로 fcc Cu 의 2.56 Å 보다 길다. 또 81원자 층은 한 줄에 9개라
-    9 × 3.615 = 32.5 Å 인데 박스는 30 Å 이어서, x(또는 y) = 0 과 28.92 Å 의 원자가 주기 경계를
-    사이에 두고 1.08 Å 까지 붙어 있다.
-  </p>
-  <p>
-    fcc(100) 슬랩은 <code>lattice fcc 3.615</code> 와 <code>create_atoms</code> 로 만드는 편이 안전하다
-    (<a href="ex-03-cu-slab.html">예제 E3</a>). 그때는 박스 가로를 격자 상수의 정수배(예: 8 × 3.615 = 28.92 Å)로 맞춘다.
-  </p>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+표면 원자 밀도는 $2/a^2$와 $4/(\sqrt{3}a^2)$로 계산했다. 표면 에너지는 Vitos 외 (1998), <em>Surf. Sci.</em> 411, 186 의 DFT 값이다. 면 평균 실험값은 약 1.79 J/m² (Tyson &amp; Miller 1977) 로, 계산값보다 낮다.</p>
 </div>
-
 <figure>
   <img src="assets/images/cu-slab.png" alt="실제로 실행한 Cu(100) 슬랩의 측면도와 z 방향 원자 밀도 프로파일" style="width:100%;max-width:880px;height:auto;border:1px solid var(--border-color);border-radius:6px;" />
   <figcaption style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;">
@@ -192,42 +295,41 @@
   </figcaption>
 </figure>
 
-<div class="tip">
-  <div class="note-title">바로 돌려 보기</div>
-  <p>
-    위 슬랩 기하를 데이터 파일 없이 EAM만으로 실제 만들어 돌리는 예제가
-    <a href="ex-03-cu-slab.html">예제 E3 — Cu(100) 슬랩</a> 이다. 전체 입력과
-    z 밀도 프로파일 출력을 한자리에서 볼 수 있다.
-  </p>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+위 슬랩 기하를 데이터 파일 없이 EAM만으로 만들어 실행하는 예제는 <a href="ex-03-cu-slab.html">예제 E3 — Cu(100) 슬랩</a> 이다. 전체 입력과 z 밀도 프로파일 출력을 한자리에서 확인할 수 있다.</p>
 </div>
-
-<h2 id="13">1.3 표면 흡착의 분자동역학적 측면</h2>
-<p>이 시스템의 흡착은 세 가지 기여로 나눠 볼 수 있다.</p>
+<h3 id="d">D. 흡착 기여 분해</h3>
 <ol>
-<li>
-<p><strong>분산 인력 (London dispersion)</strong>:
-   Cu 원자와 유기 분자 사이의 비결합 12-6 Lennard-Jones 항으로 모형화한다.
-   Heinz et al. (2008) 의 12-6 Cu 파라미터는 ε = 4.72 kcal/mol, σ = 2.330 Å 이다
-   (2.616 Å 은 σ 가 아니라 퍼텐셜 최소 위치 $r_0 = 2^{1/6}\sigma$).
-   UROPS run 은 이 값을 쓰지 않았다. Cu-Cu 는 EAM (Mishin 2001) 이고, Cu-유기 쌍은
-   ε = 0.012–0.029 kcal/mol 을 직접 넣었다. Heinz 값을 기하 평균으로 섞으면 벤젠 C-Cu 가
-   0.575 kcal/mol 인데, 실제 입력은 0.0187 kcal/mol 로 약 30배 약하다 (<a href="03-force-fields">3장</a>).</p>
-</li>
-<li>
-<p><strong>정전기 상호작용 (Coulomb)</strong>:
-   에탄올의 -O-H 결합은 큰 부분 전하 (q_O ≈ -0.7, q_H ≈ +0.435) 를 가지므로
-   장거리 정전기 처리가 꼭 필요하다. PPPM 또는 MSM을 쓴다.</p>
-</li>
-<li>
-<p><strong>π-d 궤도 상호작용</strong>:
-   고전 힘장은 이 효과를 명시적으로 다루지 않고, LJ 파라미터에 녹여 간접적으로 표현한다.
-   양자역학적 효과를 제대로 잡으려면 DFT 나 ReaxFF가 필요하다. 여기서는
-   INTERFACE-FF의 LJ 파라미터는 금속의 표면 에너지에 fit되어 있어 계면 거동을 어느 정도 재현한다고
-   기대할 수 있지만, 위처럼 Cu-유기 ε 를 따로 줄였다면 그 근거는 사라진다.</p>
+<li>이 시스템의 흡착을 세 가지 기여로 나눈다.</li>
+<li>분산 인력(London dispersion)을 Cu 원자와 유기 분자 사이의 비결합 12-6 Lennard-Jones 항으로 모형화한다.<ol>
+<li>Heinz et al. (2008) 의 12-6 Cu 파라미터는 ε = 4.72 kcal/mol, σ = 2.330 Å 이다.</li>
+<li>2.616 Å 은 σ 가 아니라 퍼텐셜 최소 위치 $r_0 = 2^{1/6}\sigma$ 이다.</li>
+</ol>
 </li>
 </ol>
-<h2 id="14">1.4 다섯 단계 프로토콜과 단계별 이유</h2>
-<p>시뮬레이션은 다음 다섯 단계로 진행한다.</p>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+UROPS run 은 Heinz 값을 쓰지 않았다. Cu-Cu 는 EAM (Mishin 2001) 이고, Cu-유기 쌍은 ε = 0.012–0.029 kcal/mol 을 직접 넣었다. Heinz 값을 기하 평균으로 섞으면 벤젠 C-Cu 가 0.575 kcal/mol 인데, 실제 입력은 0.0187 kcal/mol 로 약 30배 약하다(<a href="03-force-fields">3장</a>).</p>
+</div>
+<ol start="3">
+<li>정전기 상호작용(Coulomb)을 장거리 방법으로 처리한다. PPPM 또는 MSM을 쓴다.</li>
+</ol>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+에탄올의 -O-H 결합은 큰 부분 전하 (q_O ≈ -0.7, q_H ≈ +0.435) 를 가지므로 장거리 정전기 처리가 꼭 필요하다.</p>
+</div>
+<ol start="4">
+<li>π-d 궤도 상호작용은 LJ 파라미터에 녹여 간접적으로 표현한다. 고전 힘장은 이 효과를 명시적으로 다루지 않는다.</li>
+</ol>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+양자역학적 효과를 제대로 잡으려면 DFT 나 ReaxFF가 필요하다. 여기서는 INTERFACE-FF의 LJ 파라미터가 금속의 표면 에너지에 fit되어 있어 계면 거동을 어느 정도 재현한다고 기대할 수 있다. 그러나 위처럼 Cu-유기 ε 를 따로 줄였다면 그 근거는 사라진다.</p>
+</div>
+<h3 id="e">E. 다섯 단계 프로토콜 구성</h3>
+<ol>
+<li>시뮬레이션을 다음 다섯 단계로 진행한다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -270,52 +372,26 @@
 </tr>
 </tbody>
 </table>
-<p>단계별로 왜 필요한지는 <a href="05-protocol">5단계 프로토콜</a>에서 자세히 다룬다.</p>
-<h2 id="15">1.5 분석 대상 물리량</h2>
-<p>이 시뮬레이션에서 뽑는 물리량은 다음과 같다.</p>
-<ul>
-<li><strong>동경 분포 함수 (Radial Distribution Function, g(r))</strong>: 분자 간 구조 상관</li>
-<li><strong>밀도 프로파일 (z 방향)</strong>: 계면에서의 분자별 분포</li>
-<li><strong>분리 효율 지수 (Separation Efficiency Index, SEI)</strong>: 0 (완전 혼합) ~ 1 (완전 분리)</li>
-<li><strong>흡착 에너지</strong>: 표면 결합 강도의 정량 지표</li>
-<li><strong>계면 장력 (Irving-Kirkwood 방법)</strong>: 계면의 열역학적 안정성</li>
-</ul>
-<p>분석 방법은 <a href="07-analysis">분석 방법</a>에서 자세히 다룬다.</p>
-<h2 id="_1">참고문헌</h2>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+단계별로 왜 필요한지는 <a href="05-protocol">5단계 프로토콜</a>에서 자세히 다룬다.</p>
+</div>
+<h2 id="4">4. 시험 및 검사</h2>
+<h3 id="a_3">A. 분석 대상 물리량</h3>
 <ol>
-<li>
-<p>H. Heinz, R. A. Vaia, B. L. Farmer, R. R. Naik,
-   "Accurate Simulation of Surfaces and Interfaces of Face-Centered Cubic Metals
-   Using 12-6 and 9-6 Lennard-Jones Potentials",
-   <em>J. Phys. Chem. C</em> <strong>112</strong>, 17281-17290 (2008).
-   DOI: <a href="https://doi.org/10.1021/jp801931d">10.1021/jp801931d</a></p>
-</li>
-<li>
-<p>L. Vitos, A. V. Ruban, H. L. Skriver, J. Kollár,
-   "The surface energy of metals",
-   <em>Surf. Sci.</em> <strong>411</strong>, 186-202 (1998).
-   DOI: <a href="https://doi.org/10.1016/S0039-6028(98)00363-X">10.1016/S0039-6028(98)00363-X</a></p>
-</li>
-<li>
-<p>J. H. Irving, J. G. Kirkwood,
-   "The Statistical Mechanical Theory of Transport Processes. IV.
-   The Equations of Hydrodynamics",
-   <em>J. Chem. Phys.</em> <strong>18</strong>, 817-829 (1950).
-   DOI: <a href="https://doi.org/10.1063/1.1747782">10.1063/1.1747782</a></p>
-</li>
-<li>
-<p>W. R. Tyson, W. A. Miller, "Surface free energies of solid metals:
-   Estimation from liquid surface tension measurements",
-   <em>Surf. Sci.</em> <strong>62</strong>, 267-276 (1977).
-   DOI: <a href="https://doi.org/10.1016/0039-6028(77)90442-3">10.1016/0039-6028(77)90442-3</a></p>
-</li>
-<li>
-<p>Y. Mishin, M. J. Mehl, D. A. Papaconstantopoulos, A. F. Voter, J. D. Kress,
-   "Structural stability and lattice defects in copper: Ab initio, tight-binding,
-   and embedded-atom calculations", <em>Phys. Rev. B</em> <strong>63</strong>, 224106 (2001).
-   DOI: <a href="https://doi.org/10.1103/PhysRevB.63.224106">10.1103/PhysRevB.63.224106</a></p>
+<li>이 시뮬레이션에서 다음 물리량을 계산한다.<ol>
+<li>동경 분포 함수(Radial Distribution Function, g(r)): 분자 간 구조 상관.</li>
+<li>밀도 프로파일(z 방향): 계면에서의 분자별 분포.</li>
+<li>분리 효율 지수(Separation Efficiency Index, SEI): 0 (완전 혼합) ~ 1 (완전 분리).</li>
+<li>흡착 에너지: 표면 결합 강도의 정량 지표.</li>
+<li>계면 장력(Irving-Kirkwood 방법): 계면의 열역학적 안정성.</li>
+</ol>
 </li>
 </ol>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+분석 방법은 <a href="07-analysis">분석 방법</a>에서 자세히 다룬다.</p>
+</div>
       </article>
 <nav class="page-nav"><a class="prev" href="cu-overview.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">개요</div></a><a class="next" href="cu-02-data-files.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">데이터 파일</div></a></nav>
     </main>

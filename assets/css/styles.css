@@ -1631,7 +1631,7 @@ section {
     content: "(" counter(amm-sub, lower-alpha) ")";
 }
 
-.post-body .amm-task {
+.post-body .amm-id {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.85rem;
     letter-spacing: 0.04em;

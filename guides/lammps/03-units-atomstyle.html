@@ -92,27 +92,97 @@
       <article class="content">
 <div class="toc"><div class="toc-title">이 페이지에서 다룹니다</div>
 <ul>
-<li><a href="#31">3.1 왜 단위계가 중요한가</a></li>
-<li><a href="#32">3.2 자주 쓰는 단위계 한눈에</a></li>
-<li><a href="#33">3.3 단위 선택 기준</a></li>
-<li><a href="#34-atom_style">3.4 atom_style: 원자가 갖는 속성</a><ul>
-<li><a href="#atom_style">자주 쓰는 atom_style</a></li>
-<li><a href="#atom_style_1">잘못 고른 atom_style 의 흔한 증상</a></li>
+<li><a href="#1">1. 일반 사항</a><ul>
+<li><a href="#a">A. 목적</a></li>
+<li><a href="#b">B. 적용 범위</a></li>
+<li><a href="#c">C. 결과 요약</a></li>
 </ul>
 </li>
-<li><a href="#35">3.5 짝을 이루는 명령들</a></li>
+<li><a href="#2">2. 준비 정보</a><ul>
+<li><a href="#a_1">A. 참조 자료</a></li>
+<li><a href="#d">D. 선행 조건</a></li>
+</ul>
+</li>
+<li><a href="#3">3. 절차</a><ul>
+<li><a href="#a_2">A. 단위계 선언</a></li>
+<li><a href="#b_1">B. 단위계 비교</a></li>
+<li><a href="#c_1">C. 단위계 선택</a></li>
+<li><a href="#d-atom_style">D. atom_style 선언</a></li>
+<li><a href="#e-atom_style">E. atom_style 선택</a></li>
+<li><a href="#f">F. 짝을 이루는 명령 맞추기</a></li>
+</ul>
+</li>
+<li><a href="#4">4. 시험 및 검사</a><ul>
+<li><a href="#a-atom_style">A. atom_style 불일치 점검</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <hr />
-<h2 id="31">3.1 왜 단위계가 중요한가</h2>
-<p>LAMMPS 내부의 산술은 늘 같지만, 입력값과 출력값을 어떤 물리 단위로 읽을지는
-<code>units</code> 명령이 정한다. 한 번 정한 단위는 시뮬레이션 전체에 적용되고
-<strong>박스를 정의한 뒤에는 바꿀 수 없다</strong>. 그래서 입력 스크립트 거의 첫 줄에 두는 게
-관례다.</p>
+<p class="amm-id">NOTE 31-03-00 · 단위계와 atom_style 선택</p>
+
+<h2 id="1">1. 일반 사항</h2>
+<h3 id="a">A. 목적</h3>
+<ol>
+<li>이 노트는 <code>units</code> 명령으로 단위계를 정하는 절차를 다룬다.</li>
+<li>이 노트는 <code>atom_style</code> 명령으로 원자가 갖는 속성을 정하는 절차를 다룬다.</li>
+<li>두 명령과 짝을 맞춰야 하는 명령을 확인한다.</li>
+</ol>
+<h3 id="b">B. 적용 범위</h3>
+<ol>
+<li>모든 LAMMPS 입력 스크립트의 초기화 단계에 적용한다.</li>
+<li><code>units</code> 와 <code>atom_style</code> 은 모두 박스를 만들기 전에 선언한다.</li>
+</ol>
+<h3 id="c">C. 결과 요약</h3>
+<ol>
+<li>실제로는 <code>real</code>, <code>metal</code>, <code>lj</code> 세 단위계를 압도적으로 많이 쓴다.</li>
+<li>응용 단계에서 가장 흔히 고르는 atom_style 은 <code>full</code>(분자 + 전하)과 <code>atomic</code>(단순 입자)이다.</li>
+<li>기본값은 <code>units lj</code>, <code>atom_style atomic</code> 이다.</li>
+<li><code>units</code> 와 <code>atom_style</code> 은 뒤따르는 거의 모든 명령의 의미를 좌우한다.</li>
+</ol>
+<h2 id="2">2. 준비 정보</h2>
+<h3 id="a_1">A. 참조 자료</h3>
+<table>
+<thead>
+<tr>
+<th>참조</th>
+<th>제목</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LAMMPS 공식 매뉴얼</td>
+<td><code>units</code>, <code>atom_style</code> 명령</td>
+</tr>
+<tr>
+<td>NOTE 31-02-00</td>
+<td><a href="02-input-structure.html">입력 스크립트 구조</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="d">D. 선행 조건</h3>
+<ol>
+<li>NOTE 31-02-00 의 4단계 구조 중 초기화 단계를 알아야 한다.</li>
+</ol>
+<h2 id="3">3. 절차</h2>
+<h3 id="a_2">A. 단위계 선언</h3>
+<div class="amm-caution">
+<p><span class="amm-label">주의</span>
+한 번 정한 단위는 시뮬레이션 전체에 적용되고 <strong>박스를 정의한 뒤에는 바꿀 수 없다</strong>.</p>
+</div>
+<ol>
+<li>입력 스크립트의 거의 첫 줄에 <code>units</code> 를 둔다. 이것이 관례다.</li>
+</ol>
 <pre><code class="language-lammps">units           real      # 또는 lj, metal, electron, si, cgs, micro, nano
 </code></pre>
-<p>기본값은 <code>lj</code> 다.</p>
-<h2 id="32">3.2 자주 쓰는 단위계 한눈에</h2>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+LAMMPS 내부의 산술은 늘 같다. 입력값과 출력값을 어떤 물리 단위로 해석할지는 <code>units</code> 명령이 정한다. 기본값은 <code>lj</code> 다.</p>
+</div>
+<h3 id="b_1">B. 단위계 비교</h3>
+<ol>
+<li>아래 표에서 각 단위계의 길이·시간·에너지·질량 단위를 확인한다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -191,50 +261,48 @@
 </tr>
 </tbody>
 </table>
-<p>실제로는 이 가운데 세 가지를 압도적으로 많이 쓴다.</p>
-<ul>
-<li><strong><code>real</code></strong>: 생체분자, 폴리머, 일반 유기물. 시간 단위 fs와 에너지 kcal/mol이
-  대부분의 분자역학 교과서와 같다.</li>
-<li><strong><code>metal</code></strong>: 금속, 반도체, 산화물. EAM·Tersoff·MEAM 같은 금속용
-  포텐셜과 짝을 이룬다.</li>
+<ol start="2">
+<li>실제로 많이 쓰는 세 단위계의 용도를 확인한다.<ol>
+<li><strong><code>real</code></strong>: 생체분자, 폴리머, 일반 유기물. 시간 단위 fs와 에너지 kcal/mol이 대부분의 분자역학 교과서와 같다.</li>
+<li><strong><code>metal</code></strong>: 금속, 반도체, 산화물. EAM·Tersoff·MEAM 같은 금속용 포텐셜과 짝을 이룬다.</li>
 <li><strong><code>lj</code></strong>: 환원 단위. 교과서 예제, 모델 입자, 빠른 테스트에 알맞다.</li>
-</ul>
-<h2 id="33">3.3 단위 선택 기준</h2>
-<p>대부분은 다음 두 가지만 따져 보면 정해진다.</p>
-<ol>
-<li>
-<p><strong>어떤 힘장(또는 포텐셜)을 쓰는가?</strong>
-   힘장 파라미터가 보고된 단위에 맞추는 게 가장 안전하다.
-   OPLS·AMBER·CHARMM 계열은 <code>real</code>,
-   EAM·MEAM·Tersoff 등 금속 포텐셜은 <code>metal</code>,
-   교과서 LJ 입자는 <code>lj</code>.</p>
-</li>
-<li>
-<p><strong>결과를 어떤 단위로 보고 싶은가?</strong>
-   매뉴얼에 따르면 LAMMPS의 출력은 모두 <code>units</code> 가 정한 단위로 나온다.
-   <code>dump</code> 의 좌표는 길이 단위, <code>thermo</code> 의 에너지는 에너지 단위 그대로다.
-   결과를 보고할 단위와 맞춰 두면 분석할 때 단위를 따로 통일할 필요가 없다.</p>
+</ol>
 </li>
 </ol>
-<div class="warning">
-  <div class="note-title">단위를 바꾸면 수치를 모두 다시 환산해야 한다</div>
-  <p>
-    같은 시스템을 <code>real</code> 에서 <code>metal</code> 로 바꾸면
-    온도·시간·에너지 값이 모두 다르게 해석된다.
-    예를 들어 <code>timestep 1.0</code> 은 <code>real</code> 에서는 1 fs,
-    <code>metal</code> 에서는 1 ps다.
-    같은 숫자가 천 배 다른 시간을 가리킬 수 있으니, 단위를 바꿨다면 입력 전체를
-    다시 점검해야 한다.
-  </p>
+<h3 id="c_1">C. 단위계 선택</h3>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+단위를 바꾸면 수치를 모두 다시 환산해야 한다. 같은 시스템을 <code>real</code> 에서 <code>metal</code> 로 바꾸면 온도·시간·에너지 값이 모두 다르게 해석된다. 예를 들어 <code>timestep 1.0</code> 은 <code>real</code> 에서는 1 fs, <code>metal</code> 에서는 1 ps다. 같은 숫자가 천 배 다른 시간을 가리킬 수 있다. 단위를 바꿨다면 입력 전체를 다시 점검한다.</p>
 </div>
-
-<h2 id="34-atom_style">3.4 atom_style: 원자가 갖는 속성</h2>
-<p><code>atom_style</code> 은 시뮬레이션 안의 원자 하나가 어떤 속성을 갖는지 정한다.
-이 역시 박스를 만들기 전에 한 번 선언한다.</p>
+<ol>
+<li>사용할 힘장(또는 포텐셜)을 확인한다.</li>
+<li>힘장 파라미터가 보고된 단위에 맞춰 단위계를 고른다. 이것이 가장 안전하다.<ol>
+<li>OPLS·AMBER·CHARMM 계열은 <code>real</code> 을 쓴다.</li>
+<li>EAM·MEAM·Tersoff 등 금속 포텐셜은 <code>metal</code> 을 쓴다.</li>
+<li>교과서 LJ 입자는 <code>lj</code> 를 쓴다.</li>
+</ol>
+</li>
+<li>결과를 보고할 단위를 확인한다.</li>
+<li>단위계를 결과 보고 단위와 맞춘다. 맞추면 분석할 때 단위를 따로 통일할 필요가 없다.</li>
+</ol>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+매뉴얼에 따르면 LAMMPS 의 출력은 모두 <code>units</code> 가 정한 단위로 나온다. <code>dump</code> 의 좌표는 길이 단위, <code>thermo</code> 의 에너지는 에너지 단위 그대로다.</p>
+</div>
+<h3 id="d-atom_style">D. atom_style 선언</h3>
+<ol>
+<li>박스를 만들기 전에 <code>atom_style</code> 을 한 번 선언한다. <code>atom_style</code> 은 원자 하나가 갖는 속성을 정한다.</li>
+</ol>
 <pre><code class="language-lammps">atom_style      atomic     # 또는 charge, molecular, full, bond, angle, ...
 </code></pre>
-<p>기본값은 <code>atomic</code> 이다.</p>
-<h3 id="atom_style">자주 쓰는 atom_style</h3>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+기본값은 <code>atomic</code> 이다.</p>
+</div>
+<h3 id="e-atom_style">E. atom_style 선택</h3>
+<ol>
+<li>아래 표에서 시스템에 맞는 atom_style 을 고른다.</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -291,27 +359,33 @@
 </tr>
 </tbody>
 </table>
-<p>응용 단계에서 가장 흔히 고르게 되는 건 <strong><code>full</code></strong>(분자 + 전하)과
-<strong><code>atomic</code></strong>(단순 입자)이다. 당분간은 이 둘만 기억해도 된다.</p>
-<h3 id="atom_style_1">잘못 고른 atom_style 의 흔한 증상</h3>
-<ul>
-<li>"Bonds defined but no bond_style" 오류: 데이터 파일에 결합 정보가 있는데
-  <code>atom_style atomic</code> 으로 선언한 경우.</li>
-<li>전하가 무시되어 에너지 값이 이상하게 나오는 경우: 데이터 파일에 전하가 있는데
-  <code>atom_style atomic</code> 또는 <code>bond</code> 로 선언한 경우.</li>
-</ul>
-<p>데이터 파일을 만들었거나 받았다면, 그 파일이 어떤 atom_style 을 가정하고
-만들어졌는지부터 확인하자.</p>
-<h2 id="35">3.5 짝을 이루는 명령들</h2>
-<p><code>units</code> 와 <code>atom_style</code> 은 뒤따르는 거의 모든 명령의 의미를 좌우한다.
-특히 다음 명령들과 짝을 맞춰 두어야 한다.</p>
-<ul>
-<li><code>mass</code>: 단위계에 맞는 질량 값을 입력</li>
-<li><code>pair_style</code>, <code>pair_coeff</code>: 힘장 파라미터를 단위계에 맞게</li>
-<li><code>timestep</code>: <code>real</code> 은 보통 1.0 (fs), <code>metal</code> 은 0.001 (ps),
-  <code>lj</code> 는 0.005 정도가 출발점</li>
-<li><code>velocity ... create T</code>: <code>T</code> 는 단위계의 온도 단위</li>
-</ul>
+<ol start="2">
+<li>데이터 파일을 만들었거나 받았다면, 그 파일이 가정하는 atom_style 을 먼저 확인한다.</li>
+</ol>
+<div class="amm-note">
+<p><span class="amm-label">참고</span>
+응용 단계에서 가장 흔히 고르는 것은 <strong><code>full</code></strong>(분자 + 전하)과 <strong><code>atomic</code></strong>(단순 입자)이다. 입문 단계에서는 이 둘만 기억해도 된다.</p>
+</div>
+<h3 id="f">F. 짝을 이루는 명령 맞추기</h3>
+<ol>
+<li>다음 명령의 값을 <code>units</code> 와 <code>atom_style</code> 에 맞춘다.<ol>
+<li><code>mass</code>: 단위계에 맞는 질량 값을 입력한다.</li>
+<li><code>pair_style</code>, <code>pair_coeff</code>: 힘장 파라미터를 단위계에 맞게 입력한다.</li>
+<li><code>timestep</code>: <code>real</code> 은 보통 1.0 (fs), <code>metal</code> 은 0.001 (ps), <code>lj</code> 는 0.005 정도가 출발점이다.</li>
+<li><code>velocity ... create T</code>: <code>T</code> 는 단위계의 온도 단위다.</li>
+</ol>
+</li>
+</ol>
+<h2 id="4">4. 시험 및 검사</h2>
+<h3 id="a-atom_style">A. atom_style 불일치 점검</h3>
+<div class="amm-warning">
+<p><span class="amm-label">경고</span>
+데이터 파일에 전하가 있는데 <code>atom_style atomic</code> 또는 <code>bond</code> 로 선언하면 전하가 무시된다. 이 경우 에너지 값이 이상하게 나온다.</p>
+</div>
+<ol>
+<li>"Bonds defined but no bond_style" 오류가 나는지 확인한다. 데이터 파일에 결합 정보가 있는데 <code>atom_style atomic</code> 으로 선언한 경우에 난다.</li>
+<li>데이터 파일에 전하가 있다면 선언한 atom_style 이 전하를 포함하는지 확인한다.</li>
+</ol>
       </article>
 <nav class="page-nav"><a class="prev" href="02-input-structure.html"><div class="page-nav-label">← 이전</div><div class="page-nav-title">입력 스크립트 구조</div></a><a class="next" href="04-system.html"><div class="page-nav-label">다음 →</div><div class="page-nav-title">시스템 정의</div></a></nav>
     </main>
