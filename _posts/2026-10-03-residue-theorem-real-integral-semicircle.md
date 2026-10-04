@@ -1,5 +1,5 @@
 ---
-title: "유수 정리를 이용한 실적분 계산: 1/(x²+1)과 반원 경로"
+title: "유수 정리를 이용한 실적분 계산"
 date: 2026-10-03
 category: Study
 tags: [Math, Complex Analysis, Residue Theorem]

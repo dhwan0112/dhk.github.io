@@ -2,7 +2,7 @@
 subject: Math
 order: 3
 date: 2026-09-30
-title: "조립제법의 대수적 구조: 다항식 장제법과 Horner 방법의 동치성"
+title: "조립제법과 Horner 방법"
 tags: [Math, Algebra, Polynomial]
 description: "조립제법(synthetic division)은 일차식으로 나누는 장제법(long division)에서 변수와 소거되는 항을 생략하고 계수만 남긴 알고리즘이다. 그 연산이 다항식의 값을 계산하는 Horner 방법과 단계마다 일치함을 보이고, 나머지정리와 (ax − b)·이차식 나눗셈으로의 확장을 다룬다."
 ---

@@ -2,12 +2,12 @@
 subject: Earth Science
 order: 6
 date: 2026-09-30
-title: "화성이 뒤로 가는 두 달: 역행 운동과 회합 주기 780일"
+title: "화성의 역행 운동과 회합 주기"
 tags: [Physics, Python, Astronomy, Planetary Motion]
 description: "화성의 역행은 안쪽 궤도의 지구가 화성을 추월할 때 시선 방향이 잠깐 되감기는 겉보기 효과다. 추월은 각속도 차이가 한 바퀴를 채울 때마다, 즉 779.9일마다 일어난다. 원궤도 모형으로 계산한 역행 기간은 72.7일이다."
 ---
 
-NOTE 21-10-01 · 화성 역행과 회합 주기
+NOTE 21-10-01 · 화성의 역행 운동과 회합 주기
 {: .amm-id}
 
 ## 1. 일반 사항

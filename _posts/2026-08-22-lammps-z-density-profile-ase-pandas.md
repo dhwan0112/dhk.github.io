@@ -1,12 +1,12 @@
 ---
-title: "LAMMPS 덤프의 z-밀도 프로파일 계산: ASE + pandas 40줄 스크립트와 fix ave/chunk 대조"
+title: "LAMMPS 덤프에서 z 방향 밀도 프로파일 계산"
 date: 2026-08-22
 category: Computation
 tags: [LAMMPS, Python, ASE, Analysis]
 description: "ASE와 pandas로 계산한 z-방향 수밀도 프로파일은 Cu(100) 슬랩에서 LAMMPS fix ave/chunk 와 정규화가 일치한다. 고정층 빈 값은 소수점 넷째 자리까지 같고, 가동층 차이는 스냅샷 1장과 시간 평균의 차이에서만 온다. 이 프로파일을 입력으로 받는 Gibbs 상대 표면 과잉량 함수도 함께 다룬다."
 ---
 
-NOTE 35-10-01 · LAMMPS 덤프의 z-밀도 프로파일 계산 (ASE, pandas)
+NOTE 35-10-01 · LAMMPS 덤프에서 z 방향 밀도 프로파일 계산
 {: .amm-id}
 
 ## 1. 일반 사항
