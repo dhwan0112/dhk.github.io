@@ -75,7 +75,12 @@ UROPS run 의 실제 입력([`master_wall_pppm.in`](../../files/blog/pppm-vs-msm
 
 ## 2. 준비 정보
 
-### A. 참조 자료
+### A. 필요한 개념
+
+1. 초기 데이터 파일에 벤젠/에탄올 분자가 무작위로 놓여 있어야 한다.
+2. 각 stage 는 앞 stage 의 restart 파일(`stageN.restart`)이 있어야 시작할 수 있다.
+
+### B. 참조 자료
 
 | 참조 | 제목 |
 |---|---|
@@ -90,13 +95,13 @@ UROPS run 의 실제 입력([`master_wall_pppm.in`](../../files/blog/pppm-vs-msm
 | PPPM vs MSM 글 | [PPPM vs MSM 글](../../blog/2026/08/22/pppm-vs-msm-cu-benzene-ethanol/) |
 | 예제 E4 | <a href="ex-04-cu-adsorption.html">예제 E4 — Cu 벤젠-에탄올 흡착</a> |
 
-### B. 공구 및 장비
+### C. 사용 프로그램
 
 | 항목 | 용도 |
 |---|---|
 | LAMMPS 22 Jul 2025 | 다섯 stage 입력 실행 확인 |
 
-### C. 소모품
+### D. 관련 파일
 
 | 항목 | 용도 |
 |---|---|
@@ -104,11 +109,6 @@ UROPS run 의 실제 입력([`master_wall_pppm.in`](../../files/blog/pppm-vs-msm
 | `trappe.data` | TraPPE-UA 초기 데이터 파일 (공개돼 있지 않다) |
 | [`master_wall_pppm.in`](../../files/blog/pppm-vs-msm/master_wall_pppm.in) | UROPS run 의 실제 입력 |
 | `inputs/` | 공통·힘장·kspace 설정과 다섯 stage 파일 (3.F 의 구조) |
-
-### D. 선행 조건
-
-1. 초기 데이터 파일에 벤젠/에탄올 분자가 무작위로 놓여 있어야 한다.
-2. 각 stage 는 앞 stage 의 restart 파일(`stageN.restart`)이 있어야 시작할 수 있다.
 
 ## 3. 절차
 

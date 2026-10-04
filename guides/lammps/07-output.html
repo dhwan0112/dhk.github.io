@@ -99,9 +99,10 @@
 </ul>
 </li>
 <li><a href="#2">2. 준비 정보</a><ul>
-<li><a href="#a_1">A. 참조 자료</a></li>
-<li><a href="#b_1">B. 공구 및 장비</a></li>
-<li><a href="#c_1">C. 소모품</a></li>
+<li><a href="#a_1">A. 필요한 개념</a></li>
+<li><a href="#b_1">B. 참조 자료</a></li>
+<li><a href="#c_1">C. 사용 프로그램</a></li>
+<li><a href="#d">D. 관련 파일</a></li>
 </ul>
 </li>
 <li><a href="#3">3. 절차</a><ul>
@@ -170,7 +171,7 @@
 </tbody>
 </table>
 <ol start="2">
-<li>시각화·분석은 LAMMPS 밖의 후처리 도구가 맡는다(2.B).</li>
+<li>시각화·분석은 LAMMPS 밖의 후처리 도구가 맡는다(2.C).</li>
 </ol>
 <h3 id="c">C. 결과 요약</h3>
 <ol>
@@ -179,7 +180,13 @@
 <li>같은 실행의 MSD 로부터 자기확산계수 D ≈ 0.117 (LJ 단위) 을 얻는다(4.B).</li>
 </ol>
 <h2 id="2">2. 준비 정보</h2>
-<h3 id="a_1">A. 참조 자료</h3>
+<h3 id="a_1">A. 필요한 개념</h3>
+<ol>
+<li>입력 스크립트의 4단계 구조(NOTE 31-02-00).</li>
+<li>fix 와 run 으로 시뮬레이션을 진행하는 방법(NOTE 31-06-00).</li>
+<li>온도, 압력, 에너지 같은 열역학 출력량의 의미.</li>
+</ol>
+<h3 id="b_1">B. 참조 자료</h3>
 <table>
 <thead>
 <tr>
@@ -198,7 +205,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="b_1">B. 공구 및 장비</h3>
+<h3 id="c_1">C. 사용 프로그램</h3>
 <ol>
 <li>LAMMPS는 트라젝토리를 남기는 데까지만 하고, 시각화·분석은 외부 도구에 맡긴다.</li>
 <li>자주 쓰는 도구는 다음과 같다.</li>
@@ -237,7 +244,7 @@
 <p><span class="amm-label">참고</span>
 대부분의 도구는 <code>dump custom ... id type x y z</code> 나 <code>xyz</code>/<code>dcd</code> 출력을 바로 읽는다.</p>
 </div>
-<h3 id="c_1">C. 소모품</h3>
+<h3 id="d">D. 관련 파일</h3>
 <table>
 <thead>
 <tr>

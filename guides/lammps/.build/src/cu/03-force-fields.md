@@ -37,7 +37,13 @@ nav_order: 4
 
 ## 2. 준비 정보
 
-### A. 참조 자료
+### A. 필요한 개념
+
+1. 결합·각·이면각·비결합 항으로 이루어진 고전 힘장의 구성(NOTE 31-05-00).
+2. 전원자(all-atom) 모형과 united-atom 모형의 차이.
+3. 데이터 파일의 원자 종류 매핑(NOTE 32-02-00).
+
+### B. 참조 자료
 
 | 참조 | 제목 |
 |------|------|
@@ -52,7 +58,7 @@ nav_order: 4
 | LAMMPS `pair_lj_cut_coul` | [LAMMPS pair_lj_cut_coul 문서](https://docs.lammps.org/pair_lj_cut_coul.html) |
 | NOTE 32-02-00 | [데이터 파일 구조](02-data-files) |
 
-### C. 소모품
+### D. 관련 파일
 
 | 항목 | 내용 |
 |------|------|

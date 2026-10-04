@@ -41,30 +41,30 @@ NOTE 11-20-01 · 다항함수와 유리함수의 그래프 개형
 
 ## 2. 준비 정보
 
-### A. 참조 자료
+### A. 필요한 개념
+
+1. 다항식의 인수분해와 다항식 나눗셈을 할 수 있어야 한다.
+
+### B. 참조 자료
 
 | 참조 | 제목 |
 |---|---|
 | NOTE 12-20-01 | [조립제법과 Horner 방법]({{ '/teaching/synthetic-division-and-horner-method/' | relative_url }}) |
 | 나머지정리 | 다항식 $$p(x)$$ 를 $$x - a$$ 로 나눈 나머지는 $$p(a)$$ 다 |
 
-### B. 공구 및 장비
+### C. 사용 프로그램
 
 | 항목 | 용도 |
 |---|---|
 | Python, matplotlib, Pillow | 그림 GIF 세 개 생성(`make_gifs.py`) |
 
-### C. 소모품
+### D. 관련 파일
 
 - [`make_gifs.py`]({{ '/files/blog/sketch-graph-five-steps/make_gifs.py' | relative_url }}) — 위 GIF 세 개를 만드는 스크립트 (matplotlib, Pillow)
 
 ```bash
 python make_gifs.py    # -> images/blog/sketch-graph-five-steps/*.gif
 ```
-
-### D. 선행 조건
-
-1. 다항식의 인수분해와 다항식 나눗셈을 할 수 있어야 한다.
 
 ## 3. 절차
 

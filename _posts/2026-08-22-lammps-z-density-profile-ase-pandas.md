@@ -43,7 +43,12 @@ z 밀도 프로파일은 슬랩 시뮬레이션에서 가장 먼저 확인하는
 
 ## 2. 준비 정보
 
-### A. 참조 자료
+### A. 필요한 개념
+
+1. LAMMPS `compute chunk/atom` 과 `fix ave/chunk` 의 빈 정의를 알아야 한다.
+2. pandas DataFrame 의 열 연산을 다룰 수 있어야 한다.
+
+### B. 참조 자료
 
 | 참조 | 제목 |
 |---|---|
@@ -52,7 +57,7 @@ z 밀도 프로파일은 슬랩 시뮬레이션에서 가장 먼저 확인하는
 | Gibbs 상대 표면 과잉량 | 용매 과잉량이 0이 되도록 분할면을 잡는 정의 |
 | NOTE 35-20-01 | PPPM vs MSM, Cu–벤젠–에탄올 (표면 과잉량 실제 값) |
 
-### B. 공구 및 장비
+### C. 사용 프로그램
 
 | 항목 | 용도 |
 |---|---|
@@ -60,17 +65,12 @@ z 밀도 프로파일은 슬랩 시뮬레이션에서 가장 먼저 확인하는
 | ASE (`ase.io.iread`, `ase.io.read`) | 덤프 프레임 읽기, 데이터 파일 읽기 |
 | LAMMPS (EAM, `fix ave/chunk`) | 대조용 시간 평균 프로파일 |
 
-### C. 소모품
+### D. 관련 파일
 
 - [`zprofile.py`]({{ '/files/blog/zprofile/zprofile.py' | relative_url }}) — 3.A 의 스크립트
 - [`excess.py`]({{ '/files/blog/zprofile/excess.py' | relative_url }}) — 표면 과잉량 함수
 - [`in.cu_slab`]({{ '/files/blog/zprofile/in.cu_slab' | relative_url }}) — LAMMPS 입력 (EAM, Mishin 2001 `Cu_mishin1.eam.alloy` 필요)
 - [`slab_final.dump`]({{ '/files/blog/zprofile/slab_final.dump' | relative_url }}), [`zdens.dat`]({{ '/files/blog/zprofile/zdens.dat' | relative_url }}) — 대조에 쓴 출력
-
-### D. 선행 조건
-
-1. LAMMPS `compute chunk/atom` 과 `fix ave/chunk` 의 빈 정의를 알아야 한다.
-2. pandas DataFrame 의 열 연산을 다룰 수 있어야 한다.
 
 ## 3. 절차
 

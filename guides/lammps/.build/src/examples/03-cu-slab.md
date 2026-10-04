@@ -46,7 +46,11 @@ title: "3. Cu(100) 슬랩"
 
 ## 2. 준비 정보
 
-### A. 참조 자료
+### A. 필요한 개념
+
+1. `metal` 단위에서 거리는 Å, 에너지는 eV, timestep 은 ps 임을 알아야 한다. 이 노트의 0.002 ps 는 2 fs 다.
+
+### B. 참조 자료
 
 | 참조 | 제목 |
 |---|---|
@@ -55,23 +59,19 @@ title: "3. Cu(100) 슬랩"
 | [05 상호작용 모델](05-forcefield.html) | EAM 등 `pair_style` |
 | Mishin et al., Phys. Rev. B 63, 224106, 2001 | `Cu_mishin1.eam.alloy` 포텐셜 |
 
-### B. 공구 및 장비
+### C. 사용 프로그램
 
 | 항목 | 용도 |
 |---|---|
 | LAMMPS (`lmp`) | 시뮬레이션 실행. 4.A 의 결과는 LAMMPS 22 Jul 2025 기준이다. |
 | `pair_style eam/alloy` | EAM 상호작용 |
 
-### C. 소모품
+### D. 관련 파일
 
 | 항목 | 내용 |
 |---|---|
 | `in.cu_slab` | 입력 스크립트 (3.A 에서 작성) |
 | `Cu_mishin1.eam.alloy` | EAM 포텐셜 (lammps.org 배포 포텐셜, Mishin 2001). 구리 응집 에너지 −3.54 eV/atom 을 재현한다. |
-
-### D. 선행 조건
-
-1. `metal` 단위에서 거리는 Å, 에너지는 eV, timestep 은 ps 임을 알아야 한다. 이 노트의 0.002 ps 는 2 fs 다.
 
 ## 3. 절차
 

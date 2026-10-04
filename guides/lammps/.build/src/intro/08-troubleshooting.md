@@ -38,7 +38,12 @@ nav_order: 9
 
 ## 2. 준비 정보
 
-### A. 참조 자료
+### A. 필요한 개념
+
+1. LAMMPS 기초 NOTE 31-01-00 ~ 31-07-00 의 내용.
+2. MPI 병렬 실행과 도메인 분할의 기본 개념.
+
+### B. 참조 자료
 
 | 자료 | 내용 |
 |------|------|
@@ -50,7 +55,7 @@ nav_order: 9
 | Mark Tuckerman, *Statistical Mechanics: Theory and Molecular Simulation* | MD 이론 교과서 표준 |
 | Daan Frenkel, Berend Smit, *Understanding Molecular Simulation* | MD 알고리즘 교과서 표준 |
 
-### B. 공구 및 장비
+### C. 사용 프로그램
 
 | 항목 | 용도 |
 |---|---|

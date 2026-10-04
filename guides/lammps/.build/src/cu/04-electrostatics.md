@@ -48,7 +48,11 @@ nav_order: 5
 
 ## 2. 준비 정보
 
-### A. 참조 자료
+### A. 필요한 개념
+
+1. 계의 경계 조건이 `boundary p p f` (z 비주기) 임을 알아야 한다.
+
+### B. 참조 자료
 
 | 참조 | 제목 |
 |---|---|
@@ -60,23 +64,19 @@ nav_order: 5
 | LAMMPS `fix wall/lj93` | [https://docs.lammps.org/fix_wall.html](https://docs.lammps.org/fix_wall.html) |
 | PPPM vs MSM 글 | [PPPM vs MSM 글](../../blog/2026/08/22/pppm-vs-msm-cu-benzene-ethanol/) |
 
-### B. 공구 및 장비
+### C. 사용 프로그램
 
 | 항목 | 용도 |
 |---|---|
 | LAMMPS `kspace_style pppm` | FFT 기반 장거리 정전기 |
 | LAMMPS `kspace_style msm` | 다중격자 기반 장거리 정전기 |
 
-### C. 소모품
+### D. 관련 파일
 
 | 항목 | 용도 |
 |---|---|
 | `opls.data` | MSM cutoff 자동 조정 확인에 쓴 데이터 파일 |
 | `inputs/` | 실공간 cutoff 12.0 Å, 정확도 1.0e-4 를 쓰는 입력 파일 묶음 |
-
-### D. 선행 조건
-
-1. 계의 경계 조건이 `boundary p p f` (z 비주기) 임을 알아야 한다.
 
 ## 3. 절차
 

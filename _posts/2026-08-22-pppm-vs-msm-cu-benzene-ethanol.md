@@ -40,7 +40,11 @@ NOTE 35-20-01 · Cu–벤젠–에탄올 계에서 PPPM과 MSM 비교
 
 ## 2. 준비 정보
 
-### A. 참조 자료
+### A. 필요한 개념
+
+1. NOTE 35-10-01 의 z-밀도 프로파일 계산과 표면 과잉량 함수를 알아야 한다.
+
+### B. 참조 자료
 
 | 참조 | 제목 |
 |---|---|
@@ -48,14 +52,14 @@ NOTE 35-20-01 · Cu–벤젠–에탄올 계에서 PPPM과 MSM 비교
 | [NOTE 35-10-01]({{ '/blog/2026/08/22/lammps-z-density-profile-ase-pandas/' | relative_url }}) | LAMMPS 덤프의 z-밀도 프로파일 계산, Gibbs 상대 표면 과잉량 함수 |
 | Mishin 2001 EAM | Cu 퍼텐셜 `Cu_mishin1.eam.alloy` |
 
-### B. 공구 및 장비
+### C. 사용 프로그램
 
 | 항목 | 용도 |
 |---|---|
 | LAMMPS (`eam/alloy`, `lj/cut/coul/long`, `lj/cut/coul/msm`, `pppm`, `msm`) | 두 run 계산, 40 MPI 랭크 |
 | Python (`profiles.py`, `blocks.py`, `plot.py`) | 프로파일, 블록 평균, 그림 |
 
-### C. 소모품
+### D. 관련 파일
 
 - [`master_wall_pppm.in`]({{ '/files/blog/pppm-vs-msm/master_wall_pppm.in' | relative_url }}), [`master_wall_msm.in`]({{ '/files/blog/pppm-vs-msm/master_wall_msm.in' | relative_url }}), [`master_wall.diff`]({{ '/files/blog/pppm-vs-msm/master_wall.diff' | relative_url }}) — LAMMPS 입력과 diff
 - [`ff_params_pppm.in`]({{ '/files/blog/pppm-vs-msm/ff_params_pppm.in' | relative_url }}), [`ff_params_msm.in`]({{ '/files/blog/pppm-vs-msm/ff_params_msm.in' | relative_url }}), [`opls.data`]({{ '/files/blog/pppm-vs-msm/opls.data' | relative_url }}) — 힘장 파라미터와 초기 구조 (Cu는 `Cu_mishin1.eam.alloy` 필요)
@@ -65,10 +69,6 @@ NOTE 35-20-01 · Cu–벤젠–에탄올 계에서 PPPM과 MSM 비교
 - [`timing_pppm.txt`]({{ '/files/blog/pppm-vs-msm/timing_pppm.txt' | relative_url }}), [`timing_msm.txt`]({{ '/files/blog/pppm-vs-msm/timing_msm.txt' | relative_url }}) — 로그의 프로덕션 타이밍 블록
 
 프로덕션 궤적(각 146 MB)은 공개하지 않는다.
-
-### D. 선행 조건
-
-1. NOTE 35-10-01 의 z-밀도 프로파일 계산과 표면 과잉량 함수를 알아야 한다.
 
 ## 3. 절차
 

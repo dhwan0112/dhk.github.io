@@ -40,7 +40,13 @@ nav_order: 8
 
 ## 2. 준비 정보
 
-### A. 참조 자료
+### A. 필요한 개념
+
+1. 동경 분포 함수(RDF)와 밀도 프로파일의 정의.
+2. 표면 과잉량(surface excess)과 계면 장력의 열역학적 정의.
+3. compute 와 fix ave/chunk 출력(NOTE 31-07-00).
+
+### B. 참조 자료
 
 | 참조 | 제목 |
 |------|------|
@@ -56,7 +62,7 @@ nav_order: 8
 | [PPPM vs MSM 글](../../blog/2026/08/22/pppm-vs-msm-cu-benzene-ethanol/) | `profiles.py`, `blocks.py` |
 | [3장](03-force-fields) | UROPS 입력의 Cu-유기 LJ ε |
 
-### B. 공구 및 장비
+### C. 사용 프로그램
 
 | 항목 | 용도 |
 |------|------|
@@ -65,7 +71,7 @@ nav_order: 8
 | `integrated_analysis.py` | RDF, 밀도 프로파일, SEI, 흡착 에너지 통합 분석 (비공개) |
 | `profiles.py`, `blocks.py` | 밀도 프로파일, 첫 층 조성, 블록 평균 재계산 |
 
-### C. 소모품
+### D. 관련 파일
 
 | 항목 | 용도 |
 |------|------|

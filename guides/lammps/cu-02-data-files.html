@@ -99,13 +99,14 @@
 </ul>
 </li>
 <li><a href="#2">2. 준비 정보</a><ul>
-<li><a href="#a_1">A. 참조 자료</a></li>
-<li><a href="#c_1">C. 소모품</a></li>
+<li><a href="#a_1">A. 필요한 개념</a></li>
+<li><a href="#b_1">B. 참조 자료</a></li>
+<li><a href="#d">D. 관련 파일</a></li>
 </ul>
 </li>
 <li><a href="#3">3. 절차</a><ul>
 <li><a href="#a_2">A. 헤더 비교</a></li>
-<li><a href="#b_1">B. 원자 수 차이 확인</a></li>
+<li><a href="#b_2">B. 원자 수 차이 확인</a></li>
 <li><a href="#c-atoms">C. Atoms 섹션 컬럼 확인</a></li>
 <li><a href="#d-atoms-q">D. 부분 전하 확인 (Atoms 섹션의 q 열)</a></li>
 </ul>
@@ -137,7 +138,13 @@
 <li><code>opls.data</code> 의 에탄올 전하는 표준 OPLS-AA 값과 다르다.</li>
 </ol>
 <h2 id="2">2. 준비 정보</h2>
-<h3 id="a_1">A. 참조 자료</h3>
+<h3 id="a_1">A. 필요한 개념</h3>
+<ol>
+<li>LAMMPS 데이터 파일 형식(NOTE 31-04-00).</li>
+<li><code>atom_style full</code> 의 원자 정보(NOTE 31-03-00).</li>
+<li>Cu 슬랩 계의 구성(NOTE 32-01-00).</li>
+</ol>
+<h3 id="b_1">B. 참조 자료</h3>
 <table>
 <thead>
 <tr>
@@ -176,7 +183,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="c_1">C. 소모품</h3>
+<h3 id="d">D. 관련 파일</h3>
 <table>
 <thead>
 <tr>
@@ -238,7 +245,7 @@
 0.000000 30.000000 ylo yhi
 0.000000 41.895000 zlo zhi
 </code></pre>
-<h3 id="b_1">B. 원자 수 차이 확인</h3>
+<h3 id="b_2">B. 원자 수 차이 확인</h3>
 <ol>
 <li>두 파일은 박스 크기가 같은데도 원자 수가 약 1.8배 차이 난다.</li>
 <li>united-atom (UA) 모형이 메틸기와 메틸렌기를 한 사이트로 묶기 때문이다.</li>

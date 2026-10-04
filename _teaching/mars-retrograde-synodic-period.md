@@ -41,21 +41,21 @@ $$\frac{1}{S} = \frac{1}{P_E} - \frac{1}{P_M}$$
 
 ## 2. 준비 정보
 
-### B. 공구 및 장비
+### A. 필요한 개념
+
+1. 각속도 $$\omega = 2\pi/P$$와 2차원 벡터의 외적을 알아야 한다.
+
+### C. 사용 프로그램
 
 | 항목 | 용도 |
 |---|---|
 | Python, numpy, matplotlib, Pillow | 원궤도 모형 계산과 GIF 생성 |
 
-### C. 소모품
+### D. 관련 파일
 
 | 파일 | 내용 |
 |---|---|
 | [`make_gifs.py`]({{ '/files/blog/mars-retrograde-synodic-period/make_gifs.py' | relative_url }}) | 원궤도 모형 계산(회합 주기, 역행 시작·끝과 역행 호, 정류 조건)과 GIF 두 개를 만드는 스크립트. numpy, matplotlib, Pillow 필요. 실행하면 본문의 수치를 출력한다. |
-
-### D. 선행 조건
-
-1. 각속도 $$\omega = 2\pi/P$$와 2차원 벡터의 외적을 알아야 한다.
 
 ## 3. 절차
 

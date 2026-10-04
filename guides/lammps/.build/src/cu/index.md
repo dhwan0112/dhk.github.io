@@ -41,7 +41,12 @@ permalink: /
 
 ## 2. 준비 정보
 
-### A. 참조 자료
+### A. 필요한 개념
+
+1. LAMMPS 기초(NOTE 31-01-00 ~ 31-08-00).
+2. 고전 힘장, 부분 전하, 장거리 정전기의 기본 개념.
+
+### B. 참조 자료
 
 이 시리즈는 주로 다음 문헌을 바탕으로 한다. 인용 시 아래 문헌을 참고한다.
 
@@ -53,7 +58,7 @@ permalink: /
 | Heinz 외 (2008) | H. Heinz, R. A. Vaia, B. L. Farmer, R. R. Naik, "Accurate Simulation of Surfaces and Interfaces of Face-Centered Cubic Metals Using 12-6 and 9-6 Lennard-Jones Potentials", *J. Phys. Chem. C* **112**, 17281-17290 (2008). DOI: [10.1021/jp801931d](https://doi.org/10.1021/jp801931d) |
 | Thompson 외 (2022) | A. P. Thompson 외, "LAMMPS - a flexible simulation tool for particle-based materials modeling at the atomic, meso, and continuum scales", *Comput. Phys. Commun.* **271**, 108171 (2022). DOI: [10.1016/j.cpc.2021.108171](https://doi.org/10.1016/j.cpc.2021.108171) |
 
-### B. 공구 및 장비
+### C. 사용 프로그램
 
 | 항목 | 내용 |
 |------|------|
@@ -62,7 +67,7 @@ permalink: /
 | MPI | 40코어 워크스테이션에서 `mpirun -np 40` |
 | 세션 관리 | 오래 걸리는 실행은 `tmux` 안에서 |
 
-### C. 소모품
+### D. 관련 파일
 
 | 항목 | 용도 |
 |------|------|
