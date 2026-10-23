@@ -6,7 +6,7 @@
   <title>xtb 사용자 가이드</title>
   <meta name="description" content="반경험 타이트바인딩 프로그램 xtb와 컨포머 탐색 도구 CREST의 한국어 실전 안내서. 모든 예제는 NUS HPC에서 실제로 실행했다." />
   <link rel="icon" type="image/x-icon" href="../../../images/icons/favicon.ico" />
-  <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"light")}catch(e){}</script>
+  <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"))}catch(e){}</script>
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
 <body>

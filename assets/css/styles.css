@@ -21,6 +21,10 @@
     --slate-ink-2: #b4c0cc;
     --prussian: #1f5079;
     --prussian-deep: #133856;
+    --callout-red: #b03f3f;
+    --callout-red-bg: #fbefef;
+    --callout-amber: #b5742a;
+    --callout-amber-bg: #fbf5ea;
 
     /* Names used by the blog, post and teaching styles below */
     --primary-color: var(--prussian);
@@ -54,6 +58,10 @@
     --slate-ink-2: #8f9db0;
     --prussian: #8fbadb;
     --prussian-deep: #b8d4ea;
+    --callout-red: #e07a7a;
+    --callout-red-bg: #2e1a1a;
+    --callout-amber: #d9a35a;
+    --callout-amber-bg: #2e2416;
     color-scheme: dark;
 }
 
@@ -1192,9 +1200,9 @@ sub, sup {
     padding: 0.85rem 1.1rem;
 }
 
-.post-body .amm-warning { border-left-color: #c53030; background-color: rgba(197, 48, 48, 0.07); }
-.post-body .amm-caution { border-left-color: #d69e2e; background-color: rgba(214, 158, 46, 0.09); }
-.post-body .amm-note    { border-left-color: #3182ce; background-color: rgba(49, 130, 206, 0.07); }
+.post-body .amm-warning { border-left-color: var(--callout-red); background-color: var(--callout-red-bg); }
+.post-body .amm-caution { border-left-color: var(--callout-amber); background-color: var(--callout-amber-bg); }
+.post-body .amm-note    { border-left-color: var(--prussian); background-color: var(--paper-2); }
 
 .post-body .amm-label {
     display: block;
@@ -1203,13 +1211,9 @@ sub, sup {
     margin-bottom: 0.35rem;
 }
 
-.post-body .amm-warning .amm-label { color: #c53030; }
-.post-body .amm-caution .amm-label { color: #b7791f; }
-.post-body .amm-note .amm-label    { color: #2b6cb0; }
-
-[data-theme="dark"] .post-body .amm-warning .amm-label { color: #fc8181; }
-[data-theme="dark"] .post-body .amm-caution .amm-label { color: #f6e05e; }
-[data-theme="dark"] .post-body .amm-note .amm-label    { color: #63b3ed; }
+.post-body .amm-warning .amm-label { color: var(--callout-red); }
+.post-body .amm-caution .amm-label { color: var(--callout-amber); }
+.post-body .amm-note .amm-label    { color: var(--prussian); }
 
 .post-body hr {
     border: none;
