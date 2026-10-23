@@ -11,13 +11,13 @@ permalink: /teaching/
     <header class="blog-index-header">
         <h1 class="blog-index-title">Teaching</h1>
         <div class="teaching-summary">
-            <p>I started tutoring in Grade 11 (around 2020) and still teach, one-on-one and online.</p>
+            <p>I started tutoring in Grade 11, around 2020, and still teach one-on-one and online.</p>
             <ul>
                 <li><strong>AP:</strong> Chemistry, Physics, Biology, Calculus, Statistics, mostly for international-school students</li>
                 <li><strong>School science and mathematics:</strong> middle and high school courses outside the AP track</li>
                 <li><strong>Competition mathematics:</strong> AMC preparation</li>
             </ul>
-            <p>I write my own notes and problem sets for these sessions. Selected ones are collected below, with a home page for each subject (written in Korean).</p>
+            <p>I write my own notes and problem sets for these sessions. Some of them are below, grouped by subject. They are in Korean.</p>
             <p>Tutoring inquiries: <a href="mailto:{{ site.email }}">{{ site.email }}</a></p>
         </div>
     </header>
@@ -41,7 +41,7 @@ permalink: /teaching/
                     <li><a href="{{ item.url | relative_url }}"><span class="teaching-code">{{ item.note }}</span> {{ item.title }}</a></li>
                     {% endfor %}
                 </ul>
-                <a href="{{ '/teaching/' | append: subject.slug | append: '/' | relative_url }}" class="read-more">{{ subject.name }} home ({{ notes.size }} {% if notes.size == 1 %}note{% else %}notes{% endif %}) &rarr;</a>
+                <a href="{{ '/teaching/' | append: subject.slug | append: '/' | relative_url }}" class="read-more">All {{ subject.name }} notes ({{ notes.size }})</a>
             </article>
             {% endfor %}
         </div>

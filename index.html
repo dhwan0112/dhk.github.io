@@ -1,222 +1,117 @@
 ---
 layout: default
-title: Portfolio | Donghwan KIM
+title: Donghwan KIM
 ---
 
-<!-- Hero Section -->
-<section id="home" class="hero">
-    <div class="container">
-        <div class="hero-content">
-            <h1 class="hero-title"><span class="highlight">Donghwan KIM</span></h1>
-            <p class="hero-subtitle">Chemistry Student | Tutor</p>
-            <div class="hero-buttons">
-                <a href="#education" class="btn btn-primary">Education</a>
-                <a href="#contact" class="btn btn-secondary">Contact</a>
-            </div>
-        </div>
+<header class="hero">
+    <img src="{{ '/images/hero-nus.jpg' | relative_url }}" alt="" class="hero-photo" width="1920" height="1496" fetchpriority="high">
+    <div class="hero-text">
+        <h1 class="hero-name">Donghwan KIM</h1>
+        <p class="hero-lede">Final-year chemistry student at the National University of Singapore, working on computational chemistry in A/P Liviu Ungur’s group.</p>
     </div>
+</header>
+
+<div class="sheet">
+<div class="home">
+
+<section class="intro">
+    <p>So far that has meant three projects: multireference calculations on a Dy<sub>3</sub> single-molecule magnet, classical molecular dynamics of a benzene/ethanol mixture on copper, and, for my final-year project, a machine-learning potential for the oxidation of iron. I am most interested in inorganic chemistry, molecular magnetism and spintronics, and simulations of interfaces.</p>
+    <p>I also write guides, in Korean and English, to the programs I use, and I have tutored chemistry, physics, biology and maths one-on-one since 2020.</p>
 </section>
 
-<!-- About Section -->
-<section id="about" class="about">
-    <div class="container">
-        <h2 class="section-title">About Me</h2>
-        <div class="about-content">
-            <div class="about-text">
-                <p>Hello! I'm a final-year B.Sc. (Honours) Chemistry student at the National University of Singapore, working in computational chemistry under A/P Liviu Ungur in the <a href="https://ungur-group.github.io/website/" target="_blank" rel="noopener">Ungur Group</a>.</p>
-                <p>Across three consecutive undergraduate research projects (UROPS) I have progressed from multireference electronic-structure treatment of lanthanide single-molecule magnets, to classical molecular dynamics at metal–solvent interfaces, and currently to the development of a reactive machine-learning force field for iron oxidation. The common thread is using computational methods to connect electronic structure to macroscopic behaviour.</p>
-                <p>My academic interests span inorganic chemistry, magnetochemistry &amp; molecular spintronics, and interfacial / computational studies of materials. Since Grade 11 (around 2020) I have also tutored chemistry, physics, biology and mathematics one-on-one, from middle school to AP level, including AMC preparation.</p>
+<section class="home-section" id="research">
+    <h2>Research</h2>
+    <ol class="entries">
+        <li>
+            <span class="when">2026–</span>
+            <div>
+                <p class="entry-title">A reactive machine-learning potential for iron oxidation</p>
+                <p>Final-year project (CM4288). The training data come from periodic DFT in Quantum ESPRESSO.</p>
             </div>
-            <div class="about-info">
-                <div class="info-item">
-                    <i class="fas fa-university"></i>
-                    <div>
-                        <h3>Affiliation</h3>
-                        <p>National University of Singapore, Department of Chemistry</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-envelope"></i>
-                    <div>
-                        <h3>Email</h3>
-                        <p>e1075536@u.nus.edu</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <div>
-                        <h3>Location</h3>
-                        <p>Singapore / South Korea</p>
-                    </div>
-                </div>
+        </li>
+        <li>
+            <span class="when">2025</span>
+            <div>
+                <p class="entry-title">Benzene and ethanol on Cu(100) and Cu(111)</p>
+                <p>UROPS (CM3288, CM3289). Classical MD in LAMMPS comparing OPLS-AA with TraPPE-UA, and PPPM with MSM electrostatics. Poster at the NUS Science Summer Institute 2025 symposium.</p>
             </div>
-        </div>
-    </div>
+        </li>
+        <li>
+            <span class="when">2024</span>
+            <div>
+                <p class="entry-title">Exchange and anisotropy in a Dy<sub>3</sub> triangle</p>
+                <p>UROPS (CM2288). CASSCF/NEVPT2 with spin–orbit coupling in ORCA; exchange coupling fitted to magnetic data with POLY_ANISO.</p>
+            </div>
+        </li>
+    </ol>
+    <p class="more"><a href="{{ '/research/' | relative_url }}">Full project descriptions</a></p>
 </section>
 
-<!-- Education Section -->
-<section id="education" class="education">
-    <div class="container">
-        <h2 class="section-title">Education</h2>
-        <div class="education-timeline">
-            <div class="education-item">
-                <div class="education-icon">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
-                <div class="education-content">
-                    <h3>National University of Singapore</h3>
-                    <p class="education-degree">B.Sc. in Chemistry (Honours)</p>
-                    <p class="education-date">Aug 2022 – Present</p>
-                    <p class="education-description">Computational chemistry track under A/P Liviu Ungur. Cumulative CAP 3.71 / 5.00 (Honours with Merit); most recent semester (AY2025/26 Sem 1) 4.25 / 5.00, with consistent improvement across six semesters (3.30 → 4.25).</p>
-                </div>
-            </div>
-            <div class="education-item">
-                <div class="education-icon">
-                    <i class="fas fa-university"></i>
-                </div>
-                <div class="education-content">
-                    <h3>University of Hong Kong</h3>
-                    <p class="education-degree">Chemistry Major</p>
-                    <p class="education-date">2021</p>
-                    <p class="education-description">Started undergraduate studies in Chemistry before transferring to NUS.</p>
-                </div>
-            </div>
-            <div class="education-item">
-                <div class="education-icon">
-                    <i class="fas fa-school"></i>
-                </div>
-                <div class="education-content">
-                    <h3>Korea International School, Jeju</h3>
-                    <p class="education-degree">High School Diploma</p>
-                    <p class="education-date">Graduated May 2021</p>
-                    <p class="education-description">Completed AP curriculum and SAT standardized testing.</p>
-                    <div class="education-achievements">
-                        <p><strong>Standardized Tests:</strong></p>
-                        <ul>
-                            <li>SAT: 1500</li>
-                            <li>TOEFL: 112</li>
-                        </ul>
-                        <p><strong>AP Courses:</strong></p>
-                        <ul>
-                            <li>AP Physics C (E&M, Mechanics)</li>
-                            <li>AP Chemistry</li>
-                            <li>AP Biology</li>
-                            <li>AP Physics 1</li>
-                            <li>AP Chinese</li>
-                            <li>AP Seminar/Research</li>
-                            <li>AP Environmental Science</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="education-item">
-                <div class="education-icon">
-                    <i class="fas fa-school"></i>
-                </div>
-                <div class="education-content">
-                    <h3>Reedley International School</h3>
-                    <p class="education-degree">Middle School</p>
-                    <p class="education-date">2014 - 2016</p>
-                    <p class="education-description">Attended international school in the Philippines.</p>
-                </div>
-            </div>
-        </div>
-    </div>
+<section class="home-section" id="writing">
+    <h2>Guides and blog</h2>
+    <p>Guides to
+        <a href="{{ '/guides/orca/' | relative_url }}">ORCA</a>,
+        <a href="{{ '/guides/xtb/' | relative_url }}">xtb and CREST</a>,
+        <a href="{{ '/guides/lammps/' | relative_url }}">LAMMPS</a>,
+        <a href="{{ '/guides/qe/' | relative_url }}">Quantum ESPRESSO</a>,
+        <a href="{{ '/guides/linux/' | relative_url }}">Linux</a> and
+        <a href="{{ '/guides/shell/' | relative_url }}">bash scripting</a>,
+        written for people starting out in computational chemistry. Most are in Korean, some with an English version; the Quantum ESPRESSO guide is in English.</p>
+    {% if site.posts.size > 0 %}
+    <ol class="entries entries-compact">
+        {% for post in site.posts limit: 3 %}
+        <li>
+            <span class="when">{{ post.date | date: "%b %Y" }}</span>
+            <div><a href="{{ post.url | relative_url }}">{{ post.title }}</a></div>
+        </li>
+        {% endfor %}
+    </ol>
+    <p class="more"><a href="{{ '/blog/' | relative_url }}">All blog posts</a></p>
+    {% endif %}
 </section>
 
-<!-- Skills Section -->
-<section id="skills" class="skills">
-    <div class="container">
-        <h2 class="section-title">Skills</h2>
-        <div class="skills-grid">
-            <div class="skill-category">
-                <h3>Electronic Structure</h3>
-                <p class="skill-context">Multireference calculations of lanthanide single-molecule magnets: magnetic anisotropy and spin&ndash;orbit coupling.</p>
-                <div class="skill-items">
-                    <span class="skill-item">ORCA (DFT · CASSCF · NEVPT2 · QDPT-SOC)</span>
-                    <span class="skill-item">SINGLE_ANISO / POLY_ANISO</span>
-                </div>
-            </div>
-            <div class="skill-category">
-                <h3>Materials Modelling &amp; Dynamics</h3>
-                <p class="skill-context">Plane-wave DFT for periodic systems and classical MD at metal&ndash;solvent interfaces; currently building a reactive machine-learning force field for iron oxidation.</p>
-                <div class="skill-items">
-                    <span class="skill-item">Quantum ESPRESSO (SCF · DFT+U · bands / DOS)</span>
-                    <span class="skill-item">LAMMPS (classical MD)</span>
-                </div>
-            </div>
-            <div class="skill-category">
-                <h3>Scripting &amp; HPC</h3>
-                <p class="skill-context">Day-to-day research tooling: simulation setup, job submission, and analysis on Linux clusters.</p>
-                <div class="skill-items">
-                    <span class="skill-item">Python (ASE · NumPy · SciPy · pandas · matplotlib)</span>
-                    <span class="skill-item">Shell scripting · HPC job workflows</span>
-                    <span class="skill-item">Git · LaTeX · GNU/Linux</span>
-                </div>
-            </div>
-            <div class="skill-category">
-                <h3>Languages</h3>
-                <div class="skill-items">
-                    <span class="skill-item">Korean (Native)</span>
-                    <span class="skill-item">English (Fluent · medium of instruction at NUS)</span>
-                    <span class="skill-item">Mandarin Chinese (~HSK 4 · AP Chinese)</span>
-                    <span class="skill-item">German (Elementary · A1)</span>
-                </div>
-            </div>
-        </div>
-    </div>
+<section class="home-section" id="teaching">
+    <h2>Teaching</h2>
+    <p>I tutor AP and school-level chemistry, physics, biology and maths, and AMC maths. Some of the notes I write for these sessions are on the <a href="{{ '/teaching/' | relative_url }}">Teaching</a> page (in Korean).</p>
 </section>
 
-<!-- Contact Section -->
-<section id="contact" class="contact">
-    <div class="container">
-        <h2 class="section-title">Contact</h2>
-        <p class="contact-subtitle">For tutoring inquiries or questions about my research and guides, email is the fastest way to reach me.</p>
-        <div class="contact-content">
-            <div class="contact-info">
-                <div class="contact-item">
-                    <i class="fas fa-envelope"></i>
-                    <div>
-                        <h3>Email</h3>
-                        <a href="mailto:e1075536@u.nus.edu">e1075536@u.nus.edu</a>
-                    </div>
-                </div>
-                <div class="contact-item">
-                    <i class="fab fa-github"></i>
-                    <div>
-                        <h3>GitHub</h3>
-                        <a href="https://github.com/dhwan0112" target="_blank">github.com/dhwan0112</a>
-                    </div>
-                </div>
-                <div class="contact-item">
-                    <i class="fab fa-linkedin"></i>
-                    <div>
-                        <h3>LinkedIn</h3>
-                        <a href="https://www.linkedin.com/in/donghwan-kim-876b77207/" target="_blank">linkedin.com/in/donghwan-kim-876b77207</a>
-                    </div>
-                </div>
-                <div class="contact-item">
-                    <i class="fab fa-orcid"></i>
-                    <div>
-                        <h3>ORCID</h3>
-                        <a href="https://orcid.org/0009-0000-4355-7608" target="_blank" rel="noopener">0009-0000-4355-7608</a>
-                    </div>
-                </div>
-                <div class="contact-item">
-                    <i class="fab fa-x-twitter"></i>
-                    <div>
-                        <h3>X/Twitter</h3>
-                        <a href="https://x.com/dhwan_chemie" target="_blank" rel="noopener">@dhwan_chemie</a>
-                    </div>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-users"></i>
-                    <div>
-                        <h3>Research Group</h3>
-                        <a href="https://ungur-group.github.io/website/" target="_blank" rel="noopener">Ungur Group @ NUS</a>
-                    </div>
-                </div>
+<section class="home-section" id="education">
+    <h2>Education</h2>
+    <ol class="entries">
+        <li>
+            <span class="when">2022–</span>
+            <div>
+                <p class="entry-title">National University of Singapore</p>
+                <p>B.Sc. (Honours) in Chemistry. Cumulative CAP 3.71 / 5.00.</p>
             </div>
-        </div>
-    </div>
+        </li>
+        <li>
+            <span class="when">2021</span>
+            <div>
+                <p class="entry-title">University of Hong Kong</p>
+                <p>Started a chemistry degree, then transferred to NUS.</p>
+            </div>
+        </li>
+        <li>
+            <span class="when">2021</span>
+            <div>
+                <p class="entry-title">Korea International School, Jeju</p>
+                <p>High school diploma.</p>
+            </div>
+        </li>
+    </ol>
+    <p class="more"><a href="{{ '/education/' | relative_url }}">Coursework, test scores and earlier schools</a></p>
 </section>
+
+<section class="home-section" id="contact">
+    <h2>Contact</h2>
+    <p>Email is the quickest way to reach me, whether about tutoring, my research or the guides: <a href="mailto:{{ site.email }}">{{ site.email }}</a>.</p>
+    <p>I am also on
+        <a href="https://github.com/dhwan0112" rel="noopener">GitHub</a>,
+        <a href="https://www.linkedin.com/in/donghwan-kim-876b77207/" rel="noopener">LinkedIn</a>,
+        <a href="https://orcid.org/0009-0000-4355-7608" rel="noopener">ORCID</a> and
+        <a href="https://x.com/dhwan_chemie" rel="noopener">X</a>.</p>
+</section>
+
+</div>
+</div>

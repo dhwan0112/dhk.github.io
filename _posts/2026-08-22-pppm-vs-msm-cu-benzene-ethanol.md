@@ -3,7 +3,7 @@ title: "Cu–벤젠–에탄올 계에서 PPPM과 MSM 비교"
 date: 2026-08-22
 category: Computation
 tags: [LAMMPS, Electrostatics, PPPM, MSM, Analysis]
-description: "kspace 세 줄만 다른 OPLS-AA 벤젠/에탄올–Cu 슬랩 두 계산에서 첫 흡착층 구조는 구분되지 않고, MSM이 1.6배 느리다. 더 중요한 결과는 따로 있다. 첫 층 조성의 통계 오차가 두 방법의 차이보다 크고, 벌크가 평평하지 않으면 표면 과잉량은 정의되지 않는다."
+description: "kspace 세 줄만 다른 OPLS-AA 벤젠/에탄올–Cu 슬랩 두 계산에서 첫 흡착층 구조는 구분되지 않고, MSM이 1.6배 느리다. 첫 층 조성은 통계 오차가 두 방법의 차이보다 커서 구분되지 않고, 벌크 조성이 평평하지 않은 run에서는 표면 과잉량이 정의되지 않는다."
 ---
 
 NOTE 35-20-01 · Cu–벤젠–에탄올 계에서 PPPM과 MSM 비교

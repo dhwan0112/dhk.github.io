@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Blog
-description: Notes on computational chemistry — ORCA, LAMMPS, Quantum ESPRESSO, and the scripting around them.
+description: Technical notes, mostly in Korean, on simulations, analysis scripts and maths.
 permalink: /blog/
 ---
 
@@ -30,7 +30,6 @@ permalink: /blog/
                 <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
             </h2>
             <p class="post-item-excerpt">{% if post.description %}{{ post.description }}{% else %}{{ post.content | strip_html | normalize_whitespace | truncate: 320 }}{% endif %}</p>
-            <a href="{{ post.url | relative_url }}" class="read-more">Read more</a>
             <footer class="post-item-foot">
                 <div class="post-item-tags">
                     {% for tag in post.tags %}

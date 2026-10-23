@@ -1,182 +1,46 @@
 ---
 layout: page
 title: Guides
-description: 직접 정리한 계산화학·연구 도구 한국어 사용자 가이드 모음
+description: 계산화학을 시작하는 사람을 위해 쓴 프로그램 사용 가이드입니다. 대부분 한국어로 썼고 일부는 영어판이 있습니다. Quantum ESPRESSO 가이드는 영어로 썼습니다.
 permalink: /guides/
 ---
 
-<section class="blog-list">
-    <div class="container">
-        <div class="posts-container">
-            <article class="post-preview">
-                <div class="post-header">
-                    <h2 class="post-title">
-                        <a href="{{ '/guides/orca/' | relative_url }}">ORCA 사용자 가이드</a>
-                    </h2>
-                    <div class="post-meta">
-                        <span class="post-category"><i class="fas fa-atom"></i> Quantum Chemistry</span>
-                        <span class="post-category"><i class="fas fa-book"></i> ORCA 6.0.0</span>
-                    </div>
-                </div>
-                <div class="post-excerpt">
-                    <p>
-                        양자화학 계산 프로그램 ORCA의 한국어 사용자 가이드입니다.
-                        입력 파일 구조, 단일점 에너지, 구조 최적화, 진동수, 전이 상태,
-                        들뜬 상태(TD-DFT), 용매 효과, DLPNO-CCSD(T), 베이시스 세트,
-                        DFT 함수 선택, CASSCF, 운영 팁, GFN-xTB와 분자동역학까지 17개 챕터로 구성되어 있습니다.
-                    </p>
-                    <a href="{{ '/guides/orca/' | relative_url }}" class="read-more">가이드 열기 →</a>
-                </div>
-                <div class="post-tags">
-                    <span class="tag">ORCA</span>
-                    <span class="tag">DFT</span>
-                    <span class="tag">Coupled Cluster</span>
-                    <span class="tag">NEB</span>
-                    <span class="tag">TD-DFT</span>
-                </div>
-            </article>
+<div class="prose-page">
 
-            <article class="post-preview">
-                <div class="post-header">
-                    <h2 class="post-title">
-                        <a href="{{ '/guides/xtb/' | relative_url }}">xtb · CREST 사용자 가이드</a>
-                    </h2>
-                    <div class="post-meta">
-                        <span class="post-category"><i class="fas fa-atom"></i> Semiempirical · Sampling</span>
-                        <span class="post-category"><i class="fas fa-book"></i> xtb 6.7 · CREST 3</span>
-                    </div>
-                </div>
-                <div class="post-excerpt">
-                    <p>
-                        Grimme 그룹의 반경험 프로그램 xtb와 컨포머 탐색 도구 CREST를 알라닌 다이펩타이드 한 분자로
-                        끝까지 따라가는 가이드입니다. 최적화와 진동수, 용매 모델, 분자동역학과 메타다이내믹스,
-                        CREST 컨포머 앙상블, r2SCAN-3c 재순위까지 6개 챕터로, 모든 예제를 NUS HPC에서 실제로 돌려
-                        궤적 애니메이션과 그림을 함께 실었습니다.
-                    </p>
-                    <a href="{{ '/guides/xtb/' | relative_url }}" class="read-more">가이드 열기 →</a>
-                </div>
-                <div class="post-tags">
-                    <span class="tag">xtb</span>
-                    <span class="tag">GFN2-xTB</span>
-                    <span class="tag">CREST</span>
-                    <span class="tag">Metadynamics</span>
-                </div>
-            </article>
+<article class="guide" id="orca">
+    <h2><a href="{{ '/guides/orca/' | relative_url }}">ORCA 사용자 가이드</a></h2>
+    <p class="guide-meta">양자화학. ORCA 6.0.0 기준, 한국어와 영어. 17장.</p>
+    <p>입력 파일 구조에서 시작해 단일점 에너지, 구조 최적화, 진동수, 전이 상태, TD-DFT, 용매 효과, DLPNO-CCSD(T), 베이시스 세트와 범함수 선택, CASSCF, GFN-xTB와 분자동역학까지 다룹니다.</p>
+</article>
 
-            <article class="post-preview">
-                <div class="post-header">
-                    <h2 class="post-title">
-                        <a href="{{ '/guides/lammps/' | relative_url }}">LAMMPS 한국어 입문 가이드</a>
-                    </h2>
-                    <div class="post-meta">
-                        <span class="post-category"><i class="fas fa-cubes"></i> Molecular Dynamics</span>
-                        <span class="post-category"><i class="fas fa-graduation-cap"></i> 입문 + 응용</span>
-                    </div>
-                </div>
-                <div class="post-excerpt">
-                    <p>
-                        Lennard-Jones 액체 한 예제부터 시작해 LAMMPS 입력 스크립트의 4단계
-                        구조와 단위계, 시스템 정의, 상호작용 모델, 시뮬레이션 셋업, 출력과
-                        분석, 트러블슈팅까지 단계별로 풀어쓴 한국어 입문 가이드입니다(8장).
-                        그 다음 응용 시리즈로 Cu(100)/Cu(111) 표면 위 벤젠-에탄올 경쟁 흡착
-                        문제에 OPLS-AA · TraPPE-UA · PPPM · MSM 네 조합을 비교하는 9장이
-                        이어집니다.
-                    </p>
-                    <a href="{{ '/guides/lammps/' | relative_url }}" class="read-more">가이드 열기 →</a>
-                </div>
-                <div class="post-tags">
-                    <span class="tag">LAMMPS</span>
-                    <span class="tag">Molecular Dynamics</span>
-                    <span class="tag">LJ · EAM · OPLS</span>
-                    <span class="tag">Cu Surface (응용)</span>
-                </div>
-            </article>
+<article class="guide" id="xtb">
+    <h2><a href="{{ '/guides/xtb/' | relative_url }}">xtb와 CREST 사용자 가이드</a></h2>
+    <p class="guide-meta">반경험 방법과 컨포머 탐색. xtb 6.7, CREST 3. 6장.</p>
+    <p>알라닌 다이펩타이드 한 분자로 처음부터 끝까지 진행합니다. 최적화와 진동수, 용매 모델, 분자동역학과 메타다이내믹스, CREST 컨포머 앙상블을 거쳐 r2SCAN-3c로 순위를 다시 매기는 데까지 갑니다. 궤적 애니메이션과 그림은 NUS HPC에서 돌린 계산에서 나온 것입니다.</p>
+</article>
 
-            <article class="post-preview">
-                <div class="post-header">
-                    <h2 class="post-title">
-                        <a href="{{ '/guides/qe/' | relative_url }}">Quantum ESPRESSO: A Practical Guide</a>
-                    </h2>
-                    <div class="post-meta">
-                        <span class="post-category"><i class="fas fa-wave-square"></i> DFT · First principles</span>
-                        <span class="post-category"><i class="fas fa-book"></i> QE 7.5 · English</span>
-                    </div>
-                </div>
-                <div class="post-excerpt">
-                    <p>
-                        An English-language guide that starts from a single silicon SCF and
-                        works through input syntax, convergence testing, structure
-                        optimization, and band/DOS post-processing, then continues into spin
-                        polarization and antiferromagnetism, the HUBBARD card for DFT+U,
-                        computing U with hp.x, and slabs with ab initio MD (18 chapters plus
-                        4 reference pages). All 13 examples, from Si to bcc Fe and
-                        antiferromagnetic FeO, were actually executed with QE 7.5; the pages
-                        include the measured numbers, figures, and downloadable inputs.
-                    </p>
-                    <a href="{{ '/guides/qe/' | relative_url }}" class="read-more">Open the guide →</a>
-                </div>
-                <div class="post-tags">
-                    <span class="tag">Quantum ESPRESSO</span>
-                    <span class="tag">DFT+U</span>
-                    <span class="tag">Band Structure · DOS</span>
-                    <span class="tag">FeO · Magnetism</span>
-                    <span class="tag">AIMD</span>
-                </div>
-            </article>
+<article class="guide" id="lammps">
+    <h2><a href="{{ '/guides/lammps/' | relative_url }}">LAMMPS 입문 가이드</a></h2>
+    <p class="guide-meta">고전 분자동역학. LAMMPS 22 Jul 2024 기준. 입문 8장, 응용 9장.</p>
+    <p>Lennard-Jones 액체 예제 하나로 입력 스크립트의 네 단계 구조, 단위계, 시스템 정의, 상호작용 모델, 실행 설정, 출력과 분석, 문제 해결을 차례로 설명합니다. 응용 편에서는 구리 표면 위 벤젠–에탄올 경쟁 흡착에 OPLS-AA, TraPPE-UA, PPPM, MSM 네 조합을 적용해 비교합니다.</p>
+</article>
 
-            <article class="post-preview">
-                <div class="post-header">
-                    <h2 class="post-title">
-                        <a href="{{ '/guides/linux/' | relative_url }}">Linux 스타터팩</a>
-                    </h2>
-                    <div class="post-meta">
-                        <span class="post-category"><i class="fas fa-terminal"></i> Linux · HPC</span>
-                        <span class="post-category"><i class="fas fa-graduation-cap"></i> 입문 · 한국어/English</span>
-                    </div>
-                </div>
-                <div class="post-excerpt">
-                    <p>
-                        계산화학을 막 시작한 사람을 위한 Linux 입문서입니다. WSL과 macOS 터미널 준비에서 시작해
-                        파일과 권한, 프로세스와 환경 변수, ssh 키와 파일 전송, tmux, HPC 클러스터 첫 작업 제출,
-                        쓸 만한 프로그램 목록과 치트시트까지 11개 챕터로 구성했습니다. 모든 명령은 직접 실행해
-                        실제 출력을 실었습니다.
-                    </p>
-                    <a href="{{ '/guides/linux/' | relative_url }}" class="read-more">가이드 열기 →</a>
-                </div>
-                <div class="post-tags">
-                    <span class="tag">Linux</span>
-                    <span class="tag">WSL</span>
-                    <span class="tag">ssh · rsync · tmux</span>
-                    <span class="tag">HPC</span>
-                </div>
-            </article>
+<article class="guide" id="qe">
+    <h2><a href="{{ '/guides/qe/' | relative_url }}">Quantum ESPRESSO: a practical guide</a></h2>
+    <p class="guide-meta">Plane-wave DFT. QE 7.5, in English. 18 chapters and 4 reference pages.</p>
+    <p>Starts from a single silicon SCF calculation and goes through input syntax, convergence tests, structure optimisation, and bands and DOS. Later chapters cover spin polarisation and antiferromagnetism, the HUBBARD card for DFT+U, computing U with hp.x, and slabs with ab initio MD. Each of the 13 examples, from Si to bcc Fe and antiferromagnetic FeO, comes with its input files, figures and the numbers QE 7.5 printed.</p>
+</article>
 
-            <article class="post-preview">
-                <div class="post-header">
-                    <h2 class="post-title">
-                        <a href="{{ '/guides/shell/' | relative_url }}">셸 스크립팅 가이드</a>
-                    </h2>
-                    <div class="post-meta">
-                        <span class="post-category"><i class="fas fa-code"></i> bash · Automation</span>
-                        <span class="post-category"><i class="fas fa-book"></i> 한국어/English</span>
-                    </div>
-                </div>
-                <div class="post-excerpt">
-                    <p>
-                        계산화학 연구자를 위한 bash 스크립팅 가이드입니다. 변수와 반복문, 함수와 getopts,
-                        set -euo pipefail과 trap으로 안전하게 쓰는 법, grep · sed · awk로 ORCA · QE · LAMMPS · xtb
-                        출력에서 값 뽑기, PBS · Slurm 작업 스크립트와 작업 배열, 파라미터 스윕까지 9개 챕터입니다.
-                        예제 스크립트는 모두 실행하고 ShellCheck로 검사했습니다.
-                    </p>
-                    <a href="{{ '/guides/shell/' | relative_url }}" class="read-more">가이드 열기 →</a>
-                </div>
-                <div class="post-tags">
-                    <span class="tag">bash</span>
-                    <span class="tag">grep · sed · awk</span>
-                    <span class="tag">PBS · Slurm</span>
-                    <span class="tag">Job arrays</span>
-                </div>
-            </article>
-        </div>
-    </div>
-</section>
+<article class="guide" id="linux">
+    <h2><a href="{{ '/guides/linux/' | relative_url }}">Linux 스타터팩</a></h2>
+    <p class="guide-meta">Linux와 HPC 입문. 한국어와 영어. 11장.</p>
+    <p>WSL이나 macOS 터미널을 준비하는 데서 시작해 파일과 권한, 프로세스와 환경 변수, ssh 키와 파일 전송, tmux, 클러스터에 첫 작업을 제출하는 방법까지 다룹니다. 마지막에 쓸 만한 프로그램 목록과 치트시트를 붙였습니다. 명령 아래의 출력은 실제 실행 결과입니다.</p>
+</article>
+
+<article class="guide" id="shell">
+    <h2><a href="{{ '/guides/shell/' | relative_url }}">셸 스크립팅 가이드</a></h2>
+    <p class="guide-meta">bash. 한국어와 영어. 9장.</p>
+    <p>변수와 반복문, 함수와 getopts, <code>set -euo pipefail</code>과 trap, grep, sed, awk로 ORCA, QE, LAMMPS, xtb 출력에서 값을 뽑는 법, PBS와 Slurm 작업 스크립트와 작업 배열, 파라미터 스윕을 다룹니다. 예제 스크립트는 ShellCheck 검사를 통과했습니다.</p>
+</article>
+
+</div>

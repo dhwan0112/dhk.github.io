@@ -3,6 +3,7 @@ layout: page
 title: Research Notes
 description: Laboratory notebook and research journal documenting experiments, observations, and insights
 permalink: /research-notes/
+published: false
 ---
 
 <section class="lab-notes">

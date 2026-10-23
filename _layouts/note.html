@@ -7,9 +7,9 @@ layout: default
         <div class="container">
             <h1 class="page-title">{{ page.title }}</h1>
             <div class="note-meta">
-                <span class="note-date"><i class="far fa-calendar"></i> {{ page.date | date: "%Y-%m-%d" }}</span>
+                <span class="note-date">{{ page.date | date: "%Y-%m-%d" }}</span>
                 {% if page.category %}
-                <span class="note-category"><i class="fas fa-tag"></i> {{ page.category }}</span>
+                <span class="note-category">{{ page.category }}</span>
                 {% endif %}
             </div>
         </div>
@@ -26,7 +26,7 @@ layout: default
                     <div class="attachment-list">
                         {% for att in page.attachments %}
                         <span class="attachment-item">
-                            <i class="fas fa-file-{{ att.type }}"></i> {{ att.name }}
+                            {{ att.name }}
                         </span>
                         {% endfor %}
                     </div>
@@ -39,7 +39,7 @@ layout: default
     <section class="post-navigation">
         <div class="container">
             <a href="{{ '/research-notes' | relative_url }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Lab Notes
+                Back to lab notes
             </a>
         </div>
     </section>

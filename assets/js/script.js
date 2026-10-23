@@ -1,155 +1,42 @@
-// Theme Toggle
+// Theme toggle. The initial theme is set in <head> (saved choice, else the system setting).
 const themeToggle = document.getElementById('theme-toggle');
-const html = document.documentElement;
+const root = document.documentElement;
 
-// Check for saved theme preference or default to light mode
-const currentTheme = localStorage.getItem('theme') || 'light';
-html.setAttribute('data-theme', currentTheme);
-
-// Update button text and icon based on current theme
-function updateThemeButton(theme) {
+function labelThemeButton() {
     if (!themeToggle) return;
-    themeToggle.textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
+    themeToggle.textContent = root.getAttribute('data-theme') === 'dark' ? 'Light mode' : 'Dark mode';
 }
 
-// Theme toggle event listener
 if (themeToggle) {
-    // Initialize button state
-    updateThemeButton(currentTheme);
-
+    labelThemeButton();
     themeToggle.addEventListener('click', () => {
-        const currentTheme = html.getAttribute('data-theme');
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-        html.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateThemeButton(newTheme);
+        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        labelThemeButton();
     });
 }
 
-// Sidebar Toggle for Mobile
-const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+// Sidebar on small screens
+const menuToggle = document.querySelector('.mobile-menu-toggle');
 const sidebar = document.querySelector('.sidebar');
-const sidebarLinks = document.querySelectorAll('.sidebar-link');
 
-if (mobileMenuToggle) {
-    mobileMenuToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-
-        // Animate toggle button
-        const spans = mobileMenuToggle.querySelectorAll('span');
-        if (sidebar.classList.contains('active')) {
-            spans[0].style.transform = 'rotate(-45deg) translate(-5px, 5px)';
-            spans[1].style.opacity = '0';
-            spans[2].style.transform = 'rotate(45deg) translate(-5px, -5px)';
-        } else {
-            spans[0].style.transform = 'none';
-            spans[1].style.opacity = '1';
-            spans[2].style.transform = 'none';
-        }
-    });
+function setMenu(open) {
+    if (!menuToggle || !sidebar) return;
+    sidebar.classList.toggle('active', open);
+    menuToggle.setAttribute('aria-expanded', String(open));
+    menuToggle.textContent = open ? 'Close' : 'Menu';
 }
 
-// Close sidebar when clicking on a link (mobile)
-sidebarLinks.forEach(link => {
-    link.addEventListener('click', () => {
-        if (window.innerWidth <= 992) {
-            sidebar.classList.remove('active');
-            const spans = mobileMenuToggle.querySelectorAll('span');
-            spans[0].style.transform = 'none';
-            spans[1].style.opacity = '1';
-            spans[2].style.transform = 'none';
-        }
+if (menuToggle) {
+    menuToggle.addEventListener('click', () => setMenu(!sidebar.classList.contains('active')));
+    document.querySelectorAll('.sidebar a').forEach(link => {
+        link.addEventListener('click', () => setMenu(false));
     });
-});
-
-// Update active sidebar link on scroll (home page only)
-const isSamePage = (link) => link.pathname === location.pathname && link.hash;
-const spySections = Array.from(document.querySelectorAll('section[id]'));
-
-if (spySections.length && Array.from(sidebarLinks).some(isSamePage)) {
-    window.addEventListener('scroll', () => {
-        const scrollPosition = window.pageYOffset + 200;
-
-        spySections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.offsetHeight;
-
-            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-                sidebarLinks.forEach(link => {
-                    link.classList.toggle('active', isSamePage(link) && link.hash === `#${section.id}`);
-                });
-            }
-        });
-    }, { passive: true });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') setMenu(false);
+    });
 }
-
-// Smooth scrolling for in-page links (including "/#section" links on the home page)
-document.querySelectorAll('a[href*="#"]').forEach(anchor => {
-    if (!isSamePage(anchor)) return;
-    anchor.addEventListener('click', function (e) {
-        const target = document.getElementById(decodeURIComponent(this.hash.slice(1)));
-        if (target) {
-            e.preventDefault();
-            const headerOffset = 80;
-            const elementPosition = target.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
-        }
-    });
-});
-
-// Intersection Observer for fade-in animation
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
-    });
-}, observerOptions);
-
-// Animate elements on scroll
-document.addEventListener('DOMContentLoaded', () => {
-    const animateElements = document.querySelectorAll('.skill-category, .info-item, .contact-item');
-
-    animateElements.forEach(element => {
-        element.style.opacity = '0';
-        element.style.transform = 'translateY(30px)';
-        element.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
-        observer.observe(element);
-    });
-});
-
-// Subtle fade-in for sections (minimal animation)
-const revealSections = document.querySelectorAll('section');
-const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-        }
-    });
-}, {
-    threshold: 0,
-    rootMargin: '0px 0px -40px 0px'
-});
-
-revealSections.forEach(section => {
-    if (!section.classList.contains('hero')) {
-        section.style.opacity = '0';
-        section.style.transition = 'opacity 0.4s ease-out';
-        revealObserver.observe(section);
-    }
-});
 
 // ---------- Blog: tag filter (?tag=...) ----------
 (() => {
