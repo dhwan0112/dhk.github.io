@@ -1,0 +1,6 @@
+n * x =  1.500
+n + 1.5 =  4.500
+i / j * x =  0.000
+real(i) / j * x =  0.125
+x = n gives  3.000
+n = int(2.7 * x) gives 8

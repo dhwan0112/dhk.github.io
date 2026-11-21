@@ -1,0 +1,5 @@
+sp  = 4
+dp  = 8
+i8  = 4
+i18 = 8
+selected_real_kind(40) = -1
