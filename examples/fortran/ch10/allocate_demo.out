@@ -1,0 +1,5 @@
+allocated before: F
+allocated now: T, size 4
+second allocate failed
+size after assignment: 6
+allocated after: F

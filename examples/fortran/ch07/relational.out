@@ -1,0 +1,8 @@
+a == b : F
+a /= b : T
+a <  b : T
+a <= b : T
+a >  b : F
+a >= b : F
+a .lt. b : T
+a .eq. b : F

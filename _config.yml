@@ -52,6 +52,10 @@ defaults:
       type: "teaching"
     values:
       layout: "post"
+  - scope:
+      path: "fortran"
+    values:
+      layout: "fortran"
 
 # Exclude files
 exclude:
@@ -63,6 +67,9 @@ exclude:
   - CONTENT_GUIDE.md
   - BLOG_GUIDE.md
   - templates/
+  - examples/
+  - tools/
+  - docs/
 
 # Plugins
 plugins:

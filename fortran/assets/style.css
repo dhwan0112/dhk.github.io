@@ -1,0 +1,44 @@
+@import url("../../guides/assets/css/guide.css");
+
+.sidebar-back { padding-bottom: 0.75rem; }
+
+.content .highlight pre,
+.content pre.highlight {
+  margin: 1.25rem 0;
+}
+
+.content div.highlighter-rouge {
+  max-width: 100%;
+}
+
+.content pre .c,
+.content pre .c1,
+.content pre .cm { color: var(--syntax-comment); font-style: italic; }
+.content pre .k,
+.content pre .kd,
+.content pre .kn,
+.content pre .kr,
+.content pre .ow { color: var(--syntax-keyword); font-weight: 600; }
+.content pre .kt,
+.content pre .nb,
+.content pre .nf { color: var(--syntax-keyword2); font-weight: 500; }
+.content pre .m,
+.content pre .mi,
+.content pre .mf { color: var(--syntax-number); }
+.content pre .s,
+.content pre .s1,
+.content pre .s2 { color: var(--syntax-string); }
+
+.content table {
+  display: block;
+  overflow-x: auto;
+}
+
+.content img {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 900px) {
+  .content pre { font-size: 0.8rem; }
+}

@@ -1,0 +1,9 @@
+huge(1_int32)         = 2147483647
+huge(1.0_real32)      =  3.4028E+38
+huge(1.0_real64)      =  1.7977E+308
+tiny(1.0_real64)      =  2.2251E-308
+epsilon(1.0_real32)   =  1.1921E-07
+epsilon(1.0_real64)   =  2.2204E-16
+precision(1.0_real32) = 6
+precision(1.0_real64) = 15
+range(1.0_real64)     = 307

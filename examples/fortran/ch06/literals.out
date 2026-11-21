@@ -1,0 +1,5 @@
+integer: -100
+real:      2.0000E+06
+real(dp):  3.3329999999999999E-01
+complex:   2.00 -3.00
+logical: T

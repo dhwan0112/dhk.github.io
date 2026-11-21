@@ -1,0 +1,8 @@
+a .and. n < m / 2     : F
+.not. a .and. b       : F
+.not. (a .and. b)     : T
+a .or. b .and. c      : T
+(a .or. b) .and. c    : F
+a .or. b .eqv. c      : F
+a .or. (b .eqv. c)    : T
+a .neqv. b            : T

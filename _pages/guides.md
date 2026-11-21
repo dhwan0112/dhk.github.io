@@ -43,4 +43,10 @@ permalink: /guides/
     <p>변수와 반복문, 함수와 getopts, <code>set -euo pipefail</code>과 trap, grep, sed, awk로 ORCA, QE, LAMMPS, xtb 출력에서 값을 뽑는 법, PBS와 Slurm 작업 스크립트와 작업 배열, 파라미터 스윕을 다룹니다. 예제 스크립트는 ShellCheck 검사를 통과했습니다.</p>
 </article>
 
+<article class="guide" id="fortran">
+    <h2><a href="{{ '/fortran/' | relative_url }}">모던 Fortran 가이드</a></h2>
+    <p class="guide-meta">Fortran 2008과 2018. 한국어. 20장과 부록 2개.</p>
+    <p>Stanford 대학의 Fortran 77 Tutorial을 바탕으로 자유 형식과 현대 문법에 맞춰 새로 썼습니다. 변수와 타입, 배열, 모듈, 입출력, 파생 타입을 거쳐 디버깅 옵션과 BLAS, LAPACK 연결까지 다룹니다. 부록에서는 옛 Fortran 77 코드를 읽는 법을 정리했습니다. 예제는 모두 gfortran으로 컴파일하고 실행해 확인했습니다.</p>
+</article>
+
 </div>
