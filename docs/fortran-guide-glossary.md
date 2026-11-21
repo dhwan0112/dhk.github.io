@@ -75,3 +75,29 @@
 | standard | 표준 | |
 | host association | 호스트 연관 | |
 | use association | use 연관 | |
+| subscript | 첨자 | 인덱스 |
+| stride | 보폭 | 스트라이드 |
+| array constructor | 배열 생성자 | 배열 구성자 |
+| implied do | 암시적 do | 묵시적 do |
+| array element order | 배열 원소 순서 | |
+| automatic array | 자동 배열 | |
+| array temporary | 임시 배열 | |
+| sequence association | 순서 결합 | 순차 결합 |
+| argument association | 인수 결합 | |
+| generic procedure | 일반 프로시저 | 제네릭 함수, 총칭 함수 |
+| structure constructor | 구조 생성자 | |
+| passed-object dummy argument | 전달 객체 가인수 | |
+| short-circuit evaluation | 단락 평가 | 쇼트서킷 |
+| formatted / unformatted | 서식 있는 / 서식 없는 | 비서식 |
+| sequential access / stream access | 순차 접근 / 스트림 접근 | |
+| processor (표준 용어) | 컴파일러 | 처리계 |
+| compiler extension | 컴파일러 확장 | 확장 기능 |
+| computed GO TO | 계산된 goto | 계산형 goto |
+| arithmetic IF | 산술 if | 산술 조건문 |
+| labeled DO statement | 문번호 do | 레이블 do, 라벨 do |
+| statement function | 문 함수 | 문장 함수 |
+| alternate return | 대체 복귀 | 대안 복귀 |
+| sequence number (73-80열) | 일련번호 | 시퀀스 번호 |
+| backtrace | 역추적 | 백트레이스 |
+| breakpoint | 멈춤점 | 브레이크포인트, 중단점 |
+| signalling NaN | 신호를 내는 NaN | 시그널링 NaN |
