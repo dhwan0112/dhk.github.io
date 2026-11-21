@@ -24,7 +24,7 @@ Fortran의 내장 타입(intrinsic type)은 다섯 가지다.
 | `logical` | 참과 거짓 | `.true.`, `.false.` |
 | `character` | 문자열 | `'sample'` |
 
-변수는 사용하기 전에 선언(declaration)한다. 선언은 `타입 :: 이름 목록` 꼴이다. 같은 타입의 변수는 쉼표로 이어 한 문에 쓸 수 있다. `implicit none`을 쓰면([3장](/fortran/03-basics/)) 선언하지 않은 이름은 오류가 되므로, 모든 변수를 선언해야 한다.
+변수는 사용하기 전에 선언(declaration)한다. 선언은 `타입 :: 이름 목록` 꼴이다. 같은 타입의 변수는 쉼표로 이어 한 문에 쓸 수 있다. `implicit none`을 쓰면([3장](../03-basics/)) 선언하지 않은 이름은 오류가 되므로, 모든 변수를 선언해야 한다.
 
 <!-- file: ch05/declarations.f90 -->
 ```fortran
@@ -58,7 +58,7 @@ done   = F
 label  = [sample      ]
 ```
 
-`character(len=12)`는 길이가 12인 문자열 변수다. `'sample'`은 6글자이므로 나머지 6칸이 공백으로 채워진다. 출력에서 `]` 앞에 공백이 보이는 것이 그 공백이다. 문자열은 [6장](/fortran/06-expressions/)에서 더 다룬다.
+`character(len=12)`는 길이가 12인 문자열 변수다. `'sample'`은 6글자이므로 나머지 6칸이 공백으로 채워진다. 출력에서 `]` 앞에 공백이 보이는 것이 그 공백이다. 문자열은 [6장](../06-expressions/)에서 더 다룬다.
 
 `::`는 `integer, parameter :: n = 5`처럼 속성(attribute)을 붙이거나 초기화를 쓸 때 필요하다. 속성이 없는 선언에서는 `integer count`처럼 `::`를 생략할 수도 있다. 옛 코드에서 자주 보이는 이 꼴 대신 이 가이드는 항상 `::`를 쓴다.
 
@@ -102,7 +102,7 @@ x =  0.33333333333333331
 
 gfortran에서 이 kind 값은 4, 8처럼 바이트 수와 같지만 표준이 그렇게 정한 것은 아니다. `kind(big)`는 변수의 kind 값을 돌려주는 내장 함수다. `2_int64**40`은 `2**40`이 32비트 정수를 넘기 때문에 쓴 것이다. `int64` 변수는 `int32`로 나타낼 수 없는 큰 정수를 담는다. `1.0_dp`처럼 상수 뒤에 `_dp`를 붙이는 표기는 다음 절에서 설명한다.
 
-작은 프로그램 하나에서는 `dp`를 프로그램 안에서 선언하면 된다. 여러 프로그램 단위가 같은 `dp`를 써야 하면 모듈 한 곳에 두고 가져다 쓴다([16장](/fortran/16-modules/)).
+작은 프로그램 하나에서는 `dp`를 프로그램 안에서 선언하면 된다. 여러 프로그램 단위가 같은 `dp`를 써야 하면 모듈 한 곳에 두고 가져다 쓴다([16장](../16-modules/)).
 
 ### 정밀도로 kind 고르기
 
@@ -230,7 +230,7 @@ precision(1.0_real64) = 15
 range(1.0_real64)     = 307
 ```
 
-`real32`는 10진으로 6자리, `real64`는 15자리 정도를 믿을 수 있다. `epsilon`은 정밀도의 크기를 가늠하는 값이어서, 실수를 비교할 때 허용 오차를 정하는 데 쓴다([7장](/fortran/07-logical/)).
+`real32`는 10진으로 6자리, `real64`는 15자리 정도를 믿을 수 있다. `epsilon`은 정밀도의 크기를 가늠하는 값이어서, 실수를 비교할 때 허용 오차를 정하는 데 쓴다([7장](../07-logical/)).
 
 ## 이름 붙은 상수
 
@@ -287,7 +287,7 @@ assign_constant.f90:5:3:
 Error: Named constant ‘pi’ in variable definition context (assignment) at (1)
 ```
 
-옛 코드에서는 `parameter (pi = 3.14159)` 문으로 선언하는 꼴이 보인다. 읽는 법은 [부록 A](/fortran/21-legacy-code/)에서 다룬다.
+옛 코드에서는 `parameter (pi = 3.14159)` 문으로 선언하는 꼴이 보인다. 읽는 법은 [부록 A](../21-legacy-code/)에서 다룬다.
 
 ## 선언과 함께 초기화하기
 
@@ -319,7 +319,7 @@ end program initial_values
 [run     ]
 ```
 
-초기화하지 않은 변수는 값이 정의되지 않은 채 시작한다(Fortran 2018 표준 19.6.4). 값을 대입한 뒤에 쓴다. 옛 코드에서 변수를 미리 채우던 `data` 문은 [부록 A](/fortran/21-legacy-code/)에서 설명한다.
+초기화하지 않은 변수는 값이 정의되지 않은 채 시작한다(Fortran 2018 표준 19.6.4). 값을 대입한 뒤에 쓴다. 옛 코드에서 변수를 미리 채우던 `data` 문은 [부록 A](../21-legacy-code/)에서 설명한다.
 
 ### 초기화는 save 속성을 준다
 
@@ -351,7 +351,7 @@ call number 2
 call number 3
 ```
 
-부프로그램은 [11장](/fortran/11-subprograms/)에서 다룬다. 서브루틴을 부를 때마다 `n`이 0에서 시작할 것 같지만 값이 이어진다. 호출할 때마다 0에서 시작하게 하려면 선언에서 초기화하지 말고 실행문에서 대입한다.
+부프로그램은 [11장](../11-subprograms/)에서 다룬다. 서브루틴을 부를 때마다 `n`이 0에서 시작할 것 같지만 값이 이어진다. 호출할 때마다 0에서 시작하게 하려면 선언에서 초기화하지 말고 실행문에서 대입한다.
 
 <!-- file: ch05/init_assign.f90 -->
 ```fortran
@@ -407,7 +407,7 @@ end program old_double
 T
 ```
 
-gfortran에서는 두 kind가 같다. 그러나 표준은 `double precision`이 `real64`와 같다고 정하지 않는다. 새 코드에서는 `real64`나 `selected_real_kind`로 정밀도를 직접 정하는 방법을 쓴다. `real*8`은 표준이 아닌 확장이므로 쓰지 않는다([2장](/fortran/02-what-is-fortran/)).
+gfortran에서는 두 kind가 같다. 그러나 표준은 `double precision`이 `real64`와 같다고 정하지 않는다. 새 코드에서는 `real64`나 `selected_real_kind`로 정밀도를 직접 정하는 방법을 쓴다. `real*8`은 표준이 아닌 확장이므로 쓰지 않는다([2장](../02-what-is-fortran/)).
 
 ## 흔한 실수
 

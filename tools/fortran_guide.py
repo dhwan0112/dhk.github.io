@@ -3,14 +3,15 @@
 Usage:
   python3 tools/fortran_guide.py lint
   python3 tools/fortran_guide.py examples
-  python3 tools/fortran_guide.py site SITE_DIR
-  python3 tools/fortran_guide.py all [SITE_DIR]
+  python3 tools/fortran_guide.py site SITE_DIR [--baseurl /BASE]
+  python3 tools/fortran_guide.py all [SITE_DIR] [--baseurl /BASE]
 
 lint      front matter, permalinks, fences and their markers, links, glossary terms.
 examples  compiles every example with FC (default gfortran) and BASE_FLAGS, runs it,
           and compares the result with the sidecar files next to it.
 site      checks a built site: every chapter page exists and every internal link
-          on the guide pages resolves to a file.
+          on the guide pages resolves to a file. With --baseurl, links that start at the
+          site root without the base path are errors, because they 404 once deployed.
 
 Sidecar files next to examples/fortran/chNN/NAME.f90 (or NAME.f):
   NAME.out            expected standard output; the program must exit with status 0
@@ -31,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import posixpath
 import re
 import shutil
 import subprocess
@@ -57,8 +59,9 @@ CHAPTER_FILE = re.compile(r"^(?P<nn>\d\d)-(?P<slug>[a-z0-9]+(?:-[a-z0-9]+)*)\.md
 MARKER = re.compile(r"^<!-- (?P<kind>file|excerpt|output): (?P<path>ch(?P<nn>\d\d)/[A-Za-z0-9_-]+\.(?:f90|f|out)) -->$")
 LOOSE_MARKER = re.compile(r"^<!--\s*(file|excerpt|output)\s*:")
 FENCE = re.compile(r"^```(?P<lang>\S*)\s*$")
-GUIDE_LINK = re.compile(r"\]\((?P<target>/fortran/[^)\s]*)\)")
+LINK = re.compile(r"(?<!!)\[[^\]]*\]\((?P<target>[^)\s]+)\)")
 IMAGE_LINK = re.compile(r"!\[[^\]]*\]\((?P<target>[^)\s]+)\)")
+EXTERNAL = re.compile(r"^(?:[a-z][a-z0-9+.-]*:|#)", re.IGNORECASE)
 ENGINE_SYNTAX = re.compile(r"\{%|\{\{|\{:|<script", re.IGNORECASE)
 INLINE_CODE = re.compile(r"`[^`]*`")
 HREF = re.compile(r"""(?:href|src)="(?P<url>[^"#?]*)[^"]*\"""")
@@ -253,23 +256,37 @@ def prose_lines(chapter: Chapter):
             yield number, line
 
 
+def resolve(base: str, target: str) -> str:
+    path = target.split("#", 1)[0]
+    resolved = posixpath.normpath(posixpath.join(base, path))
+    return resolved + "/" if path.endswith("/") or path in ("", ".", "..") else resolved
+
+
 def check_prose(chapter: Chapter, report: Report, permalinks: set[str], avoid: dict[str, str]) -> None:
+    base = chapter.front.get("permalink", "/fortran/")
     for number, line in prose_lines(chapter):
         where = f"{rel(chapter.path)}:{number}"
         if ENGINE_SYNTAX.search(line):
             report.error(where, "engine-specific syntax ({%, {{, {:, <script) is not allowed; the layout handles navigation")
-        for match in GUIDE_LINK.finditer(line):
+        for match in LINK.finditer(line):
             target = match["target"]
-            if target.startswith("/fortran/images/"):
+            if EXTERNAL.match(target):
                 continue
-            page = target.split("#", 1)[0]
+            if target.startswith("/"):
+                report.error(where, f"link {target} starts at the site root and breaks when the site is served under a base path; write it relative to this page, e.g. ../05-variables/")
+                continue
+            page = resolve(base, target)
             if page not in permalinks:
-                report.error(where, f"link {target} does not match any chapter permalink")
+                report.error(where, f"link {target} resolves to {page}, which is not a chapter permalink")
         for match in IMAGE_LINK.finditer(line):
             target = match["target"]
-            if not target.startswith("/fortran/images/"):
-                report.error(where, f"images must live in /fortran/images/, found {target}")
-            elif not (IMAGES / target.removeprefix("/fortran/images/")).is_file():
+            if target.startswith("/") or EXTERNAL.match(target):
+                report.error(where, f"image {target} must be a relative path into fortran/images/, e.g. ../images/name.svg")
+                continue
+            image = resolve(base, target)
+            if not image.startswith("/fortran/images/"):
+                report.error(where, f"images must live in fortran/images/, {target} resolves to {image}")
+            elif not (IMAGES / image.removeprefix("/fortran/images/")).is_file():
                 report.error(where, f"image {target} does not exist")
         text = INLINE_CODE.sub("", line)
         for wrong, right in avoid.items():
@@ -436,7 +453,8 @@ def run_examples(report: Report) -> None:
     report.note(f"examples: {len(sources)} sources, {compiled} compiled, {ran} ran, {expected_failures} failed to compile as expected")
 
 
-def check_site(site: Path, report: Report) -> None:
+def check_site(site: Path, report: Report, baseurl: str) -> None:
+    baseurl = baseurl.rstrip("/")
     chapters = load_chapters(Report())
     for chapter in chapters:
         page = site / chapter.front.get("permalink", "").strip("/") / "index.html"
@@ -451,15 +469,23 @@ def check_site(site: Path, report: Report) -> None:
         html = page.read_text(encoding="utf-8")
         if "{%" in html or "{{" in html:
             report.error(rel_site(site, page), "unrendered Liquid in output")
+        page_dir = "/" + page.parent.relative_to(site).as_posix() + "/"
         for match in HREF.finditer(html):
             url = match["url"]
-            if not url.startswith("/") or url.startswith("//"):
+            if not url or url.startswith("//") or EXTERNAL.match(url):
                 continue
             links += 1
-            target = site / url.lstrip("/")
+            if url.startswith("/"):
+                if baseurl and url != baseurl and not url.startswith(baseurl + "/"):
+                    report.error(rel_site(site, page), f"link {url} is outside the base path {baseurl} and will 404 on the deployed site")
+                    continue
+                path = url[len(baseurl):] if baseurl else url
+            else:
+                path = posixpath.normpath(posixpath.join(page_dir, url))
+            target = site / path.lstrip("/")
             if not (target.is_file() or (target / "index.html").is_file()):
                 report.error(rel_site(site, page), f"internal link {url} does not resolve")
-    report.note(f"site: {len(chapters)} chapters, {len(pages)} pages scanned, {links} internal links checked")
+    report.note(f"site: {len(chapters)} chapters, {len(pages)} pages scanned, {links} internal links checked, base path {baseurl or '/'}")
 
 
 def rel_site(site: Path, path: Path) -> str:
@@ -473,6 +499,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Checks for the Fortran guide.")
     parser.add_argument("command", choices=["lint", "examples", "site", "all"])
     parser.add_argument("site", nargs="?", type=Path)
+    parser.add_argument("--baseurl", default="", help="base path the site was built with, e.g. /dhk.github.io")
     args = parser.parse_args()
     report = Report()
     if args.command in ("lint", "all"):
@@ -482,7 +509,7 @@ def main() -> int:
     if args.command == "site" or (args.command == "all" and args.site):
         if not args.site:
             parser.error("site needs the built site directory")
-        check_site(args.site.resolve(), report)
+        check_site(args.site.resolve(), report, args.baseurl)
     for note in report.notes:
         print(note)
     for error in report.errors:

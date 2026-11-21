@@ -16,7 +16,7 @@ permalink: /fortran/06-expressions/
 - 논리 상수는 `.true.`와 `.false.` 두 개뿐이다. 양쪽의 점이 필요하다.
 - 문자열 상수는 작은따옴표나 큰따옴표로 묶는다. `'ABC'`, `"Hello"`이다.
 
-실수와 복소수 상수에는 [5장](/fortran/05-variables/)에서 본 kind 접미사를 붙일 수 있다. `3.333e-1_dp`, `(1.0_dp, 2.0_dp)`가 그 예다. 지수 문자가 `d`인 `2.0d-1`은 옛 코드의 배정밀도(double precision) 상수다.
+실수와 복소수 상수에는 [5장](../05-variables/)에서 본 kind 접미사를 붙일 수 있다. `3.333e-1_dp`, `(1.0_dp, 2.0_dp)`가 그 예다. 지수 문자가 `d`인 `2.0d-1`은 옛 코드의 배정밀도(double precision) 상수다.
 
 <!-- file: ch06/literals.f90 -->
 ```fortran
@@ -416,7 +416,7 @@ r =  2.00, area = 12.5664
 count = 2
 ```
 
-`area = pi * r**2`는 `area`만 바꾼다. `pi`와 `r`은 그대로다. `count = count + 1`은 수학의 등식이 아니라 `count + 1`을 계산해 `count`에 다시 넣는다는 뜻이다. `=`는 같다는 뜻이 아니다. 두 값이 같은지 비교하는 연산자는 `==`이고, [7장](/fortran/07-logical/)에서 다룬다.
+`area = pi * r**2`는 `area`만 바꾼다. `pi`와 `r`은 그대로다. `count = count + 1`은 수학의 등식이 아니라 `count + 1`을 계산해 `count`에 다시 넣는다는 뜻이다. `=`는 같다는 뜻이 아니다. 두 값이 같은지 비교하는 연산자는 `==`이고, [7장](../07-logical/)에서 다룬다.
 
 ## 흔한 실수
 

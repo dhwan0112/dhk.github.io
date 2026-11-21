@@ -24,7 +24,7 @@ end program hello
  Hello, Fortran!
 ```
 
-출력 앞의 공백 한 칸은 `print *`가 넣는다. 출력 모양을 정하는 방법은 [13장](/fortran/13-format/)에서 다룬다.
+출력 앞의 공백 한 칸은 `print *`가 넣는다. 출력 모양을 정하는 방법은 [13장](../13-format/)에서 다룬다.
 
 ## 프로그램의 구조
 
@@ -131,4 +131,4 @@ end program layout
 
 - `implicit none`을 빠뜨린다. 오타가 컴파일 오류가 아니라 틀린 결과로 나타난다.
 - 선언을 실행문 뒤에 쓴다. gfortran은 `Unexpected data declaration statement` 오류를 낸다.
-- 고정 형식 코드를 `.f90` 파일에 붙여 넣는다. 6열의 이어쓰기 문자와 1열의 `c` 주석은 자유 형식에서 문법 오류가 된다. 옛 코드는 [부록 A](/fortran/21-legacy-code/)를 참고한다.
+- 고정 형식 코드를 `.f90` 파일에 붙여 넣는다. 6열의 이어쓰기 문자와 1열의 `c` 주석은 자유 형식에서 문법 오류가 된다. 옛 코드는 [부록 A](../21-legacy-code/)를 참고한다.

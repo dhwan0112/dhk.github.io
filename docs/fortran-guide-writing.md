@@ -7,7 +7,7 @@
 ```sh
 python3 tools/fortran_guide.py lint
 python3 tools/fortran_guide.py examples
-bundle exec jekyll build && python3 tools/fortran_guide.py site _site
+bundle exec jekyll build --baseurl /dhk.github.io && python3 tools/fortran_guide.py site _site --baseurl /dhk.github.io
 ```
 
 ## 규칙과 강제 수단
@@ -27,6 +27,7 @@ bundle exec jekyll build && python3 tools/fortran_guide.py site _site
 | 예제의 실제 출력은 `.out`과 같다 | examples | `tools/fortran_guide.py` |
 | 이미지는 `fortran/images/`에만 둔다 | lint | `tools/fortran_guide.py` |
 | 가이드 안 링크는 있는 장을 가리킨다 | lint, site | `tools/fortran_guide.py` |
+| 가이드 안 링크와 그림은 페이지 기준 상대 경로로 쓴다(`/`로 시작하지 않는다) | lint, site `--baseurl` | `tools/fortran_guide.py`, CI |
 | 용어표의 셋째 열 표기를 쓰지 않는다 | lint | `docs/fortran-guide-glossary.md` |
 | 문법과 표준에 대한 서술은 표준 문서, gfortran 문서, fortran-lang.org로 확인하고 출처를 결정 로그에 적는다 | 없음 (판단 필요) | 이 문서 |
 | 한국어 평서문으로 간결하게 쓰고, 과장과 상투적 도입부를 쓰지 않는다 | 없음 (판단 필요) | 이 문서 |
@@ -38,7 +39,7 @@ bundle exec jekyll build && python3 tools/fortran_guide.py site _site
 - 첫 문단 한두 문장에 이 장에서 무엇을 배우는지 쓴다.
 - 이어서 설명과 예제를 번갈아 쓰고, 마지막에 `## 흔한 실수`를 둔다. 쓸 내용이 없는 절은 만들지 않는다.
 - 제목은 `##`와 `###`만 쓴다. 장 제목은 레이아웃이 `title`로 출력하므로 본문에 `#`를 쓰지 않는다.
-- 다른 장은 `[5장](/fortran/05-variables/)`처럼 절대 경로로 가리킨다.
+- 다른 장은 `[5장](../05-variables/)`처럼 페이지 기준 상대 경로로 가리킨다. 서문(`index.md`)에서는 `05-variables/`, 그림은 `../images/name.svg`다. 사이트가 `/dhk.github.io/` 아래에서 서비스되므로 `/`로 시작하는 경로는 배포된 사이트에서 깨진다.
 - 컴파일러 메시지를 보여 줄 때는 실제로 받은 메시지를 옮기고 gfortran 판 번호를 적는다.
 - `print *`처럼 출력 모양을 컴파일러가 정하는 예제는 공백 수가 컴파일러마다 다를 수 있다. 출력 모양이 요점인 예제는 형식 지정을 쓴다.
 
