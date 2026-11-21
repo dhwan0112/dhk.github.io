@@ -1,0 +1,36 @@
+name: Fortran guide checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    env:
+      FC: gfortran-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install gfortran, BLAS and LAPACK
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gfortran-14 libblas-dev liblapack-dev
+      - name: Lint chapters and examples
+        run: python3 tools/fortran_guide.py lint
+      - name: Compile and run examples
+        run: python3 tools/fortran_guide.py examples
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+      - name: Build site
+        run: bundle exec jekyll build
+        env:
+          JEKYLL_ENV: production
+      - name: Check built guide pages
+        run: python3 tools/fortran_guide.py site _site
