@@ -22,7 +22,7 @@ gfortran -std=f2018 -Wall -Wextra -g -fcheck=all -ffpe-trap=invalid,zero,overflo
 
 ### 표준과 암시적 타입 지정
 
-`-std=f2018`은 [18장](/fortran/18-style/)에서 본 것처럼 표준 밖의 문법에 오류를 낸다. 선언하지 않은 변수는 소스에 `implicit none`을 쓰면 오류가 된다. 고치기 어려운 옛 소스에는 `-fimplicit-none`이 모든 프로시저의 맨 앞에 `implicit none`을 넣은 것과 같은 효과를 낸다.
+`-std=f2018`은 [18장](../18-style/)에서 본 것처럼 표준 밖의 문법에 오류를 낸다. 선언하지 않은 변수는 소스에 `implicit none`을 쓰면 오류가 된다. 고치기 어려운 옛 소스에는 `-fimplicit-none`이 모든 프로시저의 맨 앞에 `implicit none`을 넣은 것과 같은 효과를 낸다.
 
 원본이 흔한 오류로 든 `o`와 `0`, `l`과 `1`의 혼동도 `implicit none`이 있으면 컴파일 단계에서 드러난다. 다음 코드는 반복문의 시작값을 `1` 대신 `l`로 잘못 쳤다.
 
@@ -112,7 +112,7 @@ Warning: Unused variable ‘unused’ declared at (1) [-Wunused-variable]
 
 ### 정수 나눗셈
 
-정수끼리 나누면 소수부가 버려진다([6장](/fortran/06-expressions/)). `7 / 2`는 `3`이고, 실수 변수에 대입해도 `3.0`이다. 상수끼리의 나눗셈은 `-Winteger-division`(`-Wall`에 포함)이 알려 준다.
+정수끼리 나누면 소수부가 버려진다([6장](../06-expressions/)). `7 / 2`는 `3`이고, 실수 변수에 대입해도 `3.0`이다. 상수끼리의 나눗셈은 `-Winteger-division`(`-Wall`에 포함)이 알려 준다.
 
 ```text
 Warning: Integer division truncated to constant ‘3’ at (1) [-Winteger-division]
@@ -182,11 +182,11 @@ implicit_iface.f90:6:22:
 Warning: Procedure ‘scale_by_two’ called with an implicit interface at (1) [-Wimplicit-interface]
 ```
 
-해결은 `scale_by_two`를 모듈에 넣어 `use`하는 것이다. 외부 라이브러리를 불러야 한다면 [20장](/fortran/20-blas-lapack/)처럼 인터페이스 블록을 쓴다.
+해결은 `scale_by_two`를 모듈에 넣어 `use`하는 것이다. 외부 라이브러리를 불러야 한다면 [20장](../20-blas-lapack/)처럼 인터페이스 블록을 쓴다.
 
 ### 줄 길이
 
-원본의 "72열에서 줄이 끝난다"는 고정 형식의 규칙이다. 자유 형식은 한 줄이 132자까지이고, 넘으면 gfortran이 `-Wline-truncation`을 오류로 바꾸어 컴파일을 멈춘다. 문장이 길면 줄 끝에 `&`를 쓰고 다음 줄로 잇는다([3장](/fortran/03-basics/)). 고정 형식에서 72열을 넘은 부분이 말없이 잘리는 문제는 [부록 A](/fortran/21-legacy-code/)에서 본다.
+원본의 "72열에서 줄이 끝난다"는 고정 형식의 규칙이다. 자유 형식은 한 줄이 132자까지이고, 넘으면 gfortran이 `-Wline-truncation`을 오류로 바꾸어 컴파일을 멈춘다. 문장이 길면 줄 끝에 `&`를 쓰고 다음 줄로 잇는다([3장](../03-basics/)). 고정 형식에서 72열을 넘은 부분이 말없이 잘리는 문제는 [부록 A](../21-legacy-code/)에서 본다.
 
 ## 실행 중에 잡기
 

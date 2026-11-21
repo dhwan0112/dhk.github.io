@@ -81,7 +81,7 @@ gfortran -o hello hello.f90
 
 ## 여러 파일 컴파일하기
 
-프로그램이 커지면 소스를 여러 파일로 나눈다. 다음은 모듈 `geometry`를 `geometry.f90`에, 그것을 쓰는 주 프로그램을 `main.f90`에 둔 예다. 모듈은 [16장](/fortran/16-modules/)에서 자세히 다룬다. 여기서는 파일을 나누어 컴파일하는 방법만 본다.
+프로그램이 커지면 소스를 여러 파일로 나눈다. 다음은 모듈 `geometry`를 `geometry.f90`에, 그것을 쓰는 주 프로그램을 `main.f90`에 둔 예다. 모듈은 [16장](../16-modules/)에서 자세히 다룬다. 여기서는 파일을 나누어 컴파일하는 방법만 본다.
 
 `geometry.f90`:
 
@@ -169,7 +169,7 @@ gfortran -I build -c main.f90
 gfortran -std=f2018 -Wall -Wextra 파일.f90 -o 실행파일
 ```
 
-- `-std=f2018`은 Fortran 2018 표준에 없는 문법을 오류로 만든다([2장](/fortran/02-what-is-fortran/)). 이 옵션을 주지 않으면 gfortran은 자신의 확장을 조용히 받아 준다.
+- `-std=f2018`은 Fortran 2018 표준에 없는 문법을 오류로 만든다([2장](../02-what-is-fortran/)). 이 옵션을 주지 않으면 gfortran은 자신의 확장을 조용히 받아 준다.
 - `-Wall`은 피하는 것이 좋다고 판단하는 코드에 경고(warning)를 낸다. gfortran 매뉴얼에 따르면 쓰지 않는 변수(`-Wunused`), 상수끼리의 정수 나눗셈(`-Winteger-division`), 값이 달라질 수 있는 암시적 변환(`-Wconversion`)에 대한 경고가 여기에 든다.
 - `-Wextra`는 `-Wall`에 더해, 실수를 `==`로 비교하는 코드(`-Wcompare-reals`) 같은 문제가 될 수 있는 용법을 알려 준다.
 
@@ -196,7 +196,7 @@ unused.f90:3:14:
 Warning: Unused variable ‘n’ declared at (1) [-Wunused-variable]
 ```
 
-런타임 검사(runtime check)와 디버깅용 옵션은 [19장](/fortran/19-debugging/)에서 다룬다.
+런타임 검사(runtime check)와 디버깅용 옵션은 [19장](../19-debugging/)에서 다룬다.
 
 ## fpm으로 프로젝트 관리하기
 

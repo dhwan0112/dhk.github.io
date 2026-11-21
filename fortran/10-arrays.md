@@ -66,9 +66,9 @@ end program squares
 
 다차원 배열은 메모리에 한 줄로 놓인다. Fortran은 첫째 첨자가 가장 빨리 바뀌는 순서, 곧 열 우선 순서(column-major order)로 놓는다. 한 열의 원소가 연달아 놓이고 그다음 열이 이어진다.
 
-![3행 4열 배열의 열 우선 저장 순서](/fortran/images/column-major.svg)
+![3행 4열 배열의 열 우선 저장 순서](../images/column-major.svg)
 
-표준은 이 순서를 배열 원소 순서(array element order)라 하고 위치를 식으로 정한다(9.5.3.2). 첨자 범위가 `j1:k1, j2:k2`인 2차원 배열에서 `(s1, s2)` 원소의 위치는 `1 + (s1 - j1) + (s2 - j2) * d1`이다. `d1`은 첫째 차원의 크기다. 첨자가 1부터 시작하는 `m(3, 4)`라면 `m(i, j)`는 `1 + (i - 1) + (j - 1) * 3`번째 원소다. 첫 원소에서 떨어진 거리를 원소 수로 세면 `(j - 1) * 3 + (i - 1)`이다. 원본의 `lda`는 이 식의 `d1`에 해당하며, 선언한 배열이 쓰는 행렬보다 클 때 둘이 달라지는 문제는 [15장](/fortran/15-arrays-in-subprograms/)에서 다룬다.
+표준은 이 순서를 배열 원소 순서(array element order)라 하고 위치를 식으로 정한다(9.5.3.2). 첨자 범위가 `j1:k1, j2:k2`인 2차원 배열에서 `(s1, s2)` 원소의 위치는 `1 + (s1 - j1) + (s2 - j2) * d1`이다. `d1`은 첫째 차원의 크기다. 첨자가 1부터 시작하는 `m(3, 4)`라면 `m(i, j)`는 `1 + (i - 1) + (j - 1) * 3`번째 원소다. 첫 원소에서 떨어진 거리를 원소 수로 세면 `(j - 1) * 3 + (i - 1)`이다. 원본의 `lda`는 이 식의 `d1`에 해당하며, 선언한 배열이 쓰는 행렬보다 클 때 둘이 달라지는 문제는 [15장](../15-arrays-in-subprograms/)에서 다룬다.
 
 <!-- file: ch10/column_major.f90 -->
 ```fortran
@@ -113,7 +113,7 @@ flat(pos) = 23
 
 ## 배열 생성자
 
-배열 값을 한 번에 적으려면 배열 생성자(array constructor) `[ ... ]`를 쓴다. 값 목록 자리에는 암시적 do(implied do) `(식, 변수 = 시작, 끝, 증분)`을 쓸 수 있다. 암시적 do는 [9장](/fortran/09-loops/)의 `do`와 같은 규칙으로 값을 하나씩 만들어 낸다.
+배열 값을 한 번에 적으려면 배열 생성자(array constructor) `[ ... ]`를 쓴다. 값 목록 자리에는 암시적 do(implied do) `(식, 변수 = 시작, 끝, 증분)`을 쓸 수 있다. 암시적 do는 [9장](../09-loops/)의 `do`와 같은 규칙으로 값을 하나씩 만들어 낸다.
 
 <!-- file: ch10/constructors.f90 -->
 ```fortran
@@ -417,7 +417,7 @@ At line 8 of file out_of_bounds.f90
 Fortran runtime error: Index '6' of dimension 1 of array 'a' above upper bound of 5
 ```
 
-런타임 검사는 [19장](/fortran/19-debugging/)에서 자세히 다룬다.
+런타임 검사는 [19장](../19-debugging/)에서 자세히 다룬다.
 
 ## dimension 문
 

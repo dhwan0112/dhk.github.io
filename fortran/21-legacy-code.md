@@ -300,7 +300,7 @@ arith_if.f:4:72:
 Error: Fortran 2018 deleted feature: Arithmetic IF statement at (1)
 ```
 
-`if (n < 0) then ... else if (n == 0) then ... else ... end if`로 쓴다([8장](/fortran/08-conditionals/)). 옛 코드를 그대로 빌드해야 하면 `-std=legacy`를 쓴다(아래).
+`if (n < 0) then ... else if (n == 0) then ... else ... end if`로 쓴다([8장](../08-conditionals/)). 옛 코드를 그대로 빌드해야 하면 `-std=legacy`를 쓴다(아래).
 
 ### 대체 복귀
 
@@ -374,11 +374,11 @@ end program modern_common
 alpha =  1.0, beta =  2.0
 ```
 
-모듈 프로시저는 가인수의 타입과 `intent`를 컴파일러가 알고 있으므로 인수 순서가 틀려 타입이 어긋나면 오류가 난다. 같은 타입이면 호출문에서 순서를 눈으로 확인할 수 있다. 공유할 상수는 모듈의 `parameter`로, 바뀌는 상태는 파생 타입으로 둔다([16장](/fortran/16-modules/), [17장](/fortran/17-derived-types/)).
+모듈 프로시저는 가인수의 타입과 `intent`를 컴파일러가 알고 있으므로 인수 순서가 틀려 타입이 어긋나면 오류가 난다. 같은 타입이면 호출문에서 순서를 눈으로 확인할 수 있다. 공유할 상수는 모듈의 `parameter`로, 바뀌는 상태는 파생 타입으로 둔다([16장](../16-modules/), [17장](../17-derived-types/)).
 
 ## data 문과 block data
 
-`data` 문은 실행 전에 변수의 초기값을 정한다. `data m/10/, x/2.5/`처럼 변수 목록 뒤에 값을 `/` 사이에 쓰고, `3*100.0`은 `100.0`을 세 번 반복한다. 표준은 `data`로 초기화한 이름 붙은 변수(common 블록의 변수 제외)가 `save` 속성을 가진다고 정한다(8.6.7절). 현대 코드는 선언에서 초기화한다([5장](/fortran/05-variables/)). 실행문 사이에 `data` 문을 두는 것도 폐기 예정 기능이다(표준 부속서 B.3.5).
+`data` 문은 실행 전에 변수의 초기값을 정한다. `data m/10/, x/2.5/`처럼 변수 목록 뒤에 값을 `/` 사이에 쓰고, `3*100.0`은 `100.0`을 세 번 반복한다. 표준은 `data`로 초기화한 이름 붙은 변수(common 블록의 변수 제외)가 `save` 속성을 가진다고 정한다(8.6.7절). 현대 코드는 선언에서 초기화한다([5장](../05-variables/)). 실행문 사이에 `data` 문을 두는 것도 폐기 예정 기능이다(표준 부속서 B.3.5).
 
 `data` 문으로는 common 블록의 변수를 초기화할 수 없다. 표준은 이 일을 하는 프로그램 단위로 `block data`를 두었다(14.3절). `block data` 밖에서 `data`로 common 블록의 변수를 초기화하면 gfortran은 `-std=f2018`에서 `GNU Extension: initialization of common block variable` 오류를 낸다.
 
@@ -438,7 +438,7 @@ Warning: Fortran 2018 obsolescent feature: BLOCK DATA construct at (1)
 
 ## 옛 타입 선언
 
-`double precision`은 표준에 있는 타입이고 폐기 예정도 아니다. 상수는 `1.0d0`처럼 지수를 `d`로 쓴다. 현대 코드는 kind 매개변수로 정밀도를 정한다([5장](/fortran/05-variables/), [18장](/fortran/18-style/)).
+`double precision`은 표준에 있는 타입이고 폐기 예정도 아니다. 상수는 `1.0d0`처럼 지수를 `d`로 쓴다. 현대 코드는 kind 매개변수로 정밀도를 정한다([5장](../05-variables/), [18장](../18-style/)).
 
 `real*8`처럼 타입 뒤에 바이트 수를 붙이는 형태는 표준이 아니다.
 
@@ -535,7 +535,7 @@ At line 24 of file assumed_size.f
 Fortran runtime error: Index '2' of dimension 1 of array 'v' above upper bound of 1
 ```
 
-`v(*)`는 첨자가 범위를 벗어나는지 컴파일러가 알 수 없으므로 검사하지 못한다. 현대 코드는 크기를 함께 전달하는 가정 형상 배열 `v(:)`를 모듈 프로시저에 쓴다([15장](/fortran/15-arrays-in-subprograms/)).
+`v(*)`는 첨자가 범위를 벗어나는지 컴파일러가 알 수 없으므로 검사하지 못한다. 현대 코드는 크기를 함께 전달하는 가정 형상 배열 `v(:)`를 모듈 프로시저에 쓴다([15장](../15-arrays-in-subprograms/)).
 
 ## 문 함수와 entry
 

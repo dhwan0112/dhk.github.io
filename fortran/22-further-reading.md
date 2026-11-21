@@ -22,13 +22,13 @@ permalink: /fortran/22-further-reading/
 ## 학습 자료와 모범 사례
 
 - [fortran-lang.org의 학습 자료](https://fortran-lang.org/learn/): 설치부터 문법, 빌드까지 모아 둔 입구다. [빠른 시작](https://fortran-lang.org/learn/quickstart/)과 [프로그램 빌드](https://fortran-lang.org/learn/building_programs/)가 있다.
-- [Fortran 모범 사례](https://fortran-lang.org/learn/best_practices/): [18장](/fortran/18-style/)의 확인 출처다. 스타일 가이드, 모듈과 프로그램, 다차원 배열, 정수 나눗셈을 다룬다.
+- [Fortran 모범 사례](https://fortran-lang.org/learn/best_practices/): [18장](../18-style/)의 확인 출처다. 스타일 가이드, 모듈과 프로그램, 다차원 배열, 정수 나눗셈을 다룬다.
 - [Fortran Discourse](https://fortran-lang.discourse.group/): Fortran 커뮤니티의 토론 게시판이다.
 - [Fortran 표준 라이브러리 stdlib](https://stdlib.fortran-lang.org/)와 [패키지 목록](https://fortran-lang.org/packages/): 직접 짜기 전에 이미 있는 패키지를 찾아본다.
 
 ## 수치 라이브러리
 
-[20장](/fortran/20-blas-lapack/)에서 다룬 라이브러리의 자료다.
+[20장](../20-blas-lapack/)에서 다룬 라이브러리의 자료다.
 
 - [Netlib](https://www.netlib.org/): 수학 소프트웨어 저장소다.
 - [BLAS](https://www.netlib.org/blas/)와 [LAPACK](https://www.netlib.org/lapack/): 기준 구현과 설명이다. LAPACK 페이지는 현재 판이 3.12.1이라고 적고 있다.
