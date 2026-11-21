@@ -1,0 +1,4 @@
+ddot:          20.0
+dot_product:   20.0
+stride 2:      13.0
+daxpy:          6.0   7.0   8.0   9.0
