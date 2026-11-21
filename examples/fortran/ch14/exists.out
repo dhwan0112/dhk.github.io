@@ -1,0 +1,4 @@
+before:  F
+open failed:  T
+after write:  T
+after delete:  F
