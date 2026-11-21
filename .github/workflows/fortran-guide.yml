@@ -28,9 +28,10 @@ jobs:
         with:
           ruby-version: '3.3'
           bundler-cache: true
-      - name: Build site
-        run: bundle exec jekyll build
+      - name: Build site under the Pages base path
+        run: bundle exec jekyll build --baseurl "$BASEURL"
         env:
           JEKYLL_ENV: production
+          BASEURL: /${{ github.event.repository.name }}
       - name: Check built guide pages
-        run: python3 tools/fortran_guide.py site _site
+        run: python3 tools/fortran_guide.py site _site --baseurl "/${{ github.event.repository.name }}"
