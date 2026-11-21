@@ -1,0 +1,8 @@
+sum     = 31
+product = 6480
+maxval  = 9
+minval  = 1
+maxloc  = 6
+any(x > 8)  = T
+all(x > 0)  = T
+count(x > 2) = 5

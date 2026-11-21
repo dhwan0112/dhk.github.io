@@ -1,0 +1,5 @@
+size(a) = 20
+b runs from 0 to 19
+weird runs from -162 to 237, size 400
+shape(grid) =   3  3
+size(grid) = 9
