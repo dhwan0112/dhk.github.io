@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ page.title }} · 모던 Fortran 가이드</title>
+  <link rel="icon" type="image/x-icon" href="{{ '/images/icons/favicon.ico' | relative_url }}" />
+  <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"))}catch(e){}</script>
+  <link rel="stylesheet" href="{{ '/fortran/assets/style.css' | relative_url }}" />
+</head>
+<body>
+{%- assign chapters = site.html_pages | where_exp: "p", "p.order" | where_exp: "p", "p.url contains '/fortran/'" | sort: "order" -%}
+{%- assign groups = "1-4-시작|5-10-기본 문법|11-14-부프로그램과 입출력|15-17-큰 프로그램 짜기|18-20-실무|21-22-부록" | split: "|" -%}
+{%- assign appendix_letters = "A,B,C,D" | split: "," -%}
+  <button class="mobile-nav-toggle" type="button">MENU</button>
+  <div class="layout">
+<aside class="sidebar">
+  <a href="{{ '/' | relative_url }}" class="sidebar-back">← Donghwan KIM</a>
+  <a href="{{ '/fortran/' | relative_url }}" class="sidebar-brand">
+    <div class="brand-title">Fortran</div>
+    <div class="brand-subtitle">모던 Fortran 가이드</div>
+  </a>
+  <nav>
+{%- for g in groups %}
+{%- assign parts = g | split: "-" %}
+{%- assign lo = parts[0] | plus: 0 %}
+{%- assign hi = parts[1] | plus: 0 %}
+    <div class="nav-section">
+      <div class="nav-section-title">{{ parts[2] }}</div>
+      <ul class="nav-list">
+{%- for c in chapters %}
+{%- if c.order >= lo and c.order <= hi %}
+{%- if c.order > 20 %}{% assign ai = c.order | minus: 21 %}{% assign num = appendix_letters[ai] %}{% elsif c.order < 10 %}{% capture num %}0{{ c.order }}{% endcapture %}{% else %}{% capture num %}{{ c.order }}{% endcapture %}{% endif %}
+        <li><a href="{{ c.url | relative_url }}"{% if c.url == page.url %} class="active" aria-current="page"{% endif %}><span class="nav-num">{{ num }}</span>{{ c.title }}</a></li>
+{%- endif %}
+{%- endfor %}
+      </ul>
+    </div>
+{%- endfor %}
+  </nav>
+</aside>
+    <main class="main">
+{%- for c in chapters %}{% if c.url == page.url %}{% assign idx = forloop.index0 %}{% endif %}{% endfor %}
+{%- if page.order > 20 %}{% assign ai = page.order | minus: 21 %}{% capture eyebrow %}부록 {{ appendix_letters[ai] }}{% endcapture %}{% elsif page.order < 10 %}{% capture eyebrow %}CHAPTER 0{{ page.order }}{% endcapture %}{% else %}{% capture eyebrow %}CHAPTER {{ page.order }}{% endcapture %}{% endif %}
+      <header class="page-header">
+        <div class="page-eyebrow">{{ eyebrow }}</div>
+        <h1 class="page-title">{{ page.title }}</h1>
+      </header>
+      <article class="content">
+{{ content }}
+        <footer class="site-footer">
+          <p>이 가이드는 Erik Boman이 쓰고 Sarah T. Whitlock과 Paul H. Hargrove가 고친 Stanford University의 Fortran 77 Tutorial(Copyright © 1995-7 by Stanford University)을 현대 Fortran에 맞게 고쳐 쓴 비상업적 교육용 2차 저작물이다. 자세한 내용은 <a href="{{ '/fortran/' | relative_url }}">서문의 출처와 저작권</a>에 있다.</p>
+        </footer>
+      </article>
+<nav class="page-nav">
+{%- if idx > 0 %}{% assign prev_i = idx | minus: 1 %}{% assign prev = chapters[prev_i] %}<a class="prev" href="{{ prev.url | relative_url }}"><div class="page-nav-label">← 이전</div><div class="page-nav-title">{{ prev.title }}</div></a>{% else %}<span></span>{% endif %}
+{%- assign next_i = idx | plus: 1 %}{% assign next = chapters[next_i] %}{% if next %}<a class="next" href="{{ next.url | relative_url }}"><div class="page-nav-label">다음 →</div><div class="page-nav-title">{{ next.title }}</div></a>{% endif %}
+</nav>
+    </main>
+  </div>
+  <script src="{{ '/fortran/assets/guide.js' | relative_url }}"></script>
+</body>
+</html>
