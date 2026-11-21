@@ -19,6 +19,10 @@ Sidecar files next to examples/fortran/chNN/NAME.f90 (or NAME.f):
   NAME.warning        one expected warning text per line; any other warning fails
   NAME.compile-error  text that must appear in the compiler output of a failed compile
   NAME.run-error      text that must appear in stderr of a run that exits non-zero
+  NAME.with           other sources in the same folder, compiled before NAME in the listed order
+
+A source without a program statement is a module or library source: it is compiled with -c
+and not run.
 
 Exit status is 0 when every check passes and 1 otherwise.
 """
@@ -46,7 +50,7 @@ BASE_FLAGS = ["-std=f2018", "-Wall", "-Wextra"]
 FRONT_MATTER_KEYS = {"title", "order", "permalink"}
 FENCE_LANGUAGES = {"fortran", "sh", "text"}
 SOURCE_SUFFIXES = (".f90", ".f")
-SIDECAR_SUFFIXES = (".out", ".in", ".flags", ".warning", ".compile-error", ".run-error")
+SIDECAR_SUFFIXES = (".out", ".in", ".flags", ".warning", ".compile-error", ".run-error", ".with")
 RUN_TIMEOUT_SECONDS = 20
 
 CHAPTER_FILE = re.compile(r"^(?P<nn>\d\d)-(?P<slug>[a-z0-9]+(?:-[a-z0-9]+)*)\.md$")
@@ -59,6 +63,7 @@ ENGINE_SYNTAX = re.compile(r"\{%|\{\{|\{:|<script", re.IGNORECASE)
 INLINE_CODE = re.compile(r"`[^`]*`")
 HREF = re.compile(r"""(?:href|src)="(?P<url>[^"#?]*)[^"]*\"""")
 WARNING_LINE = re.compile(r"^Warning: (?P<text>.*)$", re.MULTILINE)
+PROGRAM_STATEMENT = re.compile(r"^\s*program\s+\w+", re.MULTILINE | re.IGNORECASE)
 
 
 @dataclass
@@ -327,6 +332,10 @@ def check_example_tree(report: Report, referenced: set[str]) -> None:
                     break
             if not any((path.parent / (stem + s)).is_file() for s in SOURCE_SUFFIXES):
                 report.error(name, "sidecar has no matching .f90 or .f source")
+            if path.suffix == ".with":
+                for other in path.read_text(encoding="utf-8").split():
+                    if not (path.parent / other).is_file() or not other.endswith(SOURCE_SUFFIXES):
+                        report.error(name, f"{other} is not a source file in {rel(path.parent)}")
             continue
         report.error(name, f"unexpected file; allowed are sources {SOURCE_SUFFIXES} and sidecars {SIDECAR_SUFFIXES}")
 
@@ -373,9 +382,12 @@ def run_examples(report: Report) -> None:
         expected_out = read_optional(sidecar(source, ".out"))
         run_error = read_optional(sidecar(source, ".run-error"))
         stdin_text = read_optional(sidecar(source, ".in"))
+        companions = [str(source.parent / other) for other in (read_optional(sidecar(source, ".with")) or "").split()]
+        is_program = bool(PROGRAM_STATEMENT.search(source.read_text(encoding="utf-8")))
         with tempfile.TemporaryDirectory() as work:
-            exe = Path(work) / "a.out"
-            built = subprocess.run([compiler, *BASE_FLAGS, str(source), "-o", str(exe), *extra], capture_output=True, text=True, cwd=work)
+            exe = Path(work) / ("a.out" if is_program else "a.o")
+            stage = [] if is_program else ["-c"]
+            built = subprocess.run([compiler, *BASE_FLAGS, *stage, *companions, str(source), "-o", str(exe), *extra], capture_output=True, text=True, cwd=work)
             log = built.stdout + built.stderr
             if compile_error is not None:
                 if built.returncode == 0:
@@ -398,6 +410,10 @@ def run_examples(report: Report) -> None:
                 report.error(key, f".warning lists {text!r} but the compiler did not print it")
             if warnings_expected and key not in decisions:
                 report.error(key, f"kept warnings must be explained in {rel(DECISIONS)}; mention {key} there")
+            if not is_program:
+                if expected_out is not None or run_error is not None or stdin_text is not None:
+                    report.error(key, "a source without a program statement is compiled with -c and never run; remove its .out, .run-error and .in")
+                continue
             if expected_out is None and run_error is None:
                 report.error(key, "add NAME.out (expected output) or NAME.run-error (expected runtime error)")
                 continue
