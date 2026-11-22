@@ -12,8 +12,9 @@ series). Reuses the ORCA guide style sheet and adds KaTeX (math) and Prism
 from __future__ import annotations
 
 import html as html_lib
+import posixpath
 import re
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import markdown
 import yaml
@@ -205,26 +206,48 @@ def restore_math(html_out: str, blocks):
     return html_out
 
 
-# just-the-docs source links → our flat filenames
-LINK_FIX_MAP = {
-    "docs/01-overview":      "cu-01-system.html",
-    "docs/02-data-files":    "cu-02-data-files.html",
-    "docs/03-force-fields":  "cu-03-force-fields.html",
-    "docs/04-electrostatics":"cu-04-electrostatics.html",
-    "docs/05-protocol":      "cu-05-protocol.html",
-    "docs/06-frameworks":    "cu-06-frameworks.html",
-    "docs/07-analysis":      "cu-07-analysis.html",
-    "docs/08-troubleshooting":"cu-08-troubleshooting.html",
+OUTPUT_FOR_SOURCE = {
+    str(PurePosixPath(src_rel).with_suffix("")): out_name
+    for out_name, src_rel, _eyebrow, _lede in PAGES
 }
+OUTPUT_NAMES = {out_name for out_name, *_ in PAGES}
+HREF = re.compile(r'href="([^"]*)"')
+URL_SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
 
 
-def fix_links(text: str) -> str:
-    for src, dst in LINK_FIX_MAP.items():
-        text = text.replace(f'href="{src}"', f'href="{dst}"')
-    return text
+class UnknownPageLink(Exception):
+    pass
 
 
-def convert_body(md_body: str) -> tuple[str, str]:
+def output_href(href: str, src_rel: str) -> str:
+    path, hash_sign, anchor = href.partition("#")
+    if not path or URL_SCHEME.match(path) or path.startswith("/") or path.endswith("/"):
+        return href
+    target = posixpath.normpath(posixpath.join(posixpath.dirname(src_rel), path))
+    if target.startswith("../"):
+        return href
+    suffix = PurePosixPath(target).suffix
+    if suffix in ("", ".md"):
+        stem = str(PurePosixPath(target).with_suffix("")) if suffix else target
+        if stem not in OUTPUT_FOR_SOURCE:
+            raise UnknownPageLink(
+                f"{src_rel}: link '{href}' names no source page in PAGES; "
+                "link to a source file (e.g. 03-force-fields) listed in PAGES"
+            )
+        return OUTPUT_FOR_SOURCE[stem] + hash_sign + anchor
+    if suffix == ".html" and "/" not in path and path not in OUTPUT_NAMES:
+        raise UnknownPageLink(
+            f"{src_rel}: link '{href}' names no output page in PAGES; "
+            "use a source file name or an output name from PAGES"
+        )
+    return href
+
+
+def fix_links(text: str, src_rel: str) -> str:
+    return HREF.sub(lambda m: f'href="{output_href(m.group(1), src_rel)}"', text)
+
+
+def convert_body(md_body: str, src_rel: str) -> tuple[str, str]:
     had_toc_block = bool(KRAMDOWN_TOC_BLOCK.search(md_body))
     md_body = KRAMDOWN_TOC_BLOCK.sub("", md_body)
     md_body = KRAMDOWN_ATTR_LINE.sub("", md_body)
@@ -253,7 +276,7 @@ def convert_body(md_body: str) -> tuple[str, str]:
         body_html = toc_block + body_html
 
     body_html = restore_math(body_html, math)
-    body_html = fix_links(body_html)
+    body_html = fix_links(body_html, src_rel)
     return body_html, toc_html
 
 
@@ -333,7 +356,7 @@ def main():
             short = title_raw.split(". ", 1)[-1] if ". " in title_raw else title_raw
             page_title_full = f"{short} · LAMMPS 가이드"
 
-        body_html, _toc = convert_body(body)
+        body_html, _toc = convert_body(body, src_rel)
 
         if out_name == "index.html":
             header_html = HERO_TMPL.format(lede=html_lib.escape(lede))

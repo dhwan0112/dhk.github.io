@@ -36,7 +36,7 @@ permalink: /
 
 <div class="amm-warning" markdown="1">
 <span class="amm-label">경고</span>
-`opls.data` 는 Cu 슬랩 구조와 일부 OPLS-AA 계수가 틀려 있다. 실행은 오류 없이 끝나지만 결과는 표준 힘장의 결과가 아니다. 각 장에 해당 내용을 함께 적었다([1장](docs/01-overview), [3장](docs/03-force-fields)).
+`opls.data` 는 Cu 슬랩 구조와 일부 OPLS-AA 계수가 틀려 있다. 실행은 오류 없이 끝나지만 결과는 표준 힘장의 결과가 아니다. 각 장에 해당 내용을 함께 적었다([1장](01-overview), [3장](03-force-fields)).
 </div>
 
 ## 2. 준비 정보
@@ -78,11 +78,11 @@ permalink: /
 
 | 노트 번호 | 제목 | 내용 |
 |-----------|------|------|
-| NOTE 32-01-00 | [시스템 개요](docs/01-overview) | 화학적 배경과 시뮬레이션 셀 구성 |
-| NOTE 32-02-00 | [데이터 파일 구조](docs/02-data-files) | `opls.data`, `trappe.data` 비교 |
-| NOTE 32-03-00 | [힘장 비교](docs/03-force-fields) | OPLS-AA와 TraPPE-UA의 차이 |
-| NOTE 32-04-00 | [정전기 방법](docs/04-electrostatics) | PPPM과 MSM, 슬랩 보정 |
-| NOTE 32-05-00 | [5단계 프로토콜](docs/05-protocol) | 단계별 이유와 입력 명령어 |
-| NOTE 32-06-00 | [4가지 프레임워크 비교](docs/06-frameworks) | 조합별 차이와 선택 기준 |
-| NOTE 32-07-00 | [분석 방법](docs/07-analysis) | RDF, 밀도 프로파일, SEI, 계면 장력 |
-| NOTE 32-08-00 | [트러블슈팅](docs/08-troubleshooting) | 자주 나는 오류와 원인 진단 |
+| NOTE 32-01-00 | [시스템 개요](01-overview) | 화학적 배경과 시뮬레이션 셀 구성 |
+| NOTE 32-02-00 | [데이터 파일 구조](02-data-files) | `opls.data`, `trappe.data` 비교 |
+| NOTE 32-03-00 | [힘장 비교](03-force-fields) | OPLS-AA와 TraPPE-UA의 차이 |
+| NOTE 32-04-00 | [정전기 방법](04-electrostatics) | PPPM과 MSM, 슬랩 보정 |
+| NOTE 32-05-00 | [5단계 프로토콜](05-protocol) | 단계별 이유와 입력 명령어 |
+| NOTE 32-06-00 | [4가지 프레임워크 비교](06-frameworks) | 조합별 차이와 선택 기준 |
+| NOTE 32-07-00 | [분석 방법](07-analysis) | RDF, 밀도 프로파일, SEI, 계면 장력 |
+| NOTE 32-08-00 | [트러블슈팅](08-troubleshooting) | 자주 나는 오류와 원인 진단 |
