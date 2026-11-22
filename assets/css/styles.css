@@ -509,23 +509,6 @@ sub, sup {
     font-weight: 600;
 }
 
-/* ---------- Lab notes (unpublished collection) ---------- */
-.note-meta {
-    display: flex;
-    gap: 1rem;
-    color: var(--ink-3);
-    font-size: 0.9rem;
-}
-
-.btn {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--rule);
-    border-radius: 3px;
-    text-decoration: none;
-    color: var(--ink);
-}
-
 /* ---------- Small screens ---------- */
 @media (max-width: 992px) {
     .sidebar {
@@ -1399,25 +1382,6 @@ sub, sup {
 .post-toc-nav a.is-active {
     color: var(--accent-color);
     font-weight: 500;
-}
-
-/* Note entry (lab notes) link styling */
-.note-entry .note-title a {
-    color: var(--text-dark);
-    text-decoration: none;
-    transition: color 0.2s ease;
-}
-
-.note-entry .note-title a:hover {
-    color: var(--primary-color);
-}
-
-.notes-container .note-entry {
-    cursor: default;
-}
-
-.notes-container .note-header {
-    background-color: var(--bg-light);
 }
 
 @media (max-width: 768px) {

@@ -20,9 +20,6 @@ permalink: /blog/:year/:month/:day/:title/
 
 # Collections
 collections:
-  notes:
-    output: true
-    permalink: /notes/:path/
   pages:
     output: true
     permalink: /:path/
@@ -37,11 +34,6 @@ defaults:
       type: "posts"
     values:
       layout: "post"
-  - scope:
-      path: ""
-      type: "notes"
-    values:
-      layout: "note"
   - scope:
       path: ""
       type: "pages"
