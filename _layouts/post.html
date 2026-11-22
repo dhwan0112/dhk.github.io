@@ -2,9 +2,9 @@
 layout: default
 ---
 
-{% if page.collection == "teaching" %}
-  {% assign index_url = '/teaching/' | relative_url %}
-  {% assign index_name = "Teaching" %}
+{% if page.collection == "notes" %}
+  {% assign index_url = '/notes/' | relative_url %}
+  {% assign index_name = "Notes" %}
 {% else %}
   {% assign index_url = '/blog/' | relative_url %}
   {% assign index_name = "Blog" %}
@@ -13,9 +13,9 @@ layout: default
 <div class="post-page">
     <article class="post">
         <header class="post-header">
-            {% assign subject = site.data.teaching | where: "key", page.subject | first %}
-            {% if page.collection == "teaching" and subject %}
-            <p class="post-crumb"><a href="{{ index_url }}">Teaching</a> / <a href="{{ '/teaching/' | append: subject.slug | append: '/' | relative_url }}">{{ subject.name }}</a></p>
+            {% assign subject = site.data.notes | where: "key", page.subject | first %}
+            {% if page.collection == "notes" and subject %}
+            <p class="post-crumb"><a href="{{ index_url }}">Notes</a> / <a href="{{ '/notes/' | append: subject.slug | append: '/' | relative_url }}">{{ subject.name }}</a></p>
             {% else %}
             <a href="{{ index_url }}" class="post-crumb">&larr; {{ index_name }}</a>
             {% endif %}
@@ -23,7 +23,7 @@ layout: default
             <div class="post-info">
                 <div class="post-item-tags">
                     {% for tag in page.tags %}
-                    {% if page.collection == "teaching" %}
+                    {% if page.collection == "notes" %}
                     <span class="tag">{{ tag }}</span>
                     {% else %}
                     <a href="{{ index_url }}?tag={{ tag | uri_escape }}" class="tag">{{ tag }}</a>

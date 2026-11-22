@@ -23,9 +23,9 @@ collections:
   pages:
     output: true
     permalink: /:path/
-  teaching:
+  notes:
     output: true
-    permalink: /teaching/:path/
+    permalink: /notes/:path/
 
 # Default front matter
 defaults:
@@ -41,7 +41,7 @@ defaults:
       layout: "page"
   - scope:
       path: ""
-      type: "teaching"
+      type: "notes"
     values:
       layout: "post"
   - scope:

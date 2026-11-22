@@ -50,7 +50,7 @@ NOTE 11-20-01 · 다항함수와 유리함수의 그래프 개형
 
 | 참조 | 제목 |
 |---|---|
-| NOTE 12-20-01 | [조립제법과 Horner 방법]({{ '/teaching/synthetic-division-and-horner-method/' | relative_url }}) |
+| NOTE 12-20-01 | [조립제법과 Horner 방법]({{ '/notes/synthetic-division-and-horner-method/' | relative_url }}) |
 | 나머지정리 | 다항식 $$p(x)$$ 를 $$x - a$$ 로 나눈 나머지는 $$p(a)$$ 다 |
 
 ### C. 사용 프로그램
@@ -83,7 +83,7 @@ $$
 
 <div class="amm-note" markdown="1">
 <span class="amm-label">참고</span>
-이 나눗셈은 [조립제법 노트]({{ '/teaching/synthetic-division-and-horner-method/' | relative_url }})에서 따로 다룬다.
+이 나눗셈은 [조립제법 노트]({{ '/notes/synthetic-division-and-horner-method/' | relative_url }})에서 따로 다룬다.
 </div>
 
 5. 약분한 식을 쓴다.

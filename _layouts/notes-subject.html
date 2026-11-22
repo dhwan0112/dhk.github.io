@@ -2,12 +2,12 @@
 layout: default
 ---
 
-{% assign subject = site.data.teaching | where: "key", page.subject | first %}
-{% assign items = site.teaching | where: "subject", page.subject | sort: "note" %}
+{% assign subject = site.data.notes | where: "key", page.subject | first %}
+{% assign items = site.notes | where: "subject", page.subject | sort: "note" %}
 
 <div class="blog-index">
     <header class="blog-index-header">
-        <a href="{{ '/teaching/' | relative_url }}" class="post-crumb">&larr; Teaching</a>
+        <a href="{{ '/notes/' | relative_url }}" class="post-crumb">&larr; Notes</a>
         <h1 class="blog-index-title">{{ subject.name }} <span class="teaching-title-ko">{{ subject.ko }}</span></h1>
         <p class="blog-index-lede">{{ subject.lede }}</p>
         {% if subject.chapters.size > 1 %}

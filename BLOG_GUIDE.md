@@ -88,7 +88,7 @@ $$\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}$$
 
 ## 서술 방식: AMM(Aircraft Maintenance Manual) 형식
 
-블로그 포스트, Teaching, LAMMPS 가이드는 모두 항공기 정비 교범(AMM, ATA iSpec 2200 계열)의 형식을 빌려 노트(NOTE)로 쓴다. 문서 하나가 노트 하나다.
+블로그 포스트, Notes, LAMMPS 가이드는 모두 항공기 정비 교범(AMM, ATA iSpec 2200 계열)의 형식을 빌려 노트(NOTE)로 쓴다. 문서 하나가 노트 하나다.
 
 ### 노트 번호
 
@@ -208,26 +208,26 @@ LAMMPS 가이드 소스(`guides/lammps/.build/src/`)는 `convert.py` 가 `{: ...
 - 제목에는 LaTeX 를 쓰지 않는다(목록에서 렌더링되지 않는다). ε, δ, ² 같은 유니코드 문자를 쓴다.
 - 제목은 다루는 대상을 평이하게 적는다. 부제(콜론 뒤 설명), 수사적 질문("왜 되는가"), 결론 요약, 숫자 강조("40줄", "780일")를 넣지 않는다. 예: "유수 정리를 이용한 실적분 계산", "조립제법과 Horner 방법". NOTE 번호 줄의 제목도 같은 문구를 쓴다.
 
-### Teaching 노트: 개념 설명 문서로 쓴다
+### Notes: 개념 설명 문서로 쓴다
 
-- 과외·수업·학생 같은 외부 맥락을 쓰지 않는다("과외에서 설명할 때", "학생들이 자주 틀리는" 등). 수학적 대상과 논리 구조만 다룬다. 과외 관련 소개는 Teaching 목록 페이지 상단에만 둔다.
+- 과외·수업·학생 같은 외부 맥락을 쓰지 않는다("과외에서 설명할 때", "학생들이 자주 틀리는" 등). 수학적 대상과 논리 구조만 다룬다. 과외 관련 소개는 Teaching 페이지에만 둔다.
 - 요령·팁 어조("적는 다섯 줄", "한 줄로 읽기") 대신 정확한 수학 용어를 쓴다(대수적 구조, 동치성, 점근적 거동 등).
 - "자주 하는 실수"는 "자주 발생하는 논리적 오류" 또는 "주요 오개념"으로 쓴다.
 - "끝 행동"은 "양 끝에서의 극한" 또는 "점근적 거동(asymptotic behavior)"으로 쓴다.
-- 앞머리에 `note: "11-10-01"` 과 `subject: Math` 를 넣는다. 과목 홈(`/teaching/math/` 등)은 `_data/teaching.yml` 의 과목·장·주제 목록을 읽고, `note` 의 앞 다섯 자리(예: `11-10`)가 같은 주제 아래에 노트를 놓는다.
-- 새 주제(예: 11-30)나 새 과목을 시작하면 `_data/teaching.yml` 에 먼저 추가한다. 새 과목은 `_pages/teaching-<slug>.md` 도 만든다(`layout: teaching-subject`, `subject:`, `permalink: /teaching/<slug>/`).
+- 앞머리에 `note: "11-10-01"` 과 `subject: Math` 를 넣는다. 과목 홈(`/notes/math/` 등)은 `_data/notes.yml` 의 과목·장·주제 목록을 읽고, `note` 의 앞 다섯 자리(예: `11-10`)가 같은 주제 아래에 노트를 놓는다.
+- 새 주제(예: 11-30)나 새 과목을 시작하면 `_data/notes.yml` 에 먼저 추가한다. 새 과목은 `_pages/notes-<slug>.md` 도 만든다(`layout: notes-subject`, `subject:`, `permalink: /notes/<slug>/`). 노트가 하나도 없는 과목이나 주제는 넣지 않는다.
 
 ### 노트 번호 목록
 
 | 노트 번호 | 문서 |
 |-----------|------|
-| 11-10-01 | Teaching: ε-δ 논법과 극한의 정의 (`epsilon-delta-limit-definition`) |
-| 11-10-02 | Teaching: 로피탈 정리가 성립하는 이유 |
-| 11-20-01 | Teaching: 다항함수·유리함수 개형 (`polynomial-rational-function-graphing`) |
+| 11-10-01 | Notes: ε-δ 논법과 극한의 정의 (`epsilon-delta-limit-definition`) |
+| 11-10-02 | Notes: 로피탈 정리가 성립하는 이유 |
+| 11-20-01 | Notes: 다항함수·유리함수 개형 (`polynomial-rational-function-graphing`) |
 | 11-30-01 | Blog: 유수 정리로 실적분 계산 |
-| 12-10-01 | Teaching: 함수 변환과 역함수 |
-| 12-20-01 | Teaching: 조립제법과 Horner 방법 (`synthetic-division-and-horner-method`) |
-| 21-10-01 | Teaching: 화성 역행과 회합 주기 |
+| 12-10-01 | Notes: 함수 변환과 역함수 |
+| 12-20-01 | Notes: 조립제법과 Horner 방법 (`synthetic-division-and-horner-method`) |
+| 21-10-01 | Notes: 화성 역행과 회합 주기 |
 | 31-00-00 ~ 31-08-00 | 가이드 LAMMPS 기초: 개요, 1~8장 |
 | 32-00-00 ~ 32-08-00 | 가이드 Cu 응용: 개요, 1~8장 |
 | 33-01-00 ~ 33-04-00 | 가이드 예제 1~4 |

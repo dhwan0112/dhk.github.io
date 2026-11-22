@@ -16,8 +16,9 @@
             <a href="{{ '/guides/shell/' | relative_url }}" class="sidebar-link">Shell scripting</a>
             <a href="{{ '/fortran/' | relative_url }}" class="sidebar-link">Fortran</a>
         </div>
+        <a href="{{ '/notes/' | relative_url }}" class="sidebar-link {% if page.url == '/notes/' or page.collection == 'notes' or page.layout == 'notes-subject' %}active{% endif %}">Notes</a>
         <a href="{{ '/blog/' | relative_url }}" class="sidebar-link {% if page.url contains '/blog' or page.collection == 'posts' %}active{% endif %}">Blog</a>
-        <a href="{{ '/teaching/' | relative_url }}" class="sidebar-link {% if page.url == '/teaching/' or page.collection == 'teaching' or page.layout == 'teaching-subject' %}active{% endif %}">Teaching</a>
+        <a href="{{ '/teaching/' | relative_url }}" class="sidebar-link {% if page.url == '/teaching/' %}active{% endif %}">Teaching</a>
         <a href="{{ '/education/' | relative_url }}" class="sidebar-link {% if page.url == '/education/' %}active{% endif %}">Education</a>
     </nav>
 

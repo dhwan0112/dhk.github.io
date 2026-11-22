@@ -1,4 +1,4 @@
-# Subject homes for the Teaching collection.
+# Subject homes for the Notes collection.
 # A note belongs to a topic when its `note` front matter starts with the topic code.
 - key: Math
   slug: math
