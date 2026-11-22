@@ -224,7 +224,7 @@ LAMMPS 가이드 소스(`guides/lammps/.build/src/`)는 `convert.py` 가 `{: ...
 | 11-10-01 | Notes: ε-δ 논법과 극한의 정의 (`epsilon-delta-limit-definition`) |
 | 11-10-02 | Notes: 로피탈 정리가 성립하는 이유 |
 | 11-20-01 | Notes: 다항함수·유리함수 개형 (`polynomial-rational-function-graphing`) |
-| 11-30-01 | Blog: 유수 정리로 실적분 계산 |
+| 11-30-01 | Notes: 유수 정리로 실적분 계산 |
 | 12-10-01 | Notes: 함수 변환과 역함수 |
 | 12-20-01 | Notes: 조립제법과 Horner 방법 (`synthetic-division-and-horner-method`) |
 | 21-10-01 | Notes: 화성 역행과 회합 주기 |
