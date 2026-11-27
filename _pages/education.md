@@ -9,7 +9,7 @@ permalink: /education/
 <article class="project">
     <p class="project-when">August 2022 to present</p>
     <h2>National University of Singapore</h2>
-    <p>B.Sc. (Honours) in Chemistry, computational chemistry with A/P Liviu Ungur. Leave of absence in AY2022/23 Semester 2.</p>
+    <p>B.Sc. (Honours) in Chemistry, computational chemistry with Asst. Prof. Liviu Ungur. Leave of absence in AY2022/23 Semester 2.</p>
     <p>Cumulative CAP 3.71 / 5.00 (Honours with Merit). Semester CAP rose from 3.30 to 4.25 over six semesters, the latest being AY2025/26 Semester 1.</p>
     <p>Research modules: CM2288 (B+), CM3288 (A) and CM3289 (A). See <a href="{{ '/research/' | relative_url }}">Research</a>.</p>
     <h3>Coursework closest to my research</h3>

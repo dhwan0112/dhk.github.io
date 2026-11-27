@@ -1,0 +1,6 @@
+{%- comment -%}
+Prints <a> for include.path only when that file is part of the site.
+Usage: {% include file-link.html path="/files/x.pdf" label="Report (PDF)" %}
+{%- endcomment -%}
+{%- assign file_found = site.static_files | where: "path", include.path | first -%}
+{%- if file_found -%}<a href="{{ include.path | relative_url }}">{{ include.label }}</a>{%- endif -%}

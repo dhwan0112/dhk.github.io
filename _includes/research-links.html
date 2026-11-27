@@ -1,0 +1,22 @@
+{%- comment -%}
+Links and optional thumbnail for one project in _data/research.yml.
+Only files that exist are shown. Usage: {% include research-links.html project=p %}
+{%- endcomment -%}
+{%- assign shown = "" | split: "" -%}
+{%- for link in include.project.links -%}
+  {%- assign link_file = site.static_files | where: "path", link.path | first -%}
+  {%- if link_file -%}
+    {%- capture anchor -%}<a href="{{ link.path | relative_url }}">{{ link.label }}</a>{%- endcapture -%}
+    {%- assign shown = shown | push: anchor -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- if shown.size > 0 -%}
+<p class="project-links">{{ shown | join: " · " }}</p>
+{%- endif -%}
+{%- if include.thumbnail and include.project.thumbnail -%}
+  {%- assign thumb_file = site.static_files | where: "path", include.project.thumbnail | first -%}
+  {%- if thumb_file and include.project.links.size > 1 -%}
+  {%- assign poster = include.project.links | where: "label", "Poster (PDF)" | first -%}
+<a class="project-thumb" href="{{ poster.path | default: include.project.links[0].path | relative_url }}"><img src="{{ include.project.thumbnail | relative_url }}" alt="{{ include.project.thumbnail_alt }}" loading="lazy" width="600"></a>
+  {%- endif -%}
+{%- endif -%}

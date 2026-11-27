@@ -1,0 +1,34 @@
+# Research projects, newest first.
+# Used by the home page (title, when, summary, links) and by _pages/research.md
+# (title, period, tools, links). The long descriptions stay in research.md.
+# A link is shown only when its file exists under files/, so a missing PDF
+# never produces a broken link.
+
+- id: fe-oxidation
+  title: "Neural network potential for atomistic simulation of iron surface oxidation"
+  when: "2026–"
+  period: "Final-year project, CM4288. AY2025/26 Semester 2 to present."
+  summary: "Final-year project (CM4288). A magnetic neural-network potential for iron and its oxides with a continuous spin descriptor, trained on spin-polarised DFT from Quantum ESPRESSO."
+  tools: "Quantum ESPRESSO, RuNNer 2.0, LAMMPS (ML-RUNNER), Python."
+  thumbnail: /files/research/cm4288/cm4288-poster.webp
+  thumbnail_alt: "First page of the CM4288 poster"
+  links:
+    - label: Report (PDF)
+      path: /files/research/cm4288/cm4288-report.pdf
+    - label: Poster (PDF)
+      path: /files/research/cm4288/cm4288-poster.pdf
+
+- id: cu-benzene-ethanol
+  title: "Benzene and ethanol on Cu(100)"
+  when: "2025"
+  period: "UROPS, CM3288 and CM3289. AY2024/25 Semester 2 to AY2025/26 Semester 1."
+  summary: "UROPS (CM3288, CM3289). Classical MD in LAMMPS comparing OPLS-AA with TraPPE-UA, and PPPM with MSM electrostatics. Poster at the NUS Science Summer Institute 2025 symposium."
+  tools: "LAMMPS, OPLS-AA, TraPPE-UA, PPPM, MSM, Python."
+
+# Unpublished collaborative data: no file links for this project.
+- id: dy3
+  title: "Exchange and anisotropy in a Dy<sub>3</sub> triangle"
+  when: "2024"
+  period: "UROPS, CM2288. AY2023/24 Semester 2."
+  summary: "UROPS (CM2288). CASSCF/NEVPT2 with spin–orbit coupling in ORCA; exchange coupling fitted to magnetic data with POLY_ANISO."
+  tools: "ORCA (CASSCF, NEVPT2, QDPT), SINGLE_ANISO, POLY_ANISO."

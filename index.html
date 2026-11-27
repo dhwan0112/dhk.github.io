@@ -7,7 +7,7 @@ title: Donghwan KIM
     <img src="{{ '/images/hero-nus.jpg' | relative_url }}" alt="" class="hero-photo" width="1920" height="1496" fetchpriority="high">
     <div class="hero-text">
         <h1 class="hero-name">Donghwan KIM</h1>
-        <p class="hero-lede">Final-year chemistry student at the National University of Singapore, working on computational chemistry in A/P Liviu Ungur’s group.</p>
+        <p class="hero-lede">Final-year chemistry student at the National University of Singapore, working on computational chemistry in Asst. Prof. Liviu Ungur’s group.</p>
     </div>
 </header>
 
@@ -22,27 +22,16 @@ title: Donghwan KIM
 <section class="home-section" id="research">
     <h2>Research</h2>
     <ol class="entries">
+        {% for p in site.data.research %}
         <li>
-            <span class="when">2026–</span>
+            <span class="when">{{ p.when }}</span>
             <div>
-                <p class="entry-title">A reactive machine-learning potential for iron oxidation</p>
-                <p>Final-year project (CM4288). The training data come from periodic DFT in Quantum ESPRESSO.</p>
+                <p class="entry-title">{{ p.title }}</p>
+                <p>{{ p.summary }}</p>
+                {% include research-links.html project=p %}
             </div>
         </li>
-        <li>
-            <span class="when">2025</span>
-            <div>
-                <p class="entry-title">Benzene and ethanol on Cu(100) and Cu(111)</p>
-                <p>UROPS (CM3288, CM3289). Classical MD in LAMMPS comparing OPLS-AA with TraPPE-UA, and PPPM with MSM electrostatics. Poster at the NUS Science Summer Institute 2025 symposium.</p>
-            </div>
-        </li>
-        <li>
-            <span class="when">2024</span>
-            <div>
-                <p class="entry-title">Exchange and anisotropy in a Dy<sub>3</sub> triangle</p>
-                <p>UROPS (CM2288). CASSCF/NEVPT2 with spin–orbit coupling in ORCA; exchange coupling fitted to magnetic data with POLY_ANISO.</p>
-            </div>
-        </li>
+        {% endfor %}
     </ol>
     <p class="more"><a href="{{ '/research/' | relative_url }}">Full project descriptions</a></p>
 </section>
