@@ -1516,3 +1516,9 @@ math {
 .presentations li {
     margin-bottom: 0.4rem;
 }
+
+/* Teaching has nothing below its header, so the header needs no rule */
+.blog-index-header-plain {
+    border-bottom: 0;
+    padding-bottom: 0;
+}

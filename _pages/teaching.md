@@ -6,7 +6,7 @@ permalink: /teaching/
 ---
 
 <div class="blog-index">
-    <header class="blog-index-header">
+    <header class="blog-index-header blog-index-header-plain">
         <h1 class="blog-index-title">Teaching</h1>
         <div class="teaching-summary">
             <p>I started tutoring in Grade 11, around 2020, and still teach one-on-one and online.</p>
