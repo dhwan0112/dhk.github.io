@@ -1428,3 +1428,60 @@ sub, sup {
 math {
   font-family: 'IBM Plex Math', math;
 }
+
+/* ChemViz players: SVG animations drawn from data (assets/js/chemviz.js) */
+.cv-player {
+    --cv-ink: var(--ink);
+    --cv-paper: var(--paper);
+    max-width: 480px;
+    margin: 1.75em auto 0.5em;
+}
+
+.cv-player .cv-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    font-family: var(--font-sans);
+}
+
+.cv-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.cv-play {
+    flex: none;
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.cv-play:hover,
+.cv-play:focus-visible {
+    border-color: var(--prussian);
+}
+
+.cv-scrub {
+    flex: 1;
+    min-width: 0;
+    accent-color: var(--prussian);
+}
+
+.cv-clock {
+    flex: none;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+}

@@ -43,3 +43,20 @@
         - code: "21-10"
           name: 행성 운동
           blurb: "외행성의 역행과 회합 주기."
+
+- key: Chemistry
+  slug: chemistry
+  name: Chemistry
+  ko: 화학
+  lede: "교과서 실험과 분포를 직접 시뮬레이션해 보고, 해석식과 수치로 맞춰 본 화학 노트."
+  chapters:
+    - code: "31"
+      name: 물리화학
+      en: Physical Chemistry
+      topics:
+        - code: "31-10"
+          name: 원자 구조
+          blurb: "러더퍼드 산란을 건포도 푸딩 모형의 예측과 핵 모형의 관측으로 나눠 비교."
+        - code: "31-20"
+          name: 기체 분자 운동론
+          blurb: "같은 속력에서 출발한 기체가 충돌로 맥스웰-볼츠만 분포에 도달하는 과정과 입자 수에 따른 수렴."
