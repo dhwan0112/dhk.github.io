@@ -46,7 +46,7 @@ permalink: /research/
     <h2>Presentations</h2>
     <ul class="presentations">
         {% for talk in site.data.presentations %}
-        <li>{{ talk.title }}, {{ talk.venue }}, {{ talk.year }}.{% if talk.path %} {% include file-link.html path=talk.path label="PDF" %}{% endif %}</li>
+        <li>{{ talk.title }}{% if talk.venue %}, {{ talk.venue }}{% endif %}, {{ talk.year }}.{% if talk.path %} {% include file-link.html path=talk.path label="PDF" %}{% endif %}</li>
         {% endfor %}
     </ul>
 </section>

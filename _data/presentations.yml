@@ -1,6 +1,5 @@
-# Talks and posters, newest first. `path` is optional and shown only if the file exists.
+# Talks and posters, newest first. `venue` and `path` are optional; `path` is shown only if the file exists.
 - title: "CM4288 final-year project poster presentation"
-  venue: "NUS Department of Chemistry"
   year: 2026
   path: /files/research/cm4288/cm4288-poster.pdf
 - title: "Benzene and ethanol on Cu(100)"
