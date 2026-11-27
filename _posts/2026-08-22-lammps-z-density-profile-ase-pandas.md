@@ -1,4 +1,5 @@
 ---
+lang: ko
 title: "LAMMPS 덤프에서 z 방향 밀도 프로파일 계산"
 date: 2026-08-22
 category: Computation

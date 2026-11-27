@@ -1,6 +1,7 @@
 # Site settings
 title: Donghwan KIM
-description: Chemistry Student | Tutor
+description: "Chemistry undergraduate at NUS working on machine-learned interatomic potentials and magnetism in computational chemistry."
+lang: en
 author: Donghwan KIM
 email: e1075536@u.nus.edu
 url: "https://dhwan0112.github.io"
@@ -44,6 +45,7 @@ defaults:
       type: "notes"
     values:
       layout: "post"
+      lang: "ko"
   - scope:
       path: "fortran"
     values:

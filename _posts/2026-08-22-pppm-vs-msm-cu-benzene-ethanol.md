@@ -1,4 +1,5 @@
 ---
+lang: ko
 title: "Cu–벤젠–에탄올 계에서 PPPM과 MSM 비교"
 date: 2026-08-22
 category: Computation

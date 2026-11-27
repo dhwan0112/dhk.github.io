@@ -1,4 +1,5 @@
 ---
+lang: ko
 layout: page
 title: Guides
 description: 계산화학을 시작하는 사람을 위해 쓴 프로그램 사용 가이드입니다. 대부분 한국어로 썼고 일부는 영어판이 있습니다. Quantum ESPRESSO 가이드는 영어로 썼습니다.
