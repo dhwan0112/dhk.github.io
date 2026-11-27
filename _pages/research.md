@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Research
+excerpt: "Research projects in the Ungur group at NUS: a neural network potential for iron surface oxidation, molecular dynamics of benzene and ethanol on Cu(100), and multireference calculations on a Dy3 triangle."
 permalink: /research/
 ---
 
@@ -24,7 +25,7 @@ permalink: /research/
 <article class="project" id="{{ p.id }}">
     <p class="project-when">{{ p.period }}</p>
     <h2>{{ p.title }}</h2>
-    <p>I simulated a benzene/ethanol mixture in contact with copper surfaces using classical MD in LAMMPS. To separate the effect of the force field from the effect of the long-range electrostatics, I ran four combinations (OPLS-AA or TraPPE-UA, each with PPPM or MSM) through the same five-stage protocol: soft-potential relaxation, energy minimisation, staged heating, equilibration and production.</p>
+    <p>I simulated a benzene/ethanol mixture in contact with a Cu(100) surface using classical MD in LAMMPS. To separate the effect of the force field from the effect of the long-range electrostatics, I ran four combinations (OPLS-AA or TraPPE-UA, each with PPPM or MSM) through the same five-stage protocol: soft-potential relaxation, energy minimisation, staged heating, equilibration and production.</p>
     <p>I wrote the Python tooling for setting up and analysing the runs (ASE, NumPy, SciPy, pandas, matplotlib): radial distribution functions, density profiles, surface excess and interfacial tension, averaged over replicate simulations. I presented intermediate results as a poster at the NUS Science Summer Institute 2025 symposium. The <a href="{{ '/guides/lammps/' | relative_url }}">Korean LAMMPS guide</a> grew out of this project.</p>
     <p>A later check found that the copper slab in the PPPM/MSM comparison run was not a correct fcc(100) surface, so absolute first-layer values from that run should not be read as Cu(100) values. The comparison between the two methods still holds because both used the same slab. Details are in the <a href="{{ '/blog/2026/08/22/pppm-vs-msm-cu-benzene-ethanol/' | relative_url }}">PPPM and MSM note</a>.</p>
     <p>A Cu(111) comparison is planned.</p>
